@@ -1,0 +1,18 @@
+version: '3.1'
+
+services:
+
+  argos-service:
+    build:
+      context: .
+      dockerfile: ServiceDockerfile
+    environment:
+      spring.data.mongodb.uri: mongodb://mongodb/test
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongodb
+  mongodb:
+    image: mongo:4.2.0-bionic
+    ports:
+      - 27017:27017

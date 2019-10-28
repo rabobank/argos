@@ -1,0 +1,153 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Argos Service
+  license:
+    name: Apache License 2.0
+servers:
+  - url: http://localhost:8080/api
+paths:
+  /link/{supplyChainId}/query:
+    get:
+      summary: find link
+      operationId: findLink
+      tags:
+        - link
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+        - name: hash
+          in: query
+          description: hash of product or material
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: array of links
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LinkMetaBlock"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /link/{supplyChainId}:
+    post:
+      summary: Create a link
+      operationId: createLink
+      tags:
+        - link
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LinkMetaBlock"
+      responses:
+        '201':
+          description: Null response
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    LinkMetaBlock:
+      type: object
+      properties:
+        signatures:
+          type: array
+          items:
+            $ref: "#/components/schemas/Signature"
+        signed:
+          $ref: "#/components/schemas/Link"
+    Signature:
+      type: object
+      properties:
+        keyId:
+          type: string
+        sig:
+          type: string
+    Link:
+      type: object
+      required:
+        - stepName
+      properties:
+        byProducts:
+          $ref: "#/components/schemas/ByProducts"
+        command:
+          type: array
+          items:
+            type: string
+        environment:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentVariable"
+        materials:
+          description: let op!!! gesorteerd op uri
+          type: array
+          items:
+            $ref: "#/components/schemas/Artifact"
+        stepName:
+          type: string
+        products:
+          items:
+            $ref: "#/components/schemas/Artifact"
+    Artifact:
+      type: object
+      properties:
+        uri:
+          type: string
+          format: string
+        hashAlgorithm:
+          type: string
+          enum:
+            - sha254
+            - sha512
+        hash:
+          type: string
+    EnvironmentVariable:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    ByProducts:
+      type: object
+      properties:
+        returnValue:
+          type: number
+        stderr:
+          type: string
+        stdout:
+          type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
