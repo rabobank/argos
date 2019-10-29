@@ -120,7 +120,7 @@ components:
         hashAlgorithm:
           type: string
           enum:
-            - sha254
+            - sha256
             - sha512
         hash:
           type: string

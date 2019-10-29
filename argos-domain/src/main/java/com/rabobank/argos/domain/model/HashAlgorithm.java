@@ -1,6 +1,6 @@
 package com.rabobank.argos.domain.model;
 
 public enum HashAlgorithm {
-    SHA254,
+    SHA256,
     SHA512
 }
