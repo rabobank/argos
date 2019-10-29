@@ -21,6 +21,8 @@
 		<spring-boot.version>2.2.0.RELEASE</spring-boot.version>
 		<org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
 		<lombok.version>1.18.10</lombok.version>
+		<pitest.version>1.4.10</pitest.version>
+		<sonar.exclusions>file:**/generated-sources/**</sonar.exclusions>
 	</properties>
 
 	<dependencies>
@@ -64,4 +66,58 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>pitest</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.pitest</groupId>
+						<artifactId>pitest-maven</artifactId>
+						<version>${pitest.version}</version>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>mutationCoverage</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<threads>4</threads>
+							<timeoutConstant>10000</timeoutConstant>
+							<timestampedReports>false</timestampedReports>
+							<mutationThreshold>90</mutationThreshold>
+							<failWhenNoMutations>true</failWhenNoMutations>
+							<reportsDirectory>${project.build.directory}/pi-report</reportsDirectory>
+
+							<avoidCallsTo>
+								<avoidCallsTo>java.security</avoidCallsTo>
+								<avoidCallsTo>org.slf4j</avoidCallsTo>
+							</avoidCallsTo>
+							<excludedClasses>
+								<excludedClasse>com.rabobank.argos.argos4j.rest.api.*</excludedClasse>
+								<excludedClasse>com.rabobank.argos.service.adapter.in.rest.api.*</excludedClasse>
+								<excludedClasse>*MapperImpl</excludedClasse>
+							</excludedClasses>
+							<targetClasses>
+								<param>com.rabobank.argos.*</param>
+							</targetClasses>
+							<outputFormats>
+								<format>XML</format>
+								<format>HTML</format>
+							</outputFormats>
+						</configuration>
+						<dependencies>
+							<dependency>
+								<groupId>org.pitest</groupId>
+								<artifactId>pitest-junit5-plugin</artifactId>
+								<version>0.10</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

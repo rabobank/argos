@@ -22,7 +22,6 @@ import java.io.Reader;
 
 public class Argos4JSigner {
 
-
     public Signature sign(SigningKey signingKey, String jsonRepr) {
         return Signature.builder().keyId(computeKeyId(jsonRepr)).signature(createSignature(signingKey, jsonRepr)).build();
     }
@@ -30,7 +29,7 @@ public class Argos4JSigner {
     private String createSignature(SigningKey signingKey, String jsonRepr) {
         byte[] payload = jsonRepr.getBytes();
         AsymmetricKeyParameter privateKeyParameter = getPrivateKeyParameter(signingKey);
-        Signer signer = getSigner(signingKey, privateKeyParameter);
+        Signer signer = getSigner(privateKeyParameter);
         signer.init(true, privateKeyParameter);
         signer.update(payload, 0, payload.length);
         try {
@@ -40,7 +39,7 @@ public class Argos4JSigner {
         }
     }
 
-    private Signer getSigner(SigningKey signingKey, AsymmetricKeyParameter privateKeyParameter) {
+    private Signer getSigner(AsymmetricKeyParameter privateKeyParameter) {
         AsymmetricBlockCipher engine = new RSAEngine();
         engine.init(false, privateKeyParameter);
         SHA256Digest digest = new SHA256Digest();
