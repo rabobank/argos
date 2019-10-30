@@ -9,9 +9,14 @@ public class Argos4jSettings {
 
     public static final String DEFAULT_EXCLUDE_PATTERNS = "**.{git,link}**";
 
+    @Builder.Default
     private final String excludePatterns = DEFAULT_EXCLUDE_PATTERNS;
-    private final boolean followSymlinkDirs;
-    private final boolean normalizeLineEndings;
+
+    @Builder.Default
+    private final boolean followSymlinkDirs = true;
+
+    @Builder.Default
+    private final boolean normalizeLineEndings = true;
 
     private final String supplyChainId;
     private final String stepName;

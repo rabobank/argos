@@ -23,6 +23,8 @@
 		<lombok.version>1.18.10</lombok.version>
 		<pitest.version>1.4.10</pitest.version>
 		<sonar.exclusions>file:**/generated-sources/**</sonar.exclusions>
+		<junit-jupiter.version>5.5.2</junit-jupiter.version>
+		<hamcrest.version>2.1</hamcrest.version>
 	</properties>
 
 	<dependencies>
@@ -87,7 +89,8 @@
 							<threads>4</threads>
 							<timeoutConstant>10000</timeoutConstant>
 							<timestampedReports>false</timestampedReports>
-							<mutationThreshold>90</mutationThreshold>
+							<mutationThreshold>60</mutationThreshold>
+							<coverageThreshold>80</coverageThreshold>
 							<failWhenNoMutations>true</failWhenNoMutations>
 							<reportsDirectory>${project.build.directory}/pi-report</reportsDirectory>
 

@@ -3,10 +3,13 @@ package com.rabobank.argos.argos4j;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,14 +17,28 @@ import java.net.ServerSocket;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.noContent;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class Argos4jTest {
 
     private Argos4j argos4j;
     private WireMockServer wireMockServer;
+
+    @TempDir
+    static File sharedTempDir;
+
+    @BeforeAll
+    static void setUpBefore() throws IOException {
+        FileUtils.write(new File(sharedTempDir, "text.txt"), "cool dit\r\nan other line", "UTF-8");
+    }
 
     @AfterEach
     public void teardown() {
@@ -33,7 +50,6 @@ class Argos4jTest {
         Integer randomPort = findRandomPort();
         wireMockServer = new WireMockServer(randomPort);
         wireMockServer.start();
-        setupStub();
 
 
         Argos4jSettings settings = Argos4jSettings.builder()
@@ -41,7 +57,7 @@ class Argos4jTest {
                 .stepName("build")
                 .supplyChainId("supplyChainId")
                 .signingKey(SigningKey.builder()
-                        .key(IOUtils.toByteArray(getClass().getResourceAsStream("/my-passless-private.key")))
+                        .key(IOUtils.toByteArray(getClass().getResourceAsStream("/bob.key")))
                         .build()).build();
         argos4j = new Argos4j(settings);
 
@@ -54,14 +70,26 @@ class Argos4jTest {
         }
     }
 
-    private void setupStub() {
+    @Test
+    void storeMetablockLinkForDirectory() {
         wireMockServer.stubFor(post(urlEqualTo("/api/link/supplyChainId")).willReturn(noContent()));
+        argos4j.storeMetablockLinkForDirectory(sharedTempDir.getAbsoluteFile(), sharedTempDir.getAbsoluteFile());
+        List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
+        assertThat(requests, hasSize(1));
+        assertThat(requests.get(0).getBodyAsString(), endsWith(",\"signed\":{\"byProducts\":null,\"command\":null,\"environment\":null,\"materials\":[{\"uri\":\"text.txt\",\"hashAlgorithm\":\"sha256\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hashAlgorithm\":\"sha256\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}]}}"));
     }
 
     @Test
-    void storeMetablockLinkForDirectory() {
-        argos4j.storeMetablockLinkForDirectory(new File("."), new File("."));
-        List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
-        assertEquals(1, requests.size());
+    void storeMetablockLinkForDirectoryFailed() {
+        wireMockServer.stubFor(post(urlEqualTo("/api/link/supplyChainId")).willReturn(serverError()));
+        Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.storeMetablockLinkForDirectory(sharedTempDir.getAbsoluteFile(), sharedTempDir.getAbsoluteFile()));
+        assertThat(error.getMessage(), is("500 Server Error"));
+    }
+
+    @Test
+    void storeMetablockLinkForDirectoryUnexectedResonse() {
+        wireMockServer.stubFor(post(urlEqualTo("/api/link/supplyChainId")).willReturn(ok()));
+        Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.storeMetablockLinkForDirectory(sharedTempDir.getAbsoluteFile(), sharedTempDir.getAbsoluteFile()));
+        assertThat(error.getMessage(), is("service returned code 200 message: OK"));
     }
 }

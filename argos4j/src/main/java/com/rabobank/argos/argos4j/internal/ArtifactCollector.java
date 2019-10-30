@@ -37,7 +37,7 @@ public class ArtifactCollector {
         this.basePath = basePath;
         this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + this.settings.getExcludePatterns());
         if (basePath != null && !Paths.get(basePath).toFile().exists()) {
-            throw new Argos4jError(String.format("Base path %s doesn't exist", basePath));
+            throw new Argos4jError("Base path " + basePath + " doesn't exist");
         }
     }
 
