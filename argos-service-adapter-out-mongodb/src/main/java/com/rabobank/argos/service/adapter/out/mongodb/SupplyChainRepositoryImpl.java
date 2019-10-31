@@ -20,7 +20,7 @@ public class SupplyChainRepositoryImpl implements SupplyChainRepository {
     private final MongoTemplate template;
 
     @PostConstruct
-    public void postPostConstruct(){
+    public void postConstruct() {
         template.indexOps(COLLECTION).ensureIndex(HashedIndex.hashed("supplyChainId"));
     }
 

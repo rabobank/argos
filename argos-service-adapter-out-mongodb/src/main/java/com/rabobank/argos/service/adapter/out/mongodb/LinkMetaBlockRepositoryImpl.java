@@ -21,14 +21,14 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class LinkMetaBlockMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
+public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
 
     private static final String COLLECTION = "linkMetaBlocks";
 
     private final MongoTemplate template;
 
     @PostConstruct
-    public void postPostConstruct() {
+    public void postConstruct() {
         createIndex(HashedIndex.hashed("supplyChainId"));
         createIndex(new CompoundIndexDefinition(new Document("link.materials.hash",1)).named("link.materials.hash"));
         createIndex(new CompoundIndexDefinition(new Document("link.products.hash",1)).named("link.products.hash"));
