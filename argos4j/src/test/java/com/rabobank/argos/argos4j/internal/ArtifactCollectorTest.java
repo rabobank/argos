@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -81,11 +82,11 @@ class ArtifactCollectorTest {
 
     @Test
     void collectOnFileWithBasePath() {
-        List<Artifact> artifacts = new ArtifactCollector(Argos4jSettings.builder().build(), onFileDir.getPath()).collect("");
+        List<Artifact> artifacts = sort(new ArtifactCollector(Argos4jSettings.builder().build(), onFileDir.getPath()).collect(""));
         assertThat(artifacts, hasSize(3));
-        checkTextartifact(artifacts.get(0));
-        checkLevel2File(artifacts.get(1), "linkdir");
-        checkLevel2Zip(artifacts.get(2), "linkdir");
+        checkLevel2File(artifacts.get(0), "linkdir");
+        checkLevel2Zip(artifacts.get(1), "linkdir");
+        checkTextartifact(artifacts.get(2));
     }
 
     private void checkTextartifact(Artifact artifact) {
@@ -96,7 +97,7 @@ class ArtifactCollectorTest {
 
     @Test
     void collectMultiLevelWithBasePath() {
-        List<Artifact> artifacts = new ArtifactCollector(Argos4jSettings.builder().normalizeLineEndings(true).build(), multilevelDir.getPath()).collect("");
+        List<Artifact> artifacts = sort(new ArtifactCollector(Argos4jSettings.builder().normalizeLineEndings(true).build(), multilevelDir.getPath()).collect(""));
         assertThat(artifacts, hasSize(3));
         Artifact artifact1 = artifacts.get(0);
         assertThat(artifact1.getUri(), is("level1.txt"));
@@ -124,6 +125,11 @@ class ArtifactCollectorTest {
         List<Artifact> artifacts = new ArtifactCollector(Argos4jSettings.builder().followSymlinkDirs(false).build(), onFileDir.getPath()).collect("");
         assertThat(artifacts, hasSize(1));
         checkTextartifact(artifacts.get(0));
+    }
+
+    private List<Artifact> sort(List<Artifact> artifacts) {
+        artifacts.sort(Comparator.comparing(Artifact::getUri));
+        return artifacts;
     }
 
     @Test
