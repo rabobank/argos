@@ -72,37 +72,38 @@ components:
   schemas:
     LinkMetaBlock:
       type: object
+      required:
+        - signature
+        - link
       properties:
-        signatures:
-          type: array
-          items:
-            $ref: "#/components/schemas/Signature"
-        signed:
+        signature:
+          $ref: "#/components/schemas/Signature"
+        link:
           $ref: "#/components/schemas/Link"
     Signature:
       type: object
       properties:
         keyId:
           type: string
-        sig:
+          minLength: 64
+          maxLength: 64
+          pattern: "[0-9a-f]"
+        signature:
           type: string
+          minLength: 768
+          maxLength: 768
+          pattern: "[0-9a-f]"
     Link:
       type: object
       required:
         - stepName
       properties:
-        byProducts:
-          $ref: "#/components/schemas/ByProducts"
         command:
           type: array
           items:
             type: string
-        environment:
-          type: array
-          items:
-            $ref: "#/components/schemas/EnvironmentVariable"
+            pattern: "[0-9a-zA-Z]"
         materials:
-          description: let op!!! gesorteerd op uri
           type: array
           items:
             $ref: "#/components/schemas/Artifact"
@@ -116,30 +117,12 @@ components:
       properties:
         uri:
           type: string
-          format: string
-        hashAlgorithm:
-          type: string
-          enum:
-            - sha256
-            - sha512
+          pattern: "^(\/?[\p{L}0-9. _-]+)+\/?$"
         hash:
           type: string
-    EnvironmentVariable:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          type: string
-    ByProducts:
-      type: object
-      properties:
-        returnValue:
-          type: number
-        stderr:
-          type: string
-        stdout:
-          type: string
+          minLength: 64
+          maxLength: 64
+          pattern: "[0-9a-f]"
     Error:
       type: object
       required:
