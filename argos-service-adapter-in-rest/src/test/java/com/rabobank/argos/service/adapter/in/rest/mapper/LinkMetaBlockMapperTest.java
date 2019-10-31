@@ -17,7 +17,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {LinkMetaBlockMapperImpl.class, SignatureMapperImpl.class})
+@SpringBootTest(classes = {LinkMetaBlockMapperImpl.class})
 class LinkMetaBlockMapperTest {
 
     @Autowired

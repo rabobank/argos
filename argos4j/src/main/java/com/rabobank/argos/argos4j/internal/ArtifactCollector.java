@@ -4,7 +4,6 @@ package com.rabobank.argos.argos4j.internal;
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.Argos4jSettings;
 import com.rabobank.argos.domain.model.Artifact;
-import com.rabobank.argos.domain.model.HashAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.input.UnixLineEndingInputStream;
 import org.bouncycastle.crypto.digests.SHA256Digest;
@@ -61,7 +60,7 @@ public class ArtifactCollector {
             if (Files.isRegularFile(path)) {
                 // normalize path separator and create Artifact
                 this.artifacts.add(Artifact.builder().uri(file.replace("\\", "/"))
-                        .hash(createHash(path.toString())).hashAlgorithm(HashAlgorithm.SHA256).build());
+                        .hash(createHash(path.toString())).build());
             } else {
                 if ((Files.isSymbolicLink(path) && settings.isFollowSymlinkDirs())
                         || (path.toFile().isDirectory() && !Files.isSymbolicLink(path))) {

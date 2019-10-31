@@ -76,7 +76,7 @@ class Argos4jTest {
         argos4j.storeMetablockLinkForDirectory(sharedTempDir.getAbsoluteFile(), sharedTempDir.getAbsoluteFile());
         List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
         assertThat(requests, hasSize(1));
-        assertThat(requests.get(0).getBodyAsString(), endsWith(",\"signed\":{\"byProducts\":null,\"command\":null,\"environment\":null,\"materials\":[{\"uri\":\"text.txt\",\"hashAlgorithm\":\"sha256\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hashAlgorithm\":\"sha256\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}]}}"));
+        assertThat(requests.get(0).getBodyAsString(), endsWith(",\"link\":{\"command\":null,\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}]}}"));
     }
 
     @Test

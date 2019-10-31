@@ -10,8 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class LinkMetaBlock {
-
     private String supplyChainId;
-    private List<Signature> signatures;
+    private Signature signature;
     private Link link;
 }

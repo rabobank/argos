@@ -3,7 +3,6 @@ package com.rabobank.argos.argos4j.internal;
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.Argos4jSettings;
 import com.rabobank.argos.domain.model.Artifact;
-import com.rabobank.argos.domain.model.HashAlgorithm;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -69,8 +68,6 @@ class ArtifactCollectorTest {
     static private byte[] createZip(String content) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-
-
             ZipEntry entry = new ZipEntry("test.txt");
             entry.setTimeLocal(LocalDateTime.of(2019, 12, 31, 23, 34, 0, 0));
             zos.putNextEntry(entry);
@@ -91,7 +88,6 @@ class ArtifactCollectorTest {
 
     private void checkTextartifact(Artifact artifact) {
         assertThat(artifact.getUri(), is("text.txt"));
-        assertThat(artifact.getHashAlgorithm(), is(HashAlgorithm.SHA256));
         assertThat(artifact.getHash(), is("616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b"));
     }
 
@@ -101,7 +97,6 @@ class ArtifactCollectorTest {
         assertThat(artifacts, hasSize(3));
         Artifact artifact1 = artifacts.get(0);
         assertThat(artifact1.getUri(), is("level1.txt"));
-        assertThat(artifact1.getHashAlgorithm(), is(HashAlgorithm.SHA256));
         assertThat(artifact1.getHash(), is("6f67ddc1ecfc504571641ed25caff36ccf525edf75263c8d91b5e3de66410713"));
 
         checkLevel2File(artifacts.get(1), "level1");
@@ -110,13 +105,11 @@ class ArtifactCollectorTest {
 
     private void checkLevel2Zip(Artifact artifact, String baseDir) {
         assertThat(artifact.getUri(), is(baseDir + "/level2.zip"));
-        assertThat(artifact.getHashAlgorithm(), is(HashAlgorithm.SHA256));
         assertThat(artifact.getHash(), is("06b2edb9c90eec831a8047275b77c57ca44a0e486ff259f513a72654011f0481"));
     }
 
     private void checkLevel2File(Artifact artifact, String baseDir) {
         assertThat(artifact.getUri(), is(baseDir + "/level2.txt"));
-        assertThat(artifact.getHashAlgorithm(), is(HashAlgorithm.SHA256));
         assertThat(artifact.getHash(), is("c5721bee86deedfd45ad61431a7e43a184782fd9aaa1620d750de06a72984300"));
     }
 
@@ -138,7 +131,6 @@ class ArtifactCollectorTest {
         assertThat(artifacts, hasSize(1));
         Artifact artifact = artifacts.get(0);
         assertThat(artifact.getUri(), is("text.txt"));
-        assertThat(artifact.getHashAlgorithm(), is(HashAlgorithm.SHA256));
         assertThat(artifact.getHash(), is("cb6bdad36690e8024e7df13e6796ae6603f2cb9cf9f989c9ff939b2ecebdcb91"));
     }
 
@@ -148,7 +140,6 @@ class ArtifactCollectorTest {
         assertThat(artifacts, hasSize(1));
         Artifact artifact = artifacts.get(0);
         assertThat(artifact.getUri(), endsWith("notMe.git"));
-        assertThat(artifact.getHashAlgorithm(), is(HashAlgorithm.SHA256));
         assertThat(artifact.getHash(), is("5f0af516936c6ab13dfce52362f84a3c0aa8d87aca8f2bcaf55ad4e1e0178034"));
     }
 
@@ -164,7 +155,6 @@ class ArtifactCollectorTest {
         assertThat(artifacts, hasSize(1));
         Artifact artifact = artifacts.get(0);
         assertThat(artifact.getUri(), endsWith("on file dir/text.txt"));
-        assertThat(artifact.getHashAlgorithm(), is(HashAlgorithm.SHA256));
         assertThat(artifact.getHash(), is("616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b"));
     }
 
@@ -172,8 +162,6 @@ class ArtifactCollectorTest {
     void collectOneFileThatIsInTheIgnoreFilter() {
         List<Artifact> artifacts = new ArtifactCollector(Argos4jSettings.builder().followSymlinkDirs(false).build(), null).collect(ignoredFile.getPath());
         assertThat(artifacts, hasSize(0));
-
     }
-
 
 }

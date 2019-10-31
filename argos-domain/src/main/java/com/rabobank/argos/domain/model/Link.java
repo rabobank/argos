@@ -10,13 +10,8 @@ import java.util.List;
 @Setter
 @Builder
 public class Link {
-
     private String stepName;
-    private ByProducts byProducts;
     private List<String> command;
-    private List<EnvironmentVariable> environment;
     private List<Artifact> materials;
-
     private List<Artifact> products;
-
 }

@@ -13,8 +13,6 @@ import lombok.AllArgsConstructor;
 import java.io.File;
 import java.util.List;
 
-import static java.util.Collections.singletonList;
-
 @AllArgsConstructor
 public class Argos4j {
 
@@ -27,7 +25,7 @@ public class Argos4j {
         ;
         Link link = Link.builder().materials(materials).products(products).stepName(settings.getStepName()).build();
         Signature signature = new Argos4JSigner().sign(settings.getSigningKey(), new JsonSigningSerializer().serialize(link));
-        new ArgosServiceClient(settings).uploadLinkMetaBlockToService(LinkMetaBlock.builder().link(link).signatures(singletonList(signature)).build());
+        new ArgosServiceClient(settings).uploadLinkMetaBlockToService(LinkMetaBlock.builder().link(link).signature(signature).build());
     }
 
 }

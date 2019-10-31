@@ -8,14 +8,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring", uses = {SignatureMapper.class})
+@Mapper(componentModel = "spring")
 public interface LinkMetaBlockMapper {
 
-    @Mappings({
-            @Mapping(source = "signed", target = "link")
-    })
     LinkMetaBlock convertFromRestLinkMetaBlock(RestLinkMetaBlock metaBlock);
 
-    @InheritInverseConfiguration
     RestLinkMetaBlock convertToRestLinkMetaBlock(LinkMetaBlock metaBlock);
 }

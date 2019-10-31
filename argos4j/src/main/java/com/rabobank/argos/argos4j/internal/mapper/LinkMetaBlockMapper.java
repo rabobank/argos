@@ -9,16 +9,12 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {SignatureMapper.class})
+@Mapper
 public interface LinkMetaBlockMapper {
 
     LinkMetaBlockMapper INSTANCE = Mappers.getMapper(LinkMetaBlockMapper.class);
 
-    @Mappings({
-            @Mapping(source = "signed", target = "link")
-    })
     LinkMetaBlock convertFromRestLinkMetaBlock(RestLinkMetaBlock metaBlock);
 
-    @InheritInverseConfiguration
     RestLinkMetaBlock convertToRestLinkMetaBlock(LinkMetaBlock metaBlock);
 }

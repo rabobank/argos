@@ -9,8 +9,5 @@ import lombok.Setter;
 @Setter
 public class Artifact {
     private String uri;
-
-    private HashAlgorithm hashAlgorithm;
-
     private String hash;
 }
