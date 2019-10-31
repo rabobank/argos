@@ -82,17 +82,20 @@ components:
           $ref: "#/components/schemas/Link"
     Signature:
       type: object
+      required:
+        - keyId
+        - signature
       properties:
         keyId:
           type: string
           minLength: 64
           maxLength: 64
-          pattern: "[0-9a-f]"
+          pattern: '^[0-9a-zA-Z]*$'
         signature:
           type: string
           minLength: 768
           maxLength: 768
-          pattern: "[0-9a-f]"
+          pattern: '^[0-9a-zA-Z]*$'
     Link:
       type: object
       required:
@@ -102,7 +105,7 @@ components:
           type: array
           items:
             type: string
-            pattern: "[0-9a-zA-Z]"
+            pattern: '^[0-9a-zA-Z]*$'
         materials:
           type: array
           items:
@@ -114,15 +117,18 @@ components:
             $ref: "#/components/schemas/Artifact"
     Artifact:
       type: object
+      required:
+        - uri
+        - hash
       properties:
         uri:
           type: string
-          pattern: "^(\/?[\p{L}0-9. _-]+)+\/?$"
+          pattern: '^(\/?[\p{L}0-9. _-]+)+\/?$'
         hash:
           type: string
           minLength: 64
           maxLength: 64
-          pattern: "[0-9a-f]"
+          pattern: '^[0-9a-zA-Z]*$'
     Error:
       type: object
       required:
