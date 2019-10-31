@@ -24,7 +24,6 @@
 		<pitest.version>1.4.10</pitest.version>
 		<sonar.exclusions>file:**/generated-sources/**</sonar.exclusions>
 		<junit-jupiter.version>5.5.2</junit-jupiter.version>
-		<hamcrest.version>2.1</hamcrest.version>
 	</properties>
 
 	<dependencies>

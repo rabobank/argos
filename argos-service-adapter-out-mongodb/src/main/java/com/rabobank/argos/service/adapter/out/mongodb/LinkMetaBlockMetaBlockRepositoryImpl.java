@@ -1,7 +1,7 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
-import com.rabobank.argos.domain.model.LinkMetaBlock;
 import com.rabobank.argos.domain.LinkMetaBlockRepository;
+import com.rabobank.argos.domain.model.LinkMetaBlock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -29,11 +29,9 @@ public class LinkMetaBlockMetaBlockRepositoryImpl implements LinkMetaBlockReposi
 
     @PostConstruct
     public void postPostConstruct() {
-
         createIndex(HashedIndex.hashed("supplyChainId"));
         createIndex(new CompoundIndexDefinition(new Document("link.materials.hash",1)).named("link.materials.hash"));
         createIndex(new CompoundIndexDefinition(new Document("link.products.hash",1)).named("link.products.hash"));
-
     }
 
     private void createIndex(IndexDefinition indexDefinition) {
