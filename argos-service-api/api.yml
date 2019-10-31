@@ -90,12 +90,12 @@ components:
           type: string
           minLength: 64
           maxLength: 64
-          pattern: '^[0-9a-zA-Z]*$'
+          pattern: '^[0-9a-f]*$'
         signature:
           type: string
           minLength: 768
           maxLength: 768
-          pattern: '^[0-9a-zA-Z]*$'
+          pattern: '^[0-9a-f]*$'
     Link:
       type: object
       required:
@@ -105,7 +105,7 @@ components:
           type: array
           items:
             type: string
-            pattern: '^[0-9a-zA-Z]*$'
+            pattern: '^[0-9a-f]*$'
         materials:
           type: array
           items:
@@ -128,7 +128,7 @@ components:
           type: string
           minLength: 64
           maxLength: 64
-          pattern: '^[0-9a-zA-Z]*$'
+          pattern: '^[0-9a-f]*$'
     Error:
       type: object
       required:
