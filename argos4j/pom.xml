@@ -12,7 +12,7 @@
 
     <properties>
         <swagger-annotations-version>1.5.22</swagger-annotations-version>
-        <google-api-client-version>1.30.2</google-api-client-version>
+        <google-api-client-version>1.30.3</google-api-client-version>
         <jersey-common-version>2.25.1</jersey-common-version>
         <jackson-version>2.9.10</jackson-version>
         <jackson-databind-version>2.9.10</jackson-databind-version>
@@ -80,7 +80,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.28</version>
+            <version>1.7.26</version>
         </dependency>
 
         <dependency>
@@ -113,6 +113,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.26</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -141,8 +142,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.mapstruct</groupId>
@@ -156,6 +157,25 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>toolchain</goal>
+                        </goals>
+                        <configuration>
+                            <toolchains>
+                                <jdk>
+                                    <version>1.8</version>
+                                </jdk>
+                            </toolchains>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <!-- Download Swagger UI webjar. -->

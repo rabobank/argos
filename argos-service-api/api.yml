@@ -93,8 +93,8 @@ components:
           pattern: '^[0-9a-f]*$'
         signature:
           type: string
-          minLength: 768
-          maxLength: 768
+          minLength: 512
+          maxLength: 512
           pattern: '^[0-9a-f]*$'
     Link:
       type: object

@@ -58,7 +58,7 @@ public class Argos4JSigner {
     }
 
     private PEMKeyPair getPemKeyPair(SigningKey signingKey) {
-        try (Reader reader = new CharSequenceReader(new String(signingKey.getKey()));
+        try (Reader reader = new CharSequenceReader(new String(signingKey.getPemKey()));
              PEMParser pemReader = new PEMParser(reader)) {
             Object pem = pemReader.readObject();
             PEMKeyPair kpr;

@@ -31,7 +31,7 @@ class Argos4JSignerTest {
     void setUp() throws IOException {
         signer = new Argos4JSigner();
         signingKey = SigningKey.builder()
-                .key(IOUtils.toByteArray(getClass().getResourceAsStream("/bob.key")))
+                .pemKey(IOUtils.toByteArray(getClass().getResourceAsStream("/bob.key")))
                 .build();
     }
 

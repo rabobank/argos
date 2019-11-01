@@ -19,7 +19,7 @@ public class ArgosServiceClient {
 
     public void uploadLinkMetaBlockToService(LinkMetaBlock linkMetaBlock) {
         RestLinkMetaBlock restLinkMetaBlock = LinkMetaBlockMapper.INSTANCE.convertToRestLinkMetaBlock(linkMetaBlock);
-        LinkApi linkApi = new LinkApi(new ApiClient(settings.getBaseUrl(), null, null, null));
+        LinkApi linkApi = new LinkApi(new ApiClient(settings.getArgosServerBaseUrl(), null, null, null));
         try {
             HttpResponse response = linkApi.createLinkForHttpResponse(settings.getSupplyChainId(), restLinkMetaBlock);
             if (response.getStatusCode() != 204) {
