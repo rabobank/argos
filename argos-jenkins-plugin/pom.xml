@@ -54,6 +54,21 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>jenkins</id>
+            <name>jenkins</name>
+            <url>https://repo.jenkins-ci.org/releases/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jenkins</id>
+            <name>jenkins</name>
+            <url>https://repo.jenkins-ci.org/releases/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <build>
         <plugins>
             <plugin>
