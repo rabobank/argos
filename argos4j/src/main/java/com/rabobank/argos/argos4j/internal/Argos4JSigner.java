@@ -77,7 +77,7 @@ public class Argos4JSigner {
 
     private String computeKeyId(SubjectPublicKeyInfo publicKey) {
         // initialize digest
-        byte[] jsonReprBytes = encodePem(publicKey).replace("\n", "").getBytes();
+        byte[] jsonReprBytes = encodePem(publicKey).replace("\\r\\n|\\r|\\n", "").getBytes();
         SHA256Digest digest = new SHA256Digest();
         byte[] result = new byte[digest.getDigestSize()];
         digest.update(jsonReprBytes, 0, jsonReprBytes.length);
