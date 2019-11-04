@@ -6,11 +6,13 @@ import com.rabobank.argos.domain.model.Artifact;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.util.Comparator;
 import java.util.List;
@@ -23,6 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
 
 class ArtifactCollectorTest {
 
@@ -57,8 +60,12 @@ class ArtifactCollectorTest {
         File level1Gone = new File(multilevelDir, "level1Gone");
         level1Gone.mkdir();
 
-        Files.createSymbolicLink(new File(onFileDir, "linkdir").toPath(), level1.toPath());
-        Files.createSymbolicLink(new File(onFileDir, "linkdirGone").toPath(), level1Gone.toPath());
+        try {
+            Files.createSymbolicLink(new File(onFileDir, "linkdir").toPath(), level1.toPath());
+            Files.createSymbolicLink(new File(onFileDir, "linkdirGone").toPath(), level1Gone.toPath());
+        } catch (FileSystemException e){
+            System.out.println("probably the test is running on windows ignore this error");
+        }
 
         assertTrue(level1Gone.delete());
 
@@ -77,6 +84,7 @@ class ArtifactCollectorTest {
     }
 
     @Test
+    @DisabledOnOs(WINDOWS)
     void collectOnFileWithBasePath() {
         List<Artifact> artifacts = sort(new ArtifactCollector(Argos4jSettings.builder().build(), onFileDir.getPath()).collect(""));
         assertThat(artifacts, hasSize(3));
