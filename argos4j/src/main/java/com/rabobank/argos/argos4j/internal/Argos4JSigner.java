@@ -4,8 +4,7 @@ import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.SigningKey;
 import com.rabobank.argos.domain.model.Signature;
 import org.apache.commons.io.input.CharSequenceReader;
-import org.apache.commons.io.output.StringBuilderWriter;
-import org.bouncycastle.asn1.ASN1Object;
+import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.crypto.CryptoException;
@@ -15,12 +14,11 @@ import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.signers.PSSSigner;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
-import org.bouncycastle.openssl.MiscPEMGenerator;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.util.encoders.Hex;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -77,20 +75,15 @@ public class Argos4JSigner {
 
     private String computeKeyId(SubjectPublicKeyInfo publicKey) {
         // initialize digest
-        byte[] jsonReprBytes = encodePem(publicKey).replace("\\r\\n|\\r|\\n", "").getBytes();
-        SHA256Digest digest = new SHA256Digest();
-        byte[] result = new byte[digest.getDigestSize()];
-        digest.update(jsonReprBytes, 0, jsonReprBytes.length);
-        digest.doFinal(result, 0);
-        return Hex.toHexString(result);
-    }
-
-    private String encodePem(ASN1Object key) {
-        try (StringBuilderWriter out = new StringBuilderWriter();
-             JcaPEMWriter pemWriter = new JcaPEMWriter(out)) {
-            pemWriter.writeObject(new MiscPEMGenerator(key));
-            pemWriter.flush();
-            return out.toString();
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            publicKey.encodeTo(outputStream, ASN1Encoding.BER);
+            byte[] bytes = outputStream.toByteArray();
+            SHA256Digest digest = new SHA256Digest();
+            byte[] result = new byte[digest.getDigestSize()];
+            digest.update(bytes, 0, bytes.length);
+            digest.doFinal(result, 0);
+            return Hex.toHexString(result);
         } catch (IOException e) {
             throw new Argos4jError(e.toString(), e);
         }
