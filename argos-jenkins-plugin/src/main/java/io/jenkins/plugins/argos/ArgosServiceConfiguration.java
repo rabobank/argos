@@ -87,7 +87,7 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
         HttpRequest request = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
         HttpResponse response = request.execute();
         System.out.println(response.parseAsString());
-        return FormValidation.ok("Your In Toto Service instance [%s] is alive!", url);
+        return FormValidation.ok("Your In argos Service instance [%s] is alive!", url);
     }
 
     private String determineUrl(String hostname, int port, boolean secure) {
