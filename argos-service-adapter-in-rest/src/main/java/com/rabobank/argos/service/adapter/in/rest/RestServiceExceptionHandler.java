@@ -38,7 +38,7 @@ public class RestServiceExceptionHandler {
 
     @ExceptionHandler(value = {ResponseStatusException.class})
      public ResponseEntity<RestError> handleResponseStatusException(ResponseStatusException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createMessage(ex.getReason()));
+        return ResponseEntity.status(ex.getStatus()).body(createMessage(ex.getReason()));
     }
 
     private RestError createMessage(String message) {
