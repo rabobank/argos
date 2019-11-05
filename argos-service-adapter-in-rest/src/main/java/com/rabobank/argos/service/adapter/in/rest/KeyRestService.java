@@ -22,7 +22,6 @@ import javax.validation.Valid;
 public class KeyRestService implements KeyApi {
     private final KeyPairMapper converter;
     private final KeyPairRepository keyPairRepository;
-
     @Override
     public ResponseEntity<RestKeyPair> getKey(String keyId) {
         KeyPair keyPair = keyPairRepository.findByKeyId(keyId).orElseThrow(() ->
