@@ -1,0 +1,14 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: test
+    image: maven:3-jdk-11
+    commands:
+      - mvn -q package
+
+trigger:
+  event:
+    - push
