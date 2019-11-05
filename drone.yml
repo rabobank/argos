@@ -8,6 +8,11 @@ steps:
     image: maven:3.6.2-ibmjava-alpine
     commands:
       - apk --no-cache add openjdk11
+      - apk --no-cache add openjdk8
+      - apk --no-cache add gettext
+      - export JAVA_1_8_LOCATION=/usr/lib/jvm/java-1.8-openjdk
+      - export JAVA_11_LOCATION=/usr/lib/jvm/java-11-openjdk
+      - envsubst '${JAVA_1_8_LOCATION} ${JAVA_11_LOCATION}' < toolchains.xml.template > /.m2/toolchains.xml
       - mvn -q package
 
 trigger:
