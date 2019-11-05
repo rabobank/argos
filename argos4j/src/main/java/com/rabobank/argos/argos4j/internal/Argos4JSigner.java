@@ -58,7 +58,7 @@ public class Argos4JSigner {
     }
 
     private PEMKeyPair getPemKeyPair(SigningKey signingKey) {
-        try (Reader reader = new CharSequenceReader(new String(signingKey.getKey()));
+        try (Reader reader = new CharSequenceReader(new String(signingKey.getPemKey()));
              PEMParser pemReader = new PEMParser(reader)) {
             Object pem = pemReader.readObject();
             PEMKeyPair kpr;
@@ -77,7 +77,7 @@ public class Argos4JSigner {
 
     private String computeKeyId(SubjectPublicKeyInfo publicKey) {
         // initialize digest
-        byte[] jsonReprBytes = encodePem(publicKey).replace("\n", "").getBytes();
+        byte[] jsonReprBytes = encodePem(publicKey).getBytes();
         SHA256Digest digest = new SHA256Digest();
         byte[] result = new byte[digest.getDigestSize()];
         digest.update(jsonReprBytes, 0, jsonReprBytes.length);
@@ -87,7 +87,12 @@ public class Argos4JSigner {
 
     private String encodePem(ASN1Object key) {
         try (StringBuilderWriter out = new StringBuilderWriter();
-             JcaPEMWriter pemWriter = new JcaPEMWriter(out)) {
+             JcaPEMWriter pemWriter = new JcaPEMWriter(out) {
+                 @Override
+                 public void newLine() throws IOException {
+                     write('\n');
+                 }
+             }) {
             pemWriter.writeObject(new MiscPEMGenerator(key));
             pemWriter.flush();
             return out.toString();

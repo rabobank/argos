@@ -21,6 +21,6 @@ public class Argos4jSettings {
     private final String supplyChainId;
     private final String stepName;
     private final SigningKey signingKey;
+    private final String argosServerBaseUrl;
 
-    private final String baseUrl;
 }

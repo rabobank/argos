@@ -53,11 +53,11 @@ class Argos4jTest {
 
 
         Argos4jSettings settings = Argos4jSettings.builder()
-                .baseUrl("http://localhost:" + randomPort + "/api")
+                .argosServerBaseUrl("http://localhost:" + randomPort + "/api")
                 .stepName("build")
                 .supplyChainId("supplyChainId")
                 .signingKey(SigningKey.builder()
-                        .key(IOUtils.toByteArray(getClass().getResourceAsStream("/bob.key")))
+                        .pemKey(IOUtils.toByteArray(getClass().getResourceAsStream("/bob.key")))
                         .build()).build();
         argos4j = new Argos4j(settings);
 
@@ -73,7 +73,9 @@ class Argos4jTest {
     @Test
     void storeMetablockLinkForDirectory() {
         wireMockServer.stubFor(post(urlEqualTo("/api/link/supplyChainId")).willReturn(noContent()));
-        argos4j.storeMetablockLinkForDirectory(sharedTempDir.getAbsoluteFile(), sharedTempDir.getAbsoluteFile());
+        argos4j.collectMaterials(sharedTempDir.getAbsoluteFile());
+        argos4j.collectProducts(sharedTempDir.getAbsoluteFile());
+        argos4j.store();
         List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
         assertThat(requests, hasSize(1));
         assertThat(requests.get(0).getBodyAsString(), endsWith(",\"link\":{\"command\":null,\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}]}}"));
@@ -82,14 +84,14 @@ class Argos4jTest {
     @Test
     void storeMetablockLinkForDirectoryFailed() {
         wireMockServer.stubFor(post(urlEqualTo("/api/link/supplyChainId")).willReturn(serverError()));
-        Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.storeMetablockLinkForDirectory(sharedTempDir.getAbsoluteFile(), sharedTempDir.getAbsoluteFile()));
+        Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store());
         assertThat(error.getMessage(), is("500 Server Error"));
     }
 
     @Test
     void storeMetablockLinkForDirectoryUnexectedResonse() {
         wireMockServer.stubFor(post(urlEqualTo("/api/link/supplyChainId")).willReturn(ok()));
-        Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.storeMetablockLinkForDirectory(sharedTempDir.getAbsoluteFile(), sharedTempDir.getAbsoluteFile()));
+        Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store());
         assertThat(error.getMessage(), is("service returned code 200 message: OK"));
     }
 }

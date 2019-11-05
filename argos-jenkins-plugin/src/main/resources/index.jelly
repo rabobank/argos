@@ -1,0 +1,5 @@
+<?jelly escape-by-default='true'?>
+<div>
+    This plugin enables an argos BuildStep that will be used to track build
+    information and record it as argos metadata.
+</div>

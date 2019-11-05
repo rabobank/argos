@@ -6,13 +6,14 @@ import com.rabobank.argos.domain.model.Artifact;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
 
 class ArtifactCollectorTest {
 
@@ -58,8 +60,12 @@ class ArtifactCollectorTest {
         File level1Gone = new File(multilevelDir, "level1Gone");
         level1Gone.mkdir();
 
-        Files.createSymbolicLink(new File(onFileDir, "linkdir").toPath(), level1.toPath());
-        Files.createSymbolicLink(new File(onFileDir, "linkdirGone").toPath(), level1Gone.toPath());
+        try {
+            Files.createSymbolicLink(new File(onFileDir, "linkdir").toPath(), level1.toPath());
+            Files.createSymbolicLink(new File(onFileDir, "linkdirGone").toPath(), level1Gone.toPath());
+        } catch (FileSystemException e){
+            System.out.println("probably the test is running on windows ignore this error");
+        }
 
         assertTrue(level1Gone.delete());
 
@@ -69,7 +75,7 @@ class ArtifactCollectorTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
             ZipEntry entry = new ZipEntry("test.txt");
-            entry.setTimeLocal(LocalDateTime.of(2019, 12, 31, 23, 34, 0, 0));
+            entry.setTime(43323342L);
             zos.putNextEntry(entry);
             zos.write(content.getBytes());
             zos.closeEntry();
@@ -78,6 +84,7 @@ class ArtifactCollectorTest {
     }
 
     @Test
+    @DisabledOnOs(WINDOWS)
     void collectOnFileWithBasePath() {
         List<Artifact> artifacts = sort(new ArtifactCollector(Argos4jSettings.builder().build(), onFileDir.getPath()).collect(""));
         assertThat(artifacts, hasSize(3));
@@ -105,7 +112,7 @@ class ArtifactCollectorTest {
 
     private void checkLevel2Zip(Artifact artifact, String baseDir) {
         assertThat(artifact.getUri(), is(baseDir + "/level2.zip"));
-        assertThat(artifact.getHash(), is("06b2edb9c90eec831a8047275b77c57ca44a0e486ff259f513a72654011f0481"));
+        assertThat(artifact.getHash(), is("86319fa43d73f21d33522a36f1fd75bb0ba48bd1381efa945b3e0f2ca74a4d84"));
     }
 
     private void checkLevel2File(Artifact artifact, String baseDir) {

@@ -7,7 +7,5 @@ import lombok.Getter;
 @Builder
 public class SigningKey {
 
-    private SigningKeyType type;
-
-    private final byte[] key;
+    private final byte[] pemKey;
 }

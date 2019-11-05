@@ -10,11 +10,16 @@
 		<module>argos-service-adapter-in-rest</module>
 		<module>argos-service-adapter-out-mongodb</module>
 		<module>argos-service</module>
+		<module>argos-jenkins-plugin</module>
 		<module>docker</module>
 	</modules>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos-parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+
+
+
+
 	<properties>
 		<java.version>11</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
