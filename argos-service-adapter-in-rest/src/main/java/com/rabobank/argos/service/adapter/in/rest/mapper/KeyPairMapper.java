@@ -4,12 +4,14 @@ import com.rabobank.argos.domain.model.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
+
+import static com.rabobank.argos.domain.model.RSAPublicKeyFactory.instance;
 
 @Mapper(componentModel = "spring")
 public interface KeyPairMapper {
@@ -19,11 +21,14 @@ public interface KeyPairMapper {
     @Mapping(source = "publicKey", target = "publicKey")
     default PublicKey convertByteArrayToPublicKey(byte[] publicKey) {
         try {
-            X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKey);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            return keyFactory.generatePublic(x509EncodedKeySpec);
+            return instance(publicKey);
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-            return null;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid publc key " + e.getMessage());
         }
+    }
+
+    @Mapping(source = "publicKey", target = "publicKey")
+    default byte[] convertByteArrayToPublicKey(PublicKey publicKey) {
+        return publicKey.getEncoded();
     }
 }

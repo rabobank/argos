@@ -29,6 +29,7 @@ public class KeyPairRepositoryImpl implements KeyPairRepository {
     @PostConstruct
     public void postConstruct() {
         createIndex(new Index(KEY_ID, Sort.Direction.ASC).unique());
+        // MongoTemplate.
     }
 
     @Override
