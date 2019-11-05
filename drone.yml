@@ -5,8 +5,9 @@ name: default
 
 steps:
   - name: test
-    image: maven:3-jdk-11
+    image: maven:3.6.2-ibmjava-alpine
     commands:
+      - apk --no-cache add openjdk11
       - mvn -q package
 
 trigger:
