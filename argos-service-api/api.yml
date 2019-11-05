@@ -35,8 +35,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/LinkMetaBlock"
-        default:
-          description: unexpected error
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: server error
           content:
             application/json:
               schema:
@@ -62,8 +68,72 @@ paths:
       responses:
         '201':
           description: Null response
-        default:
-          description: unexpected error
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /key:
+    post:
+      summary: stores a public and private key pair
+      operationId: storeKey
+      tags:
+        - key
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KeyPair"
+      responses:
+        '201':
+          description: Null response
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /key/{keyId}:
+    get:
+      summary: get a key pair by id
+      operationId: getKey
+      tags:
+        - key
+      parameters:
+        - name: keyId
+          in: path
+          description: key pair id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Key pair
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KeyPair"
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: server error
           content:
             application/json:
               schema:
@@ -130,6 +200,21 @@ components:
           minLength: 64
           maxLength: 64
           pattern: '^[0-9a-f]*$'
+    KeyPair:
+      type: object
+      required:
+        - keyId
+        - publicKey
+        - encryptedPrivateKey
+      properties:
+        keyId:
+          type: string
+        publicKey:
+          type: string
+          format: byte
+        encryptedPrivateKey:
+          type: string
+          format: byte
     Error:
       type: object
       required:
