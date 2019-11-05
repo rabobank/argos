@@ -1,11 +1,7 @@
 package io.jenkins.plugins.argos.recorders;
 
-import com.cloudbees.plugins.credentials.CredentialsMatchers;
-import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.rabobank.argos.argos4j.Argos4j;
-import com.rabobank.argos.argos4j.Argos4jError;
-import com.rabobank.argos.argos4j.Argos4jSettings;
-import com.rabobank.argos.argos4j.SigningKey;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -13,29 +9,19 @@ import hudson.Launcher;
 import hudson.model.AbstractProject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.security.ACL;
 import hudson.tasks.BuildWrapperDescriptor;
-import io.jenkins.plugins.argos.ArgosServiceConfiguration;
-import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildWrapper;
 import lombok.AllArgsConstructor;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.plugins.plaincredentials.FileCredentials;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
 
 /**
  * Jenkins recorder plugin to output signed link metadata for Jenkins pipeline
  * steps.
  *
- * @author SantiagoTorres
  */
 public class ArgosWrapper extends SimpleBuildWrapper {
 
@@ -63,49 +49,14 @@ public class ArgosWrapper extends SimpleBuildWrapper {
     @DataBoundSetter
     public String supplyChainId;
 
+    @XStreamOmitField
     private Argos4j argos4j;
-
-    public String getPrivateKeyCredentialId() {
-        return privateKeyCredentialId;
-    }
-
-    public String getStepName() {
-        return stepName;
-    }
-
-    public String getSupplyChainId() {
-        return supplyChainId;
-    }
 
     @DataBoundConstructor
     public ArgosWrapper(String privateKeyCredentialId, String stepName, String supplyChainId) {
         this.privateKeyCredentialId = privateKeyCredentialId;
         this.stepName = stepName;
         this.supplyChainId = supplyChainId;
-    }
-
-    @PostConstruct
-    public void init() {
-        checkProperty(privateKeyCredentialId, "privateKeyCredentialId");
-        checkProperty(stepName, "stepName");
-        checkProperty(supplyChainId, "supplyChainId");
-        String argosServiceBaseUrl = ArgosServiceConfiguration.get().getArgosServiceBaseUrl();
-        checkProperty(argosServiceBaseUrl, "argosServiceBaseUrl");
-        argos4j = new Argos4j(Argos4jSettings.builder().stepName(stepName).argosServerBaseUrl(argosServiceBaseUrl).signingKey(getSigningKey()).supplyChainId(supplyChainId).build());
-    }
-
-    private SigningKey getSigningKey() {
-        try {
-            return SigningKey.builder().pemKey(IOUtils.toByteArray(getCredentials().getContent())).build();
-        } catch (IOException e) {
-            throw new Argos4jError(e.getMessage(), e);
-        }
-    }
-
-    private void checkProperty(String value, String fieldName) {
-        if (StringUtils.isBlank(value)) {
-            throw new Argos4jError(fieldName + " not configured");
-        }
     }
 
     @Override
@@ -121,27 +72,13 @@ public class ArgosWrapper extends SimpleBuildWrapper {
 
 
         listener.getLogger().println("[argos] creating metadata... ");
+        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, stepName, supplyChainId).createArgos();
+
         argos4j.collectMaterials(new File(workspace.getRemote()));
 
         context.setDisposer(new PostWrap(argos4j));
     }
 
-    private FileCredentials getCredentials() {
-        FileCredentials fileCredential = CredentialsMatchers.firstOrNull(
-                CredentialsProvider.lookupCredentials(
-                        FileCredentials.class,
-                        Jenkins.get(),
-                        ACL.SYSTEM,
-                        Collections.emptyList()
-                ),
-                CredentialsMatchers.withId(this.privateKeyCredentialId)
-        );
-
-        if (fileCredential == null)
-            throw new Argos4jError(" Could not find credentials entry with ID '" + privateKeyCredentialId + "' ");
-
-        return fileCredential;
-    }
 
     /**
      * Descriptor for {@link ArgosRecorder}. Used as a singleton. The class is

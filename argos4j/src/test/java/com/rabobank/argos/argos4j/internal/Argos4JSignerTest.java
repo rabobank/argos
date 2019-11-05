@@ -38,7 +38,7 @@ class Argos4JSignerTest {
     @Test
     void sign() throws IOException {
         Signature signature = signer.sign(signingKey, "string to sign");
-        assertThat(signature.getKeyId(), is("0ba8255f52e9fe417bee6d25c3d5509ebb4e468b318b3a6c62ed15071ac2363a"));
+        assertThat(signature.getKeyId(), is("35ad968500981d129660dceab11f00bb2e84fb763c2dd48674b0a48c1aa03829"));
 
         PEMParser pemReader = new PEMParser(new InputStreamReader(getClass().getResourceAsStream("/bob.key")));
         PEMKeyPair keyPair = (PEMKeyPair) pemReader.readObject();
