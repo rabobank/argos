@@ -205,7 +205,6 @@ components:
       required:
         - keyId
         - publicKey
-        - encryptedPrivateKey
       properties:
         keyId:
           type: string

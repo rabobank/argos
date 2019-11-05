@@ -4,8 +4,9 @@ import com.rabobank.argos.domain.KeyPairRepository;
 import com.rabobank.argos.domain.model.KeyPair;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.HashedIndex;
+import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ public class KeyPairRepositoryImpl implements KeyPairRepository {
 
     @PostConstruct
     public void postConstruct() {
-        createIndex(HashedIndex.hashed(KEY_ID));
+        createIndex(new Index(KEY_ID, Sort.Direction.ASC).unique());
     }
 
     @Override
