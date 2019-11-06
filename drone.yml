@@ -11,6 +11,7 @@ steps:
         path: /root/.m2
     commands:
       - cp toolchains.xml.template ~/.m2/toolchains.xml
+
   - name: build
     image: maven:3.6.2-ibmjava-alpine
     environment:
