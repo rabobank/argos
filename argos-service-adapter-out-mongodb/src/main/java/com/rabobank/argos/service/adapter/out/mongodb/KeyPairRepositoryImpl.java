@@ -16,7 +16,6 @@ import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -29,7 +28,6 @@ public class KeyPairRepositoryImpl implements KeyPairRepository {
     @PostConstruct
     public void postConstruct() {
         createIndex(new Index(KEY_ID, Sort.Direction.ASC).unique());
-        // MongoTemplate.
     }
 
     @Override

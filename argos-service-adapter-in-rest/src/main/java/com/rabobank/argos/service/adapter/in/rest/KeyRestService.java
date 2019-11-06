@@ -20,8 +20,10 @@ import javax.validation.Valid;
 @Slf4j
 @RequiredArgsConstructor
 public class KeyRestService implements KeyApi {
+
     private final KeyPairMapper converter;
     private final KeyPairRepository keyPairRepository;
+
     @Override
     public ResponseEntity<RestKeyPair> getKey(String keyId) {
         KeyPair keyPair = keyPairRepository.findByKeyId(keyId).orElseThrow(() ->
@@ -33,6 +35,6 @@ public class KeyRestService implements KeyApi {
     @Override
     public ResponseEntity<Void> storeKey(@Valid RestKeyPair restKeyPair) {
         keyPairRepository.save(converter.convertFromRestKeyPair(restKeyPair));
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

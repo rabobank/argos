@@ -15,7 +15,9 @@ import static com.rabobank.argos.domain.model.RSAPublicKeyFactory.instance;
 
 @Mapper(componentModel = "spring")
 public interface KeyPairMapper {
+
     KeyPair convertFromRestKeyPair(RestKeyPair restKeyPair);
+
     RestKeyPair convertToRestKeyPair(KeyPair keyPair);
 
     @Mapping(source = "publicKey", target = "publicKey")
@@ -26,9 +28,8 @@ public interface KeyPairMapper {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid publc key " + e.getMessage());
         }
     }
-
     @Mapping(source = "publicKey", target = "publicKey")
-    default byte[] convertByteArrayToPublicKey(PublicKey publicKey) {
+    default byte[] convertPublicKeyToByteArray(PublicKey publicKey) {
         return publicKey.getEncoded();
     }
 }
