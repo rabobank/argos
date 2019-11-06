@@ -12,8 +12,6 @@ steps:
     commands:
       - apk --no-cache add openjdk11
       - apk --no-cache add openjdk8
-      - export =
-      - export =
       - mkdir ~/.m2
       - cp toolchains.xml.template ~/.m2/toolchains.xml
       - mvn -q package
