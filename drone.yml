@@ -15,8 +15,8 @@ steps:
     commands:
       - apk --no-cache add openjdk11
       - apk --no-cache add openjdk8
-      - mvn -q package
       - cp toolchains.xml.template ~/.m2/toolchains.xml
+      - mvn -q package
       - ls -l argos-service/target
 
   - name: sonar
