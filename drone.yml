@@ -15,7 +15,6 @@ steps:
     commands:
       - apk --no-cache add openjdk11
       - apk --no-cache add openjdk8
-      - mkdir ~/.m2
       - cp toolchains.xml.template ~/.m2/toolchains.xml
       - mvn -q package
       - ls -l argos-service/target
@@ -33,9 +32,8 @@ steps:
     commands:
       - apk --no-cache add openjdk11
       - apk --no-cache add openjdk8
-      - mkdir ~/.m2
       - cp toolchains.xml.template ~/.m2/toolchains.xml
-      - mvn -q verify sonar:sonar -Dsonar.projectKey=argos-scc_argos -Dsonar.organization=argos-scc -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$sonar_login
+      - mvn -q verify sonar:sonar -Dsonar.projectKey=argos-scc_argos -Dsonar.organization=argos-scc -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${sonar_login}
 
 trigger:
   event:
