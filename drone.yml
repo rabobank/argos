@@ -4,14 +4,6 @@ type: docker
 name: default
 
 steps:
-  - name: setup
-    image: maven:3.6.2-ibmjava-alpine
-    volumes:
-      - name: mvn_cache
-        path: /root/.m2
-    commands:
-      - cp toolchains.xml.template ~/.m2/toolchains.xml
-
   - name: build
     image: maven:3.6.2-ibmjava-alpine
     environment:
@@ -24,6 +16,7 @@ steps:
       - apk --no-cache add openjdk11
       - apk --no-cache add openjdk8
       - mvn -q package
+      - cp toolchains.xml.template ~/.m2/toolchains.xml
       - ls -l argos-service/target
 
   - name: sonar
@@ -39,7 +32,9 @@ steps:
     commands:
       - apk --no-cache add openjdk11
       - apk --no-cache add openjdk8
+      - cp toolchains.xml.template ~/.m2/toolchains.xml
       - mvn -q verify sonar:sonar -Dsonar.projectKey=argos-scc_argos -Dsonar.organization=argos-scc -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${sonar_login}
+
 volumes:
   - name: mvn_cache
     temp: {}
