@@ -34,7 +34,9 @@ steps:
       - apk --no-cache add openjdk8
       - cp toolchains.xml.template ~/.m2/toolchains.xml
       - mvn -q verify sonar:sonar -Dsonar.projectKey=argos-scc_argos -Dsonar.organization=argos-scc -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${sonar_login}
-
+volumes:
+  - name: mvn_cache
+    temp: {}
 trigger:
   event:
     - push
