@@ -11,7 +11,7 @@ steps:
       JAVA_11_LOCATION: /usr/lib/jvm/java-11-openjdk
     volumes:
       - name: mvn_cache
-        path: /root/.m2/repository
+        path: /root/.m2
     commands:
       - apk --no-cache add openjdk11
       - apk --no-cache add openjdk8
@@ -28,7 +28,7 @@ steps:
         from_secret: sonar_login
     volumes:
       - name: mvn_cache
-        path: /root/.m2/repository
+        path: /root/.m2
     commands:
       - apk --no-cache add openjdk11
       - apk --no-cache add openjdk8
