@@ -5,7 +5,7 @@ name: default
 
 steps:
   - name: build build image
-    image: docker:latest
+    image: docker:dind
     volumes:
       - name: docker_sock
         path: /var/run/docker.sock
