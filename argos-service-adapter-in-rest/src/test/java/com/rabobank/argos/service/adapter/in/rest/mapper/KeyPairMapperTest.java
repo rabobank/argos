@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabobank.argos.domain.model.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -36,9 +38,9 @@ class KeyPairMapperTest {
     }
 
     @Test
-    void convertFromRestKeyPair() throws JsonProcessingException {
+    void convertFromRestKeyPair() throws JsonProcessingException, JSONException {
         KeyPair keyPair = converter.convertFromRestKeyPair(mapper.readValue(keyPairJson, RestKeyPair.class));
-        assertEquals(keyPairJson, mapper.writeValueAsString(converter.convertToRestKeyPair(keyPair)));
+        JSONAssert.assertEquals(keyPairJson, mapper.writeValueAsString(converter.convertToRestKeyPair(keyPair)), true);
     }
 
     @Test
