@@ -10,6 +10,7 @@ steps:
       tags:
         - ${DRONE_COMMIT}
       context: docker-build-image
+      dockerfile: docker-build-image/Dockerfile
       username:
         from_secret: docker_login_user
       password:
