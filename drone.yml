@@ -40,25 +40,10 @@ steps:
 volumes:
   - name: mvn_cache
     temp: {}
+  - name: docker_sock
+    host:
+      path: /var/run/docker.sock
 trigger:
   event:
     - push
 
----
-kind: pipeline
-name: build-build-image
-type: docker
-
-steps:
-  - name: test
-    image: docker:dind
-    volumes:
-      - name: dockersock
-        path: /var/run/docker.sock
-    commands:
-      - docker ps -a
-
-volumes:
-  - name: dockersock
-    host:
-      path: /var/run/docker.sock
