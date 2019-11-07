@@ -43,9 +43,6 @@ steps:
 volumes:
   - name: mvn_cache
     temp: {}
-  - name: docker_sock
-    host:
-      path: /var/run/docker.sock
 trigger:
   event:
     - push
