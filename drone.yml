@@ -13,16 +13,16 @@ steps:
       - mvn -q package
       - ls -l argos-service/target
 
-  - name: sonar
-    image: rabobanknl/argos-build:latest
-    environment:
-      SONAR_LOGIN:
-        from_secret: sonar_login
-    volumes:
-      - name: mvn_cache
-        path: /root/.m2/repository
-    commands:
-      - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=sonar-argos -Dsonar.organization=argos-scc -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
+#  - name: sonar
+#    image: rabobanknl/argos-build:latest
+#    environment:
+#      SONAR_LOGIN:
+#        from_secret: sonar_login
+#    volumes:
+#      - name: mvn_cache
+#        path: /root/.m2/repository
+#    commands:
+#      - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=argos -Dsonar.organization=rabobank -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
 
   - name: pitest
     image: rabobanknl/argos-build:latest
