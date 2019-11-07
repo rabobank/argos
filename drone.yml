@@ -4,6 +4,13 @@ type: docker
 name: default
 
 steps:
+  - name: build build image
+    image: docker:latest
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+    commands:
+      - docker build --no-cache -t com.rabobank.argos.buildimage:${DRONE_COMMIT} ./docker-build-image
 #  - name: build
 #    image: maven:3.6.2-ibmjava-alpine
 #    environment:
@@ -20,19 +27,14 @@ steps:
 #      - ls -l argos-service/target
 
   - name: sonar
-    image: maven:3-jdk-11
+    image: com.rabobank.argos.buildimage:${DRONE_COMMIT}
     environment:
-      JAVA_1_8_LOCATION: /usr/lib/jvm/java-8-openjdk-amd64
-      JAVA_11_LOCATION: /usr/local/openjdk-11
       SONAR_LOGIN:
         from_secret: sonar_login
     volumes:
       - name: mvn_cache
         path: /root/.m2
     commands:
-      - apt-get -qq update
-      - apt-get -y -qq install openjdk-8-jdk
-      - cp toolchains.xml.template ~/.m2/toolchains.xml
       - mvn -q -e verify sonar:sonar -Dsonar.projectKey=sonar-argos -Dsonar.organization=argos-scc -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=3ffd7e4ccd935c94a6e8fa64f15c75db574ba673
 
 volumes:
@@ -41,3 +43,22 @@ volumes:
 trigger:
   event:
     - push
+
+---
+kind: pipeline
+name: build-build-image
+type: docker
+
+steps:
+  - name: test
+    image: docker:dind
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - docker ps -a
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
