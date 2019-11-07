@@ -20,18 +20,18 @@ steps:
 #      - ls -l argos-service/target
 
   - name: sonar
-    image: maven:3.6.2-ibmjava-alpine
+    image: maven:3-jdk-11
     environment:
-      JAVA_1_8_LOCATION: /usr/lib/jvm/java-1.8-openjdk
-      JAVA_11_LOCATION: /usr/lib/jvm/java-11-openjdk
+      JAVA_1_8_LOCATION: /usr/lib/jvm/java-8-openjdk-amd64
+      JAVA_11_LOCATION: /usr/local/openjdk-11
       SONAR_LOGIN:
         from_secret: sonar_login
     volumes:
       - name: mvn_cache
         path: /root/.m2
     commands:
-      - apk --no-cache add openjdk11
-      - apk --no-cache add openjdk8
+      - apt-get update
+      - apt-get -y install openjdk-8-jdk
       - cp toolchains.xml.template ~/.m2/toolchains.xml
       - mvn -q -e verify sonar:sonar -Dsonar.projectKey=sonar-argos -Dsonar.organization=argos-scc -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=3ffd7e4ccd935c94a6e8fa64f15c75db574ba673
 
