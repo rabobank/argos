@@ -7,6 +7,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import hudson.Extension;
 import hudson.util.FormValidation;
 import jenkins.model.GlobalConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -14,6 +15,7 @@ import org.kohsuke.stapler.QueryParameter;
 import java.io.IOException;
 
 @Extension
+@Slf4j
 public class ArgosServiceConfiguration extends GlobalConfiguration {
     public final String url = "foo";
 
@@ -86,6 +88,7 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
         String url = determineUrl(hostname, port, secure);
         HttpRequest request = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
         HttpResponse response = request.execute();
+        log.info("{}",response.parseAsString());
         return FormValidation.ok("Your In argos Service instance [%s] is alive!", url);
     }
 
