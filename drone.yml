@@ -6,6 +6,7 @@ name: default
 steps:
   - name: build build image
     image: docker:dind
+    privileged: true
     volumes:
       - name: docker_sock
         path: /var/run/docker.sock
