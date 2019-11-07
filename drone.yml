@@ -33,7 +33,7 @@ steps:
       - apk --no-cache add openjdk11
       - apk --no-cache add openjdk8
       - cp toolchains.xml.template ~/.m2/toolchains.xml
-      - mvn -q -e verify sonar:sonar -Dsonar.projectKey=argos-scc_argos -Dsonar.organization=argos-scc -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${sonar_login}
+      - mvn -q -e verify sonar:sonar -Dsonar.projectKey=sonar-argos -Dsonar.organization=argos-scc -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=3ffd7e4ccd935c94a6e8fa64f15c75db574ba673
 
 volumes:
   - name: mvn_cache
