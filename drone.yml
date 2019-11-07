@@ -24,6 +24,17 @@ steps:
     commands:
       - mvn -q -e verify sonar:sonar -Dsonar.projectKey=sonar-argos -Dsonar.organization=argos-scc -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
 
+  - name: build argos service image
+    image: plugins/docker
+    settings:
+      repo: rabobanknl/argos-service
+      tags: latest
+      context: docker
+      dockerfile: docker/ServiceDockerfile
+      username:
+        from_secret: docker_login_user
+      password:
+        from_secret: docker_login_token
 volumes:
   - name: mvn_cache
     temp: {}
