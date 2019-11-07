@@ -10,6 +10,10 @@
     <artifactId>docker</artifactId>
     <packaging>pom</packaging>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
     <build>
         <plugins>
             <plugin>

@@ -15,7 +15,7 @@ public class RestServiceDefaultExceptionHandler {
 
     @ExceptionHandler(value = {RuntimeException.class})
     public ResponseEntity<?> handleRuntimeException(RuntimeException e) {
-        log.error(e.getMessage(),e);
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 }
