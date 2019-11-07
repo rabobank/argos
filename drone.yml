@@ -1,17 +1,19 @@
 ---
 kind: pipeline
-type: docker
 name: default
 
 steps:
   - name: build build image
-    image: docker:dind
-    privileged: true
-    volumes:
-      - name: docker_sock
-        path: /var/run/docker.sock
-    commands:
-      - docker build --no-cache -t com.rabobank.argos.buildimage:${DRONE_COMMIT} ./docker-build-image
+    image: plugins/docker
+    settings:
+      repo: rabobanknl/argos-build
+      tags:
+        - ${DRONE_COMMIT}
+      context: docker-build-image
+      username:
+        from_secret: docker_login_user
+      password:
+        from_secret: docker_login_token
 #  - name: build
 #    image: maven:3.6.2-ibmjava-alpine
 #    environment:
@@ -28,7 +30,7 @@ steps:
 #      - ls -l argos-service/target
 
   - name: sonar
-    image: com.rabobank.argos.buildimage:${DRONE_COMMIT}
+    image: rabobanknl/argos-build:${DRONE_COMMIT}
     environment:
       SONAR_LOGIN:
         from_secret: sonar_login
