@@ -38,10 +38,10 @@ public class LinkRestService implements LinkApi {
     public ResponseEntity<Void> createLink(String supplyChainId, @Valid RestLinkMetaBlock restLinkMetaBlock) {
         log.info("supplyChainId : {}", supplyChainId);
 
-        supplyChainRepository.findBySupplyChainId(supplyChainId).orElseGet(() -> {
+
+        if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
             supplyChainRepository.save(SupplyChain.builder().supplyChainId(supplyChainId).build());
-            return null;
-        });
+        }
 
         LinkMetaBlock linkMetaBlock = converter.convertFromRestLinkMetaBlock(restLinkMetaBlock);
 
@@ -54,9 +54,9 @@ public class LinkRestService implements LinkApi {
 
     @Override
     public ResponseEntity<List<RestLinkMetaBlock>> findLink(String supplyChainId, String optionalHash) {
-        supplyChainRepository.findBySupplyChainId(supplyChainId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId)
-        );
+        if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId);
+        }
 
 
         return new ResponseEntity<>(Optional.ofNullable(optionalHash).map(hash -> linkMetaBlockRepository.findBySupplyChainAndSha(supplyChainId, hash))
