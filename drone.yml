@@ -10,19 +10,19 @@ steps:
       - name: mvn_cache
         path: /root/.m2/repository
     commands:
-      - mvn -q package
+      - mvn -q install
       - ls -l argos-service/target
 
-#  - name: sonar
-#    image: rabobanknl/argos-build:latest
-#    environment:
-#      SONAR_LOGIN:
-#        from_secret: sonar_login
-#    volumes:
-#      - name: mvn_cache
-#        path: /root/.m2/repository
-#    commands:
-#      - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=argos -Dsonar.organization=rabobank -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
+  - name: sonar
+    image: rabobanknl/argos-build:latest
+    environment:
+      SONAR_LOGIN:
+        from_secret: sonar_login
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
+    commands:
+      - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=rabobank_argos -Dsonar.organization=rabobank -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
 
   - name: pitest
     image: rabobanknl/argos-build:latest
@@ -37,8 +37,8 @@ steps:
     settings:
       repo: rabobanknl/argos-service
       tags: latest
-      context: docker
-      dockerfile: docker/ServiceDockerfile
+      context: argos-docker
+      dockerfile: argos-docker/ServiceDockerfile
       username:
         from_secret: docker_login_user
       password:
