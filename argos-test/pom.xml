@@ -6,6 +6,7 @@
     <artifactId>argos-test</artifactId>
     <packaging>jar</packaging>
     <version>0.0.1-SNAPSHOT</version>
+    <groupId>com.rabobank.argos</groupId>
 
     <properties>
         <sonar.skip>true</sonar.skip>
@@ -21,6 +22,7 @@
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
+            <version>4.0.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
