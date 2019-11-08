@@ -10,6 +10,10 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>argos-service-api</artifactId>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
     <build>
         <resources>
             <resource>
