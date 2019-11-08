@@ -50,7 +50,8 @@ steps:
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
     detach: true
-    command: "java -jar /argos-service.jar"
+    commands:
+     - "java -jar /argos-service.jar"
 
   - name: test
     image: rabobanknl/argos-build:latest
