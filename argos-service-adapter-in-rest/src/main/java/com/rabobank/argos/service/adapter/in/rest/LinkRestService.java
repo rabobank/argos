@@ -37,7 +37,6 @@ public class LinkRestService implements LinkApi {
     @Override
     public ResponseEntity<Void> createLink(String supplyChainId, @Valid RestLinkMetaBlock restLinkMetaBlock) {
         log.info("supplyChainId : {}", supplyChainId);
-
         supplyChainRepository.findBySupplyChainId(supplyChainId).orElseGet(() -> {
             supplyChainRepository.save(SupplyChain.builder().supplyChainId(supplyChainId).build());
             return null;
