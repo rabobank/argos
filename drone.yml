@@ -43,6 +43,22 @@ steps:
         from_secret: docker_login_user
       password:
         from_secret: docker_login_token
+
+  - name: test
+    image: rabobanknl/argos-build:latest
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
+    commands:
+      - cd argos-test
+      - mvn -q -e verify -Pregression-test-drone
+    services:
+      - name: mongodb
+        image: mongo:4.2.0-bionic
+      - name: argos-service
+        image: rabobanknl/argos-build:latest
+        environment:
+          - spring.data.mongodb.uri: mongodb://mongodb/test
 volumes:
   - name: mvn_cache
     temp: {}
