@@ -37,8 +37,8 @@ steps:
     settings:
       repo: rabobanknl/argos-service
       tags: latest
-      context: docker
-      dockerfile: docker/ServiceDockerfile
+      context: argos-docker
+      dockerfile: argos-docker/ServiceDockerfile
       username:
         from_secret: docker_login_user
       password:
