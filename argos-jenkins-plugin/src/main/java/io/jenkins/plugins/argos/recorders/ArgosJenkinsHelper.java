@@ -11,6 +11,7 @@ import hudson.security.ACL;
 import io.jenkins.plugins.argos.ArgosServiceConfiguration;
 import jenkins.model.Jenkins;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.plaincredentials.FileCredentials;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.Collections;
 
 @AllArgsConstructor
+@Slf4j
 public class ArgosJenkinsHelper {
 
     private final String privateKeyCredentialId;
@@ -33,8 +35,9 @@ public class ArgosJenkinsHelper {
         checkProperty(supplyChainId, "supplyChainId");
 
 
-        String argosServiceBaseUrl = ArgosServiceConfiguration.get().getArgosServiceBaseUrl();
+        String argosServiceBaseUrl = ArgosServiceConfiguration.get().getArgosServiceBaseUrl()+"/api";
         checkProperty(argosServiceBaseUrl, "argosServiceBaseUrl");
+        log.info("argosServiceBaseUrl = {}",argosServiceBaseUrl);
         return new Argos4j(Argos4jSettings.builder()
                 .stepName(stepName)
                 .argosServerBaseUrl(argosServiceBaseUrl)
