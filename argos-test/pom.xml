@@ -10,6 +10,8 @@
 
     <properties>
         <sonar.skip>true</sonar.skip>
+        <karate.version>0.9.4</karate.version>
+        <cucumber-reporting.version>3.18.0</cucumber-reporting.version>
     </properties>
 
     <dependencies>
@@ -165,7 +167,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <workingDirectory>${project.basedir}/../docker</workingDirectory>
+                            <workingDirectory>${project.basedir}/../argos-docker</workingDirectory>
                             <executable>docker-compose</executable>
                         </configuration>
                     </plugin>
