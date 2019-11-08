@@ -56,7 +56,7 @@ name: regresion test
 type: docker
 
 services:
-  - name: mongo
+  - name: mongodb
     image: mongo:4.2.0-bionic
   - name: argos-service
     image: rabobanknl/argos-service:latest
