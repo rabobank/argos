@@ -1,13 +1,16 @@
 FROM jenkins/jenkins:lts-alpine
 
+USER root
+    
+# Install Docker
+RUN apk add --no-cache docker
+
 # groovy files
 COPY jenkins_config/*.groovy /usr/share/jenkins/ref/init.groovy.d/
 
 # temporary patch to enable file url's
 # A PR is made to upstream
-USER root
 RUN sed -i -e 's/http\.\+/\(http\|file\)\.\+/g' /usr/local/bin/install-plugins.sh
-USER jenkins
 
 COPY target/lib/argos.hpi /argos.hpi
 COPY jenkins_config/list-of-plugins.txt /list-of-plugins.txt
