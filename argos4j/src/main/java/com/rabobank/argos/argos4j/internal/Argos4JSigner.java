@@ -26,12 +26,18 @@ import java.io.Reader;
 
 public class Argos4JSigner {
 
-    public Signature sign(SigningKey signingKey, String jsonRepresentation) {
+
+
+    public  Signature sign(SigningKey signingKey, String jsonRepresentation) {
         PEMKeyPair keyPair = getPemKeyPair(signingKey);
         return Signature.builder().keyId(computeKeyId(keyPair.getPublicKeyInfo())).signature(createSignature(keyPair.getPrivateKeyInfo(), jsonRepresentation)).build();
     }
 
-    private String createSignature(PrivateKeyInfo signingKey, String jsonRepr) {
+    public  String computeKeyId(byte[] bytes){
+       return  computeKeyId(getPemKeyPair(SigningKey.builder().pemKey(bytes).build()).getPublicKeyInfo());
+    }
+
+    private static String createSignature(PrivateKeyInfo signingKey, String jsonRepr) {
         byte[] payload = jsonRepr.getBytes();
         AsymmetricKeyParameter privateKeyParameter = getPrivateKeyParameter(signingKey);
         Signer signer = getSigner();
@@ -44,12 +50,12 @@ public class Argos4JSigner {
         }
     }
 
-    private Signer getSigner() {
+    private static Signer getSigner() {
         SHA256Digest digest = new SHA256Digest();
         return new PSSSigner(new RSAEngine(), digest, digest.getDigestSize());
     }
 
-    private AsymmetricKeyParameter getPrivateKeyParameter(PrivateKeyInfo signingKey) {
+    private static AsymmetricKeyParameter getPrivateKeyParameter(PrivateKeyInfo signingKey) {
         try {
             return PrivateKeyFactory.createKey(signingKey);
         } catch (IOException e) {
@@ -57,7 +63,7 @@ public class Argos4JSigner {
         }
     }
 
-    private PEMKeyPair getPemKeyPair(SigningKey signingKey) {
+    private static PEMKeyPair getPemKeyPair(SigningKey signingKey) {
         try (Reader reader = new CharSequenceReader(new String(signingKey.getPemKey()));
              PEMParser pemReader = new PEMParser(reader)) {
             Object pem = pemReader.readObject();
@@ -75,7 +81,9 @@ public class Argos4JSigner {
         }
     }
 
-    private String computeKeyId(SubjectPublicKeyInfo publicKey) {
+
+
+    private static String computeKeyId(SubjectPublicKeyInfo publicKey) {
         // initialize digest
         byte[] jsonReprBytes = encodePem(publicKey).getBytes();
         SHA256Digest digest = new SHA256Digest();
@@ -85,7 +93,7 @@ public class Argos4JSigner {
         return Hex.toHexString(result);
     }
 
-    private String encodePem(ASN1Object key) {
+    private static String encodePem(ASN1Object key) {
         try (StringBuilderWriter out = new StringBuilderWriter();
              JcaPEMWriter pemWriter = new JcaPEMWriter(out) {
                  @Override

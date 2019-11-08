@@ -25,7 +25,7 @@ public interface KeyPairMapper {
         try {
             return instance(publicKey);
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid publc key " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid public key " + e.getMessage());
         }
     }
     @Mapping(source = "publicKey", target = "publicKey")
