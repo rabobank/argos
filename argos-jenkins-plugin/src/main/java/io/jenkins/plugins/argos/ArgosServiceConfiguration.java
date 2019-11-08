@@ -17,7 +17,6 @@ import java.io.IOException;
 @Extension
 @Slf4j
 public class ArgosServiceConfiguration extends GlobalConfiguration {
-    public final String url = "foo";
 
     /**
      * @return the singleton instance
@@ -61,10 +60,6 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
     public void setSecure(boolean secure) {
         this.secure = secure;
         save();
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     public String getHostname() {

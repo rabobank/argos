@@ -9,8 +9,6 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface LinkMetaBlockMapper {
 
-    LinkMetaBlockMapper INSTANCE = Mappers.getMapper(LinkMetaBlockMapper.class);
-
     LinkMetaBlock convertFromRestLinkMetaBlock(RestLinkMetaBlock metaBlock);
 
     RestLinkMetaBlock convertToRestLinkMetaBlock(LinkMetaBlock metaBlock);
