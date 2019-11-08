@@ -85,7 +85,7 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
 
     public FormValidation doValidateConnection(@QueryParameter String hostname, @QueryParameter int port,
                                                @QueryParameter boolean secure) throws IOException {
-        String url = determineUrl(hostname, port, secure);
+        String url = determineUrl(hostname, port, secure)+"/actuator/health";
         HttpRequest request = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
         HttpResponse response = request.execute();
         log.info("{}",response.parseAsString());
