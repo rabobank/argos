@@ -1,0 +1,73 @@
+---
+kind: pipeline
+name: default
+type: docker
+
+steps:
+  - name: build
+    image: rabobanknl/argos-build:latest
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
+    commands:
+      - mvn -q package
+      - ls -l argos-service/target
+
+#  - name: sonar
+#    image: rabobanknl/argos-build:latest
+#    environment:
+#      SONAR_LOGIN:
+#        from_secret: sonar_login
+#    volumes:
+#      - name: mvn_cache
+#        path: /root/.m2/repository
+#    commands:
+#      - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=argos -Dsonar.organization=rabobank -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
+
+  - name: pitest
+    image: rabobanknl/argos-build:latest
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
+    commands:
+      - mvn -q -e verify -Ppitest
+
+  - name: build argos service image
+    image: plugins/docker
+    settings:
+      repo: rabobanknl/argos-service
+      tags: latest
+      context: docker
+      dockerfile: docker/ServiceDockerfile
+      username:
+        from_secret: docker_login_user
+      password:
+        from_secret: docker_login_token
+volumes:
+  - name: mvn_cache
+    temp: {}
+trigger:
+  event:
+    - push
+
+---
+kind: pipeline
+name: build build image
+
+steps:
+  - name: build build image
+    image: plugins/docker
+    settings:
+      repo: rabobanknl/argos-build
+      tags: latest
+      context: docker-build-image
+      dockerfile: docker-build-image/Dockerfile
+      username:
+        from_secret: docker_login_user
+      password:
+        from_secret: docker_login_token
+
+trigger:
+  ref:
+    include:
+      - refs/tags/build-image**
