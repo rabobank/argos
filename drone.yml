@@ -10,7 +10,7 @@ steps:
       - name: mvn_cache
         path: /root/.m2/repository
     commands:
-      - mvn -q package
+      - mvn -q install
       - ls -l argos-service/target
 
   - name: sonar
