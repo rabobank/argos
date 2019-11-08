@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: default
+name: argosbuild
 type: docker
 
 steps:
@@ -11,7 +11,6 @@ steps:
         path: /root/.m2/repository
     commands:
       - mvn -q install
-      - ls -l argos-service/target
 #
 #  - name: sonar
 #    image: rabobanknl/argos-build:latest
@@ -44,16 +43,28 @@ steps:
 #      password:
 #        from_secret: docker_login_token
 
+volumes:
+  - name: mvn_cache
+    temp: {}
+trigger:
+  event:
+    - push
 
+---
+kind: pipeline
+name: regresion test
+type: docker
+
+services:
+  - name: mongo
+    image: mongo:4.2.0-bionic
   - name: argos-service
     image: rabobanknl/argos-build:latest
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
-    detach: true
-    commands:
-     - "java -jar /argos-service.jar"
 
-  - name: test
+steps:
+  - name: regresion test
     image: rabobanknl/argos-build:latest
     volumes:
       - name: mvn_cache
@@ -61,15 +72,9 @@ steps:
     commands:
       - cd argos-test
       - mvn -q -e verify -Pregression-test-drone
-services:
-  - name: mongo
-    image: mongo:4.2.0-bionic
-volumes:
-  - name: mvn_cache
-    temp: {}
-trigger:
-  event:
-    - push
+
+depends_on:
+  - argosbuild
 
 ---
 kind: pipeline
