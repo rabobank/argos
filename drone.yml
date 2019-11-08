@@ -44,17 +44,13 @@ steps:
 #      password:
 #        from_secret: docker_login_token
 
-  - name: mongo
-    image: mongo:4.2.0-bionic
-    detach: true
 
   - name: argos-service
     image: rabobanknl/argos-build:latest
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
     detach: true
-    commands:
-      - ps
+    command: java -jar /argos-service.jar
 
   - name: test
     image: rabobanknl/argos-build:latest
@@ -64,7 +60,9 @@ steps:
     commands:
       - cd argos-test
       - mvn -q -e verify -Pregression-test-drone
-
+services:
+  - name: mongo
+    image: mongo:4.2.0-bionic
 volumes:
   - name: mvn_cache
     temp: {}
