@@ -58,7 +58,6 @@ public class LinkRestService implements LinkApi {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId);
         }
 
-
         return new ResponseEntity<>(Optional.ofNullable(optionalHash).map(hash -> linkMetaBlockRepository.findBySupplyChainAndSha(supplyChainId, hash))
                 .orElseGet(() -> linkMetaBlockRepository.findBySupplyChainId(supplyChainId))
                 .stream().map(converter::convertToRestLinkMetaBlock).collect(toList()), HttpStatus.OK);

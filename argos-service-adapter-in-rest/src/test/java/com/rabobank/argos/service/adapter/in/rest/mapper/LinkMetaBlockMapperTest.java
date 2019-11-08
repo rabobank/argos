@@ -5,24 +5,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabobank.argos.domain.model.LinkMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {LinkMetaBlockMapperImpl.class})
 class LinkMetaBlockMapperTest {
 
     @Autowired
     private LinkMetaBlockMapper converter;
-
     private ObjectMapper mapper;
     private String linkJson;
 
@@ -33,8 +31,8 @@ class LinkMetaBlockMapperTest {
     }
 
     @Test
-    void convertFromRestLinkMetaBlock() throws JsonProcessingException {
+    void convertFromRestLinkMetaBlock() throws JsonProcessingException, JSONException {
         LinkMetaBlock link = converter.convertFromRestLinkMetaBlock(mapper.readValue(linkJson, RestLinkMetaBlock.class));
-        assertEquals(linkJson, mapper.writeValueAsString(converter.convertToRestLinkMetaBlock(link)));
+        JSONAssert.assertEquals(linkJson, mapper.writeValueAsString(converter.convertToRestLinkMetaBlock(link)), true);
     }
 }
