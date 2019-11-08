@@ -16,3 +16,14 @@ services:
     image: mongo:4.2.0-bionic
     ports:
       - 27017:27017
+      
+  jenkins:
+    build:
+      context: .
+      dockerfile: JenkinsDockerfile
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    ports:
+      - 9080:8080
+    depends_on:
+      - argos-service
