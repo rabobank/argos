@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: default
+name: argosbuild
 type: docker
 
 steps:
@@ -10,19 +10,18 @@ steps:
       - name: mvn_cache
         path: /root/.m2/repository
     commands:
-      - mvn -q package
-      - ls -l argos-service/target
+      - mvn -q install
 
-#  - name: sonar
-#    image: rabobanknl/argos-build:latest
-#    environment:
-#      SONAR_LOGIN:
-#        from_secret: sonar_login
-#    volumes:
-#      - name: mvn_cache
-#        path: /root/.m2/repository
-#    commands:
-#      - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=argos -Dsonar.organization=rabobank -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
+  - name: sonar
+    image: rabobanknl/argos-build:latest
+    environment:
+      SONAR_LOGIN:
+        from_secret: sonar_login
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
+    commands:
+      - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=rabobank_argos -Dsonar.organization=rabobank -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
 
   - name: pitest
     image: rabobanknl/argos-build:latest
@@ -37,14 +36,35 @@ steps:
     settings:
       repo: rabobanknl/argos-service
       tags: latest
-      context: docker
-      dockerfile: docker/ServiceDockerfile
+      context: argos-docker
+      dockerfile: argos-docker/ServiceDockerfile
       username:
         from_secret: docker_login_user
       password:
         from_secret: docker_login_token
 
-  - name: test
+volumes:
+  - name: mvn_cache
+    temp: {}
+trigger:
+  event:
+    - push
+
+---
+kind: pipeline
+name: regresion test
+type: docker
+
+services:
+  - name: mongodb
+    image: mongo:4.2.0-bionic
+  - name: argos-service
+    image: rabobanknl/argos-service:latest
+    environment:
+      spring.data.mongodb.uri: mongodb://mongodb/test
+
+steps:
+  - name: regresion test
     image: rabobanknl/argos-build:latest
     volumes:
       - name: mvn_cache
@@ -52,19 +72,13 @@ steps:
     commands:
       - cd argos-test
       - mvn -q -e verify -Pregression-test-drone
-    services:
-      - name: mongodb
-        image: mongo:4.2.0-bionic
-      - name: argos-service
-        image: rabobanknl/argos-build:latest
-        environment:
-          - spring.data.mongodb.uri: mongodb://mongodb/test
+
 volumes:
   - name: mvn_cache
     temp: {}
-trigger:
-  event:
-    - push
+
+depends_on:
+  - argosbuild
 
 ---
 kind: pipeline

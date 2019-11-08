@@ -30,7 +30,7 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
 
     private Integer port;
 
-    private Boolean secure;
+    private boolean secure;
 
     @DataBoundConstructor
     public ArgosServiceConfiguration(String hostname, Integer port, Boolean secure) {
@@ -54,11 +54,11 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
         save();
     }
 
-    public Boolean isSecure() {
+    public boolean isSecure() {
         return secure;
     }
 
-    public void setSecure(Boolean secure) {
+    public void setSecure(boolean secure) {
         this.secure = secure;
         save();
     }
@@ -85,7 +85,7 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
 
     public FormValidation doValidateConnection(@QueryParameter String hostname, @QueryParameter int port,
                                                @QueryParameter boolean secure) throws IOException {
-        String url = determineUrl(hostname, port, secure);
+        String url = determineUrl(hostname, port, secure)+"/actuator/health";
         HttpRequest request = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
         HttpResponse response = request.execute();
         log.info("{}",response.parseAsString());
@@ -94,7 +94,7 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
 
     private String determineUrl(String hostname, int port, boolean secure) {
         String protocol = secure ? "https://" : "http://";
-        return protocol + hostname + ":" + port + "/api";
+        return protocol + hostname + ":" + port;
     }
 
     public FormValidation doCheckPort(@QueryParameter String value) {
@@ -102,11 +102,11 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
             return FormValidation.warning("Please specify a port.");
         }
         try {
-            Integer.valueOf(value);
+            Integer.parseInt(value);
         } catch (NumberFormatException exc) {
             return FormValidation.warning("[%s] is not a number.", value);
         }
-        if (port <= 0) {
+        if (Integer.parseInt(value) <= 0) {
             return FormValidation.warning("0 or negative port isn't allowed.");
         }
         return FormValidation.ok();
