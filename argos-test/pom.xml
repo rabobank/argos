@@ -205,7 +205,6 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <forkCount>0</forkCount>
                             <systemPropertyVariables>
                                 <argos-service.rest-api.base-url>http://argos-service:8080</argos-service.rest-api.base-url>
                             </systemPropertyVariables>

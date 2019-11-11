@@ -71,7 +71,8 @@ steps:
         path: /root/.m2/repository
     commands:
       - cd argos-test
-      - mvn clean verify -Pregression-test-drone
+      - mvn -q clean verify -Pregression-test-drone
+      - ls -l target
 
 volumes:
   - name: mvn_cache
