@@ -11,7 +11,6 @@
     <properties>
         <sonar.skip>true</sonar.skip>
         <karate.version>0.9.4</karate.version>
-        <cucumber-reporting.version>3.18.0</cucumber-reporting.version>
     </properties>
 
     <dependencies>
@@ -57,9 +56,10 @@
             <version>${karate.version}</version>
         </dependency>
         <dependency>
-            <groupId>net.masterthought</groupId>
-            <artifactId>cucumber-reporting</artifactId>
-            <version>${cucumber-reporting.version}</version>
+            <groupId>com.intuit.karate</groupId>
+            <artifactId>karate-junit5</artifactId>
+            <version>${karate.version}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
