@@ -1,7 +1,7 @@
 package com.rabobank.argos.service.adapter.in.rest;
 
-import com.rabobank.argos.argos4j.internal.Argos4JSigner;
 import com.rabobank.argos.domain.KeyPairRepository;
+import com.rabobank.argos.domain.SigningProvider;
 import com.rabobank.argos.domain.model.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.mapper.KeyPairMapper;
@@ -33,7 +33,7 @@ class KeyRestServiceTest {
     @Mock
     private KeyPair keyPair;
     @Mock
-    private Argos4JSigner argos4JSigner;
+    private SigningProvider signingProvider;
 
     private KeyRestService restService;
 
@@ -53,19 +53,20 @@ class KeyRestServiceTest {
 
     @Test
     void storeKeyShouldReturnSuccess() {
-        when(argos4JSigner.computeKeyId(any())).thenReturn(KEY_ID);
-        when(restKeyPair.getKeyId()).thenReturn(KEY_ID);
-        ReflectionTestUtils.setField(restService, "argos4JSigner", argos4JSigner);
+        when(signingProvider.computeKeyId(any())).thenReturn(KEY_ID);
+        when(keyPair.getKeyId()).thenReturn(KEY_ID);
         when(converter.convertFromRestKeyPair(restKeyPair)).thenReturn(keyPair);
+        ReflectionTestUtils.setField(restService, "signingProvider", signingProvider);
         assertThat(restService.storeKey(restKeyPair).getStatusCodeValue(), is(204));
         verify(keyPairRepository).save(keyPair);
     }
 
     @Test
     void storeKeyShouldReturnBadRequest() {
-        when(argos4JSigner.computeKeyId(any())).thenReturn(KEY_ID);
-        when(restKeyPair.getKeyId()).thenReturn("incorrect key");
-        ReflectionTestUtils.setField(restService, "argos4JSigner", argos4JSigner);
+        when(signingProvider.computeKeyId(any())).thenReturn(KEY_ID);
+        when(keyPair.getKeyId()).thenReturn("incorrect key");
+        when(converter.convertFromRestKeyPair(restKeyPair)).thenReturn(keyPair);
+        ReflectionTestUtils.setField(restService, "signingProvider", signingProvider);
         assertThrows(ResponseStatusException.class, () -> restService.storeKey(restKeyPair));
     }
 

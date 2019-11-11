@@ -1,7 +1,7 @@
 package com.rabobank.argos.service.adapter.in.rest;
-
-import com.rabobank.argos.argos4j.internal.Argos4JSigner;
 import com.rabobank.argos.domain.KeyPairRepository;
+import com.rabobank.argos.domain.SigningProvider;
+import com.rabobank.argos.domain.SigningProviderImpl;
 import com.rabobank.argos.domain.model.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.KeyApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
@@ -22,7 +22,7 @@ public class KeyRestService implements KeyApi {
 
     private final KeyPairMapper converter;
     private final KeyPairRepository keyPairRepository;
-    private Argos4JSigner argos4JSigner = new Argos4JSigner();
+    private final SigningProvider signingProvider = new SigningProviderImpl();
 
     @Override
     public ResponseEntity<RestKeyPair> getKey(String keyId) {
@@ -34,13 +34,14 @@ public class KeyRestService implements KeyApi {
 
     @Override
     public ResponseEntity<Void> storeKey(@Valid RestKeyPair restKeyPair) {
-        validateKeyId(restKeyPair);
-        keyPairRepository.save(converter.convertFromRestKeyPair(restKeyPair));
+       KeyPair keyPair = converter.convertFromRestKeyPair(restKeyPair);
+        validateKeyId(keyPair);
+        keyPairRepository.save(keyPair);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    private void validateKeyId(RestKeyPair keyPair) {
-        if(!keyPair.getKeyId().equals(argos4JSigner.computeKeyId(keyPair.getPublicKey()))) {
+    private void validateKeyId(KeyPair keyPair) {
+        if(!keyPair.getKeyId().equals(signingProvider.computeKeyId(keyPair.getPublicKey()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid key id : " + keyPair.getKeyId());
         }
     }

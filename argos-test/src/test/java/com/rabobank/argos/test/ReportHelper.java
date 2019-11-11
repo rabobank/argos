@@ -24,7 +24,7 @@ class ReportHelper {
                     .map(path -> path.toAbsolutePath().toString())
                     .collect(Collectors.toList());
 
-            final Configuration config = new Configuration(new File("target"), "horus");
+            final Configuration config = new Configuration(new File("target"), "argos");
             final ReportBuilder reportBuilder = new ReportBuilder(jsonPaths, config);
             reportBuilder.generateReports();
         }
