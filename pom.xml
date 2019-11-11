@@ -12,7 +12,8 @@
 		<module>argos-jenkins-plugin</module>
         <module>argos-docker</module>
 		<module>argos-test</module>
-    </modules>
+		<module>argos-jenkins-base</module>
+	</modules>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos-parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
