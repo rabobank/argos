@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:lts-alpine
+FROM rabobank/argos-jenkins-base:lts-alpine
 
 USER root
     
