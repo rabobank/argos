@@ -17,16 +17,17 @@ import java.util.Optional;
 public class SupplyChainRepositoryImpl implements SupplyChainRepository {
 
     private static final String COLLECTION = "supplyChains";
+    public static final String SUPPLY_CHAIN_ID_FIELD = "supplyChainId";
     private final MongoTemplate template;
 
     @PostConstruct
     public void postConstruct() {
-        template.indexOps(COLLECTION).ensureIndex(HashedIndex.hashed("supplyChainId"));
+        template.indexOps(COLLECTION).ensureIndex(HashedIndex.hashed(SUPPLY_CHAIN_ID_FIELD));
     }
 
     @Override
     public Optional<SupplyChain> findBySupplyChainId(String supplyChainId) {
-        Query query = new Query(Criteria.where("supplyChainId").is(supplyChainId));
+        Query query = new Query(Criteria.where(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId));
         return Optional.ofNullable(template.findOne(query, SupplyChain.class, COLLECTION));
     }
 

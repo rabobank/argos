@@ -24,14 +24,17 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
 
     private static final String COLLECTION = "linkMetaBlocks";
+    private static final String SUPPLY_CHAIN_ID_FIELD = "supplyChainId";
+    public static final String LINK_MATERIALS_HASH_FIELD = "link.materials.hash";
+    public static final String LINK_PRODUCTS_HASH_FIELD = "link.products.hash";
 
     private final MongoTemplate template;
 
     @PostConstruct
     public void postConstruct() {
-        createIndex(HashedIndex.hashed("supplyChainId"));
-        createIndex(new CompoundIndexDefinition(new Document("link.materials.hash",1)).named("link.materials.hash"));
-        createIndex(new CompoundIndexDefinition(new Document("link.products.hash",1)).named("link.products.hash"));
+        createIndex(HashedIndex.hashed(SUPPLY_CHAIN_ID_FIELD));
+        createIndex(new CompoundIndexDefinition(new Document(LINK_MATERIALS_HASH_FIELD,1)).named(LINK_MATERIALS_HASH_FIELD));
+        createIndex(new CompoundIndexDefinition(new Document(LINK_PRODUCTS_HASH_FIELD,1)).named(LINK_PRODUCTS_HASH_FIELD));
     }
 
     private void createIndex(IndexDefinition indexDefinition) {
@@ -40,14 +43,14 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
 
     @Override
     public List<LinkMetaBlock> findBySupplyChainId(String supplyChainId) {
-        Query query = new Query(where("supplyChainId").is(supplyChainId));
+        Query query = new Query(where(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId));
         return template.find(query,LinkMetaBlock.class,COLLECTION);
     }
 
     @Override
     public List<LinkMetaBlock> findBySupplyChainAndSha(String supplyChainId, String hash) {
-        Query query = new Query(new Criteria("supplyChainId").is(supplyChainId).andOperator(
-                new Criteria().orOperator(new Criteria("link.materials.hash").is(hash),new Criteria("link.products.hash").is(hash))));
+        Query query = new Query(new Criteria(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId).andOperator(
+                new Criteria().orOperator(new Criteria(LINK_MATERIALS_HASH_FIELD).is(hash),new Criteria(LINK_PRODUCTS_HASH_FIELD).is(hash))));
         log.info("{}", query);
         return template.find(query,LinkMetaBlock.class,COLLECTION);
     }
