@@ -21,7 +21,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Slf4j
 public class KeyPairRepositoryImpl implements KeyPairRepository {
 
-    private static final String COLLECTION = "keyPair";
+    private static final String COLLECTION = "keyPairs";
     private static final String KEY_ID = "keyId";
     private final MongoTemplate template;
 

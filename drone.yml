@@ -62,6 +62,7 @@ services:
     image: rabobanknl/argos-service:latest
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
+      spring.profiles.active: default,integration-test
 
 steps:
   - name: regresion test

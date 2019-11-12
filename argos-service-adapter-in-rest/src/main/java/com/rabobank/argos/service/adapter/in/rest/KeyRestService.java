@@ -1,7 +1,8 @@
 package com.rabobank.argos.service.adapter.in.rest;
+
+import com.rabobank.argos.domain.KeyIdProvider;
+import com.rabobank.argos.domain.KeyIdProviderImpl;
 import com.rabobank.argos.domain.KeyPairRepository;
-import com.rabobank.argos.domain.SigningProvider;
-import com.rabobank.argos.domain.SigningProviderImpl;
 import com.rabobank.argos.domain.model.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.KeyApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
@@ -22,7 +23,7 @@ public class KeyRestService implements KeyApi {
 
     private final KeyPairMapper converter;
     private final KeyPairRepository keyPairRepository;
-    private final SigningProvider signingProvider = new SigningProviderImpl();
+    private final KeyIdProvider keyIdProvider = new KeyIdProviderImpl();
 
     @Override
     public ResponseEntity<RestKeyPair> getKey(String keyId) {
@@ -41,7 +42,7 @@ public class KeyRestService implements KeyApi {
     }
 
     private void validateKeyId(KeyPair keyPair) {
-        if(!keyPair.getKeyId().equals(signingProvider.computeKeyId(keyPair.getPublicKey()))) {
+        if(!keyPair.getKeyId().equals(keyIdProvider.computeKeyId(keyPair.getPublicKey()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid key id : " + keyPair.getKeyId());
         }
     }

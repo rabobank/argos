@@ -1,7 +1,7 @@
 package com.rabobank.argos.service.adapter.in.rest;
 
+import com.rabobank.argos.domain.KeyIdProvider;
 import com.rabobank.argos.domain.KeyPairRepository;
-import com.rabobank.argos.domain.SigningProvider;
 import com.rabobank.argos.domain.model.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.mapper.KeyPairMapper;
@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 class KeyRestServiceTest {
 
     private static final String KEY_ID = "keyId";
+    public static final String KEY_ID_PROVIDER = "keyIdProvider";
     @Mock
     private KeyPairMapper converter;
     @Mock
@@ -33,7 +34,7 @@ class KeyRestServiceTest {
     @Mock
     private KeyPair keyPair;
     @Mock
-    private SigningProvider signingProvider;
+    private KeyIdProvider keyIdProvider;
 
     private KeyRestService restService;
 
@@ -53,20 +54,20 @@ class KeyRestServiceTest {
 
     @Test
     void storeKeyShouldReturnSuccess() {
-        when(signingProvider.computeKeyId(any())).thenReturn(KEY_ID);
+        when(keyIdProvider.computeKeyId(any())).thenReturn(KEY_ID);
         when(keyPair.getKeyId()).thenReturn(KEY_ID);
         when(converter.convertFromRestKeyPair(restKeyPair)).thenReturn(keyPair);
-        ReflectionTestUtils.setField(restService, "signingProvider", signingProvider);
+        ReflectionTestUtils.setField(restService, KEY_ID_PROVIDER, keyIdProvider);
         assertThat(restService.storeKey(restKeyPair).getStatusCodeValue(), is(204));
         verify(keyPairRepository).save(keyPair);
     }
 
     @Test
     void storeKeyShouldReturnBadRequest() {
-        when(signingProvider.computeKeyId(any())).thenReturn(KEY_ID);
+        when(keyIdProvider.computeKeyId(any())).thenReturn(KEY_ID);
         when(keyPair.getKeyId()).thenReturn("incorrect key");
         when(converter.convertFromRestKeyPair(restKeyPair)).thenReturn(keyPair);
-        ReflectionTestUtils.setField(restService, "signingProvider", signingProvider);
+        ReflectionTestUtils.setField(restService, KEY_ID_PROVIDER, keyIdProvider);
         assertThrows(ResponseStatusException.class, () -> restService.storeKey(restKeyPair));
     }
 

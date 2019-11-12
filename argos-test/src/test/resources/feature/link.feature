@@ -1,6 +1,7 @@
 Feature: Link
   Background:
     * url karate.properties['server.baseurl']
+    * call read('reset.feature')
 
   Scenario: store link with invalid specifications should return a 400 error
     Given path '/api/link/supplychainid'

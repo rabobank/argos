@@ -4,7 +4,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import java.security.PublicKey;
 
-public class SigningProviderImpl implements SigningProvider{
+public class KeyIdProviderImpl implements KeyIdProvider {
 
     @Override
     public String computeKeyId(PublicKey publicKey){

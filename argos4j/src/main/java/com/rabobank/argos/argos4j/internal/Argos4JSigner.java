@@ -2,8 +2,8 @@ package com.rabobank.argos.argos4j.internal;
 
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.SigningKey;
-import com.rabobank.argos.domain.SigningProvider;
-import com.rabobank.argos.domain.SigningProviderImpl;
+import com.rabobank.argos.domain.KeyIdProvider;
+import com.rabobank.argos.domain.KeyIdProviderImpl;
 import com.rabobank.argos.domain.model.RSAPublicKeyFactory;
 import com.rabobank.argos.domain.model.Signature;
 import org.apache.commons.io.input.CharSequenceReader;
@@ -27,12 +27,12 @@ import java.security.spec.InvalidKeySpecException;
 
 public class Argos4JSigner {
 
-    private SigningProvider signingProvider = new SigningProviderImpl();
+    private KeyIdProvider keyIdProvider = new KeyIdProviderImpl();
 
     public  Signature sign(SigningKey signingKey, String jsonRepresentation) {
         PEMKeyPair keyPair = getPemKeyPair(signingKey);
         try {
-            String keyId = signingProvider.computeKeyId(RSAPublicKeyFactory.instance(keyPair.getPublicKeyInfo().getEncoded()));
+            String keyId = keyIdProvider.computeKeyId(RSAPublicKeyFactory.instance(keyPair.getPublicKeyInfo().getEncoded()));
             return Signature.builder().keyId(keyId).signature(createSignature(keyPair.getPrivateKeyInfo(), jsonRepresentation)).build();
         } catch (NoSuchAlgorithmException e) {
             throw new Argos4jError("NoSuchAlgorithmException");
@@ -87,8 +87,6 @@ public class Argos4JSigner {
             throw new Argos4jError(e.toString(), e);
         }
     }
-
-
 
 //    private static String computeKeyId(SubjectPublicKeyInfo publicKey) {
 //        // initialize digest
