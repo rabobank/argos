@@ -52,7 +52,7 @@ public class ArtifactCollector {
             return;
         }
 
-        Path path = Optional.ofNullable(basePath).map(basePath -> Paths.get(basePath, file)).orElseGet(() -> Paths.get(file));
+        Path path = Optional.ofNullable(basePath).map(theBasePath -> Paths.get(theBasePath, file)).orElseGet(() -> Paths.get(file));
 
         if (!path.toFile().exists()) {
             log.warn("path: {} does not exist, skipping..", path);
@@ -79,7 +79,7 @@ public class ArtifactCollector {
                 }
                 // remove base path from path and the first char with "/"
 
-                String relPath = Optional.ofNullable(basePath).map(basePath -> Paths.get(basePath).relativize(entry)).orElse(entry).toString();
+                String relPath = Optional.ofNullable(basePath).map(theBasePath -> Paths.get(theBasePath).relativize(entry)).orElse(entry).toString();
 
                 recurseAndCollect(relPath);
             }

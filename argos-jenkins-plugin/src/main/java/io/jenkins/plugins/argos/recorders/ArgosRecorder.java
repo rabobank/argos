@@ -115,6 +115,7 @@ public class ArgosRecorder extends Recorder {
         /**
          * This human readable name is used in the configuration screen.
          */
+        @Override
         public String getDisplayName() {
             return "argos provenance plugin";
         }
@@ -163,6 +164,7 @@ public class ArgosRecorder extends Recorder {
         }
     }
 
+    @Override
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
     }

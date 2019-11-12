@@ -11,7 +11,6 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildWrapperDescriptor;
 import jenkins.tasks.SimpleBuildWrapper;
-import lombok.AllArgsConstructor;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -76,7 +75,7 @@ public class ArgosWrapper extends SimpleBuildWrapper {
 
         argos4j.collectMaterials(new File(workspace.getRemote()));
 
-        context.setDisposer(new PostWrap(argos4j));
+        context.setDisposer(new PostWrap());
     }
 
 
@@ -110,11 +109,7 @@ public class ArgosWrapper extends SimpleBuildWrapper {
 
     }
 
-    @AllArgsConstructor
     private class PostWrap extends Disposer {
-
-        private final Argos4j argos4j;
-
 
         @Override
         public void tearDown(Run<?, ?> build,

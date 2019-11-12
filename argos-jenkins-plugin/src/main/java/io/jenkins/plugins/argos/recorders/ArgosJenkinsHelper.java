@@ -71,7 +71,7 @@ public class ArgosJenkinsHelper {
         );
 
         if (fileCredential == null)
-            throw new RuntimeException(" Could not find credentials entry with ID '" + privateKeyCredentialId + "' ");
+            throw new Argos4jError(" Could not find credentials entry with ID '" + privateKeyCredentialId + "' ");
 
         return fileCredential;
     }
