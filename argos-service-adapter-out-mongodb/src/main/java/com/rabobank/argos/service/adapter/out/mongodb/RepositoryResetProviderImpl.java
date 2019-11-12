@@ -17,6 +17,6 @@ public class RepositoryResetProviderImpl implements RepositoryResetProvider {
 
     @Override
     public void resetAllRepositories() {
-        template.getCollectionNames().forEach(c-> template.dropCollection(c));
+        template.getCollectionNames().forEach(template::dropCollection);
     }
 }

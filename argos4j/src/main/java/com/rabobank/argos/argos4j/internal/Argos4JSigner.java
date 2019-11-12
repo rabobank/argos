@@ -87,30 +87,4 @@ public class Argos4JSigner {
             throw new Argos4jError(e.toString(), e);
         }
     }
-
-//    private static String computeKeyId(SubjectPublicKeyInfo publicKey) {
-//        // initialize digest
-//        byte[] jsonReprBytes = encodePem(publicKey).getBytes();
-//        SHA256Digest digest = new SHA256Digest();
-//        byte[] result = new byte[digest.getDigestSize()];
-//        digest.update(jsonReprBytes, 0, jsonReprBytes.length);
-//        digest.doFinal(result, 0);
-//        return Hex.toHexString(result);
-//    }
-
-//    private static String encodePem(ASN1Object key) {
-//        try (StringBuilderWriter out = new StringBuilderWriter();
-//             JcaPEMWriter pemWriter = new JcaPEMWriter(out) {
-//                 @Override
-//                 public void newLine() throws IOException {
-//                     write('\n');
-//                 }
-//             }) {
-//            pemWriter.writeObject(new MiscPEMGenerator(key));
-//            pemWriter.flush();
-//            return out.toString();
-//        } catch (IOException e) {
-//            throw new Argos4jError(e.toString(), e);
-//        }
-//    }
 }
