@@ -23,13 +23,13 @@ steps:
     commands:
       - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=rabobank_argos -Dsonar.organization=rabobank -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
 
-#  - name: pitest
-#    image: rabobanknl/argos-build:latest
-#    volumes:
-#      - name: mvn_cache
-#        path: /root/.m2/repository
-#    commands:
-#      - mvn -q -e verify -Ppitest
+  - name: pitest
+    image: rabobanknl/argos-build:latest
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
+    commands:
+      - mvn -q -e verify -Ppitest
 
   - name: build argos service image
     image: plugins/docker
