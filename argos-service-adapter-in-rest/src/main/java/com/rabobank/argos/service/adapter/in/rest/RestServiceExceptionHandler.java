@@ -21,9 +21,10 @@ public class RestServiceExceptionHandler {
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public ResponseEntity<RestError> handleConstraintViolationException(
             MethodArgumentNotValidException ex) {
-
         String message = ex.getBindingResult().getAllErrors()
-                .stream().filter(FieldError.class::isInstance).map(error -> ((FieldError) error).getField() + ":" + error.getDefaultMessage())
+                .stream()
+                .sorted()
+                .filter(FieldError.class::isInstance).map(error -> ((FieldError) error).getField() + ":" + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
         return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(createMessage(message));
