@@ -5,8 +5,10 @@
             </pattern>
         </encoder>
     </appender>
-    <logger name="com.rabobank.argos.service.adapter.in.rest.RestServiceDefaultExceptionHandler" level="OFF"/>
-    <logger name="com.rabobank.argos.service" level="error">
+
+    <logger name="com.intuit.karate" level="DEBUG"/>
+
+    <root level="info">
         <appender-ref ref="STDOUT"/>
-    </logger>
+    </root>
 </configuration>

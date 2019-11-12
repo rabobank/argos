@@ -10,7 +10,8 @@
 		<module>argos-service-adapter-out-mongodb</module>
 		<module>argos-service</module>
 		<module>argos-jenkins-plugin</module>
-		<module>argos-docker</module>
+        <module>argos-docker</module>
+		<module>argos-test</module>
     </modules>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos-parent</artifactId>
@@ -18,6 +19,7 @@
 
 	<properties>
 		<java.version>11</java.version>
+		<commons-codec.version>1.11</commons-codec.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-boot.version>2.2.0.RELEASE</spring-boot.version>
 		<org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
@@ -25,6 +27,10 @@
 		<pitest.version>1.4.10</pitest.version>
 		<sonar.exclusions>file:**/generated-sources/**</sonar.exclusions>
 		<junit-jupiter.version>5.5.2</junit-jupiter.version>
+		<commons-io.version>2.6</commons-io.version>
+		<swagger-annotations.version>1.5.23</swagger-annotations.version>
+		<jsonassert.version>1.5.0</jsonassert.version>
+		<jackson-databind-nullable.version>0.1.0</jackson-databind-nullable.version>
 	</properties>
 
 	<dependencies>
@@ -93,7 +99,6 @@
 							<coverageThreshold>80</coverageThreshold>
 							<failWhenNoMutations>true</failWhenNoMutations>
 							<reportsDirectory>${project.build.directory}/pi-report</reportsDirectory>
-
 							<avoidCallsTo>
 								<avoidCallsTo>java.security</avoidCallsTo>
 								<avoidCallsTo>org.slf4j</avoidCallsTo>

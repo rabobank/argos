@@ -1,11 +1,17 @@
 package com.rabobank.argos.service.adapter.out.mongodb.converter;
 
+import com.rabobank.argos.domain.model.RSAPublicKeyFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 class PublicKeyToByteArrayWriteConverterTest {
 
@@ -21,7 +27,8 @@ class PublicKeyToByteArrayWriteConverterTest {
     }
 
     @Test
-    void convert() {
-
+    void convert() throws InvalidKeySpecException, NoSuchAlgorithmException {
+        byte[] byteConverted=  publicKeyToByteArrayWriteConverter.convert( RSAPublicKeyFactory.instance(bytePublicKey));
+        assertThat(byteConverted,is(bytePublicKey));
     }
 }

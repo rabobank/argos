@@ -14,7 +14,7 @@ import java.util.List;
 public class MongoConfig {
     @Bean
     public MongoCustomConversions customConversions() {
-        List<Converter<?, ?>> converterList = new ArrayList<Converter<?, ?>>();
+        List<Converter<?, ?>> converterList = new ArrayList<>();
         converterList.add(new ByteArrayToPublicKeyToReadConverter());
         converterList.add(new PublicKeyToByteArrayWriteConverter());
         return new MongoCustomConversions(converterList);

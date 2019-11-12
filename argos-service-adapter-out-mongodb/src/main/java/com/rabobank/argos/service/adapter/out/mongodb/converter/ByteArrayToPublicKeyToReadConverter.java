@@ -1,5 +1,6 @@
 package com.rabobank.argos.service.adapter.out.mongodb.converter;
 
+import com.rabobank.argos.service.adapter.out.mongodb.MongoDbException;
 import org.bson.types.Binary;
 import org.springframework.core.convert.converter.Converter;
 
@@ -16,7 +17,7 @@ public class ByteArrayToPublicKeyToReadConverter implements Converter<Binary, Pu
         try {
             return instance(bytes.getData());
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException(e);
+            throw new MongoDbException(e);
         }
     }
 }
