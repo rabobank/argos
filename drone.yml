@@ -57,7 +57,7 @@ type: docker
 
 services:
   - name: mongodb
-    image: mongo:4.2.0-bionic
+    image: mongo:4.2.1-bionic
   - name: argos-service
     image: rabobanknl/argos-service:latest
     environment:
@@ -65,7 +65,7 @@ services:
       spring.profiles.active: default,integration-test
 
 steps:
-  - name: regresion test
+  - name: regression test
     image: rabobanknl/argos-build:latest
     volumes:
       - name: mvn_cache
