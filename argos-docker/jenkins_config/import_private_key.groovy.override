@@ -1,0 +1,36 @@
+import jenkins.model.*
+import com.cloudbees.plugins.credentials.domains.*
+import com.cloudbees.plugins.credentials.CredentialsScope
+import org.apache.commons.fileupload.disk.DiskFileItem
+import org.apache.commons.fileupload.disk.DiskFileItemFactory
+import org.jenkinsci.plugins.plaincredentials.impl.FileCredentialsImpl
+import com.cloudbees.plugins.credentials.SecretBytes
+import groovy.json.JsonSlurper
+import java.util.logging.Logger
+import java.util.logging.Level
+
+def Logger logger = Logger.getLogger("")
+
+store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
+    
+// Load private key
+DiskFileItem fileItem = (DiskFileItem) new DiskFileItemFactory().createItem("bobFile", "text/plain", true, "/var/jenkins_home/bob");
+OutputStream os = fileItem.getOutputStream();
+os.flush();
+
+privateKey = new FileCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "bob",
+    "Bobs private key",
+    fileItem,
+    "/var/jenkins_home/bob",
+    SecretBytes.fromBytes(fileItem.get())
+)
+    
+    
+domain = Domain.global()
+    
+// Add credentials to Jenkins credential store
+store.addCredentials(domain, privateKey)
+
+logger.info("--> Bob's private key added.")
