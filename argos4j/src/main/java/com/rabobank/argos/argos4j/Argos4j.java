@@ -3,7 +3,7 @@ package com.rabobank.argos.argos4j;
 import com.rabobank.argos.argos4j.internal.Argos4JSigner;
 import com.rabobank.argos.argos4j.internal.ArgosServiceClient;
 import com.rabobank.argos.argos4j.internal.ArtifactCollector;
-import com.rabobank.argos.argos4j.internal.JsonSigningSerializer;
+import com.rabobank.argos.domain.JsonSigningSerializer;
 import com.rabobank.argos.domain.model.Artifact;
 import com.rabobank.argos.domain.model.Link;
 import com.rabobank.argos.domain.model.LinkMetaBlock;
