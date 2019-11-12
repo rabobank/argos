@@ -167,7 +167,7 @@ components:
         signature:
           type: string
           minLength: 512
-          maxLength: 512
+          maxLength: 1024
           pattern: '^[0-9a-f]*$'
     Link:
       type: object
