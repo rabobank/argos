@@ -23,8 +23,8 @@ public class RestServiceExceptionHandler {
             MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getAllErrors()
                 .stream()
-                .sorted()
                 .filter(FieldError.class::isInstance).map(error -> ((FieldError) error).getField() + ":" + error.getDefaultMessage())
+                .sorted()
                 .collect(Collectors.joining(", "));
 
         return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(createMessage(message));
