@@ -1,15 +1,10 @@
-import jenkins.model.Jenkins
-import jenkins.model.JenkinsLocationConfiguration
-import hudson.security.*
-import hudson.tasks.*
+import hudson.security.csrf.DefaultCrumbIssuer
 import jenkins.branch.*
+import jenkins.model.Jenkins
 import jenkins.plugins.git.*
 import org.jenkinsci.plugins.workflow.multibranch.*
-import groovy.json.JsonSlurper;
-import hudson.security.csrf.DefaultCrumbIssuer
 
 import java.util.logging.Logger
-import java.util.logging.Level
 
 Logger logger = Logger.getLogger("")
 
