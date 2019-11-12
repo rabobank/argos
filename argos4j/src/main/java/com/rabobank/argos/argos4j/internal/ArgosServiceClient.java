@@ -1,6 +1,7 @@
 package com.rabobank.argos.argos4j.internal;
 
-import com.google.api.client.http.HttpResponse;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.Argos4jSettings;
 import com.rabobank.argos.argos4j.internal.mapper.LinkMetaBlockMapper;
@@ -8,10 +9,11 @@ import com.rabobank.argos.argos4j.rest.api.ApiClient;
 import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.domain.model.LinkMetaBlock;
+import feign.FeignException;
 import lombok.AllArgsConstructor;
 import org.mapstruct.factory.Mappers;
 
-import java.io.IOException;
+
 
 @AllArgsConstructor
 public class ArgosServiceClient {
@@ -20,14 +22,16 @@ public class ArgosServiceClient {
 
     public void uploadLinkMetaBlockToService(LinkMetaBlock linkMetaBlock) {
         RestLinkMetaBlock restLinkMetaBlock = Mappers.getMapper(LinkMetaBlockMapper.class).convertToRestLinkMetaBlock(linkMetaBlock);
-        LinkApi linkApi = new LinkApi(new ApiClient(settings.getArgosServerBaseUrl(), null, null, null));
+
+        ApiClient apiClient = new ApiClient().setBasePath(settings.getArgosServerBaseUrl());
+        apiClient.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        LinkApi linkApi = apiClient.buildClient(LinkApi.class);
+
         try {
-            HttpResponse response = linkApi.createLinkForHttpResponse(settings.getSupplyChainId(), restLinkMetaBlock);
-            if (response.getStatusCode() != 204) {
-                throw new Argos4jError("service returned code " + response.getStatusCode() + " message: " + response.getStatusMessage());
-            }
-        } catch (IOException e) {
-            throw new Argos4jError(e.getMessage(), e);
+            linkApi.createLink(settings.getSupplyChainId(), restLinkMetaBlock);
+        } catch (FeignException e) {
+            throw new Argos4jError(e.status() + " " + e.contentUTF8(), e);
         }
+
     }
 }

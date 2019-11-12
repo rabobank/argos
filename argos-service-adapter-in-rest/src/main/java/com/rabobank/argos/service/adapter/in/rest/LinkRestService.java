@@ -38,6 +38,7 @@ public class LinkRestService implements LinkApi {
     public ResponseEntity<Void> createLink(String supplyChainId, @Valid RestLinkMetaBlock restLinkMetaBlock) {
         log.info("supplyChainId : {}", supplyChainId);
 
+        restLinkMetaBlock.getSignature();
 
         if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
             supplyChainRepository.save(SupplyChain.builder().supplyChainId(supplyChainId).build());

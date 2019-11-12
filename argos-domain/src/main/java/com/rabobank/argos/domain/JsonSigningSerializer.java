@@ -1,17 +1,17 @@
-package com.rabobank.argos.argos4j.internal;
+package com.rabobank.argos.domain;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.domain.model.Artifact;
 import com.rabobank.argos.domain.model.Link;
 
 import java.util.Comparator;
 
-public class JsonSigningSerializer {
+public class JsonSigningSerializer implements SigningSerializer {
 
 
+    @Override
     public String serialize(Link link) {
 
         link.getMaterials().sort(Comparator.comparing(Artifact::getUri));
@@ -22,7 +22,7 @@ public class JsonSigningSerializer {
         try {
             return objectMapper.writeValueAsString(link);
         } catch (JsonProcessingException e) {
-            throw new Argos4jError(e.getMessage(), e);
+            throw new ArgosError(e.getMessage(), e);
         }
     }
 

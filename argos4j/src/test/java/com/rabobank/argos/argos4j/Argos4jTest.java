@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.badRequest;
 import static com.github.tomakehurst.wiremock.client.WireMock.noContent;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -78,20 +78,20 @@ class Argos4jTest {
         argos4j.store();
         List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
         assertThat(requests, hasSize(1));
-        assertThat(requests.get(0).getBodyAsString(), endsWith(",\"link\":{\"command\":null,\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}]}}"));
+        assertThat(requests.get(0).getBodyAsString(), endsWith(",\"link\":{\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}]}}"));
     }
 
     @Test
     void storeMetablockLinkForDirectoryFailed() {
         wireMockServer.stubFor(post(urlEqualTo("/api/link/supplyChainId")).willReturn(serverError()));
         Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store());
-        assertThat(error.getMessage(), is("500 Server Error"));
+        assertThat(error.getMessage(), is("500 "));
     }
 
     @Test
     void storeMetablockLinkForDirectoryUnexectedResonse() {
-        wireMockServer.stubFor(post(urlEqualTo("/api/link/supplyChainId")).willReturn(ok()));
+        wireMockServer.stubFor(post(urlEqualTo("/api/link/supplyChainId")).willReturn(badRequest()));
         Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store());
-        assertThat(error.getMessage(), is("service returned code 200 message: OK"));
+        assertThat(error.getMessage(), is("400 "));
     }
 }

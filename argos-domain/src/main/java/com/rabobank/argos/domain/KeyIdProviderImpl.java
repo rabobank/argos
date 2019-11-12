@@ -7,7 +7,7 @@ import java.security.PublicKey;
 public class KeyIdProviderImpl implements KeyIdProvider {
 
     @Override
-    public String computeKeyId(PublicKey publicKey){
+    public String computeKeyId(PublicKey publicKey) {
         return DigestUtils.sha256Hex(publicKey.getEncoded());
     }
 }
