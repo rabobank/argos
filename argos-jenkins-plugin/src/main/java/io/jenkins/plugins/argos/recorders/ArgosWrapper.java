@@ -89,7 +89,7 @@ public class ArgosWrapper extends SimpleBuildWrapper {
      * for the actual HTML fragment for the configuration screen.
      */
     @Extension
-    @Symbol("argos_wrap")
+    @Symbol("argosWrapper")
     public static final class DescriptorImpl extends BuildWrapperDescriptor {
 
         public DescriptorImpl() {
