@@ -1,7 +1,6 @@
 package io.jenkins.plugins.argos.recorders;
 
 import com.rabobank.argos.argos4j.Argos4j;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -16,13 +15,14 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.File;
+import java.io.Serializable;
 
 /**
  * Jenkins recorder plugin to output signed link metadata for Jenkins pipeline
  * steps.
  *
  */
-public class ArgosWrapper extends SimpleBuildWrapper {
+public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
 
     /**
      * CredentialId for the key to load.
@@ -48,7 +48,6 @@ public class ArgosWrapper extends SimpleBuildWrapper {
     @DataBoundSetter
     public String supplyChainId;
 
-    @XStreamOmitField
     private Argos4j argos4j;
 
     @DataBoundConstructor

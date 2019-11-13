@@ -4,7 +4,6 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jError;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -54,7 +53,6 @@ public class ArgosRecorder extends Recorder {
     /**
      * Link metadata used to record this step
      */
-    @XStreamOmitField
     private Argos4j argos4j;
 
 
