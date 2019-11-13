@@ -10,6 +10,7 @@
 
     <properties>
         <sonar.skip>true</sonar.skip>
+        <karate.version>0.9.4</karate.version>
     </properties>
 
     <dependencies>
@@ -49,6 +50,18 @@
             <version>1.18.10</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.intuit.karate</groupId>
+            <artifactId>karate-apache</artifactId>
+            <version>${karate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.intuit.karate</groupId>
+            <artifactId>karate-junit5</artifactId>
+            <version>${karate.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -154,7 +167,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <workingDirectory>${project.basedir}/../docker</workingDirectory>
+                            <workingDirectory>${project.basedir}/../argos-docker</workingDirectory>
                             <executable>docker-compose</executable>
                         </configuration>
                     </plugin>
@@ -192,7 +205,6 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <forkCount>0</forkCount>
                             <systemPropertyVariables>
                                 <argos-service.rest-api.base-url>http://argos-service:8080</argos-service.rest-api.base-url>
                             </systemPropertyVariables>

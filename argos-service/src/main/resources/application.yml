@@ -2,3 +2,5 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost/test
+  profiles:
+    active: default,integration-test

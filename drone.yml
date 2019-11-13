@@ -68,25 +68,30 @@ type: docker
 
 services:
   - name: mongodb
-    image: mongo:4.2.0-bionic
+    image: mongo:4.2.1-bionic
   - name: argos-service
     image: rabobanknl/argos-service:latest
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
+      spring.profiles.active: default,integration-test
   - name: argos-jenkins
     image: rabobanknl/argos-jenkins:latest
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+    volumes:
+      - name: mvn_cache
+        path: /var/jenkins_home/.m2/repository
 
 steps:
-  - name: regresion test
+  - name: regression test
     image: rabobanknl/argos-build:latest
     volumes:
       - name: mvn_cache
         path: /root/.m2/repository
     commands:
       - cd argos-test
-      - mvn -q -e verify -Pregression-test-drone
+      - mvn -q clean verify -Pregression-test-drone
+      - ls -l target
 
 volumes:
   - name: mvn_cache

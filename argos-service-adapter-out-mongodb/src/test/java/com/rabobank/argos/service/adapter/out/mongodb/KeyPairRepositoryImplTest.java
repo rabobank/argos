@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class KeyPairRepositoryImplTest {
-    private static final String COLLECTION = "keyPair";
+    private static final String COLLECTION = "keyPairs";
     @Mock
     private MongoTemplate template;
 

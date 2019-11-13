@@ -3,10 +3,6 @@ package com.rabobank.argos.test;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import lombok.Getter;
-import lombok.Singular;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 @Getter
 public class Properties {

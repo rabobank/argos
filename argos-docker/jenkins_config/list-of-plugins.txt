@@ -1,1 +1,1 @@
-argos:::file:///argos.hpi
+argos:::file:///var/jenkins_home/argos.hpi

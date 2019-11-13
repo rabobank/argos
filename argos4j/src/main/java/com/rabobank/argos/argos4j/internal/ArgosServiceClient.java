@@ -9,6 +9,7 @@ import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.domain.model.LinkMetaBlock;
 import lombok.AllArgsConstructor;
+import org.mapstruct.factory.Mappers;
 
 import java.io.IOException;
 
@@ -18,7 +19,7 @@ public class ArgosServiceClient {
     private final Argos4jSettings settings;
 
     public void uploadLinkMetaBlockToService(LinkMetaBlock linkMetaBlock) {
-        RestLinkMetaBlock restLinkMetaBlock = LinkMetaBlockMapper.INSTANCE.convertToRestLinkMetaBlock(linkMetaBlock);
+        RestLinkMetaBlock restLinkMetaBlock = Mappers.getMapper(LinkMetaBlockMapper.class).convertToRestLinkMetaBlock(linkMetaBlock);
         LinkApi linkApi = new LinkApi(new ApiClient(settings.getArgosServerBaseUrl(), null, null, null));
         try {
             HttpResponse response = linkApi.createLinkForHttpResponse(settings.getSupplyChainId(), restLinkMetaBlock);

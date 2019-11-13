@@ -1,9 +1,9 @@
 package com.rabobank.argos.test;
 
-
+import com.intuit.karate.KarateOptions;
+import com.intuit.karate.junit5.Karate;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;
@@ -13,27 +13,32 @@ import java.net.http.HttpResponse;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
+@KarateOptions(tags = {"~@ignore"})
 public class ArgosTestIT {
 
-    private static HttpClient client;
-
+    private static final String SERVER_BASEURL = "server.baseurl";
     private static Properties properties = Properties.getInstance();
 
     @BeforeAll
-    public static void waitForServiceToStart(){
+    static void setUp() {
+        log.info("karate base url : {}", properties.getApiBaseUr());
+        System.setProperty(SERVER_BASEURL, properties.getApiBaseUr());
+        waitForServiceToStart();
+    }
+
+    private static void waitForServiceToStart() {
         log.info("Waiting for argos service start");
-        client = HttpClient.newHttpClient();
+        HttpClient client = HttpClient.newHttpClient();
         await().atMost(10, SECONDS).until(() -> {
             try {
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(properties.getApiBaseUr()+"/actuator/health"))
+                        .uri(URI.create(properties.getApiBaseUr() + "/actuator/health"))
                         .build();
                 HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
                 return 200 == send.statusCode();
-            } catch (IOException e){
+            } catch (IOException e) {
                 //ignore
                 return false;
             }
@@ -43,14 +48,14 @@ public class ArgosTestIT {
     }
 
 
-
-    @Test
-    public void helloWorld() throws IOException, InterruptedException {
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(properties.getApiBaseUr()))
-                .build();
-        HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200,send.statusCode());
+    @Karate.Test
+    Karate keypair() {
+        return new Karate().feature("classpath:feature/keypair.feature");
     }
+
+    @Karate.Test
+    Karate link() {
+        return new Karate().feature("classpath:feature/link.feature");
+    }
+
 }

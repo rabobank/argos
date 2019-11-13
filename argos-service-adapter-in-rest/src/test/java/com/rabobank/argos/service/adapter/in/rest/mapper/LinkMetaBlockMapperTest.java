@@ -14,8 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @SpringBootTest(classes = {LinkMetaBlockMapperImpl.class})
 class LinkMetaBlockMapperTest {
 

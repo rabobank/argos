@@ -119,6 +119,9 @@ paths:
           required: true
           schema:
             type: string
+            minLength: 64
+            maxLength: 64
+            pattern: '^[0-9a-f]*$'
       responses:
         '200':
           description: Key pair
@@ -164,7 +167,7 @@ components:
         signature:
           type: string
           minLength: 512
-          maxLength: 512
+          maxLength: 1024
           pattern: '^[0-9a-f]*$'
     Link:
       type: object
@@ -208,6 +211,9 @@ components:
       properties:
         keyId:
           type: string
+          minLength: 64
+          maxLength: 64
+          pattern: '^[0-9a-f]*$'
         publicKey:
           type: string
           format: byte
