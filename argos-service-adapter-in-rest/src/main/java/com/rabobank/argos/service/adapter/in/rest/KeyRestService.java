@@ -35,7 +35,7 @@ public class KeyRestService implements KeyApi {
 
     @Override
     public ResponseEntity<Void> storeKey(@Valid RestKeyPair restKeyPair) {
-       KeyPair keyPair = converter.convertFromRestKeyPair(restKeyPair);
+        KeyPair keyPair = converter.convertFromRestKeyPair(restKeyPair);
         validateKeyId(keyPair);
         keyPairRepository.save(keyPair);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
