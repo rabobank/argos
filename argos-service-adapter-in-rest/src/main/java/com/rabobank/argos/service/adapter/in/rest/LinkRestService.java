@@ -1,7 +1,9 @@
 package com.rabobank.argos.service.adapter.in.rest;
 
 
+import com.rabobank.argos.domain.KeyPairRepository;
 import com.rabobank.argos.domain.LinkMetaBlockRepository;
+import com.rabobank.argos.domain.SignatureValidator;
 import com.rabobank.argos.domain.SupplyChainRepository;
 import com.rabobank.argos.domain.model.LinkMetaBlock;
 import com.rabobank.argos.domain.model.SupplyChain;
@@ -34,17 +36,27 @@ public class LinkRestService implements LinkApi {
 
     private final LinkMetaBlockMapper converter;
 
+    private final SignatureValidator signatureValidator;
+
+    private final KeyPairRepository keyPairRepository;
+
     @Override
     public ResponseEntity<Void> createLink(String supplyChainId, @Valid RestLinkMetaBlock restLinkMetaBlock) {
         log.info("supplyChainId : {}", supplyChainId);
 
-        restLinkMetaBlock.getSignature();
+
+        LinkMetaBlock linkMetaBlock = converter.convertFromRestLinkMetaBlock(restLinkMetaBlock);
+
+        keyPairRepository.findByKeyId(linkMetaBlock.getSignature().getKeyId()).ifPresent(keyPair -> {
+            if (!signatureValidator.isValid(linkMetaBlock, keyPair.getPublicKey())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid signature");
+            }
+        });
 
         if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
             supplyChainRepository.save(SupplyChain.builder().supplyChainId(supplyChainId).build());
         }
 
-        LinkMetaBlock linkMetaBlock = converter.convertFromRestLinkMetaBlock(restLinkMetaBlock);
 
         linkMetaBlock.setSupplyChainId(supplyChainId);
 

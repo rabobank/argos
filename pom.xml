@@ -100,7 +100,6 @@
 							<failWhenNoMutations>true</failWhenNoMutations>
 							<reportsDirectory>${project.build.directory}/pi-report</reportsDirectory>
 							<avoidCallsTo>
-								<avoidCallsTo>java.security</avoidCallsTo>
 								<avoidCallsTo>org.slf4j</avoidCallsTo>
 							</avoidCallsTo>
 							<excludedClasses>
@@ -124,7 +123,6 @@
 							</dependency>
 						</dependencies>
 					</plugin>
-					
 				</plugins>
 			</build>
 		</profile>
