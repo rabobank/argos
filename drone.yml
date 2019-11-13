@@ -78,6 +78,9 @@ services:
     image: rabobanknl/argos-jenkins:latest
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+    volumes:
+      - name: mvn_cache
+        path: /var/jenkins_home/.m2/repository
 
 steps:
   - name: regression test
