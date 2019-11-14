@@ -13,12 +13,15 @@ import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,7 +29,8 @@ import static org.mockito.Mockito.when;
 class SupplyChainRepositoryImplTest {
 
     private static final String SUPPLY_CHAIN_ID = "supplyChainId";
-    public static final String COLLECTION_NAME = "supplyChains";
+    private static final String COLLECTION_NAME = "supplyChains";
+
     @Mock
     private MongoTemplate template;
 
@@ -53,8 +57,8 @@ class SupplyChainRepositoryImplTest {
     void postPostConstruct() {
         when(template.indexOps(COLLECTION_NAME)).thenReturn(indexOperations);
         repository.postConstruct();
-        verify(indexOperations).ensureIndex(indexDefinitionArgumentCaptor.capture());
-        assertThat(indexDefinitionArgumentCaptor.getValue().getIndexKeys().toJson(), is("{\"supplyChainId\": \"hashed\"}"));
+        verify(indexOperations, times(2)).ensureIndex(indexDefinitionArgumentCaptor.capture());
+        assertThat(indexDefinitionArgumentCaptor.getValue().getIndexKeys().toJson(), is("{\"name\": 1}"));
     }
 
     @Test
@@ -69,5 +73,23 @@ class SupplyChainRepositoryImplTest {
     void save() {
         repository.save(supplyChain);
         verify(template).save(supplyChain, COLLECTION_NAME);
+    }
+
+    @Test
+    void findByName_With_Name_Should_Return_SupplyChain_List() {
+        when(template.find(any(), eq(SupplyChain.class), eq(COLLECTION_NAME))).thenReturn(Collections.singletonList(supplyChain));
+        List<SupplyChain> result = repository.findByName("name");
+        assertThat(result.isEmpty(), is(false));
+        assertThat(result.get(0), is(supplyChain));
+        verify(template).find(queryArgumentCaptor.capture(), eq(SupplyChain.class), eq(COLLECTION_NAME));
+    }
+
+    @Test
+    void findByAll_Should_Return_SupplyChain_List() {
+        when(template.findAll(eq(SupplyChain.class), eq(COLLECTION_NAME))).thenReturn(Collections.singletonList(supplyChain));
+        List<SupplyChain> result = repository.findAll();
+        assertThat(result.isEmpty(), is(false));
+        assertThat(result.get(0), is(supplyChain));
+        verify(template).findAll(eq(SupplyChain.class), eq(COLLECTION_NAME));
     }
 }
