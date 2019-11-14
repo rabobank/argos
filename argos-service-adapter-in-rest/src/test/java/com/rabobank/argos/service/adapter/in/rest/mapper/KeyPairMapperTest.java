@@ -8,9 +8,8 @@ import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.security.PublicKey;
@@ -18,10 +17,8 @@ import java.util.Base64;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest(classes = {KeyPairMapperImpl.class})
 class KeyPairMapperTest {
 
-    @Autowired
     private KeyPairMapper converter;
     private ObjectMapper mapper;
     private String keyPairJson;
@@ -31,6 +28,7 @@ class KeyPairMapperTest {
 
     @BeforeEach
     void setUp() throws IOException {
+        converter = Mappers.getMapper(KeyPairMapper.class);
         mapper = new ObjectMapper();
         keyPairJson = IOUtils.toString(LinkMetaBlockMapperTest.class.getResourceAsStream("/keypair.json"), "UTF-8");
         base64EncodedPublicKey = IOUtils.toString(LinkMetaBlockMapperTest.class.getResourceAsStream("/testkey.pub"), "UTF-8");

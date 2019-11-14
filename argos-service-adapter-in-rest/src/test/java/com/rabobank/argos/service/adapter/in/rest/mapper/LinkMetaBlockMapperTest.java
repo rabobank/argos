@@ -8,22 +8,20 @@ import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 
-@SpringBootTest(classes = {LinkMetaBlockMapperImpl.class})
 class LinkMetaBlockMapperTest {
 
-    @Autowired
     private LinkMetaBlockMapper converter;
     private ObjectMapper mapper;
     private String linkJson;
 
     @BeforeEach
     void setUp() throws IOException {
+        converter = Mappers.getMapper(LinkMetaBlockMapper.class);
         mapper = new ObjectMapper();
         linkJson = IOUtils.toString(LinkMetaBlockMapperTest.class.getResourceAsStream("/link.json"), "UTF-8");
     }

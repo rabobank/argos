@@ -21,13 +21,6 @@ public class ArgosTestIT {
     private static final String SERVER_BASEURL = "server.baseurl";
     private static Properties properties = Properties.getInstance();
 
-    @BeforeAll
-    static void setUp() {
-        log.info("karate base url : {}", properties.getApiBaseUrl());
-        System.setProperty(SERVER_BASEURL, properties.getApiBaseUrl());
-        waitForServiceToStart();
-    }
-
     private static void waitForServiceToStart() {
         log.info("Waiting for argos service start");
         HttpClient client = HttpClient.newHttpClient();
@@ -47,6 +40,12 @@ public class ArgosTestIT {
         log.info("argos service started");
     }
 
+    @BeforeAll
+    static void setUp() {
+        log.info("karate base url : {}", properties.getApiBaseUrl());
+        System.setProperty(SERVER_BASEURL, properties.getApiBaseUrl());
+        waitForServiceToStart();
+    }
 
     @Karate.Test
     Karate keypair() {
