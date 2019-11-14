@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.stream.Stream;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -77,10 +78,12 @@ public class JenkinsTestIT {
         Build lastUnsuccessfulBuild = getJob(jenkins).getLastUnsuccessfulBuild();
 
         if(lastUnsuccessfulBuild != Build.BUILD_HAS_NEVER_RUN) {
-            log.error(lastUnsuccessfulBuild.details().getConsoleOutputText());
+            Stream.of(lastUnsuccessfulBuild.details().getConsoleOutputText().split("\\r?\\n")).forEach(log::error);
         }
         assertThat(lastUnsuccessfulBuild.getNumber(), is(-1));
         assertThat(lastSuccessfulBuild.getNumber(), is(buildNumber));
+
+
 
     }
 
