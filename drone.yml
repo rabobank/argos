@@ -82,6 +82,8 @@ services:
     volumes:
       - name: mvn_cache
         path: /var/jenkins_home/.m2/repository
+  - name: sonarqube
+    image: sonarqube
 
 steps:
   - name: regression test
@@ -92,7 +94,6 @@ steps:
     commands:
       - cd argos-test
       - mvn -q clean verify -Pregression-test-drone
-      - ls -l target
 
 volumes:
   - name: mvn_cache
