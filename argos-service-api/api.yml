@@ -111,7 +111,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /link/{supplyChainId}/query:
+  /supplychain/{supplyChainId}/link/:
     get:
       summary: find link
       operationId: findLink
@@ -151,7 +151,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /link/{supplyChainId}:
     post:
       summary: Create a link
       operationId: createLink
