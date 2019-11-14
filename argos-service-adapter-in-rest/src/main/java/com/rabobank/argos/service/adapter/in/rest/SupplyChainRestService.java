@@ -35,18 +35,15 @@ public class SupplyChainRestService implements SupplychainApi {
     @Override
     public ResponseEntity<RestSupplyChainItem> createSupplyChain(@Valid RestCreateSupplyChainCommand restCreateSupplyChainCommand) {
         validateIsUnique(restCreateSupplyChainCommand);
-
         SupplyChain supplyChain = converter
                 .convertFromRestSupplyChainCommand(restCreateSupplyChainCommand, () -> randomUUID().toString());
 
         supplyChainRepository.save(supplyChain);
-
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{supplyChainId}")
                 .buildAndExpand(supplyChain.getSupplyChainId())
                 .toUri();
-
         return ResponseEntity
                 .created(location)
                 .body(converter.convertToRestRestSupplyChainItem(supplyChain));

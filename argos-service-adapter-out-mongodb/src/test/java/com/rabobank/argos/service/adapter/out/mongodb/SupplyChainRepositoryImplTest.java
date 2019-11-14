@@ -19,6 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,8 +54,8 @@ class SupplyChainRepositoryImplTest {
     void postPostConstruct() {
         when(template.indexOps(COLLECTION_NAME)).thenReturn(indexOperations);
         repository.postConstruct();
-        verify(indexOperations).ensureIndex(indexDefinitionArgumentCaptor.capture());
-        assertThat(indexDefinitionArgumentCaptor.getValue().getIndexKeys().toJson(), is("{\"supplyChainId\": \"hashed\"}"));
+        verify(indexOperations, times(2)).ensureIndex(indexDefinitionArgumentCaptor.capture());
+        assertThat(indexDefinitionArgumentCaptor.getValue().getIndexKeys().toJson(), is("{\"name\": 1}"));
     }
 
     @Test
