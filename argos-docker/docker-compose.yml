@@ -28,8 +28,8 @@ services:
       - 9080:8080
     depends_on:
       - argos-service
-      - sonarqube
+ #     - sonarqube
       
-  sonarqube:
-    image: sonarqube
+ # sonarqube:
+ #   image: sonarqube
 

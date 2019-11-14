@@ -82,8 +82,8 @@ services:
     volumes:
       - name: mvn_cache
         path: /var/jenkins_home/.m2/repository
-  - name: sonarqube
-    image: sonarqube
+#  - name: sonarqube
+#    image: sonarqube
 
 steps:
   - name: regression test
