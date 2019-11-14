@@ -3,9 +3,11 @@ package com.rabobank.argos.argos4j;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.io.Serializable;
+
 @Builder
 @Getter
-public class Argos4jSettings {
+public class Argos4jSettings implements Serializable {
 
     public static final String DEFAULT_EXCLUDE_PATTERNS = "**.{git,link}**";
 

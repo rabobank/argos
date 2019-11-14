@@ -42,6 +42,17 @@ steps:
         from_secret: docker_login_user
       password:
         from_secret: docker_login_token
+  - name: build argos jenkins image
+    image: plugins/docker
+    settings:
+      repo: rabobanknl/argos-jenkins
+      tags: latest
+      context: argos-docker
+      dockerfile: argos-docker/JenkinsDockerfile
+      username:
+        from_secret: docker_login_user
+      password:
+        from_secret: docker_login_token
 
 volumes:
   - name: mvn_cache
@@ -49,10 +60,11 @@ volumes:
 trigger:
   event:
     - push
+    - pull_request
 
 ---
 kind: pipeline
-name: regresion test
+name: regression test
 type: docker
 
 services:
@@ -63,6 +75,12 @@ services:
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
       spring.profiles.active: default,integration-test
+  - name: argos-jenkins
+    image: rabobanknl/argos-jenkins:latest
+    environment:
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+#  - name: sonarqube
+#    image: sonarqube
 
 steps:
   - name: regression test
@@ -73,7 +91,6 @@ steps:
     commands:
       - cd argos-test
       - mvn -q clean verify -Pregression-test-drone
-      - ls -l target
 
 volumes:
   - name: mvn_cache
@@ -81,6 +98,11 @@ volumes:
 
 depends_on:
   - argosbuild
+
+trigger:
+  event:
+    - push
+    - pull_request
 
 ---
 kind: pipeline
