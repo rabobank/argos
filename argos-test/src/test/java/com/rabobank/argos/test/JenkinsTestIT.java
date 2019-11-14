@@ -36,7 +36,7 @@ public class JenkinsTestIT {
     private static void waitForJenkinsToStart() {
         log.info("Waiting for jenkins start");
         HttpClient client = HttpClient.newHttpClient();
-        await().atMost(30, SECONDS).until(() -> {
+        await().atMost(1, MINUTES).until(() -> {
             try {
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(properties.getJenkinsBaseUrl() + "/login"))
@@ -75,6 +75,8 @@ public class JenkinsTestIT {
 
         Build lastSuccessfulBuild = getJob(jenkins).getLastSuccessfulBuild();
         assertThat(lastSuccessfulBuild.getNumber(), is(buildNumber));
+
+
 
     }
 
