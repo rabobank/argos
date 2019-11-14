@@ -227,7 +227,7 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <argos-service.rest-api.base-url>http://argos-service:8080</argos-service.rest-api.base-url>
-                                <jenkins.base-url>http://argos-jenkins:9080</jenkins.base-url>
+                                <jenkins.base-url>http://argos-jenkins:8080</jenkins.base-url>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>
