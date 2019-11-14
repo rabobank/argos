@@ -300,7 +300,7 @@ components:
         uri:
           type: string
           maxLength: 1024
-          pattern: '^(\/?[\p{L}0-9. _-]+)+\/?$'
+          pattern: '^(?!.*\\).*$'
         hash:
           type: string
           minLength: 64

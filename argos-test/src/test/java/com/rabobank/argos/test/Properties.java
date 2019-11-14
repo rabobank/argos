@@ -7,8 +7,9 @@ import lombok.Getter;
 @Getter
 public class Properties {
 
-    private final String apiBaseUr;
+    private final String apiBaseUrl;
     private static Properties INSTANCE;
+    private final String jenkinsBaseUrl;
 
     public static Properties getInstance() {
         if (INSTANCE == null) {
@@ -19,7 +20,8 @@ public class Properties {
 
     private Properties() {
         Config conf = ConfigFactory.load();
-        apiBaseUr = conf.getString("argos-service.rest-api.base-url");
+        apiBaseUrl = conf.getString("argos-service.rest-api.base-url");
+        jenkinsBaseUrl = conf.getString("jenkins.base-url");
 
     }
 }

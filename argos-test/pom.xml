@@ -62,6 +62,26 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.offbytwo.jenkins</groupId>
+            <artifactId>jenkins-client</artifactId>
+            <version>0.3.8</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>httpcore</artifactId>
+                    <groupId>org.apache.httpcomponents</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>httpclient</artifactId>
+                    <groupId>org.apache.httpcomponents</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>httpmime</artifactId>
+                    <groupId>org.apache.httpcomponents</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>
@@ -207,6 +227,7 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <argos-service.rest-api.base-url>http://argos-service:8080</argos-service.rest-api.base-url>
+                                <jenkins.base-url>http://argos-jenkins:8080</jenkins.base-url>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

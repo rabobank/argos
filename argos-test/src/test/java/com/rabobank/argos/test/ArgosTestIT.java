@@ -23,8 +23,8 @@ public class ArgosTestIT {
 
     @BeforeAll
     static void setUp() {
-        log.info("karate base url : {}", properties.getApiBaseUr());
-        System.setProperty(SERVER_BASEURL, properties.getApiBaseUr());
+        log.info("karate base url : {}", properties.getApiBaseUrl());
+        System.setProperty(SERVER_BASEURL, properties.getApiBaseUrl());
         waitForServiceToStart();
     }
 
@@ -34,7 +34,7 @@ public class ArgosTestIT {
         await().atMost(10, SECONDS).until(() -> {
             try {
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(properties.getApiBaseUr() + "/actuator/health"))
+                        .uri(URI.create(properties.getApiBaseUrl() + "/actuator/health"))
                         .build();
                 HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
                 return 200 == send.statusCode();
