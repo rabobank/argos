@@ -1,18 +1,22 @@
-FROM jenkins/jenkins:lts-alpine
+FROM rabobanknl/argos-jenkins-base:latest
 
 USER root
-    
-# Install Docker
-RUN apk add --no-cache docker
 
-# groovy files
-COPY jenkins_config/*.groovy /usr/share/jenkins/ref/init.groovy.d/
+RUN apk add --no-cache maven
 
 # temporary patch to enable file url's
 # A PR is made to upstream
 RUN sed -i -e 's/http\.\+/\(http\|file\)\.\+/g' /usr/local/bin/install-plugins.sh
 
-COPY target/lib/argos.hpi /argos.hpi
-COPY jenkins_config/list-of-plugins.txt /list-of-plugins.txt
+USER jenkins
 
-RUN /usr/local/bin/install-plugins.sh $(cat /list-of-plugins.txt)
+# groovy files
+COPY jenkins_config/*.groovy* /usr/share/jenkins/ref/init.groovy.d/
+
+# copy private key bob
+COPY jenkins_config/bob /var/jenkins_home/bob
+
+COPY target/lib/argos.hpi /var/jenkins_home/argos.hpi
+COPY jenkins_config/list-of-plugins.txt /var/jenkins_home/list-of-plugins.txt
+
+RUN /usr/local/bin/install-plugins.sh $(cat //var/jenkins_home/list-of-plugins.txt)

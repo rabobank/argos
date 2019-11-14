@@ -12,17 +12,17 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 @RequiredArgsConstructor
-public class Argos4j {
+public class Argos4j implements Serializable {
 
     @Getter
     private final Argos4jSettings settings;
 
-    private List<Artifact> materials = new ArrayList<>();
-    private List<Artifact> products = new ArrayList<>();
+    private ArrayList<Artifact> materials = new ArrayList<>();
+    private ArrayList<Artifact> products = new ArrayList<>();
 
     public void collectMaterials(File materialsDirectory) {
         materials.addAll(new ArtifactCollector(settings, materialsDirectory.getPath()).collect(""));
