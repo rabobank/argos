@@ -60,6 +60,7 @@ volumes:
 trigger:
   event:
     - push
+    - pull_request
 
 ---
 kind: pipeline
@@ -99,6 +100,11 @@ volumes:
 
 depends_on:
   - argosbuild
+
+trigger:
+  event:
+    - push
+    - pull_request
 
 ---
 kind: pipeline
