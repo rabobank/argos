@@ -8,8 +8,6 @@ RUN apk add --no-cache maven
 # A PR is made to upstream
 RUN sed -i -e 's/http\.\+/\(http\|file\)\.\+/g' /usr/local/bin/install-plugins.sh
 
-USER jenkins
-
 # groovy files
 COPY jenkins_config/*.groovy* /usr/share/jenkins/ref/init.groovy.d/
 

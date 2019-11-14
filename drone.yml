@@ -79,6 +79,9 @@ services:
     image: rabobanknl/argos-jenkins:latest
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
 #  - name: sonarqube
 #    image: sonarqube
 
