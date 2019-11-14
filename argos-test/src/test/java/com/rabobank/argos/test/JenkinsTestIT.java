@@ -74,9 +74,13 @@ public class JenkinsTestIT {
         await().atMost(1, MINUTES).until(() -> !build.details().isBuilding());
 
         Build lastSuccessfulBuild = getJob(jenkins).getLastSuccessfulBuild();
+        Build lastUnsuccessfulBuild = getJob(jenkins).getLastUnsuccessfulBuild();
+
+        if(lastUnsuccessfulBuild != Build.BUILD_HAS_NEVER_RUN) {
+            log.error(lastUnsuccessfulBuild.details().getConsoleOutputText());
+        }
+        assertThat(lastUnsuccessfulBuild.getNumber(), is(-1));
         assertThat(lastSuccessfulBuild.getNumber(), is(buildNumber));
-
-
 
     }
 
