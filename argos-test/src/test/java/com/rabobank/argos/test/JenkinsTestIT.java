@@ -29,7 +29,7 @@ public class JenkinsTestIT {
 
     @BeforeAll
     static void setUp() {
-        log.info("lenkins base url : {}", properties.getJenkinsBaseUrl());
+        log.info("jenkins base url : {}", properties.getJenkinsBaseUrl());
         waitForJenkinsToStart();
     }
 
@@ -56,7 +56,7 @@ public class JenkinsTestIT {
     @Test
     public void testFreestyle() throws IOException, URISyntaxException {
 
-        JenkinsServer jenkins = new JenkinsServer(new URI("http://localhost:9080"), "admin", "admin");
+        JenkinsServer jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
 
         await().atMost(10, SECONDS).until(() -> getJob(jenkins) != null);
         JobWithDetails job = getJob(jenkins);
