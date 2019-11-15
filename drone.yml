@@ -18,6 +18,7 @@ steps:
       - mvn -q install
       - cd argos4j
       - mvn deploy
+
   - name: sonar
     image: rabobanknl/argos-build:latest
     environment:
