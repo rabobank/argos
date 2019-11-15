@@ -130,5 +130,7 @@ steps:
 
 trigger:
   ref:
+    event:
+      - push
     include:
       - refs/tags/build-image**
