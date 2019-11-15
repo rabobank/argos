@@ -4,7 +4,6 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +13,9 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.badRequest;
@@ -46,19 +48,21 @@ class Argos4jTest {
     }
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() throws IOException, NoSuchAlgorithmException {
         Integer randomPort = findRandomPort();
         wireMockServer = new WireMockServer(randomPort);
         wireMockServer.start();
 
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048);
+        KeyPair pair = generator.generateKeyPair();
 
         Argos4jSettings settings = Argos4jSettings.builder()
                 .argosServerBaseUrl("http://localhost:" + randomPort + "/api")
                 .stepName("build")
                 .supplyChainId("supplyChainId")
-                .signingKey(SigningKey.builder()
-                        .pemKey(IOUtils.toByteArray(getClass().getResourceAsStream("/bob.key")))
-                        .build()).build();
+                .signingKey(SigningKey.builder().keyPair(pair).build())
+                .build();
         argos4j = new Argos4j(settings);
 
 

@@ -4,10 +4,10 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.security.KeyPair;
 
 @Getter
 @Builder
 public class SigningKey implements Serializable {
-
-    private final byte[] pemKey;
+    private final KeyPair keyPair;
 }

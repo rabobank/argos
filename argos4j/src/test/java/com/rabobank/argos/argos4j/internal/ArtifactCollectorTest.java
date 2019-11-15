@@ -12,6 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.util.Comparator;
@@ -77,7 +78,7 @@ class ArtifactCollectorTest {
             ZipEntry entry = new ZipEntry("test.txt");
             entry.setTime(43323342L);
             zos.putNextEntry(entry);
-            zos.write(content.getBytes());
+            zos.write(content.getBytes(StandardCharsets.UTF_8));
             zos.closeEntry();
         }
         return baos.toByteArray();

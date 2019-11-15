@@ -12,7 +12,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SignatureValidator {
 
-
     public boolean isValid(LinkMetaBlock linkMetaBlock, PublicKey publicKey) {
         try {
             String linkJson = new JsonSigningSerializer().serialize(linkMetaBlock.getLink());
