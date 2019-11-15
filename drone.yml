@@ -35,7 +35,7 @@ steps:
     image: plugins/docker
     settings:
       repo: rabobanknl/argos-service
-      tags: latest
+      tags: ${DRONE_COMMIT_SHA:0:8}
       context: argos-docker
       dockerfile: argos-docker/ServiceDockerfile
       username:
@@ -46,7 +46,7 @@ steps:
     image: plugins/docker
     settings:
       repo: rabobanknl/argos-jenkins
-      tags: latest
+      tags: ${DRONE_COMMIT_SHA:0:8}
       context: argos-docker
       dockerfile: argos-docker/JenkinsDockerfile
       username:
@@ -71,12 +71,12 @@ services:
   - name: mongodb
     image: mongo:4.2.1-bionic
   - name: argos-service
-    image: rabobanknl/argos-service:latest
+    image: rabobanknl/argos-service:${DRONE_COMMIT_SHA:0:8}
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
       spring.profiles.active: default,integration-test
   - name: argos-jenkins
-    image: rabobanknl/argos-jenkins:latest
+    image: rabobanknl/argos-jenkins:${DRONE_COMMIT_SHA:0:8}
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
     volumes:
