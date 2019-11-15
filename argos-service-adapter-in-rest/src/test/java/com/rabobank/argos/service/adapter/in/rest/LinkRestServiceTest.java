@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class LinkRestServiceTest {
 
-    private static final String SUPPLY_CHAIN_ID = "supplyChainId";
+    private static final String SUPPLY_CHAIN_ID = "supplyChainName";
     private static final String HASH = "hash";
     @Mock
     private LinkMetaBlockRepository linkMetaBlockRepository;

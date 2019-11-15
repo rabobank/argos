@@ -8,7 +8,7 @@
       <f:textbox />
     </f:entry>
     
-    <f:entry title="${%supplyChainId}" field="supplyChainId">
+    <f:entry title="${%supplyChainName}" field="supplyChainName">
       <f:textbox />
     </f:entry>
 </j:jelly>

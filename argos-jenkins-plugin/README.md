@@ -26,7 +26,7 @@ you will be prompted to fill the following information in:
 
 - stepName: the name of the step for this Jenkins pipeline (more on that later)
 - privateKeyCredentialId: Id of File Credential as the signing key used to sign the link metadata.
-- supplyChainId: Id of the supplychain on the configured argos service.
+- supplyChainName: Name of the supplychain on the configured argos service.
 
 Once this is done, the plugin will take care of generating and tracking
 information of the build process.
@@ -53,7 +53,7 @@ pipeline {
             steps {
                 argos_wrap(['stepName': 'build',
                               'privateKeyCredentialId': 'bob',
-                              'supplyChainId': 'Supplychains/domain1/app1/petclinic'])
+                              'supplyCahinName': 'Supplychains/domain1/app1/petclinic'])
                 {
                     withDockerContainer(image: maven) {
                         mvn 'install deploy'
@@ -65,7 +65,7 @@ pipeline {
             steps {
                 argos_wrap(['stepName': 'sonar',
                               'privateKeyCredentialId': 'bob',
-                              'supplyChainId': 'Supplychains/domain1/app1/petclinic'])
+                              'supplyChainName': 'Supplychains/domain1/app1/petclinic'])
                 {
                     withDockerContainer(image: maven) {
                         mvn 'sonar:sonar -Dsonar.host.url=http://my-sonar-server.io'

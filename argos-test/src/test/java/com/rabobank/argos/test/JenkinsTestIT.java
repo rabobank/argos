@@ -1,5 +1,6 @@
 package com.rabobank.argos.test;
 
+import com.intuit.karate.Runner;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.JobWithDetails;
@@ -7,7 +8,6 @@ import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,10 +28,11 @@ import static org.hamcrest.core.Is.is;
 public class JenkinsTestIT {
 
     private static Properties properties = Properties.getInstance();
-
+    private static final String SERVER_BASEURL = "server.baseurl";
     @BeforeAll
     static void setUp() {
         log.info("jenkins base url : {}", properties.getJenkinsBaseUrl());
+        System.setProperty(SERVER_BASEURL, properties.getApiBaseUrl());
         waitForJenkinsToStart();
     }
 
@@ -56,11 +57,9 @@ public class JenkinsTestIT {
     }
 
     @Test
-    @Disabled
     public void testFreestyle() throws IOException, URISyntaxException {
-
+        Runner.runFeature("classpath:feature/create-jenkins-it-supplychain.feature", null, true);
         JenkinsServer jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
-
         await().atMost(10, SECONDS).until(() -> getJob(jenkins) != null);
         JobWithDetails job = getJob(jenkins);
         QueueReference reference = job.build();

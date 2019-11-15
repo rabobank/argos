@@ -46,15 +46,15 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
      * Protocol information *must* be included.
      */
     @DataBoundSetter
-    public String supplyChainId;
+    public String supplyChainName;
 
     private Argos4j argos4j;
 
     @DataBoundConstructor
-    public ArgosWrapper(String privateKeyCredentialId, String stepName, String supplyChainId) {
+    public ArgosWrapper(String privateKeyCredentialId, String stepName, String supplyChainName) {
         this.privateKeyCredentialId = privateKeyCredentialId;
         this.stepName = stepName;
-        this.supplyChainId = supplyChainId;
+        this.supplyChainName = supplyChainName;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
 
 
         listener.getLogger().println("[argos] creating metadata... ");
-        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, stepName, supplyChainId).createArgos();
+        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, stepName, supplyChainName).createArgos();
 
         argos4j.collectMaterials(new File(workspace.getRemote()));
 
