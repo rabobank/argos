@@ -20,7 +20,7 @@ public class Argos4jSettings implements Serializable {
     @Builder.Default
     private final boolean normalizeLineEndings = true;
 
-    private final String supplyChainId;
+    private final String supplyChainName;
     private final String stepName;
     private final SigningKey signingKey;
     private final String argosServerBaseUrl;

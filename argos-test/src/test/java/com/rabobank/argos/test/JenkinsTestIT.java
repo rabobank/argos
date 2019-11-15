@@ -1,5 +1,6 @@
 package com.rabobank.argos.test;
 
+import com.intuit.karate.Runner;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.JobWithDetails;
@@ -27,10 +28,11 @@ import static org.hamcrest.core.Is.is;
 public class JenkinsTestIT {
 
     private static Properties properties = Properties.getInstance();
-
+    private static final String SERVER_BASEURL = "server.baseurl";
     @BeforeAll
     static void setUp() {
         log.info("jenkins base url : {}", properties.getJenkinsBaseUrl());
+        System.setProperty(SERVER_BASEURL, properties.getApiBaseUrl());
         waitForJenkinsToStart();
     }
 
@@ -56,9 +58,8 @@ public class JenkinsTestIT {
 
     @Test
     public void testFreestyle() throws IOException, URISyntaxException {
-
+        Runner.runFeature("classpath:feature/create-jenkins-it-supplychain.feature", null, true);
         JenkinsServer jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
-
         await().atMost(10, SECONDS).until(() -> getJob(jenkins) != null);
         JobWithDetails job = getJob(jenkins);
         QueueReference reference = job.build();
@@ -80,11 +81,9 @@ public class JenkinsTestIT {
         if(lastUnsuccessfulBuild != Build.BUILD_HAS_NEVER_RUN) {
             Stream.of(lastUnsuccessfulBuild.details().getConsoleOutputText().split("\\r?\\n")).forEach(log::error);
         }
+
         assertThat(lastUnsuccessfulBuild.getNumber(), is(-1));
         assertThat(lastSuccessfulBuild.getNumber(), is(buildNumber));
-
-
-
     }
 
     private JobWithDetails getJob(JenkinsServer jenkins) throws IOException {

@@ -35,7 +35,7 @@ import java.util.Optional;
  */
 public class ArgosRecorder extends Recorder {
 
-    private String supplyChainId;
+    private String supplyChainName;
     /**
      * Credential id with private key to load.
      * <p>
@@ -57,9 +57,9 @@ public class ArgosRecorder extends Recorder {
 
 
     @DataBoundConstructor
-    public ArgosRecorder(String supplyChainId, String privateKeyCredentialId, String stepName) {
+    public ArgosRecorder(String supplyChainName, String privateKeyCredentialId, String stepName) {
         this.stepName = stepName;
-        this.supplyChainId = supplyChainId;
+        this.supplyChainName = supplyChainName;
         this.privateKeyCredentialId = privateKeyCredentialId;
     }
 
@@ -72,7 +72,7 @@ public class ArgosRecorder extends Recorder {
         listener.getLogger().println("[argos] Recording state before build " + cwdStr);
         listener.getLogger().println("[argos] using step name: " + stepName);
 
-        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, stepName, supplyChainId).createArgos();
+        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, stepName, supplyChainName).createArgos();
 
         argos4j.collectMaterials(new File(cwdStr));
         return true;

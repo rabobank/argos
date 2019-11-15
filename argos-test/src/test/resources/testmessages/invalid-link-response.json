@@ -1,0 +1,3 @@
+{
+  "message": "link.materials[0].hash:must match \"^[0-9a-f]*$\", link.materials[0].hash:size must be between 64 and 64, link.materials[1].hash:must match \"^[0-9a-f]*$\", link.materials[1].hash:size must be between 64 and 64, link.products[0].hash:must match \"^[0-9a-f]*$\", link.products[0].hash:size must be between 64 and 64, link.products[1].hash:must match \"^[0-9a-f]*$\", link.products[1].hash:size must be between 64 and 64, signature.keyId:must match \"^[0-9a-f]*$\", signature.keyId:size must be between 64 and 64, signature.signature:must match \"^[0-9a-f]*$\", signature.signature:size must be between 512 and 1024"
+}

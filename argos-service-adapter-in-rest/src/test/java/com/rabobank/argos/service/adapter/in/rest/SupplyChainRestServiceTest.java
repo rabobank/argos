@@ -82,7 +82,7 @@ class SupplyChainRestServiceTest {
     void getSupplyChain_With_Valid_Id_Should_Return_200() {
         when(supplyChainRepository.findBySupplyChainId(any())).thenReturn(of(supplyChain));
         when(converter.convertToRestRestSupplyChainItem(any())).thenReturn(supplyChainItem);
-        ResponseEntity<RestSupplyChainItem> supplyChainItemResponse = supplyChainRestService.getSupplyChain("supplyChainId");
+        ResponseEntity<RestSupplyChainItem> supplyChainItemResponse = supplyChainRestService.getSupplyChain("supplyChainName");
         assertThat(supplyChainItemResponse.getStatusCode().value(), is(HttpStatus.OK.value()));
         assertThat(supplyChainItemResponse.getBody(), is(supplyChainItem));
     }
@@ -91,7 +91,7 @@ class SupplyChainRestServiceTest {
     void getSupplyChain_With_Valid_Id_Should_Return_404() {
         when(supplyChainRepository.findBySupplyChainId(any())).thenReturn(Optional.empty());
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
-            supplyChainRestService.getSupplyChain("supplyChainId");
+            supplyChainRestService.getSupplyChain("supplyChainName");
         });
         assertThat(responseStatusException.getStatus(), is(HttpStatus.NOT_FOUND));
     }

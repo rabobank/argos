@@ -4,7 +4,6 @@ package com.rabobank.argos.service.adapter.in.rest;
 import com.rabobank.argos.domain.LinkMetaBlockRepository;
 import com.rabobank.argos.domain.SupplyChainRepository;
 import com.rabobank.argos.domain.model.LinkMetaBlock;
-import com.rabobank.argos.domain.model.SupplyChain;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LinkApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.mapper.LinkMetaBlockMapper;
@@ -37,18 +36,12 @@ public class LinkRestService implements LinkApi {
     @Override
     public ResponseEntity<Void> createLink(String supplyChainId, @Valid RestLinkMetaBlock restLinkMetaBlock) {
         log.info("supplyChainId : {}", supplyChainId);
-
-
         if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
-            supplyChainRepository.save(SupplyChain.builder().supplyChainId(supplyChainId).build());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId);
         }
-
         LinkMetaBlock linkMetaBlock = converter.convertFromRestLinkMetaBlock(restLinkMetaBlock);
-
         linkMetaBlock.setSupplyChainId(supplyChainId);
-
         linkMetaBlockRepository.save(linkMetaBlock);
-
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

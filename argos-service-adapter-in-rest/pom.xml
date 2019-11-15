@@ -167,6 +167,7 @@
                             <generatorName>spring</generatorName>
                             <configOptions>
                                 <interfaceOnly>true</interfaceOnly>
+                                <useTags>true</useTags>
                                 <java8>true</java8>
                                 <dateLibrary>java8</dateLibrary>
                             </configOptions>

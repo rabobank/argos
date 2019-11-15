@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class LinkRestServiceTest {
 
-    private static final String SUPPLY_CHAIN_ID = "supplyChainId";
+    private static final String SUPPLY_CHAIN_ID = "supplyChainName";
     private static final String HASH = "hash";
     @Mock
     private LinkMetaBlockRepository linkMetaBlockRepository;
@@ -60,6 +60,7 @@ class LinkRestServiceTest {
     @Test
     void createLink() {
         when(converter.convertFromRestLinkMetaBlock(restLinkMetaBlock)).thenReturn(linkMetaBlock);
+        when(supplyChainRepository.findBySupplyChainId(SUPPLY_CHAIN_ID)).thenReturn(Optional.of(supplyChain));
         assertThat(restService.createLink(SUPPLY_CHAIN_ID, restLinkMetaBlock).getStatusCodeValue(), is(204));
         verify(linkMetaBlock).setSupplyChainId(SUPPLY_CHAIN_ID);
         verify(linkMetaBlockRepository).save(linkMetaBlock);
