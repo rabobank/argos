@@ -120,7 +120,7 @@ steps:
     image: plugins/docker
     settings:
       repo: rabobanknl/argos-build
-      tags: repro
+      tags: latest
       context: docker-build-image
       dockerfile: docker-build-image/Dockerfile
       username:
