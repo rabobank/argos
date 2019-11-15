@@ -9,4 +9,5 @@ import lombok.Setter;
 @Builder
 public class SupplyChain {
     private String supplyChainId;
+    private String name;
 }
