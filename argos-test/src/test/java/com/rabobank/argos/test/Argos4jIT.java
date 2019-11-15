@@ -51,12 +51,12 @@ public class Argos4jIT {
         PublicKey publicKey = keyPair.getPublic();
         String keyId = new KeyIdProviderImpl().computeKeyId(publicKey);
 
-        ApiClient apiClient = new ApiClient();
+        ApiClient apiClient = new ApiClient().setBasePath(properties.getApiBaseUrl() + "/api");
         KeyApi keyApi = apiClient.buildClient(KeyApi.class);
         keyApi.storeKey(new RestKeyPair().keyId(keyId).publicKey(publicKey.getEncoded()));
 
         Argos4jSettings settings = Argos4jSettings.builder()
-                .argosServerBaseUrl("http://localhost:" + 8080 + "/api")
+                .argosServerBaseUrl(properties.getApiBaseUrl() + "/api")
                 .stepName("build")
                 .supplyChainId("supplyChainId")
                 .signingKey(SigningKey.builder()
