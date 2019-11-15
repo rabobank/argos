@@ -73,7 +73,7 @@ public class JenkinsTestIT {
 
         log.info("build number {}", buildNumber);
 
-        await().atMost(1, MINUTES).until(() -> !build.details().isBuilding());
+        await().atMost(2, MINUTES).until(() -> !build.details().isBuilding());
 
         Build lastSuccessfulBuild = getJob(jenkins).getLastSuccessfulBuild();
         Build lastUnsuccessfulBuild = getJob(jenkins).getLastUnsuccessfulBuild();

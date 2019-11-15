@@ -2,21 +2,18 @@ package com.rabobank.argos.argos4j.internal;
 
 import com.rabobank.argos.argos4j.SigningKey;
 import com.rabobank.argos.domain.model.Signature;
-import org.apache.commons.io.IOUtils;
-import org.bouncycastle.crypto.AsymmetricBlockCipher;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.engines.RSAEngine;
-import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
-import org.bouncycastle.crypto.signers.PSSSigner;
-import org.bouncycastle.crypto.util.PublicKeyFactory;
-import org.bouncycastle.openssl.PEMKeyPair;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.util.encoders.Hex;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -26,33 +23,30 @@ class Argos4JSignerTest {
 
     private Argos4JSigner signer;
     private SigningKey signingKey;
+    private KeyPair pair;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() throws NoSuchAlgorithmException {
+
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048);
+        pair = generator.generateKeyPair();
+
         signer = new Argos4JSigner();
         signingKey = SigningKey.builder()
-                .pemKey(IOUtils.toByteArray(getClass().getResourceAsStream("/bob.key")))
-                .build();
+                .keyPair(pair).build();
     }
 
     @Test
-    void sign() throws IOException {
+    void sign() throws NoSuchAlgorithmException, InvalidKeyException, DecoderException, SignatureException {
         Signature signature = signer.sign(signingKey, "string to sign");
-        assertThat(signature.getKeyId(), is("30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09"));
+        assertThat(signature.getKeyId(), is(DigestUtils.sha256Hex(pair.getPublic().getEncoded())));
 
-        PEMParser pemReader = new PEMParser(new InputStreamReader(getClass().getResourceAsStream("/bob.key")));
-        PEMKeyPair keyPair = (PEMKeyPair) pemReader.readObject();
+        java.security.Signature signatureValidator = java.security.Signature.getInstance("SHA256WithRSA");
+        signatureValidator.initVerify(pair.getPublic());
+        signatureValidator.update("string to sign".getBytes(StandardCharsets.UTF_8));
 
-        AsymmetricKeyParameter publKey = PublicKeyFactory.createKey(keyPair.getPublicKeyInfo());
-
-        AsymmetricBlockCipher engine = new RSAEngine();
-        SHA256Digest digest = new SHA256Digest();
-        PSSSigner pssSigner = new PSSSigner(engine, digest, digest.getDigestSize());
-        pssSigner.init(false, publKey);
-
-        pssSigner.update("string to sign".getBytes(), 0, "string to sign".getBytes().length);
-
-        assertTrue(pssSigner.verifySignature(Hex.decodeStrict(signature.getSignature())));
+        assertTrue(signatureValidator.verify(Hex.decodeHex(signature.getSignature())));
 
     }
 }
