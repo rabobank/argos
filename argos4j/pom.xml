@@ -19,6 +19,14 @@
         <feign-form-version>3.8.0</feign-form-version>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Rabobank Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/rabobank/argos</url>
+        </repository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

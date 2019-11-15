@@ -5,13 +5,19 @@ type: docker
 
 steps:
   - name: build
-    image: rabobanknl/argos-build:latest
+    image: rabobanknl/argos-build:repro
     volumes:
       - name: mvn_cache
         path: /root/.m2/repository
+    environment:
+      GITHUB_USER:
+        from_secret: github_user
+      GITHUB_TOKEN:
+        from_secret: github_token
     commands:
       - mvn -q install
-
+      - cd argos4j
+      - mvn deploy
   - name: sonar
     image: rabobanknl/argos-build:latest
     environment:
@@ -114,7 +120,7 @@ steps:
     image: plugins/docker
     settings:
       repo: rabobanknl/argos-build
-      tags: latest
+      tags: repro
       context: docker-build-image
       dockerfile: docker-build-image/Dockerfile
       username:

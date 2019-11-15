@@ -20,3 +20,4 @@ ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 
 COPY toolchains.xml /root/.m2/toolchains.xml
+COPY settings.xml /root/.m2/settings.xml
