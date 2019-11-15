@@ -103,6 +103,7 @@ class LinkRestServiceTest {
 
     @Test
     void createInValidSignature() {
+        when(supplyChainRepository.findBySupplyChainId(SUPPLY_CHAIN_ID)).thenReturn(Optional.of(supplyChain));
 
         when(keyPair.getPublicKey()).thenReturn(publicKey);
         when(signature.getKeyId()).thenReturn(KEY_ID);

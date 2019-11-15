@@ -1,13 +1,14 @@
 package com.rabobank.argos.test;
 
-import com.intuit.karate.Runner;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
+import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -18,6 +19,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.stream.Stream;
 
+import static com.rabobank.argos.test.TestHelper.clearDatabase;
+import static com.rabobank.argos.test.TestHelper.getSupplychainApi;
+import static com.rabobank.argos.test.TestHelper.waitForArgosServiceToStart;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -30,10 +34,16 @@ public class JenkinsTestIT {
     private static Properties properties = Properties.getInstance();
     private static final String SERVER_BASEURL = "server.baseurl";
     @BeforeAll
-    static void setUp() {
+    static void startup() {
         log.info("jenkins base url : {}", properties.getJenkinsBaseUrl());
         System.setProperty(SERVER_BASEURL, properties.getApiBaseUrl());
         waitForJenkinsToStart();
+        waitForArgosServiceToStart();
+    }
+
+    @BeforeEach
+    void setUp() {
+        clearDatabase();
     }
 
     private static void waitForJenkinsToStart() {
@@ -51,14 +61,12 @@ public class JenkinsTestIT {
                 return false;
             }
         });
-
         log.info("jenkins started");
-
     }
 
     @Test
     public void testFreestyle() throws IOException, URISyntaxException {
-        Runner.runFeature("classpath:feature/create-jenkins-it-supplychain.feature", null, true);
+        getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
         JenkinsServer jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
         await().atMost(10, SECONDS).until(() -> getJob(jenkins) != null);
         JobWithDetails job = getJob(jenkins);

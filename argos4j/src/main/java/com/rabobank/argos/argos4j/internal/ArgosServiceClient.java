@@ -15,7 +15,6 @@ import feign.FeignException;
 import lombok.AllArgsConstructor;
 import org.mapstruct.factory.Mappers;
 
-import java.io.IOException;
 import java.util.List;
 
 
@@ -30,26 +29,16 @@ public class ArgosServiceClient {
         ApiClient apiClient = new ApiClient().setBasePath(settings.getArgosServerBaseUrl());
         apiClient.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         LinkApi linkApi = apiClient.buildClient(LinkApi.class);
+        SupplychainApi supplychainApi = apiClient.buildClient(SupplychainApi.class);
 
-        LinkApi linkApi = new LinkApi(new ApiClient(settings.getArgosServerBaseUrl(), null, null, null));
-        SupplychainApi supplychainApi = new SupplychainApi(new ApiClient(settings.getArgosServerBaseUrl(), null, null, null));
         try {
-            linkApi.createLink(settings.getSupplyChainId(), restLinkMetaBlock);
-        } catch (FeignException e) {
-            throw new Argos4jError(e.status() + " " + e.contentUTF8(), e);
             List<RestSupplyChainItem> supplyChains = supplychainApi.searchSupplyChains(settings.getSupplyChainName());
-
             if (supplyChains.isEmpty()) {
                 throw new Argos4jError("supply chain id not found for:" + settings.getSupplyChainName());
             }
-
-            HttpResponse response = linkApi.createLinkForHttpResponse(supplyChains.get(0).getId(), restLinkMetaBlock);
-            if (response.getStatusCode() != 204) {
-                throw new Argos4jError("service returned code " + response.getStatusCode() + " message: " + response.getStatusMessage());
-            }
-        } catch (IOException e) {
-            throw new Argos4jError(e.getMessage(), e);
+            linkApi.createLink(supplyChains.get(0).getId(), restLinkMetaBlock);
+        } catch (FeignException e) {
+            throw new Argos4jError(e.status() + " " + e.contentUTF8(), e);
         }
-
     }
 }

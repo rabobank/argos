@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-
 @RequestMapping("/api")
 @RestController
 @RequiredArgsConstructor
@@ -36,7 +34,7 @@ public class KeyRestService implements KeyApi {
     }
 
     @Override
-    public ResponseEntity<Void> storeKey(@Valid RestKeyPair restKeyPair) {
+    public ResponseEntity<Void> storeKey(RestKeyPair restKeyPair) {
         KeyPair keyPair = converter.convertFromRestKeyPair(restKeyPair);
         validateKeyId(keyPair);
         keyPairRepository.save(keyPair);

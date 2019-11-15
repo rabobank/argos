@@ -3,46 +3,42 @@ package com.rabobank.argos.test;
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jSettings;
 import com.rabobank.argos.argos4j.SigningKey;
-import com.rabobank.argos.argos4j.rest.api.ApiClient;
-import com.rabobank.argos.argos4j.rest.api.client.KeyApi;
+import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.domain.KeyIdProviderImpl;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static com.rabobank.argos.test.TestHelper.clearDatabase;
+import static com.rabobank.argos.test.TestHelper.getKeyApiApi;
+import static com.rabobank.argos.test.TestHelper.getSupplychainApi;
+import static com.rabobank.argos.test.TestHelper.waitForArgosServiceToStart;
 
 public class Argos4jIT {
 
     private static Properties properties = Properties.getInstance();
     private KeyPair keyPair;
 
+    @BeforeAll
+    static void setUp() {
+        waitForArgosServiceToStart();
+    }
+
     @BeforeEach
-    void reset() throws IOException, InterruptedException, NoSuchAlgorithmException {
+    void reset() throws NoSuchAlgorithmException {
 
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
         keyPair = generator.generateKeyPair();
 
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(properties.getApiBaseUrl() + "/integration-test/reset-db"))
-                .method("POST", HttpRequest.BodyPublishers.noBody())
-                .build();
-        HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertThat(send.statusCode(), is(200));
+        clearDatabase();
     }
 
     @Test
@@ -51,14 +47,13 @@ public class Argos4jIT {
         PublicKey publicKey = keyPair.getPublic();
         String keyId = new KeyIdProviderImpl().computeKeyId(publicKey);
 
-        ApiClient apiClient = new ApiClient().setBasePath(properties.getApiBaseUrl() + "/api");
-        KeyApi keyApi = apiClient.buildClient(KeyApi.class);
-        keyApi.storeKey(new RestKeyPair().keyId(keyId).publicKey(publicKey.getEncoded()));
+        getKeyApiApi().storeKey(new RestKeyPair().keyId(keyId).publicKey(publicKey.getEncoded()));
+        getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("test-supply-chain"));
 
         Argos4jSettings settings = Argos4jSettings.builder()
                 .argosServerBaseUrl(properties.getApiBaseUrl() + "/api")
                 .stepName("build")
-                .supplyChainId("supplyChainId")
+                .supplyChainName("test-supply-chain")
                 .signingKey(SigningKey.builder()
                         .keyPair(keyPair).build())
                 .build();

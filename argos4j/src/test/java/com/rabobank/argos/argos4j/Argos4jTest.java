@@ -18,9 +18,10 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.badRequest;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.noContent;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -62,14 +63,9 @@ class Argos4jTest {
                 .argosServerBaseUrl("http://localhost:" + randomPort + "/api")
                 .stepName("build")
                 .supplyChainName("supplyChainName")
-                .signingKey(SigningKey.builder()
-                        .pemKey(IOUtils.toByteArray(getClass().getResourceAsStream("/bob.key")))
-                        .build()).build();
-                .supplyChainId("supplyChainId")
                 .signingKey(SigningKey.builder().keyPair(pair).build())
                 .build();
         argos4j = new Argos4j(settings);
-
 
     }
 
@@ -88,7 +84,7 @@ class Argos4jTest {
         argos4j.store();
         List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
         assertThat(requests, hasSize(2));
-        assertThat(requests.get(1).getBodyAsString(), endsWith(",\"link\":{\"command\":null,\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}]}}"));
+        assertThat(requests.get(1).getBodyAsString(), endsWith(",\"link\":{\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}]}}"));
     }
 
     @Test
@@ -101,7 +97,7 @@ class Argos4jTest {
 
     @Test
     void storeMetablockLinkForDirectoryUnexectedResonse() {
-        wireMockServer.stubFor(get(urlEqualTo("/api/supplychain?name=supplyChainName")).willReturn(ok().withBody("[{\"name\":\"supplyChainName\",\"id\":\"supplyChainId\"}]")));
+        wireMockServer.stubFor(get(urlEqualTo("/api/supplychain?name=supplyChainName")).willReturn(badRequest()));
         wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link/")).willReturn(ok()));
         Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store());
         assertThat(error.getMessage(), is("400 "));

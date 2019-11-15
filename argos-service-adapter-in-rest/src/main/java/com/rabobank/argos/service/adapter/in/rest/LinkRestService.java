@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,9 +39,11 @@ public class LinkRestService implements LinkApi {
     private final KeyPairRepository keyPairRepository;
 
     @Override
-    public ResponseEntity<Void> createLink(String supplyChainId, @Valid RestLinkMetaBlock restLinkMetaBlock) {
-        log.info("supplyChainId : {}", supplyChainId);
-
+    public ResponseEntity<Void> createLink(String supplyChainId, RestLinkMetaBlock restLinkMetaBlock) {
+        log.info("createLink supplyChainId : {}", supplyChainId);
+        if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId);
+        }
 
         LinkMetaBlock linkMetaBlock = converter.convertFromRestLinkMetaBlock(restLinkMetaBlock);
 
@@ -51,12 +52,6 @@ public class LinkRestService implements LinkApi {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid signature");
             }
         });
-
-        if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId);
-        }
-        LinkMetaBlock linkMetaBlock = converter.convertFromRestLinkMetaBlock(restLinkMetaBlock);
-
 
         linkMetaBlock.setSupplyChainId(supplyChainId);
         linkMetaBlockRepository.save(linkMetaBlock);
