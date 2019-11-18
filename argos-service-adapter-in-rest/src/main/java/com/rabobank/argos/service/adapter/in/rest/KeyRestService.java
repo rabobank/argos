@@ -8,17 +8,17 @@ import com.rabobank.argos.service.adapter.in.rest.api.handler.KeyApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.mapper.KeyPairMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-
 @RequestMapping("/api")
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class KeyRestService implements KeyApi {
 
     private final KeyPairMapper converter;
@@ -34,7 +34,7 @@ public class KeyRestService implements KeyApi {
     }
 
     @Override
-    public ResponseEntity<Void> storeKey(@Valid RestKeyPair restKeyPair) {
+    public ResponseEntity<Void> storeKey(RestKeyPair restKeyPair) {
         KeyPair keyPair = converter.convertFromRestKeyPair(restKeyPair);
         validateKeyId(keyPair);
         keyPairRepository.save(keyPair);

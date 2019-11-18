@@ -1,9 +1,5 @@
 package io.jenkins.plugins.argos;
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import hudson.Extension;
 import hudson.util.FormValidation;
 import jenkins.model.GlobalConfiguration;
@@ -13,6 +9,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 @Extension
 @Slf4j
@@ -79,12 +77,23 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
     }
 
     public FormValidation doValidateConnection(@QueryParameter String hostname, @QueryParameter int port,
-                                               @QueryParameter boolean secure) throws IOException {
-        String url = determineUrl(hostname, port, secure)+"/actuator/health";
-        HttpRequest request = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
-        HttpResponse response = request.execute();
-        log.info("{}",response.parseAsString());
-        return FormValidation.ok("Your In argos Service instance [%s] is alive!", url);
+                                               @QueryParameter boolean secure) {
+        FormValidation formValidation;
+        String spec = determineUrl(hostname, port, secure) + "/actuator/health";
+        try {
+            URL url = new URL(spec);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            if (con.getResponseCode() == 200) {
+                formValidation = FormValidation.ok("Your In argos Service instance [%s] is alive!", url);
+            } else {
+                formValidation = FormValidation.error("status code " + con.getResponseCode() + "on" + url);
+            }
+            con.disconnect();
+        } catch (IOException e) {
+            formValidation = FormValidation.error("Error " + e.getMessage() + "on" + spec);
+        }
+        return formValidation;
     }
 
     private String determineUrl(String hostname, int port, boolean secure) {

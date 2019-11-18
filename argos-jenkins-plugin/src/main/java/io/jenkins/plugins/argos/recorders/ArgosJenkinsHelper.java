@@ -12,11 +12,19 @@ import io.jenkins.plugins.argos.ArgosServiceConfiguration;
 import jenkins.model.Jenkins;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.jenkinsci.plugins.plaincredentials.FileCredentials;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
 import java.util.Collections;
 
 @AllArgsConstructor
@@ -54,9 +62,27 @@ public class ArgosJenkinsHelper {
 
     private SigningKey getSigningKey(String privateKeyCredentialId) {
         try {
-            return SigningKey.builder().pemKey(IOUtils.toByteArray(getCredentials(privateKeyCredentialId).getContent())).build();
+            return SigningKey.builder().keyPair(getPemKeyPair(getCredentials(privateKeyCredentialId).getContent())).build();
         } catch (IOException e) {
             throw new Argos4jError(e.getMessage(), e);
+        }
+    }
+
+    private static KeyPair getPemKeyPair(InputStream signingKey) {
+        try (Reader reader = new InputStreamReader(signingKey, StandardCharsets.UTF_8);
+             PEMParser pemReader = new PEMParser(reader)) {
+            Object pem = pemReader.readObject();
+            PEMKeyPair kpr;
+            if (pem instanceof PEMKeyPair) {
+                kpr = (PEMKeyPair) pem;
+            } else if (pem instanceof SubjectPublicKeyInfo) {
+                kpr = new PEMKeyPair((SubjectPublicKeyInfo) pem, null);
+            } else {
+                throw new Argos4jError("Couldn't parse PEM object: " + pem.toString());
+            }
+            return new JcaPEMKeyConverter().getKeyPair(kpr);
+        } catch (IOException e) {
+            throw new Argos4jError(e.toString(), e);
         }
     }
 

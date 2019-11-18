@@ -5,9 +5,9 @@ import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.Argos4jSettings;
 import com.rabobank.argos.domain.model.Artifact;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.input.UnixLineEndingInputStream;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -89,8 +90,8 @@ public class ArtifactCollector {
     }
 
     private String createHash(String filename) {
-        SHA256Digest digest = new SHA256Digest();
-        byte[] result = new byte[digest.getDigestSize()];
+        MessageDigest digest = DigestUtils.getSha256Digest();
+        byte[] result = new byte[digest.getDigestLength()];
         try (InputStream file = settings.isNormalizeLineEndings() ?
                 new UnixLineEndingInputStream(new FileInputStream(filename), false) :
                 new FileInputStream(filename)) {
@@ -98,13 +99,10 @@ public class ArtifactCollector {
             while ((length = file.read(result)) != -1) {
                 digest.update(result, 0, length);
             }
-            digest.doFinal(result, 0);
         } catch (IOException e) {
             throw new Argos4jError("The file " + filename + " couldn't be recorded: " + e.getMessage());
         }
-        // We should be able to submit more hashes, but we will do sha256
-        // only for the time being
-        return Hex.toHexString(result);
+        return Hex.encodeHexString(digest.digest());
     }
 
 }

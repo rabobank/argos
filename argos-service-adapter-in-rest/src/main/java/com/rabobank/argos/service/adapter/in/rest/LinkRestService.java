@@ -1,7 +1,9 @@
 package com.rabobank.argos.service.adapter.in.rest;
 
 
+import com.rabobank.argos.domain.KeyPairRepository;
 import com.rabobank.argos.domain.LinkMetaBlockRepository;
+import com.rabobank.argos.domain.SignatureValidator;
 import com.rabobank.argos.domain.SupplyChainRepository;
 import com.rabobank.argos.domain.model.LinkMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LinkApi;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,13 +34,27 @@ public class LinkRestService implements LinkApi {
 
     private final LinkMetaBlockMapper converter;
 
+    private final SignatureValidator signatureValidator;
+
+    private final KeyPairRepository keyPairRepository;
+
     @Override
-    public ResponseEntity<Void> createLink(String supplyChainId, @Valid RestLinkMetaBlock restLinkMetaBlock) {
-        log.info("supplyChainId : {}", supplyChainId);
+    public ResponseEntity<Void> createLink(String supplyChainId, RestLinkMetaBlock restLinkMetaBlock) {
+        log.info("createLink supplyChainId : {}", supplyChainId);
         if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId);
         }
+
         LinkMetaBlock linkMetaBlock = converter.convertFromRestLinkMetaBlock(restLinkMetaBlock);
+
+        keyPairRepository.findByKeyId(linkMetaBlock.getSignature().getKeyId()).ifPresentOrElse(keyPair -> {
+            if (!signatureValidator.isValid(linkMetaBlock, keyPair.getPublicKey())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid signature");
+            }
+        }, () -> {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "signature with keyId " + linkMetaBlock.getSignature().getKeyId()+" not found");
+        });
+
         linkMetaBlock.setSupplyChainId(supplyChainId);
         linkMetaBlockRepository.save(linkMetaBlock);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

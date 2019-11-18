@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +32,7 @@ public class SupplyChainRestService implements SupplychainApi {
     private final SupplyChainMapper converter;
 
     @Override
-    public ResponseEntity<RestSupplyChainItem> createSupplyChain(@Valid RestCreateSupplyChainCommand restCreateSupplyChainCommand) {
+    public ResponseEntity<RestSupplyChainItem> createSupplyChain(RestCreateSupplyChainCommand restCreateSupplyChainCommand) {
         validateIsUnique(restCreateSupplyChainCommand);
         SupplyChain supplyChain = converter
                 .convertFromRestSupplyChainCommand(restCreateSupplyChainCommand, () -> randomUUID().toString());
@@ -58,7 +57,7 @@ public class SupplyChainRestService implements SupplychainApi {
     }
 
     @Override
-    public ResponseEntity<List<RestSupplyChainItem>> searchSupplyChains(@Valid String name) {
+    public ResponseEntity<List<RestSupplyChainItem>> searchSupplyChains(String name) {
         List<SupplyChain> supplyChains;
         if (StringUtils.isEmpty(name)) {
             supplyChains = supplyChainRepository.findAll();
