@@ -244,6 +244,73 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /supplychain/{supplyChainId}/layout:
+    get:
+      summary: get layout
+      operationId: findLayout
+      tags:
+        - layout
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: array of layouts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LayoutMetaBlock"
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Create a layout
+      operationId: createLLayout
+      tags:
+        - layout
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LayoutMetaBlock"
+      responses:
+        '204':
+          description: no content
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   schemas:
     LinkMetaBlock:
@@ -289,6 +356,7 @@ components:
         stepName:
           type: string
         products:
+          type: array
           items:
             $ref: "#/components/schemas/Artifact"
     Artifact:
@@ -344,6 +412,77 @@ components:
         name:
           type: string
           maxLength: 256
+    LayoutMetaBlock:
+      type: object
+      properties:
+        signatures:
+          type: array
+          items:
+            $ref: "#/components/schemas/Signature"
+        layout:
+          $ref: "#/components/schemas/Layout"
+    Layout:
+      type: object
+      properties:
+        authorizedKeyIds:
+          type: array
+          items:
+            type: string
+            minLength: 64
+            maxLength: 64
+            pattern: '^[0-9a-f]*$'
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/Step"
+    Step:
+      type: object
+      properties:
+        authorizedKeyIds:
+          type: array
+          items:
+            type: string
+            minLength: 64
+            maxLength: 64
+            pattern: '^[0-9a-f]*$'
+        requiredSignatures:
+          type: integer
+          format: int32
+        expectedCommand:
+          type: array
+          items:
+            type: string
+            pattern: '^[0-9a-f]*$'
+        expectedMaterials:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rule"
+    Rule:
+      type: object
+      properties:
+        ruleType:
+          type: string
+          enum:
+            - ALLOW
+            - CREATE
+            - DELETE
+            - DISALLOW
+            - MATCH
+            - MODIFY
+            - REQUIRE
+        pattern:
+          type: string
+        sourcePathPrefix:
+          type: string
+        destinationPrefix:
+          type: string
+        destinationType:
+          type: string
+          enum:
+            - PRODUCTS
+            - MATERIALS
+        destinationStepName:
+          type: string
     Error:
       type: object
       required:
@@ -351,3 +490,5 @@ components:
       properties:
         message:
           type: string
+
+
