@@ -120,6 +120,21 @@ class LinkRestServiceTest {
     }
 
     @Test
+    void createSignatureKeyIdNotFound() {
+        when(supplyChainRepository.findBySupplyChainId(SUPPLY_CHAIN_ID)).thenReturn(Optional.of(supplyChain));
+
+        when(signature.getKeyId()).thenReturn(KEY_ID);
+        when(linkMetaBlock.getSignature()).thenReturn(signature);
+        when(keyPairRepository.findByKeyId(KEY_ID)).thenReturn(Optional.empty());
+
+        when(converter.convertFromRestLinkMetaBlock(restLinkMetaBlock)).thenReturn(linkMetaBlock);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> restService.createLink(SUPPLY_CHAIN_ID, restLinkMetaBlock));
+        assertThat(exception.getStatus().value(), is(400));
+        assertThat(exception.getReason(), is("signature with keyId keyId not found"));
+    }
+
+    @Test
     void findLink() {
         when(supplyChainRepository.findBySupplyChainId(SUPPLY_CHAIN_ID)).thenReturn(Optional.of(supplyChain));
         when(linkMetaBlockRepository.findBySupplyChainAndSha(SUPPLY_CHAIN_ID, HASH)).thenReturn(Collections.singletonList(linkMetaBlock));

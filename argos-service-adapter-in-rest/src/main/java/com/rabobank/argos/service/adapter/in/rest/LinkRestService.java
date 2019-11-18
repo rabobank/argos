@@ -47,10 +47,12 @@ public class LinkRestService implements LinkApi {
 
         LinkMetaBlock linkMetaBlock = converter.convertFromRestLinkMetaBlock(restLinkMetaBlock);
 
-        keyPairRepository.findByKeyId(linkMetaBlock.getSignature().getKeyId()).ifPresent(keyPair -> {
+        keyPairRepository.findByKeyId(linkMetaBlock.getSignature().getKeyId()).ifPresentOrElse(keyPair -> {
             if (!signatureValidator.isValid(linkMetaBlock, keyPair.getPublicKey())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid signature");
             }
+        }, () -> {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "signature with keyId " + linkMetaBlock.getSignature().getKeyId()+" not found");
         });
 
         linkMetaBlock.setSupplyChainId(supplyChainId);
