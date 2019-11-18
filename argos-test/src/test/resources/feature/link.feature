@@ -29,7 +29,7 @@ Feature: Link
     * call read('create-validlink.feature') {id:#(result.response.id)}
     Given path linkPath
     And param supplyChainId = result.response.id
-    And param optionalHash = '616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b'
+    And param optionalHash = '74a88c1cb96211a8f648af3509a1207b2d4a15c0202cfaa10abad8cc26300c63'
     When method GET
     Then status 200
     And match response[*] contains read('../testmessages/valid-link-response.json')

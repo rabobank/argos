@@ -37,7 +37,6 @@ public class Argos4jIT {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
         keyPair = generator.generateKeyPair();
-
         clearDatabase();
     }
 
