@@ -1,7 +1,7 @@
 package com.rabobank.argos.service.adapter.in.rest;
 
-import com.rabobank.argos.domain.SupplyChainRepository;
 import com.rabobank.argos.domain.model.SupplyChain;
+import com.rabobank.argos.domain.repository.SupplyChainRepository;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.SupplychainApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChainItem;
@@ -66,7 +66,7 @@ public class SupplyChainRestService implements SupplychainApi {
         }
         List<RestSupplyChainItem> supplyChainItems = supplyChains
                 .stream()
-                .map(s -> converter.convertToRestRestSupplyChainItem(s))
+                .map(converter::convertToRestRestSupplyChainItem)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(supplyChainItems);
     }

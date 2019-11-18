@@ -1,8 +1,8 @@
 package com.rabobank.argos.service.adapter.in.rest;
 
 import com.rabobank.argos.domain.KeyIdProvider;
-import com.rabobank.argos.domain.KeyPairRepository;
 import com.rabobank.argos.domain.model.KeyPair;
+import com.rabobank.argos.domain.repository.KeyPairRepository;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.mapper.KeyPairMapper;
 import org.junit.jupiter.api.BeforeEach;

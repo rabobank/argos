@@ -1,7 +1,7 @@
 package com.rabobank.argos.service.adapter.in.rest;
 
-import com.rabobank.argos.domain.SupplyChainRepository;
 import com.rabobank.argos.domain.model.SupplyChain;
+import com.rabobank.argos.domain.repository.SupplyChainRepository;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChainItem;
 import com.rabobank.argos.service.adapter.in.rest.mapper.SupplyChainMapper;

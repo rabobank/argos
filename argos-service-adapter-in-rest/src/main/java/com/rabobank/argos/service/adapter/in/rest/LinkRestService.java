@@ -1,11 +1,11 @@
 package com.rabobank.argos.service.adapter.in.rest;
 
 
-import com.rabobank.argos.domain.KeyPairRepository;
-import com.rabobank.argos.domain.LinkMetaBlockRepository;
 import com.rabobank.argos.domain.SignatureValidator;
-import com.rabobank.argos.domain.SupplyChainRepository;
 import com.rabobank.argos.domain.model.LinkMetaBlock;
+import com.rabobank.argos.domain.repository.KeyPairRepository;
+import com.rabobank.argos.domain.repository.LinkMetaBlockRepository;
+import com.rabobank.argos.domain.repository.SupplyChainRepository;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LinkApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.mapper.LinkMetaBlockMapper;

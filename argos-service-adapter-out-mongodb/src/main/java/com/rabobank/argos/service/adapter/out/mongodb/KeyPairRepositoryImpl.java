@@ -1,7 +1,7 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
-import com.rabobank.argos.domain.KeyPairRepository;
 import com.rabobank.argos.domain.model.KeyPair;
+import com.rabobank.argos.domain.repository.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;

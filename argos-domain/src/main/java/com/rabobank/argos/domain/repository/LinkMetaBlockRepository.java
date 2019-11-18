@@ -1,4 +1,4 @@
-package com.rabobank.argos.domain;
+package com.rabobank.argos.domain.repository;
 
 
 import com.rabobank.argos.domain.model.LinkMetaBlock;
