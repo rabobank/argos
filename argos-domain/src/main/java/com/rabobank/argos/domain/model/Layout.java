@@ -4,15 +4,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
 public class Layout {
-
-    private Set<String> authorizedKeyIds;
-    private Set<Step> steps;
-
-
+    private List<String> authorizedKeyIds;
+    private List<Step> steps;
 }

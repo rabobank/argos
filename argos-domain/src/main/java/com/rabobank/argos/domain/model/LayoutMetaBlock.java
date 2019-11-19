@@ -4,15 +4,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.ZonedDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
 public class LayoutMetaBlock {
-    private String id;
-    private Set<Signature> signatures;
-    private ZonedDateTime expires;
+    private List<Signature> signatures;
     private Layout layout;
 }

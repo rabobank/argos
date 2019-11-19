@@ -5,16 +5,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
+import java.util.List;
 
 @Builder
 @Getter
 @Setter
 public class Step {
     private String stepName;
-    private Set<String> authorizedKeyIds;
+    private List<String> authorizedKeyIds;
     private int requiredSignatures;
-    private Set<String> expectedCommand;
-    private Set<Rule> expectedMaterials;
-    private Set<Rule> expectedProducts;
+    private List<String> expectedCommand;
+    private List<Rule> expectedMaterials;
+    private final List<Rule> expectedProducts;
 }
