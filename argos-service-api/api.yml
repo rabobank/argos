@@ -274,7 +274,7 @@ paths:
                 $ref: "#/components/schemas/Error"
     post:
       summary: Create a layout
-      operationId: createLLayout
+      operationId: createLayout
       tags:
         - layout
       parameters:
@@ -508,7 +508,7 @@ components:
           type: string
         sourcePathPrefix:
           type: string
-        destinationPrefix:
+        destinationPathPrefix:
           type: string
         destinationType:
           type: string

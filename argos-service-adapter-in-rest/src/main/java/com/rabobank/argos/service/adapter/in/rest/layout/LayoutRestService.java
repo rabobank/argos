@@ -17,7 +17,7 @@ import java.util.List;
 public class LayoutRestService implements LayoutApi {
 
     @Override
-    public ResponseEntity<Void> createLLayout(String supplyChainId, RestLayoutMetaBlock restLayoutMetaBlock) {
+    public ResponseEntity<Void> createLayout(String supplyChainId, RestLayoutMetaBlock restLayoutMetaBlock) {
         return null;
     }
 
