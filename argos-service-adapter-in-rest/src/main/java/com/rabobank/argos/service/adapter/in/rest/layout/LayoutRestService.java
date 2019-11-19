@@ -33,7 +33,7 @@ public class LayoutRestService implements LayoutApi {
     public ResponseEntity<RestLayoutMetaBlock> createLayout(String supplyChainId, RestLayoutMetaBlock restLayoutMetaBlock) {
         log.info("createLayout for supplyChainId {}", supplyChainId);
         if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "supply chain not found : " + supplyChainId);
         }
 
         LayoutMetaBlock layoutMetaBlock = converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
