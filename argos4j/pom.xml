@@ -9,6 +9,30 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>argos4j</artifactId>
+    <description>Java client for Argos Supply Chain Notary</description>
+    <url>https://github.com/rabobank/argos/argos4j</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Gerard Borst</name>
+            <email>gerard.borst@rabobank.nl</email>
+            <organization>Rabobank</organization>
+            <organizationUrl>https://www.rabobank.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/rabobank/argos.git</connection>
+        <developerConnection>scm:git:ssh://github.com:rabobank/argos.git</developerConnection>
+        <url>https://github.com/rabobank/argos/tree/master</url>
+    </scm>
 
     <properties>
         <swagger-annotations-version>1.5.22</swagger-annotations-version>
