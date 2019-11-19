@@ -11,7 +11,6 @@ import com.rabobank.argos.domain.model.rule.Rule;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRule;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,9 +68,7 @@ public abstract class RuleMapper {
 
     public abstract Rule mapFromRestRule(RestRule restRule);
 
-    @Mappings({
-            @Mapping(source = "rule", target = "ruleType", qualifiedByName = "typeFromRule")
-    })
+    @Mapping(source = "rule", target = "ruleType", qualifiedByName = "typeFromRule")
     public abstract RestRule mapFromRestRule(Rule rule);
 
     @Named("typeFromRule")
