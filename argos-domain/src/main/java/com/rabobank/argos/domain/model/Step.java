@@ -11,8 +11,10 @@ import java.util.Set;
 @Getter
 @Setter
 public class Step {
+    private String stepName;
     private Set<String> authorizedKeyIds;
     private int requiredSignatures;
     private Set<String> expectedCommand;
     private Set<Rule> expectedMaterials;
+    private final Set<Rule> expectedProducts;
 }
