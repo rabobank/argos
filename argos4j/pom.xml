@@ -94,6 +94,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson-datatype.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
 			<artifactId>jsr305</artifactId>
@@ -267,9 +272,12 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+						    <!-- <promoteTransitiveDependencies>true</promoteTransitiveDependencies> -->
 							<artifactSet>
 								<includes>
 									<include>com.rabobank.argos:argos-domain</include>
+									<include>com.fasterxml.jackson.*</include>
+                                    <include>commons-codec:commons-codec</include>
 								</includes>
 							</artifactSet>
 						</configuration>
