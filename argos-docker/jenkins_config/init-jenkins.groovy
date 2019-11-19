@@ -1,4 +1,6 @@
 import hudson.security.csrf.DefaultCrumbIssuer
+
+import hudson.security.*
 import jenkins.branch.*
 import jenkins.model.Jenkins
 import jenkins.plugins.git.*
@@ -10,9 +12,7 @@ Logger logger = Logger.getLogger("")
 
 def instance = Jenkins.getInstance()
 
-// set CSRF protection
-instance.setCrumbIssuer(new DefaultCrumbIssuer(true))
-
+// set admin user
 def hudsonRealm = new HudsonPrivateSecurityRealm(false)
 hudsonRealm.createAccount('admin','admin')
 instance.setSecurityRealm(hudsonRealm)
@@ -22,6 +22,6 @@ instance.setAuthorizationStrategy(strategy)
 
 instance.save()
 
-logger.info("--> CSRF protection set ")
+logger.info("--> Jenkins initialized ")
 
 instance.save()
