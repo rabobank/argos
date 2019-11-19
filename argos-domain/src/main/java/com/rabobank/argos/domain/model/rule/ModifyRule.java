@@ -21,8 +21,8 @@ public final class ModifyRule extends Rule {
         Set<Artifact> consumed = new HashSet<>();
         // Filter queued artifacts using the rule pattern
         Set<Artifact> filteredArtifacts = filterArtifacts(artifacts);
-        Map<String, Artifact> productsMap = this.createMap(products);
-        Map<String, Artifact> materialsMap = this.createMap(materials);
+        Map<String, Artifact> productsMap = createMap(products);
+        Map<String, Artifact> materialsMap = createMap(materials);
         for (Artifact artifact : filteredArtifacts) {
             // Consume filtered artifacts that have different hashes
             if (productsMap.containsKey(artifact.getUri())
@@ -34,7 +34,7 @@ public final class ModifyRule extends Rule {
         return consumed;
     }
 
-    private Map<String, Artifact> createMap(Set<Artifact> artifacts) {
+    private static Map<String, Artifact> createMap(Set<Artifact> artifacts) {
         Map<String, Artifact> result = new HashMap<>();
         if (artifacts != null) {
             for (Artifact artifact : artifacts) {

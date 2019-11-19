@@ -10,37 +10,41 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
-class DeleteRuleTest {
+class ModifyRuleTest {
 
     public static final String PATHARTIFACTJAVA = "/path/artifact.java";
-    private DeleteRule deleteRule;
+    public static final String HASH = "hash";
+    public static final String HASHMODIFIED = "hash-modified";
+    private ModifyRule modifyRule;
     private Set<Artifact> artifacts;
     private Set<Artifact> products;
     private Set<Artifact> materials;
 
     @BeforeEach
     void setUp() {
-        deleteRule = DeleteRule
+        modifyRule = ModifyRule
                 .builder()
                 .pattern(PATHARTIFACTJAVA)
                 .build();
         artifacts = new HashSet<>();
-        artifacts.add(Artifact.builder().hash("hash").uri(PATHARTIFACTJAVA).build());
+        artifacts.add(Artifact.builder().hash(HASH).uri(PATHARTIFACTJAVA).build());
+        products = new HashSet<>();
+        products.add(Artifact.builder().hash(HASHMODIFIED).uri(PATHARTIFACTJAVA).build());
         materials = new HashSet<>();
-        materials.add(Artifact.builder().hash("hash").uri(PATHARTIFACTJAVA).build());
+        materials.add(Artifact.builder().hash(HASH).uri(PATHARTIFACTJAVA).build());
     }
 
     @Test
-    void verifyWithDeletedMaterialsWillReturnResult() {
-        Set<Artifact> result = deleteRule.verify(artifacts, materials, products);
+    void verifywithModifiedArtifactsShouldReturnResult() {
+        Set<Artifact> result = modifyRule.verify(artifacts, materials, products);
         assertThat(result, hasSize(1));
     }
 
     @Test
-    void verifyWithNoDeletedMaterialsWillReturnEmptyResult() {
+    void verifywithUnModifiedArtifactsShouldReturnEmptyResult() {
         products = new HashSet<>();
-        products.add(Artifact.builder().hash("hash").uri(PATHARTIFACTJAVA).build());
-        Set<Artifact> result = deleteRule.verify(artifacts, materials, products);
+        products.add(Artifact.builder().hash(HASH).uri(PATHARTIFACTJAVA).build());
+        Set<Artifact> result = modifyRule.verify(artifacts, materials, products);
         assertThat(result, hasSize(0));
     }
 }

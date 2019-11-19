@@ -16,5 +16,5 @@ public class Step {
     private int requiredSignatures;
     private Set<String> expectedCommand;
     private Set<Rule> expectedMaterials;
-    private final Set<Rule> expectedProducts;
+    private Set<Rule> expectedProducts;
 }

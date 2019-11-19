@@ -14,6 +14,8 @@ import static org.hamcrest.core.Is.is;
 class AllowRuleTest {
 
 
+    public static final String PATHARTIFACTJAVA = "/path/artifact.java";
+    public static final String HASH = "hash";
     private AllowRule allowRule;
     private Set<Artifact> artifacts;
 
@@ -21,14 +23,14 @@ class AllowRuleTest {
     void setUp() {
         allowRule = AllowRule
                 .builder()
-                .pattern("/path/artifact.java")
+                .pattern(PATHARTIFACTJAVA)
                 .build();
         artifacts = new HashSet<>();
-        artifacts.add(Artifact.builder().hash("hash").uri("/path/artifact.java").build());
+        artifacts.add(Artifact.builder().hash(HASH).uri(PATHARTIFACTJAVA).build());
     }
 
     @Test
-    void verify_With_Correct_Pattern_Will_Return_Result() throws RuleVerificationError {
+    void verifyWithCorrectPatternWillReturnResult() throws RuleVerificationError {
         assertThat(allowRule.verify(artifacts, null, null).size(), is(1));
     }
 }

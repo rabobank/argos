@@ -12,6 +12,8 @@ import static org.hamcrest.Matchers.hasSize;
 
 class CreateRuleTest {
 
+    public static final String PATHARTIFACTJAVA = "/path/artifact.java";
+    public static final String HASH = "hash";
     private CreateRule createRule;
     private Set<Artifact> artifacts;
     private Set<Artifact> products;
@@ -21,34 +23,34 @@ class CreateRuleTest {
     void setUp() {
         createRule = CreateRule
                 .builder()
-                .pattern("/path/artifact.java")
+                .pattern(PATHARTIFACTJAVA)
                 .build();
         artifacts = new HashSet<>();
-        artifacts.add(Artifact.builder().hash("hash").uri("/path/artifact.java").build());
+        artifacts.add(Artifact.builder().hash(HASH).uri(PATHARTIFACTJAVA).build());
         products = new HashSet<>();
-        products.add(Artifact.builder().hash("hash").uri("/path/artifact.java").build());
+        products.add(Artifact.builder().hash(HASH).uri(PATHARTIFACTJAVA).build());
     }
 
     @Test
-    void verify_With_Correct_Artifacts_Will_Return_Result() {
+    void verifyWithCorrectArtifactsWillReturnResult() {
         Set<Artifact> result = createRule.verify(artifacts, materials, products);
         assertThat(result, hasSize(1));
     }
 
     @Test
-    void verify_With_InCorrect_Artifacts_Will_Return_Empty_Result() {
+    void verifyWithInCorrectArtifactsWillReturnEmptyResult() {
         products = new HashSet<>();
-        products.add(Artifact.builder().hash("hash").uri("/path/wrong.java").build());
+        products.add(Artifact.builder().hash(HASH).uri("/path/wrong.java").build());
         Set<Artifact> result = createRule.verify(artifacts, materials, products);
         assertThat(result, hasSize(0));
     }
 
     @Test
-    void verify_With_Same_Materials_Will_Return_Empty_Result() {
+    void verifyWithSameMaterialsWillReturnEmptyResult() {
         products = new HashSet<>();
-        products.add(Artifact.builder().hash("hash").uri("/path/artifact.java").build());
+        products.add(Artifact.builder().hash(HASH).uri(PATHARTIFACTJAVA).build());
         materials = new HashSet<>();
-        materials.add(Artifact.builder().hash("hash").uri("/path/artifact.java").build());
+        materials.add(Artifact.builder().hash(HASH).uri(PATHARTIFACTJAVA).build());
         Set<Artifact> result = createRule.verify(artifacts, materials, products);
         assertThat(result, hasSize(0));
     }
