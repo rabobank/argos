@@ -1,4 +1,4 @@
-package com.rabobank.argos.service.adapter.in.rest.mapper;
+package com.rabobank.argos.service.adapter.in.rest.link;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package com.rabobank.argos.service.adapter.in.rest;
+package com.rabobank.argos.service.adapter.in.rest.link;
 
 
 import com.rabobank.argos.domain.SignatureValidator;
@@ -8,7 +8,6 @@ import com.rabobank.argos.domain.repository.LinkMetaBlockRepository;
 import com.rabobank.argos.domain.repository.SupplyChainRepository;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LinkApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
-import com.rabobank.argos.service.adapter.in.rest.mapper.LinkMetaBlockMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -52,7 +51,7 @@ public class LinkRestService implements LinkApi {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid signature");
             }
         }, () -> {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "signature with keyId " + linkMetaBlock.getSignature().getKeyId()+" not found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "signature with keyId " + linkMetaBlock.getSignature().getKeyId() + " not found");
         });
 
         linkMetaBlock.setSupplyChainId(supplyChainId);

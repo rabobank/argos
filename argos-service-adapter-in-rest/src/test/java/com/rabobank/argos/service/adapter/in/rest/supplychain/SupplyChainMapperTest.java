@@ -1,4 +1,4 @@
-package com.rabobank.argos.service.adapter.in.rest.mapper;
+package com.rabobank.argos.service.adapter.in.rest.supplychain;
 
 import com.rabobank.argos.domain.model.SupplyChain;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestCreateSupplyChainCommand;
@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.core.Is.is;
 
 class SupplyChainMapperTest {
@@ -25,9 +26,9 @@ class SupplyChainMapperTest {
     void convertFromRestSupplyChainCommand_Should_Return_SupplyChain() {
         RestCreateSupplyChainCommand restCreateSupplyChainCommand = new RestCreateSupplyChainCommand();
         restCreateSupplyChainCommand.name(NAME);
-        SupplyChain supplyChain = supplyChainMapper.convertFromRestSupplyChainCommand(restCreateSupplyChainCommand, () -> ID);
+        SupplyChain supplyChain = supplyChainMapper.convertFromRestSupplyChainCommand(restCreateSupplyChainCommand);
         assertThat(supplyChain.getName(), is(NAME));
-        assertThat(supplyChain.getSupplyChainId(), is(ID));
+        assertThat(supplyChain.getSupplyChainId(), hasLength(36));
     }
 
     @Test

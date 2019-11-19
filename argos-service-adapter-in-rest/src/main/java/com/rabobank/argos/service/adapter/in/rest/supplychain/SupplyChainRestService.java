@@ -1,11 +1,10 @@
-package com.rabobank.argos.service.adapter.in.rest;
+package com.rabobank.argos.service.adapter.in.rest.supplychain;
 
 import com.rabobank.argos.domain.model.SupplyChain;
 import com.rabobank.argos.domain.repository.SupplyChainRepository;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.SupplychainApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChainItem;
-import com.rabobank.argos.service.adapter.in.rest.mapper.SupplyChainMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,8 +19,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.UUID.randomUUID;
-
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -35,7 +32,7 @@ public class SupplyChainRestService implements SupplychainApi {
     public ResponseEntity<RestSupplyChainItem> createSupplyChain(RestCreateSupplyChainCommand restCreateSupplyChainCommand) {
         validateIsUnique(restCreateSupplyChainCommand);
         SupplyChain supplyChain = converter
-                .convertFromRestSupplyChainCommand(restCreateSupplyChainCommand, () -> randomUUID().toString());
+                .convertFromRestSupplyChainCommand(restCreateSupplyChainCommand);
 
         supplyChainRepository.save(supplyChain);
         URI location = ServletUriComponentsBuilder

@@ -16,7 +16,7 @@ public class ResetITService {
     private final RepositoryResetProvider repositoryResetProvider;
 
     @PostMapping(value = "/reset-db")
-    public void resetdb(){
+    public void resetdb() {
         repositoryResetProvider.resetAllRepositories();
     }
 

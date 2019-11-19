@@ -1,4 +1,4 @@
-package com.rabobank.argos.service.adapter.in.rest.mapper;
+package com.rabobank.argos.service.adapter.in.rest.key;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,8 +30,8 @@ class KeyPairMapperTest {
     void setUp() throws IOException {
         converter = Mappers.getMapper(KeyPairMapper.class);
         mapper = new ObjectMapper();
-        keyPairJson = IOUtils.toString(LinkMetaBlockMapperTest.class.getResourceAsStream("/keypair.json"), "UTF-8");
-        base64EncodedPublicKey = IOUtils.toString(LinkMetaBlockMapperTest.class.getResourceAsStream("/testkey.pub"), "UTF-8");
+        keyPairJson = IOUtils.toString(getClass().getResourceAsStream("/keypair.json"), "UTF-8");
+        base64EncodedPublicKey = IOUtils.toString(getClass().getResourceAsStream("/testkey.pub"), "UTF-8");
         bytePublicKey = Base64.getDecoder().decode(base64EncodedPublicKey);
     }
 

@@ -1,4 +1,4 @@
-package com.rabobank.argos.service.adapter.in.rest;
+package com.rabobank.argos.service.adapter.in.rest.link;
 
 import com.rabobank.argos.domain.SignatureValidator;
 import com.rabobank.argos.domain.model.KeyPair;
@@ -9,7 +9,6 @@ import com.rabobank.argos.domain.repository.KeyPairRepository;
 import com.rabobank.argos.domain.repository.LinkMetaBlockRepository;
 import com.rabobank.argos.domain.repository.SupplyChainRepository;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
-import com.rabobank.argos.service.adapter.in.rest.mapper.LinkMetaBlockMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

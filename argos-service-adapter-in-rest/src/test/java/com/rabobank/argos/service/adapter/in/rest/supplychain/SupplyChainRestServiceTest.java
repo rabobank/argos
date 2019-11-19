@@ -1,10 +1,9 @@
-package com.rabobank.argos.service.adapter.in.rest;
+package com.rabobank.argos.service.adapter.in.rest.supplychain;
 
 import com.rabobank.argos.domain.model.SupplyChain;
 import com.rabobank.argos.domain.repository.SupplyChainRepository;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChainItem;
-import com.rabobank.argos.service.adapter.in.rest.mapper.SupplyChainMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,7 +59,7 @@ class SupplyChainRestServiceTest {
         RequestContextHolder.setRequestAttributes(servletRequestAttributes);
         when(createSupplyChainCommand.getName()).thenReturn(NAME);
         when(supplyChainRepository.findByName(NAME)).thenReturn(Collections.emptyList());
-        when(converter.convertFromRestSupplyChainCommand(any(), any())).thenReturn(supplyChain);
+        when(converter.convertFromRestSupplyChainCommand(any())).thenReturn(supplyChain);
         when(converter.convertToRestRestSupplyChainItem(any())).thenReturn(supplyChainItem);
         ResponseEntity<RestSupplyChainItem> supplyChainItemResponse = supplyChainRestService.createSupplyChain(createSupplyChainCommand);
         assertThat(supplyChainItemResponse.getStatusCode().value(), is(HttpStatus.CREATED.value()));

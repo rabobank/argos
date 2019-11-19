@@ -1,4 +1,4 @@
-package com.rabobank.argos.service.adapter.in.rest.mapper;
+package com.rabobank.argos.service.adapter.in.rest.key;
 
 import com.rabobank.argos.domain.model.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
@@ -28,6 +28,7 @@ public interface KeyPairMapper {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid public key " + e.getMessage());
         }
     }
+
     @Mapping(source = "publicKey", target = "publicKey")
     default byte[] convertPublicKeyToByteArray(PublicKey publicKey) {
         return publicKey.getEncoded();

@@ -1,4 +1,4 @@
-package com.rabobank.argos.service.adapter.in.rest;
+package com.rabobank.argos.service.adapter.in.rest.key;
 
 import com.rabobank.argos.domain.KeyIdProvider;
 import com.rabobank.argos.domain.KeyIdProviderImpl;
@@ -6,7 +6,6 @@ import com.rabobank.argos.domain.model.KeyPair;
 import com.rabobank.argos.domain.repository.KeyPairRepository;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.KeyApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
-import com.rabobank.argos.service.adapter.in.rest.mapper.KeyPairMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -42,7 +41,7 @@ public class KeyRestService implements KeyApi {
     }
 
     private void validateKeyId(KeyPair keyPair) {
-        if(!keyPair.getKeyId().equals(keyIdProvider.computeKeyId(keyPair.getPublicKey()))) {
+        if (!keyPair.getKeyId().equals(keyIdProvider.computeKeyId(keyPair.getPublicKey()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid key id : " + keyPair.getKeyId());
         }
     }

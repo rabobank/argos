@@ -111,7 +111,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /supplychain/{supplyChainId}/link/:
+  /supplychain/{supplyChainId}/link:
     get:
       summary: find link
       operationId: findLink
@@ -266,12 +266,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/LayoutMetaBlock"
-        '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         '500':
           description: server error
           content:
@@ -304,6 +298,38 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        '500':
+          description: server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /supplychain/{supplyChainId}/layout/{layoutId}:
+    get:
+      summary: get layout
+      operationId: getLayout
+      tags:
+        - layout
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+        - name: layoutId
+          in: path
+          description: layout id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: layouts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LayoutMetaBlock"
         '500':
           description: server error
           content:
@@ -415,8 +441,6 @@ components:
     LayoutMetaBlock:
       type: object
       properties:
-        id:
-          type: string
         signatures:
           type: array
           items:
@@ -439,7 +463,11 @@ components:
             $ref: "#/components/schemas/Step"
     Step:
       type: object
+      required:
+        - name
       properties:
+        name:
+          type: string
         authorizedKeyIds:
           type: array
           items:
@@ -456,6 +484,10 @@ components:
             type: string
             pattern: '^[0-9a-f]*$'
         expectedMaterials:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rule"
+        expectedProducts:
           type: array
           items:
             $ref: "#/components/schemas/Rule"
