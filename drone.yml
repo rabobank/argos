@@ -84,6 +84,9 @@ steps:
     image: rabobanknl/argos-jenkins:${DRONE_COMMIT:0:8}
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
     detach: true
     depends_on:
       - build argos jenkins image
