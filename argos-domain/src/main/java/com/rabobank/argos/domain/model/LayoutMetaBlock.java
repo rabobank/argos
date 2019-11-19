@@ -10,6 +10,7 @@ import java.util.Set;
 @Setter
 @Builder
 public class LayoutMetaBlock {
+    private String id;
     private Set<Signature> signatures;
     private Layout layout;
 }
