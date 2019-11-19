@@ -22,6 +22,8 @@ steps:
         path: /root/.m2/repository
     commands:
       - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=rabobank_argos -Dsonar.organization=rabobank -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
+    depends_on: 
+      - build
 
   - name: pitest
     image: rabobanknl/argos-build:latest
@@ -30,59 +32,65 @@ steps:
         path: /root/.m2/repository
     commands:
       - mvn -q -e verify -Ppitest
+    depends_on: 
+      - sonar
 
   - name: build argos service image
     image: plugins/docker
     settings:
       repo: rabobanknl/argos-service
-      tags: latest
+      tags: ${DRONE_COMMIT:0:8}
       context: argos-docker
       dockerfile: argos-docker/ServiceDockerfile
       username:
         from_secret: docker_login_user
       password:
         from_secret: docker_login_token
+    depends_on: 
+      - pitest
+      - sonar
   - name: build argos jenkins image
     image: plugins/docker
     settings:
       repo: rabobanknl/argos-jenkins
-      tags: latest
+      tags: ${DRONE_COMMIT:0:8}
       context: argos-docker
       dockerfile: argos-docker/JenkinsDockerfile
       username:
         from_secret: docker_login_user
       password:
         from_secret: docker_login_token
+    depends_on: 
+      - pitest
+      - sonar
 
-volumes:
-  - name: mvn_cache
-    temp: {}
-trigger:
-  event:
-    - push
-    - pull_request
-
----
-kind: pipeline
-name: regression test
-type: docker
-
-services:
   - name: mongodb
     image: mongo:4.2.1-bionic
+    detach: true
+    depends_on: 
+      - pitest
+      - sonar
   - name: argos-service
-    image: rabobanknl/argos-service:latest
+    image: rabobanknl/argos-service:${DRONE_COMMIT:0:8}
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
       spring.profiles.active: default,integration-test
+    detach: true
+    depends_on: 
+      - mongodb
+      - build argos service image
+    
   - name: argos-jenkins
-    image: rabobanknl/argos-jenkins:latest
+    image: rabobanknl/argos-jenkins:${DRONE_COMMIT:0:8}
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
-#  - name: sonarqube
-#    image: sonarqube
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
+    detach: true
+    depends_on:
+      - build argos jenkins image
 
-steps:
   - name: regression test
     image: rabobanknl/argos-build:latest
     volumes:
@@ -92,13 +100,13 @@ steps:
       - mvn -q clean install -Dmaven.test.skip=true
       - cd argos-test
       - mvn -q clean verify -Pregression-test-drone
+    depends_on: 
+      - argos-jenkins
+      - argos-service
 
 volumes:
   - name: mvn_cache
     temp: {}
-
-depends_on:
-  - argosbuild
 
 trigger:
   event:

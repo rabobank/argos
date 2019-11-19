@@ -19,4 +19,4 @@ RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 
-COPY toolchains.xml /root/.m2/toolchains.xml
+COPY toolchains.xml ${MAVEN_CONFIG}/toolchains.xml
