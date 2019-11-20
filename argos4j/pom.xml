@@ -23,6 +23,24 @@
 			<organization>Rabobank</organization>
 			<organizationUrl>https://www.rabobank.com</organizationUrl>
 		</developer>
+		<developer>
+            <name>Bart Kors</name>
+            <email>bart.kors@rabobank.nl</email>
+            <organization>Rabobank</organization>
+            <organizationUrl>https://www.rabobank.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Michel Durieux</name>
+            <email>michel.durieux@rabobank.nl</email>
+            <organization>Rabobank</organization>
+            <organizationUrl>https://www.rabobank.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Geert van der Sterre</name>
+            <email>geert.van.der.sterre@rabobank.nl</email>
+            <organization>Rabobank</organization>
+            <organizationUrl>https://www.rabobank.com</organizationUrl>
+        </developer>
 	</developers>
 
 	<scm>
