@@ -17,6 +17,48 @@
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos-parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+    <description>Argos Supply Chain Notary</description>
+    <url>https://github.com/rabobank/argos</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Gerard Borst</name>
+            <email>gerard.borst@rabobank.nl</email>
+            <organization>Rabobank</organization>
+            <organizationUrl>https://www.rabobank.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Bart Kors</name>
+            <email>bart.kors@rabobank.nl</email>
+            <organization>Rabobank</organization>
+            <organizationUrl>https://www.rabobank.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Michel Durieux</name>
+            <email>michel.durieux@rabobank.nl</email>
+            <organization>Rabobank</organization>
+            <organizationUrl>https://www.rabobank.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Geert van der Sterre</name>
+            <email>geert.van.der.sterre@rabobank.nl</email>
+            <organization>Rabobank</organization>
+            <organizationUrl>https://www.rabobank.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/rabobank/argos.git</connection>
+        <developerConnection>scm:git:ssh://github.com:rabobank/argos.git</developerConnection>
+        <url>https://github.com/rabobank/argos/tree/master</url>
+    </scm>
 
 	<properties>
 		<java.version>11</java.version>
@@ -32,6 +74,7 @@
 		<swagger-annotations.version>1.5.23</swagger-annotations.version>
 		<jsonassert.version>1.5.0</jsonassert.version>
 		<jackson-databind-nullable.version>0.1.0</jackson-databind-nullable.version>
+        <jackson-databind.version>2.10.0</jackson-databind.version>
 	</properties>
 
 	<dependencies>
