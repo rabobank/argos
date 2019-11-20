@@ -1,13 +1,5 @@
 FROM rabobanknl/argos-jenkins-base:latest
 
-USER root
-
-RUN apk add --no-cache maven
-
-# temporary patch to enable file url's
-# A PR is made to upstream
-RUN sed -i -e 's/http\.\+/\(http\|file\)\.\+/g' /usr/local/bin/install-plugins.sh
-
 # groovy files
 COPY jenkins_config/*.groovy* /usr/share/jenkins/ref/init.groovy.d/
 
