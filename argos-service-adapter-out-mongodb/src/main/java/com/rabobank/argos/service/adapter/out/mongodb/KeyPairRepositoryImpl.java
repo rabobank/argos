@@ -3,7 +3,6 @@ package com.rabobank.argos.service.adapter.out.mongodb;
 import com.rabobank.argos.domain.model.KeyPair;
 import com.rabobank.argos.domain.repository.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
@@ -18,7 +17,6 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class KeyPairRepositoryImpl implements KeyPairRepository {
 
     private static final String COLLECTION = "keyPairs";

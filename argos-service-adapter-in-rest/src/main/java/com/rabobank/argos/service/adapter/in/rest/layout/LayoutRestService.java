@@ -16,6 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -53,12 +54,29 @@ public class LayoutRestService implements LayoutApi {
     }
 
     @Override
+    public ResponseEntity<RestLayoutMetaBlock> updateLayout(String supplyChainId, String layoutId, RestLayoutMetaBlock restLayoutMetaBlock) {
+        log.info("updateLayout for supplyChainId {}", supplyChainId);
+        LayoutMetaBlock layoutMetaBlock = converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
+        layoutMetaBlock.setSupplyChainId(supplyChainId);
+        layoutMetaBlock.setLayoutMetaBlockId(layoutId);
+        if (repository.update(supplyChainId, layoutId, layoutMetaBlock)) {
+            return ResponseEntity.ok(converter.convertToRestLayoutMetaBlock(layoutMetaBlock));
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "layout not found");
+        }
+    }
+
+    @Override
     public ResponseEntity<RestLayoutMetaBlock> getLayout(String supplyChainId, String layoutId) {
-        return null;
+        return repository.findBySupplyChainAndId(supplyChainId, layoutId)
+                .map(converter::convertToRestLayoutMetaBlock)
+                .map(ResponseEntity::ok).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "layout not found"));
     }
 
     @Override
     public ResponseEntity<List<RestLayoutMetaBlock>> findLayout(String supplyChainId) {
-        return null;
+        return ResponseEntity.ok(repository.findBySupplyChainId(supplyChainId).stream()
+                .map(converter::convertToRestLayoutMetaBlock)
+                .collect(Collectors.toList()));
     }
 }

@@ -17,9 +17,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -91,9 +94,54 @@ class LayoutRestServiceTest {
 
     @Test
     void getLayout() {
+        when(converter.convertToRestLayoutMetaBlock(layoutMetaBlock)).thenReturn(restLayoutMetaBlock);
+        when(repository.findBySupplyChainAndId(SUPPLY_CHAIN_ID, METABLOCK_ID)).thenReturn(Optional.of(layoutMetaBlock));
+        ResponseEntity<RestLayoutMetaBlock> responseEntity = service.getLayout(SUPPLY_CHAIN_ID, METABLOCK_ID);
+        assertThat(responseEntity.getStatusCodeValue(), is(200));
+        assertThat(responseEntity.getBody(), sameInstance(restLayoutMetaBlock));
+    }
+
+    @Test
+    void getLayoutNotFound() {
+        when(repository.findBySupplyChainAndId(SUPPLY_CHAIN_ID, METABLOCK_ID)).thenReturn(Optional.empty());
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
+            service.getLayout(SUPPLY_CHAIN_ID, METABLOCK_ID);
+        });
+        assertThat(responseStatusException.getStatus(), is(HttpStatus.NOT_FOUND));
+        assertThat(responseStatusException.getReason(), is("layout not found"));
     }
 
     @Test
     void findLayout() {
+        when(converter.convertToRestLayoutMetaBlock(layoutMetaBlock)).thenReturn(restLayoutMetaBlock);
+        when(repository.findBySupplyChainId(SUPPLY_CHAIN_ID)).thenReturn(Collections.singletonList(layoutMetaBlock));
+        ResponseEntity<List<RestLayoutMetaBlock>> responseEntity = service.findLayout(SUPPLY_CHAIN_ID);
+        assertThat(responseEntity.getStatusCodeValue(), is(200));
+        assertThat(responseEntity.getBody(), contains(restLayoutMetaBlock));
+    }
+
+    @Test
+    void updateLayout() {
+        when(converter.convertToRestLayoutMetaBlock(layoutMetaBlock)).thenReturn(restLayoutMetaBlock);
+        when(converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock)).thenReturn(layoutMetaBlock);
+        when(repository.update(SUPPLY_CHAIN_ID, METABLOCK_ID, layoutMetaBlock)).thenReturn(true);
+        ResponseEntity<RestLayoutMetaBlock> responseEntity = service.updateLayout(SUPPLY_CHAIN_ID, METABLOCK_ID, restLayoutMetaBlock);
+
+        verify(layoutMetaBlock).setLayoutMetaBlockId(METABLOCK_ID);
+        verify(layoutMetaBlock).setSupplyChainId(SUPPLY_CHAIN_ID);
+
+        assertThat(responseEntity.getStatusCodeValue(), is(200));
+        assertThat(responseEntity.getBody(), sameInstance(restLayoutMetaBlock));
+    }
+
+    @Test
+    void updateLayoutNotFound() {
+        when(converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock)).thenReturn(layoutMetaBlock);
+        when(repository.update(SUPPLY_CHAIN_ID, METABLOCK_ID, layoutMetaBlock)).thenReturn(false);
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
+            service.updateLayout(SUPPLY_CHAIN_ID, METABLOCK_ID, restLayoutMetaBlock);
+        });
+        assertThat(responseStatusException.getStatus(), is(HttpStatus.NOT_FOUND));
+        assertThat(responseStatusException.getReason(), is("layout not found"));
     }
 }

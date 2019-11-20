@@ -32,17 +32,9 @@ paths:
                 format: uri
               description: location where the created supplychain can be found
         '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/ValidationError'
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
 
     get:
       summary: search a supplychain
@@ -65,18 +57,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/SupplyChainItem"
-        '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
 
   /supplychain/{supplyChainId}:
     get:
@@ -98,18 +80,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SupplyChainItem"
-        '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
 
   /supplychain/{supplyChainId}/link:
     get:
@@ -139,18 +111,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/LinkMetaBlock"
-        '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
     post:
       summary: Create a link
       operationId: createLink
@@ -172,17 +134,9 @@ paths:
         '204':
           description: no content
         '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/ValidationError'
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
   /key:
     post:
       summary: stores a public and private key pair
@@ -198,17 +152,9 @@ paths:
         '204':
           description: no content
         '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/ValidationError'
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
   /key/{keyId}:
     get:
       summary: get a key pair by id
@@ -233,17 +179,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/KeyPair"
         '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/ValidationError'
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
   /supplychain/{supplyChainId}/layout:
     get:
       summary: get layout
@@ -267,11 +205,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/LayoutMetaBlock"
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
     post:
       summary: Create a layout
       operationId: createLayout
@@ -303,17 +237,9 @@ paths:
                 format: uri
               description: location where the created layout metablock can be found
         '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/ValidationError'
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
   /supplychain/{supplyChainId}/layout/{layoutId}:
     get:
       summary: get layout
@@ -341,13 +267,57 @@ paths:
               schema:
                 $ref: "#/components/schemas/LayoutMetaBlock"
         '500':
-          description: server error
+          $ref: '#/components/responses/Error'
+    put:
+      summary: update a layout
+      operationId: updateLayout
+      tags:
+        - layout
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+        - name: layoutId
+          in: path
+          description: layout id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LayoutMetaBlock"
+      responses:
+        '200':
+          description: updated
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/LayoutMetaBlock"
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
 
 components:
+  responses:
+    ValidationError:
+      description: validation error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Error:
+      description: server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
   schemas:
     LinkMetaBlock:
       type: object
