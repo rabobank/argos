@@ -11,6 +11,22 @@ steps:
         path: /root/.m2/repository
     commands:
       - mvn -q install
+      
+  - name: sign artifacts
+    image: plugins/gpgsign
+    settings:
+      key:
+        from_secret: argos-signing-private-key
+      passphrase:
+        from_secret: argos-signing-private-key-passphrase
+      files:
+        - argos4j/target/*.jar
+        - argos-service/target/*.jar
+    when:
+      event:
+        - push
+    depends_on: 
+      - build
 
   - name: sonar
     image: rabobanknl/argos-build:latest
