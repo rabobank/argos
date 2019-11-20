@@ -4,7 +4,7 @@ Feature: Link
     * url karate.properties['server.baseurl']
     * call read('reset.feature')
     * def result = call read('create-supplychain.feature') { name: 'name'}
-    * def linkPath = '/api/supplychain/'+ result.response.id + '/link/'
+    * def linkPath = '/api/supplychain/'+ result.response.id + '/link'
 
   Scenario: store link with valid specifications should return a 204
     * def linkresult = call read('create-validlink.feature') {id:#(result.response.id)}

@@ -4,3 +4,5 @@ spring:
       uri: mongodb://localhost/test
   profiles:
     active: default,integration-test
+  jackson:
+    default-property-inclusion: non_null
