@@ -113,7 +113,6 @@ steps:
       - name: mvn_cache
         path: /root/.m2/repository
     commands:
-      - mvn -q clean install -Dmaven.test.skip=true
       - cd argos-test
       - mvn -q clean verify -Pregression-test-drone
     depends_on: 
