@@ -414,6 +414,9 @@ components:
           maxLength: 256
     LayoutMetaBlock:
       type: object
+      required:
+        - signatures
+        - layout
       properties:
         id:
           type: string
@@ -425,13 +428,18 @@ components:
           $ref: "#/components/schemas/Layout"
     Layout:
       type: object
+      required:
+        - authorizedKeyIds
+        - steps
       properties:
         authorizedKeyIds:
           type: array
+          minItems: 1
           items:
             $ref: '#/components/schemas/KeyId'
         steps:
           type: array
+          minItems: 1
           items:
             $ref: "#/components/schemas/Step"
     Step:
@@ -439,11 +447,15 @@ components:
       required:
         - name
         - requiredSignatures
+        - authorizedKeyIds
+        - expectedMaterials
+        - expectedProducts
       properties:
         name:
           type: string
         authorizedKeyIds:
           type: array
+          minItems: 1
           items:
             $ref: '#/components/schemas/KeyId'
         requiredSignatures:

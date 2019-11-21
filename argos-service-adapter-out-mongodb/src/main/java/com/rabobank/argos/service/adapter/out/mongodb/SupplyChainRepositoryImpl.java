@@ -32,8 +32,12 @@ public class SupplyChainRepositoryImpl implements SupplyChainRepository {
 
     @Override
     public Optional<SupplyChain> findBySupplyChainId(String supplyChainId) {
-        Query query = new Query(Criteria.where(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId));
-        return Optional.ofNullable(template.findOne(query, SupplyChain.class, COLLECTION));
+        return Optional.ofNullable(template.findOne(getPrimaryKeyQuery(supplyChainId), SupplyChain.class, COLLECTION));
+    }
+
+    @Override
+    public boolean exists(String supplyChainId) {
+        return template.exists(getPrimaryKeyQuery(supplyChainId), SupplyChain.class, COLLECTION);
     }
 
     @Override
@@ -50,6 +54,11 @@ public class SupplyChainRepositoryImpl implements SupplyChainRepository {
     @Override
     public void save(SupplyChain supplyChain) {
         template.save(supplyChain, COLLECTION);
+    }
+
+
+    private Query getPrimaryKeyQuery(String supplyChainId) {
+        return new Query(Criteria.where(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId));
     }
 
 }

@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface SupplyChainRepository {
     Optional<SupplyChain> findBySupplyChainId(String supplyChainId);
+
+    boolean exists(String supplyChainId);
     List<SupplyChain> findByName(String name);
     List<SupplyChain> findAll();
     void save(SupplyChain supplyChain);

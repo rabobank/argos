@@ -2,8 +2,6 @@ package com.rabobank.argos.service.adapter.in.rest.layout;
 
 import com.rabobank.argos.domain.model.LayoutMetaBlock;
 import com.rabobank.argos.domain.repository.LayoutMetaBlockRepository;
-import com.rabobank.argos.domain.repository.SupplyChainRepository;
-import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LayoutApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
 import lombok.RequiredArgsConstructor;
@@ -25,27 +23,20 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 public class LayoutRestService implements LayoutApi {
 
-    private final SupplyChainRepository supplyChainRepository;
-
     private final LayoutMetaBlockMapper converter;
 
     private final LayoutMetaBlockRepository repository;
 
-    private final SignatureValidatorService signatureValidatorService;
+    private final LayoutValidatorService validator;
 
     @Override
     public ResponseEntity<RestLayoutMetaBlock> createLayout(String supplyChainId, RestLayoutMetaBlock restLayoutMetaBlock) {
         log.info("createLayout for supplyChainId {}", supplyChainId);
-        if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "supply chain not found : " + supplyChainId);
-        }
-
 
         LayoutMetaBlock layoutMetaBlock = converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
-        layoutMetaBlock.getSignatures().forEach(signature -> signatureValidatorService.validateSignature(layoutMetaBlock.getLayout(), signature));
-
-
         layoutMetaBlock.setSupplyChainId(supplyChainId);
+        validator.validate(layoutMetaBlock);
+
         repository.save(layoutMetaBlock);
 
         URI location = ServletUriComponentsBuilder
@@ -62,9 +53,9 @@ public class LayoutRestService implements LayoutApi {
     public ResponseEntity<RestLayoutMetaBlock> updateLayout(String supplyChainId, String layoutId, RestLayoutMetaBlock restLayoutMetaBlock) {
         log.info("updateLayout for supplyChainId {}", supplyChainId);
         LayoutMetaBlock layoutMetaBlock = converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
-        layoutMetaBlock.getSignatures().forEach(signature -> signatureValidatorService.validateSignature(layoutMetaBlock.getLayout(), signature));
         layoutMetaBlock.setSupplyChainId(supplyChainId);
         layoutMetaBlock.setLayoutMetaBlockId(layoutId);
+        validator.validate(layoutMetaBlock);
         if (repository.update(supplyChainId, layoutId, layoutMetaBlock)) {
             return ResponseEntity.ok(converter.convertToRestLayoutMetaBlock(layoutMetaBlock));
         } else {
