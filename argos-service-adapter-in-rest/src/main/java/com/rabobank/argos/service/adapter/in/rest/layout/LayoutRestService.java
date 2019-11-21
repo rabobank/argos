@@ -5,6 +5,7 @@ import com.rabobank.argos.domain.repository.LayoutMetaBlockRepository;
 import com.rabobank.argos.domain.repository.SupplyChainRepository;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LayoutApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestVerifyCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,6 +73,11 @@ public class LayoutRestService implements LayoutApi {
         return repository.findBySupplyChainAndId(supplyChainId, layoutId)
                 .map(converter::convertToRestLayoutMetaBlock)
                 .map(ResponseEntity::ok).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "layout not found"));
+    }
+
+    @Override
+    public ResponseEntity<Boolean> performVerification(String supplyChainId, @Valid RestVerifyCommand restVerifyCommand) {
+        return ResponseEntity.ok(true);
     }
 
     @Override
