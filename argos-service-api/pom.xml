@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.rabobank.argos</groupId>
+        <artifactId>argos-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>argos-service-api</artifactId>
+    <description>Argos service api for Argos Supply Chain Notary</description>
+    <url>https://github.com/rabobank/argos/argos-service-api</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Gerard Borst</name>
+            <email>gerard.borst@rabobank.nl</email>
+            <organization>Rabobank</organization>
+            <organizationUrl>https://www.rabobank.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/rabobank/argos.git</connection>
+        <developerConnection>scm:git:ssh://github.com:rabobank/argos.git</developerConnection>
+        <url>https://github.com/rabobank/argos/tree/master</url>
+    </scm>
+
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <includes>
+                    <include>api.yml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>

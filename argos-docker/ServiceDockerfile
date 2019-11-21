@@ -1,0 +1,9 @@
+FROM openjdk:11.0.5-jre-slim-buster
+
+RUN adduser --system --home /home/argos --uid 1000 argos
+
+USER argos
+
+ADD target/lib/argos-service.jar /
+
+ENTRYPOINT ["java","-jar","/argos-service.jar"]
