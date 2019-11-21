@@ -12,6 +12,7 @@ import org.mapstruct.factory.Mappers;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 class LinkMetaBlockMapperTest {
 
@@ -23,7 +24,7 @@ class LinkMetaBlockMapperTest {
     void setUp() throws IOException {
         converter = Mappers.getMapper(LinkMetaBlockMapper.class);
         mapper = new ObjectMapper();
-        linkJson = IOUtils.toString(LinkMetaBlockMapperTest.class.getResourceAsStream("/link.json"), "UTF-8");
+        linkJson = IOUtils.toString(LinkMetaBlockMapperTest.class.getResourceAsStream("/link.json"), StandardCharsets.UTF_8);
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.rabobank.argos.service.adapter.in.rest.layout;
 import com.rabobank.argos.domain.model.LayoutMetaBlock;
 import com.rabobank.argos.domain.repository.LayoutMetaBlockRepository;
 import com.rabobank.argos.domain.repository.SupplyChainRepository;
+import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LayoutApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,8 @@ public class LayoutRestService implements LayoutApi {
 
     private final LayoutMetaBlockRepository repository;
 
+    private final SignatureValidatorService signatureValidatorService;
+
     @Override
     public ResponseEntity<RestLayoutMetaBlock> createLayout(String supplyChainId, RestLayoutMetaBlock restLayoutMetaBlock) {
         log.info("createLayout for supplyChainId {}", supplyChainId);
@@ -37,10 +40,12 @@ public class LayoutRestService implements LayoutApi {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "supply chain not found : " + supplyChainId);
         }
 
+
         LayoutMetaBlock layoutMetaBlock = converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
+        layoutMetaBlock.getSignatures().forEach(signature -> signatureValidatorService.validateSignature(layoutMetaBlock.getLayout(), signature));
+
 
         layoutMetaBlock.setSupplyChainId(supplyChainId);
-
         repository.save(layoutMetaBlock);
 
         URI location = ServletUriComponentsBuilder
@@ -57,6 +62,7 @@ public class LayoutRestService implements LayoutApi {
     public ResponseEntity<RestLayoutMetaBlock> updateLayout(String supplyChainId, String layoutId, RestLayoutMetaBlock restLayoutMetaBlock) {
         log.info("updateLayout for supplyChainId {}", supplyChainId);
         LayoutMetaBlock layoutMetaBlock = converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
+        layoutMetaBlock.getSignatures().forEach(signature -> signatureValidatorService.validateSignature(layoutMetaBlock.getLayout(), signature));
         layoutMetaBlock.setSupplyChainId(supplyChainId);
         layoutMetaBlock.setLayoutMetaBlockId(layoutId);
         if (repository.update(supplyChainId, layoutId, layoutMetaBlock)) {

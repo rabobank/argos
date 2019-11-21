@@ -336,10 +336,7 @@ components:
         - signature
       properties:
         keyId:
-          type: string
-          minLength: 64
-          maxLength: 64
-          pattern: '^[0-9a-f]*$'
+          $ref: '#/components/schemas/KeyId'
         signature:
           type: string
           minLength: 512
@@ -387,10 +384,7 @@ components:
         - publicKey
       properties:
         keyId:
-          type: string
-          minLength: 64
-          maxLength: 64
-          pattern: '^[0-9a-f]*$'
+          $ref: '#/components/schemas/KeyId'
         publicKey:
           type: string
           format: byte
@@ -435,10 +429,7 @@ components:
         authorizedKeyIds:
           type: array
           items:
-            type: string
-            minLength: 64
-            maxLength: 64
-            pattern: '^[0-9a-f]*$'
+            $ref: '#/components/schemas/KeyId'
         steps:
           type: array
           items:
@@ -447,16 +438,14 @@ components:
       type: object
       required:
         - name
+        - requiredSignatures
       properties:
         name:
           type: string
         authorizedKeyIds:
           type: array
           items:
-            type: string
-            minLength: 64
-            maxLength: 64
-            pattern: '^[0-9a-f]*$'
+            $ref: '#/components/schemas/KeyId'
         requiredSignatures:
           type: integer
           format: int32
@@ -473,8 +462,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Rule"
+    KeyId:
+      type: string
+      description: key id is a hash of the public key
+      minLength: 64
+      maxLength: 64
+      pattern: '^[0-9a-f]*$'
     Rule:
       type: object
+      required:
+        - ruleType
+        - pattern
       properties:
         ruleType:
           type: string

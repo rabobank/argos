@@ -1,5 +1,6 @@
-package com.rabobank.argos.domain;
+package com.rabobank.argos.domain.signing;
 
+import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.model.Artifact;
 import com.rabobank.argos.domain.model.Link;
 import com.rabobank.argos.domain.model.LinkMetaBlock;
@@ -51,7 +52,7 @@ class SignatureValidatorTest {
 
         LinkMetaBlock linkMetaBlock = LinkMetaBlock.builder()
                 .signature(com.rabobank.argos.domain.model.Signature.builder().signature(signature).build()).link(link).build();
-        assertThat(validator.isValid(linkMetaBlock, pair.getPublic()), is(true));
+        assertThat(validator.isValid(linkMetaBlock.getLink(), linkMetaBlock.getSignature().getSignature(), pair.getPublic()), is(true));
     }
 
     @Test
@@ -67,7 +68,7 @@ class SignatureValidatorTest {
 
         LinkMetaBlock linkMetaBlock = LinkMetaBlock.builder()
                 .signature(com.rabobank.argos.domain.model.Signature.builder().signature(signature).build()).link(link).build();
-        assertThat(validator.isValid(linkMetaBlock, pair.getPublic()), is(false));
+        assertThat(validator.isValid(linkMetaBlock.getLink(), linkMetaBlock.getSignature().getSignature(), pair.getPublic()), is(false));
     }
 
     @Test
@@ -76,7 +77,7 @@ class SignatureValidatorTest {
         LinkMetaBlock linkMetaBlock = LinkMetaBlock.builder()
                 .signature(com.rabobank.argos.domain.model.Signature.builder().signature(signature).build()).link(link).build();
 
-        ArgosError argosError = assertThrows(ArgosError.class, () -> validator.isValid(linkMetaBlock, pair.getPublic()));
+        ArgosError argosError = assertThrows(ArgosError.class, () -> validator.isValid(linkMetaBlock.getLink(), linkMetaBlock.getSignature().getSignature(), pair.getPublic()));
         assertThat(argosError.getMessage(), is("Odd number of characters."));
 
     }
