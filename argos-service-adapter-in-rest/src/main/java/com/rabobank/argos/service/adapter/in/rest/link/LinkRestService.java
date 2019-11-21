@@ -1,11 +1,10 @@
 package com.rabobank.argos.service.adapter.in.rest.link;
 
 
-import com.rabobank.argos.domain.SignatureValidator;
 import com.rabobank.argos.domain.model.LinkMetaBlock;
-import com.rabobank.argos.domain.repository.KeyPairRepository;
 import com.rabobank.argos.domain.repository.LinkMetaBlockRepository;
 import com.rabobank.argos.domain.repository.SupplyChainRepository;
+import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LinkApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +32,7 @@ public class LinkRestService implements LinkApi {
 
     private final LinkMetaBlockMapper converter;
 
-    private final SignatureValidator signatureValidator;
-
-    private final KeyPairRepository keyPairRepository;
+    private final SignatureValidatorService signatureValidatorService;
 
     @Override
     public ResponseEntity<Void> createLink(String supplyChainId, RestLinkMetaBlock restLinkMetaBlock) {
@@ -45,15 +42,7 @@ public class LinkRestService implements LinkApi {
         }
 
         LinkMetaBlock linkMetaBlock = converter.convertFromRestLinkMetaBlock(restLinkMetaBlock);
-
-        keyPairRepository.findByKeyId(linkMetaBlock.getSignature().getKeyId()).ifPresentOrElse(keyPair -> {
-            if (!signatureValidator.isValid(linkMetaBlock, keyPair.getPublicKey())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid signature");
-            }
-        }, () -> {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "signature with keyId " + linkMetaBlock.getSignature().getKeyId() + " not found");
-        });
-
+        signatureValidatorService.validateSignature(linkMetaBlock.getLink(), linkMetaBlock.getSignature());
         linkMetaBlock.setSupplyChainId(supplyChainId);
         linkMetaBlockRepository.save(linkMetaBlock);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

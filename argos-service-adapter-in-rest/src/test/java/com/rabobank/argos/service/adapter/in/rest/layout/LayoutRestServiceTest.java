@@ -1,9 +1,12 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
+import com.rabobank.argos.domain.model.Layout;
 import com.rabobank.argos.domain.model.LayoutMetaBlock;
+import com.rabobank.argos.domain.model.Signature;
 import com.rabobank.argos.domain.model.SupplyChain;
 import com.rabobank.argos.domain.repository.LayoutMetaBlockRepository;
 import com.rabobank.argos.domain.repository.SupplyChainRepository;
+import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,6 +50,9 @@ class LayoutRestServiceTest {
     private RestLayoutMetaBlock restLayoutMetaBlock;
 
     @Mock
+    private SignatureValidatorService signatureValidatorService;
+
+    @Mock
     private SupplyChain supplyChain;
 
     @Mock
@@ -57,9 +63,15 @@ class LayoutRestServiceTest {
 
     private LayoutRestService service;
 
+    @Mock
+    private Signature signature;
+
+    @Mock
+    private Layout layout;
+
     @BeforeEach
     void setUp() {
-        service = new LayoutRestService(supplyChainRepository, converter, repository);
+        service = new LayoutRestService(supplyChainRepository, converter, repository, signatureValidatorService);
     }
 
     @Test
@@ -71,6 +83,8 @@ class LayoutRestServiceTest {
         when(converter.convertToRestLayoutMetaBlock(layoutMetaBlock)).thenReturn(restLayoutMetaBlock);
 
         when(layoutMetaBlock.getLayoutMetaBlockId()).thenReturn(METABLOCK_ID);
+        when(layoutMetaBlock.getSignatures()).thenReturn(Collections.singletonList(signature));
+        when(layoutMetaBlock.getLayout()).thenReturn(layout);
 
         ResponseEntity<RestLayoutMetaBlock> responseEntity = service.createLayout(SUPPLY_CHAIN_ID, restLayoutMetaBlock);
 
@@ -79,6 +93,7 @@ class LayoutRestServiceTest {
         assertThat(responseEntity.getHeaders().getLocation().getPath(), is("/" + METABLOCK_ID));
 
         verify(repository).save(layoutMetaBlock);
+        verify(signatureValidatorService).validateSignature(layout, signature);
 
     }
 
@@ -122,6 +137,8 @@ class LayoutRestServiceTest {
 
     @Test
     void updateLayout() {
+        when(layoutMetaBlock.getSignatures()).thenReturn(Collections.singletonList(signature));
+        when(layoutMetaBlock.getLayout()).thenReturn(layout);
         when(converter.convertToRestLayoutMetaBlock(layoutMetaBlock)).thenReturn(restLayoutMetaBlock);
         when(converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock)).thenReturn(layoutMetaBlock);
         when(repository.update(SUPPLY_CHAIN_ID, METABLOCK_ID, layoutMetaBlock)).thenReturn(true);
@@ -129,6 +146,7 @@ class LayoutRestServiceTest {
 
         verify(layoutMetaBlock).setLayoutMetaBlockId(METABLOCK_ID);
         verify(layoutMetaBlock).setSupplyChainId(SUPPLY_CHAIN_ID);
+        verify(signatureValidatorService).validateSignature(layout, signature);
 
         assertThat(responseEntity.getStatusCodeValue(), is(200));
         assertThat(responseEntity.getBody(), sameInstance(restLayoutMetaBlock));
