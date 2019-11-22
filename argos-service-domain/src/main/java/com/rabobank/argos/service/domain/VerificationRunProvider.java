@@ -13,9 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -28,13 +26,13 @@ public class VerificationRunProvider {
     public VerificationRunResult verifyRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> expectedProducts) {
         verifySignatures(layoutMetaBlock);
         List<LinkMetaBlock> links = getLinksForThisRun(layoutMetaBlock, expectedProducts);
-        Map<Step, List<LinkMetaBlock>> stepsLinkRegistry = createStepsLinksRegistry(layoutMetaBlock.getLayout().getSteps());
+        VerifyRunStepsLinksRegistry verifyRunStepsLinksRegistry = createStepsLinksRegistry(layoutMetaBlock.getLayout().getSteps());
 
         return VerificationRunResult.builder().runIsValid(true).build();
     }
 
-    private Map<Step, List<LinkMetaBlock>> createStepsLinksRegistry(List<Step> steps) {
-        return new HashMap<>();
+    private VerifyRunStepsLinksRegistry createStepsLinksRegistry(List<Step> steps) {
+        return VerifyRunStepsLinksRegistryImpl.builder().build();
     }
 
     private List<LinkMetaBlock> getLinksForThisRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> expectedProducts) {
