@@ -1,7 +1,10 @@
 package com.rabobank.argos.test;
 
+import com.google.common.base.Optional;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
+import com.offbytwo.jenkins.model.FolderJob;
+import com.offbytwo.jenkins.model.Job;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
@@ -30,6 +33,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.rabobank.argos.test.TestHelper.clearDatabase;
@@ -47,6 +51,8 @@ public class JenkinsTestIT {
 
     private static Properties properties = Properties.getInstance();
     private static final String SERVER_BASEURL = "server.baseurl";
+    private JenkinsServer jenkins;
+
     @BeforeAll
     static void startup() {
         log.info("jenkins base url : {}", properties.getJenkinsBaseUrl());
@@ -56,8 +62,12 @@ public class JenkinsTestIT {
     }
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws URISyntaxException {
         clearDatabase();
+        getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
+        PublicKey publicKey = getPemKeyPair(getClass().getResourceAsStream("/bob")).getPublic();
+        getKeyApiApi().storeKey(new RestKeyPair().publicKey(publicKey.getEncoded()).keyId(new KeyIdProviderImpl().computeKeyId(publicKey)));
+        jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
     }
 
     private static void waitForJenkinsToStart() {
@@ -79,13 +89,28 @@ public class JenkinsTestIT {
     }
 
     @Test
-    public void testFreestyle() throws IOException, URISyntaxException {
-        getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
-        PublicKey publicKey = getPemKeyPair(getClass().getResourceAsStream("/bob")).getPublic();
-        getKeyApiApi().storeKey(new RestKeyPair().publicKey(publicKey.getEncoded()).keyId(new KeyIdProviderImpl().computeKeyId(publicKey)));
-        JenkinsServer jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
-        await().atMost(10, SECONDS).until(() -> getJob(jenkins) != null);
-        JobWithDetails job = getJob(jenkins);
+    public void testFreestyle() throws IOException {
+        int buildNumber = runBuild(getJob("argos-test-app-freestyle-recording"));
+        verifyJobResult(getJob("argos-test-app-freestyle-recording"), buildNumber);
+    }
+
+    @Test
+    public void testPipeline() throws IOException {
+        JobWithDetails pipeLineJob = getJob("argos-test-app-pipeline");
+        if (!hasMaster(pipeLineJob)) {
+            pipeLineJob.build();
+            await().atMost(10, SECONDS).until(() -> hasMaster(pipeLineJob));
+        }
+
+        JobWithDetails job = getJob("argos-test-app-pipeline");
+        FolderJob folderJob = jenkins.getFolderJob(job).get();
+        Map<String, Job> jobs = folderJob.getJobs();
+        int buildNumber = runBuild(jobs.get("master"));
+
+        verifyJobResult(jenkins.getJob(folderJob, "master"), buildNumber);
+    }
+
+    private int runBuild(Job job) throws IOException {
         QueueReference reference = job.build();
 
         await().atMost(25, SECONDS).until(() -> jenkins.getQueueItem(reference).getExecutable() != null);
@@ -98,11 +123,14 @@ public class JenkinsTestIT {
         log.info("build number {}", buildNumber);
 
         await().atMost(2, MINUTES).until(() -> !build.details().isBuilding());
+        return buildNumber;
+    }
 
-        Build lastSuccessfulBuild = getJob(jenkins).getLastSuccessfulBuild();
-        Build lastUnsuccessfulBuild = getJob(jenkins).getLastUnsuccessfulBuild();
+    private void verifyJobResult(JobWithDetails job, int buildNumber) throws IOException {
+        Build lastSuccessfulBuild = job.getLastSuccessfulBuild();
+        Build lastUnsuccessfulBuild = job.getLastUnsuccessfulBuild();
 
-        if(lastUnsuccessfulBuild != Build.BUILD_HAS_NEVER_RUN) {
+        if (lastUnsuccessfulBuild != Build.BUILD_HAS_NEVER_RUN) {
             Stream.of(lastUnsuccessfulBuild.details().getConsoleOutputText().split("\\r?\\n")).forEach(log::error);
         }
 
@@ -110,9 +138,18 @@ public class JenkinsTestIT {
         assertThat(lastSuccessfulBuild.getNumber(), is(buildNumber));
     }
 
-    private JobWithDetails getJob(JenkinsServer jenkins) throws IOException {
-        return jenkins.getJob("argos-test-app-freestyle-recording");
+    private JobWithDetails getJob(String name) throws IOException {
+        await().atMost(10, SECONDS).until(() -> jenkins.getJob(name) != null);
+        return jenkins.getJob(name);
     }
+
+
+    private boolean hasMaster(JobWithDetails pipeLineJob) throws IOException {
+        Optional<FolderJob> folderJob = jenkins.getFolderJob(pipeLineJob);
+        return folderJob.isPresent() &&
+                folderJob.get().getJob("master") != null;
+    }
+
 
     private static KeyPair getPemKeyPair(InputStream signingKey) {
         try (Reader reader = new InputStreamReader(signingKey, StandardCharsets.UTF_8);
@@ -131,5 +168,6 @@ public class JenkinsTestIT {
             throw new Argos4jError(e.toString(), e);
         }
     }
+
 
 }

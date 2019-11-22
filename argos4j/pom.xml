@@ -327,12 +327,11 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<createDependencyReducedPom>true</createDependencyReducedPom>
 						    <!-- <promoteTransitiveDependencies>true</promoteTransitiveDependencies> -->
 							<artifactSet>
 								<includes>
 									<include>com.rabobank.argos:argos-domain</include>
-									<include>com.fasterxml.jackson.*</include>
-                                    <include>commons-codec:commons-codec</include>
 								</includes>
 							</artifactSet>
 						</configuration>
