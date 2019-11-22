@@ -1,12 +1,13 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
 import com.rabobank.argos.domain.model.LayoutMetaBlock;
-import com.rabobank.argos.domain.repository.LayoutMetaBlockRepository;
-import com.rabobank.argos.domain.repository.SupplyChainRepository;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LayoutApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestVerificationResult;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestVerifyCommand;
+import com.rabobank.argos.service.domain.repository.LayoutMetaBlockRepository;
+import com.rabobank.argos.service.domain.repository.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -82,8 +83,14 @@ public class LayoutRestService implements LayoutApi {
     }
 
     @Override
-    public ResponseEntity<Boolean> performVerification(String supplyChainId, @Valid RestVerifyCommand restVerifyCommand) {
-        return ResponseEntity.ok(true);
+    public ResponseEntity<RestVerificationResult> performVerification(String supplyChainId, @Valid RestVerifyCommand restVerifyCommand) {
+
+        List<LayoutMetaBlock> layoutMetaBlocks = repository.findBySupplyChainId(supplyChainId);
+        if (layoutMetaBlocks.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no active layout could be found for supplychain:" + supplyChainId);
+        }
+
+        return ResponseEntity.ok(new RestVerificationResult());
     }
 
     @Override

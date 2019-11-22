@@ -2,7 +2,7 @@ package com.rabobank.argos.service.adapter.out.mongodb;
 
 import com.mongodb.client.result.UpdateResult;
 import com.rabobank.argos.domain.model.LayoutMetaBlock;
-import com.rabobank.argos.domain.repository.LayoutMetaBlockRepository;
+import com.rabobank.argos.service.domain.repository.LayoutMetaBlockRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;

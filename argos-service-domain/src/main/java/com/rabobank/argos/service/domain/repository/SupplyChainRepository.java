@@ -1,4 +1,4 @@
-package com.rabobank.argos.domain.repository;
+package com.rabobank.argos.service.domain.repository;
 
 import com.rabobank.argos.domain.model.SupplyChain;
 

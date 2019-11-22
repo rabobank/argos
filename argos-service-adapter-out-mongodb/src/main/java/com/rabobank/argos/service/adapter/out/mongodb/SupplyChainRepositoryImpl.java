@@ -1,7 +1,7 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
 import com.rabobank.argos.domain.model.SupplyChain;
-import com.rabobank.argos.domain.repository.SupplyChainRepository;
+import com.rabobank.argos.service.domain.repository.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;

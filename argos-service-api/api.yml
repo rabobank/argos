@@ -324,11 +324,11 @@ paths:
               $ref: "#/components/schemas/VerifyCommand"
       responses:
         '200':
-          description: verification was succesfull
+          description: VerificationResult
           content:
             application/json:
               schema:
-                type: boolean
+                $ref: '#/components/schemas/VerificationResult'
         '400':
           $ref: '#/components/responses/ValidationError'
         '500':
@@ -358,6 +358,17 @@ components:
           items:
             $ref: "#/components/schemas/Artifact"
 
+    VerificationResult:
+      type: object
+      required:
+        - isValid
+      properties:
+        isValid:
+          type: boolean
+        message:
+          type: array
+          items:
+            type: string
     LinkMetaBlock:
       type: object
       required:
@@ -543,5 +554,3 @@ components:
       properties:
         message:
           type: string
-
-

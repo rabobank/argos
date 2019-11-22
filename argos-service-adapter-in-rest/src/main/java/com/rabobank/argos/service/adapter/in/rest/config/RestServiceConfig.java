@@ -1,11 +1,11 @@
-package com.rabobank.argos.service.adapter.in.rest.link;
+package com.rabobank.argos.service.adapter.in.rest.config;
 
 import com.rabobank.argos.domain.signing.SignatureValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class LinkRestServiceConfig {
+public class RestServiceConfig {
 
     @Bean
     public SignatureValidator signatureValidator() {

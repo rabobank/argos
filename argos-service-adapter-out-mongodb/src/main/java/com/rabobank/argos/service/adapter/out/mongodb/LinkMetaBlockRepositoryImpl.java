@@ -1,7 +1,7 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
 import com.rabobank.argos.domain.model.LinkMetaBlock;
-import com.rabobank.argos.domain.repository.LinkMetaBlockRepository;
+import com.rabobank.argos.service.domain.repository.LinkMetaBlockRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
