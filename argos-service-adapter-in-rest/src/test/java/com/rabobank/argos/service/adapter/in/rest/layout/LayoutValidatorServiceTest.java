@@ -15,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
+
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -73,6 +75,28 @@ class LayoutValidatorServiceTest {
 
         service.validate(layoutMetaBlock);
         verify(signatureValidatorService).validateSignature(layout, signature);
+    }
+
+    @Test
+    void validateDuplicateKeyId() {
+        when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
+        when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
+        when(signature.getKeyId()).thenReturn(KEY_ID_1);
+        when(layoutMetaBlock.getSignatures()).thenReturn(Arrays.asList(signature, signature));
+        when(layoutMetaBlock.getLayout()).thenReturn(layout);
+
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
+        when(layout.getSteps()).thenReturn(singletonList(step));
+        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
+
+        when(keyPairRepository.exists(KEY_ID_1)).thenReturn(true);
+        when(keyPairRepository.exists(KEY_ID_2)).thenReturn(true);
+
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
+            service.validate(layoutMetaBlock);
+        });
+        assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
+        assertThat(responseStatusException.getReason(), is("layout can't be signed more than one time with the same keyId"));
     }
 
     @Test

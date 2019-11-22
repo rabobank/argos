@@ -8,7 +8,7 @@ import com.rabobank.argos.domain.model.Step;
 import com.rabobank.argos.domain.model.rule.AllowRule;
 import com.rabobank.argos.domain.model.rule.CreateRule;
 import com.rabobank.argos.domain.model.rule.DeleteRule;
-import com.rabobank.argos.domain.model.rule.DisAllowRule;
+import com.rabobank.argos.domain.model.rule.DisallowRule;
 import com.rabobank.argos.domain.model.rule.MatchRule;
 import com.rabobank.argos.domain.model.rule.ModifyRule;
 import com.rabobank.argos.domain.model.rule.RequireRule;
@@ -55,7 +55,7 @@ public interface Cloner {
 
     DeleteRule clone(DeleteRule deleteRule);
 
-    DisAllowRule clone(DisAllowRule disAllowRule);
+    DisallowRule clone(DisallowRule disAllowRule);
 
     MatchRule clone(MatchRule matchRule);
 

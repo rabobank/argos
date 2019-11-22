@@ -3,7 +3,7 @@ package com.rabobank.argos.service.adapter.in.rest.layout;
 import com.rabobank.argos.domain.model.rule.AllowRule;
 import com.rabobank.argos.domain.model.rule.CreateRule;
 import com.rabobank.argos.domain.model.rule.DeleteRule;
-import com.rabobank.argos.domain.model.rule.DisAllowRule;
+import com.rabobank.argos.domain.model.rule.DisallowRule;
 import com.rabobank.argos.domain.model.rule.MatchRule;
 import com.rabobank.argos.domain.model.rule.ModifyRule;
 import com.rabobank.argos.domain.model.rule.RequireRule;
@@ -31,7 +31,7 @@ public abstract class RuleMapper {
         RULE_TYPE_MAP.put(AllowRule.class, RestRule.RuleTypeEnum.ALLOW);
         RULE_TYPE_MAP.put(CreateRule.class, RestRule.RuleTypeEnum.CREATE);
         RULE_TYPE_MAP.put(DeleteRule.class, RestRule.RuleTypeEnum.DELETE);
-        RULE_TYPE_MAP.put(DisAllowRule.class, RestRule.RuleTypeEnum.DISALLOW);
+        RULE_TYPE_MAP.put(DisallowRule.class, RestRule.RuleTypeEnum.DISALLOW);
         RULE_TYPE_MAP.put(MatchRule.class, RestRule.RuleTypeEnum.MATCH);
         RULE_TYPE_MAP.put(ModifyRule.class, RestRule.RuleTypeEnum.MODIFY);
         RULE_TYPE_MAP.put(RequireRule.class, RestRule.RuleTypeEnum.REQUIRE);
@@ -47,7 +47,7 @@ public abstract class RuleMapper {
             case DELETE:
                 return DeleteRule.builder().build();
             case DISALLOW:
-                return DisAllowRule.builder().build();
+                return DisallowRule.builder().build();
             case MATCH:
                 return matchRuleMapper.mapFromRestRule(restRule);
             case MODIFY:

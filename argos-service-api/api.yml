@@ -458,9 +458,10 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/KeyId'
-        requiredSignatures:
+        requiredNumberOfLinks:
           type: integer
           format: int32
+          minimum: 1
         expectedCommand:
           type: array
           items:

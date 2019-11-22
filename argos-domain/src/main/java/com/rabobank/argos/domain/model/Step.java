@@ -13,7 +13,7 @@ import java.util.List;
 public class Step {
     private String stepName;
     private List<String> authorizedKeyIds;
-    private int requiredSignatures;
+    private int requiredNumberOfLinks;
     private List<String> expectedCommand;
     private List<Rule> expectedMaterials;
     private List<Rule> expectedProducts;

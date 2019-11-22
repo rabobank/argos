@@ -21,7 +21,7 @@
           "stepName1 authorizedKeyId 1",
           "stepName1 authorizedKeyId 2"
         ],
-        "requiredSignatures": 3,
+        "requiredNumberOfLinks": 3,
         "expectedCommand": [
           "expectedCommand 1",
           "expectedCommand 2"
@@ -60,7 +60,7 @@
         "authorizedKeyIds": [
           "stepName2 authorizedKeyId"
         ],
-        "requiredSignatures": 45,
+        "requiredNumberOfLinks": 45,
         "expectedCommand": [
           "stepName2 expectedCommand"
         ],
