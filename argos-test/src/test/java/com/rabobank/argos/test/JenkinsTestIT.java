@@ -3,6 +3,7 @@ package com.rabobank.argos.test;
 import com.google.common.base.Optional;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
+import com.offbytwo.jenkins.model.BuildResult;
 import com.offbytwo.jenkins.model.FolderJob;
 import com.offbytwo.jenkins.model.Job;
 import com.offbytwo.jenkins.model.JobWithDetails;
@@ -99,7 +100,7 @@ public class JenkinsTestIT {
         JobWithDetails pipeLineJob = getJob("argos-test-app-pipeline");
         if (!hasMaster(pipeLineJob)) {
             pipeLineJob.build();
-            await().atMost(10, SECONDS).until(() -> hasMaster(pipeLineJob));
+            await().atMost(1, MINUTES).until(() -> hasMaster(pipeLineJob));
         }
 
         JobWithDetails job = getJob("argos-test-app-pipeline");
@@ -109,6 +110,7 @@ public class JenkinsTestIT {
 
         verifyJobResult(jenkins.getJob(folderJob, "master"), buildNumber);
     }
+
 
     private int runBuild(Job job) throws IOException {
         QueueReference reference = job.build();
@@ -127,22 +129,17 @@ public class JenkinsTestIT {
     }
 
     private void verifyJobResult(JobWithDetails job, int buildNumber) throws IOException {
-        Build lastSuccessfulBuild = job.getLastSuccessfulBuild();
-        Build lastUnsuccessfulBuild = job.getLastUnsuccessfulBuild();
-
-        if (lastUnsuccessfulBuild != Build.BUILD_HAS_NEVER_RUN) {
-            Stream.of(lastUnsuccessfulBuild.details().getConsoleOutputText().split("\\r?\\n")).forEach(log::error);
+        Build build = job.getBuildByNumber(buildNumber);
+        if (build.details().getResult() != BuildResult.SUCCESS) {
+            Stream.of(build.details().getConsoleOutputText().split("\\r?\\n")).forEach(log::error);
         }
-
-        assertThat(lastUnsuccessfulBuild.getNumber(), is(-1));
-        assertThat(lastSuccessfulBuild.getNumber(), is(buildNumber));
+        assertThat(build.details().getResult(), is(BuildResult.SUCCESS));
     }
 
     private JobWithDetails getJob(String name) throws IOException {
         await().atMost(10, SECONDS).until(() -> jenkins.getJob(name) != null);
         return jenkins.getJob(name);
     }
-
 
     private boolean hasMaster(JobWithDetails pipeLineJob) throws IOException {
         Optional<FolderJob> folderJob = jenkins.getFolderJob(pipeLineJob);
