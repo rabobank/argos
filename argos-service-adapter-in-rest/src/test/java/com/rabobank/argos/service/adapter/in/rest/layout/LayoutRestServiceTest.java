@@ -6,6 +6,7 @@ import com.rabobank.argos.domain.model.Signature;
 import com.rabobank.argos.domain.model.SupplyChain;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
+import com.rabobank.argos.service.domain.VerificationRunProvider;
 import com.rabobank.argos.service.domain.repository.LayoutMetaBlockRepository;
 import com.rabobank.argos.service.domain.repository.SupplyChainRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,9 +70,24 @@ class LayoutRestServiceTest {
     @Mock
     private Layout layout;
 
+    @Mock
+    private VerificationRunProvider verificationRunProvider;
+
+    @Mock
+    private ArtifactMapper artifactMapper;
+
+    @Mock
+    private VerificationRunResultMapper verificationRunResultMapper;
+
     @BeforeEach
     void setUp() {
-        service = new LayoutRestService(supplyChainRepository, converter, repository, signatureValidatorService);
+        service = new LayoutRestService(supplyChainRepository,
+                converter,
+                repository,
+                signatureValidatorService,
+                verificationRunProvider,
+                artifactMapper,
+                verificationRunResultMapper);
     }
 
     @Test

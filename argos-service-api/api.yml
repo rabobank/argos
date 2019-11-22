@@ -361,11 +361,11 @@ components:
     VerificationResult:
       type: object
       required:
-        - isValid
+        - runIsValid
       properties:
-        isValid:
+        runIsValid:
           type: boolean
-        message:
+        messages:
           type: array
           items:
             type: string

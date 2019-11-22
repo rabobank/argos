@@ -1,11 +1,14 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
+import com.rabobank.argos.domain.model.Artifact;
 import com.rabobank.argos.domain.model.LayoutMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LayoutApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestVerificationResult;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestVerifyCommand;
+import com.rabobank.argos.service.domain.VerificationRunProvider;
+import com.rabobank.argos.service.domain.VerificationRunProvider.VerificationRunResult;
 import com.rabobank.argos.service.domain.repository.LayoutMetaBlockRepository;
 import com.rabobank.argos.service.domain.repository.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +38,12 @@ public class LayoutRestService implements LayoutApi {
     private final LayoutMetaBlockRepository repository;
 
     private final SignatureValidatorService signatureValidatorService;
+
+    private final VerificationRunProvider verificationRunProvider;
+
+    private final ArtifactMapper artifactMapper;
+
+    private final VerificationRunResultMapper verificationRunResultMapper;
 
     @Override
     public ResponseEntity<RestLayoutMetaBlock> createLayout(String supplyChainId, RestLayoutMetaBlock restLayoutMetaBlock) {
@@ -89,8 +98,9 @@ public class LayoutRestService implements LayoutApi {
         if (layoutMetaBlocks.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no active layout could be found for supplychain:" + supplyChainId);
         }
-
-        return ResponseEntity.ok(new RestVerificationResult());
+        List<Artifact> expectedProducts = artifactMapper.mapToArtifacts(restVerifyCommand.getExpectedProducts());
+        VerificationRunResult verificationRunResult = verificationRunProvider.verifyRun(layoutMetaBlocks.iterator().next(), expectedProducts);
+        return ResponseEntity.ok(verificationRunResultMapper.mapToRestVerificationResult(verificationRunResult));
     }
 
     @Override
