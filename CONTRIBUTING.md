@@ -1,6 +1,6 @@
-# Contributing to Angular
+# Contributing to Argos
 
-We would love for you to contribute to Angular and help make it even better than it is
+We would love for you to contribute to Argos and help make it even better than it is
 today! As a contributor, here are the guidelines we would like you to follow:
 
  - [Code of Conduct](#coc)
@@ -12,7 +12,7 @@ today! As a contributor, here are the guidelines we would like you to follow:
  - [Signing the CLA](#cla)
 
 ## <a name="coc"></a> Code of Conduct
-Help us keep Argos open and inclusive. Please read and follow our [Code of Conduct][coc].
+Help us keep Argos open and inclusive. Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## <a name="question"></a> Got a Question or Problem?
 
@@ -63,28 +63,28 @@ Before you submit your Pull Request (PR) consider the following guidelines:
 1. Fork the rabobank/argos repo.
 1. Make your changes in a new git branch:
 
-     ```shell
-     git checkout -b my-fix-branch master
-     ```
+```shell
+   git checkout -b my-fix-branch master
+```
 
 1. Create your patch, **including appropriate test cases**.
 1. Follow our [Coding Rules](#rules).
-1. Run the full Argos test suite, as described in the [developer documentation][dev-doc],
+1. Run the full Argos test suite, as described in the [developer documentation](docs/DEVELOPER.md),
   and ensure that all tests pass.
 1. Commit your changes using a descriptive commit message that follows our
   [commit message conventions](#commit). Adherence to these conventions
   is necessary because release notes are automatically generated from these messages.
 
-     ```shell
-     git commit -a
-     ```
+```shell
+   git commit -a
+```
     Note: the optional commit `-a` command line option will automatically "add" and "rm" edited files.
 
 1. Push your branch to GitHub:
 
-    ```shell
-    git push origin my-fix-branch
-    ```
+```shell
+   git push origin my-fix-branch
+```
 
 1. In GitHub, send a pull request to `argos:master`.
 * If we suggest changes then:
@@ -92,10 +92,10 @@ Before you submit your Pull Request (PR) consider the following guidelines:
   * Re-run the Argos test suites to ensure tests are still passing.
   * Rebase your branch and force push to your GitHub repository (this will update your Pull Request):
 
-    ```shell
-    git rebase master -i
-    git push -f
-    ```
+```shell
+   git rebase master -i
+   git push -f
+```
 
 That's it! Thank you for your contribution!
 
@@ -106,27 +106,27 @@ from the main (upstream) repository:
 
 * Delete the remote branch on GitHub either through the GitHub web UI or your local shell as follows:
 
-    ```shell
-    git push origin --delete my-fix-branch
-    ```
+```shell
+   git push origin --delete my-fix-branch
+```
 
 * Check out the master branch:
 
-    ```shell
-    git checkout master -f
-    ```
+```shell
+   git checkout master -f
+```
 
 * Delete the local branch:
 
-    ```shell
-    git branch -D my-fix-branch
-    ```
+```shell
+   git branch -D my-fix-branch
+```
 
 * Update your master with the latest upstream version:
 
-    ```shell
-    git pull --ff upstream master
-    ```
+```shell
+   git pull --ff upstream master
+```
 
 ## <a name="rules"></a> Coding Rules
 To ensure consistency throughout the source code, keep these rules in mind as you are working:
@@ -165,12 +165,12 @@ The footer should contain a [closing reference to an issue](https://help.github.
 Samples: (even more [samples](https://github.com/rabobank/argos/commits/master))
 
 ```
-docs(changelog): update changelog to beta.5
+   docs(changelog): update changelog to beta.5
 ```
 ```
-fix(release): need to depend on latest rxjs and zone.js
+   fix(release): need to depend on latest rxjs and zone.js
 
-The version in our package.json gets copied to the one we publish, and users need the latest of these.
+   The version in our package.json gets copied to the one we publish, and users need the latest of these.
 ```
 
 ### Revert
@@ -224,10 +224,5 @@ reference GitHub issues that this commit **Closes**.
 
 A detailed explanation can be found in this [document][commit-message-format].
 
-[coc]: https://github.com/angular/code-of-conduct/blob/master/CODE_OF_CONDUCT.md
 [commit-message-format]: https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#
-[corporate-cla]: http://code.google.com/legal/corporate-cla-v1.0.html
-[dev-doc]: https://github.com/angular/angular/blob/master/docs/DEVELOPER.md
 [github]: https://github.com/rabobank/argos
-[individual-cla]: http://code.google.com/legal/individual-cla-v1.0.html
-[js-style-guide]: https://google.github.io/styleguide/jsguide.html
