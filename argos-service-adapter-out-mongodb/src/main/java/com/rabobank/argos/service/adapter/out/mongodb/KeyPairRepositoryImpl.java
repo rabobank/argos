@@ -35,9 +35,18 @@ public class KeyPairRepositoryImpl implements KeyPairRepository {
 
     @Override
     public Optional<KeyPair> findByKeyId(String keyId) {
-        Query query = new Query(where(KEY_ID).is(keyId));
-        return Optional.ofNullable(template.findOne(query, KeyPair.class, COLLECTION));
+        return Optional.ofNullable(template.findOne(getPrimaryKeyQuery(keyId), KeyPair.class, COLLECTION));
     }
+
+    @Override
+    public boolean exists(String keyId) {
+        return template.exists(getPrimaryKeyQuery(keyId), KeyPair.class, COLLECTION);
+    }
+
+    private Query getPrimaryKeyQuery(String keyId) {
+        return new Query(where(KEY_ID).is(keyId));
+    }
+
 
     private void createIndex(IndexDefinition indexDefinition) {
         template.indexOps(COLLECTION).ensureIndex(indexDefinition);

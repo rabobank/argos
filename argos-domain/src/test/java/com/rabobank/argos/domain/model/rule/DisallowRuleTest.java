@@ -12,15 +12,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class DisAllowRuleTest {
+class DisallowRuleTest {
     public static final String PATHARTIFACTJAVA = "/path/artifact.java";
-    private DisAllowRule disAllowRule;
+    private DisallowRule disAllowRule;
 
     private Set<Artifact> artifacts;
 
     @BeforeEach
     public void setup() {
-        disAllowRule = DisAllowRule
+        disAllowRule = DisallowRule
                 .builder()
                 .pattern(PATHARTIFACTJAVA)
                 .build();

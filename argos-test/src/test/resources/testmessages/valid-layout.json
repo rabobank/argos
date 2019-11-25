@@ -2,22 +2,21 @@
   "signatures": [
     {
       "keyId": "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09",
-      "signature": "1a71b77bf003188ebb55effaaed3b35029423d9c4e3dc61fd6a33d0e513a8b5f8f684edecb5b1addf1f7440457eea7f214eaabd3ca7b5691c1e534472d6cce18e5273e25e3962c7d4139fbef64fba8ca2f287e941358376102060428fcd881dd750928f1dce05368616c8f0d9ee085e22bafbe16af9285df8fe61049bcebb4eef70d847a514123846b41a62839ae5d4dd8823a3bfd1a1669ef199122d72a11fc83f8ee734bb4bebedbfdca82abf966f5bb6fb5475213f211bfb0f0458cfb0cfa4c96a98051d9ec07d7eaa87762244595f5a1539174de6d7f92177c48bf557b4085f3ed864885394141dea7932089bdd382d52b89363d685825e5df5a80a57b17d3677c16dadc5dfb53c49f1d6edcfcd69a918293fb1b831e3482ce67e1ab4bbccba6555f6813de7bca2abaf017b396e14f80ed3a5d0cf68af47afe2e145269d626e95796685ffb7366df2c199a28c517e1501a78ca83ae0bf55670b39769bc2021e276056687d7723cf1954b94c0ef066adb085c05d554458c412cdd01f13b39"
+      "signature": "ceca8648f5b22ea9e0d0405990c90c979261b9e12b071cceb172787e009e82468418242ad46ca0023ef283c2a400040f7f26c884b398013cbcabcef3863a1ebf6b84944dd0e9aa401aebf1ccb8770b7ea6866e0bd9569102563f4bd0194f491d4a7216733ddc5c7dd11991bdf12b99bbaba4a1ed028e179ec1ccb0c59d67a01d410b1e3d66108a5873e013ea780bf5ee8e3788018bc08b83b33e9d9172f0d5d5094c3ac736b737bc96cb2b6114408136c6c1e126bedf95dc828b6da45e613d8752667e5430f551c3fb35ce4695c46a90f8412828f7b8ef85a14ab2007a81000a0659a7459bd268c129816df0a4ff6513ddd26c865a60a2521f8201a9adfc5b0759ccd3295feb87ca192d311326d2a2c6e76f082a87d1cd5bb1354e5e4ff49e4fdb07432b2ed995ca269021d9ac6a9c279c5beffa124155c9169594578349219645420ee42c1a0ee89affc28629949dca0ef914b58d27a68c944e5c9f0e4ec31bcfea6ca9f080d840d138ace191727a52b92419a706ea93edccbdbc92b06b4e62"
     }
   ],
   "layout": {
     "authorizedKeyIds": [
-      "authorizedKeyId1",
-      "authorizedKeyId2"
+      "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09",
+      "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
     ],
     "steps": [
       {
         "name": "stepName1",
         "authorizedKeyIds": [
-          "stepName1 authorizedKeyId 1",
-          "stepName1 authorizedKeyId 2"
+          "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
         ],
-        "requiredSignatures": 3,
+        "requiredNumberOfLinks": 3,
         "expectedCommand": [
           "expectedCommand 1",
           "expectedCommand 2"
@@ -54,9 +53,9 @@
       {
         "name": "stepName2",
         "authorizedKeyIds": [
-          "stepName2 authorizedKeyId"
+          "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09"
         ],
-        "requiredSignatures": 45,
+        "requiredNumberOfLinks": 45,
         "expectedCommand": [
           "stepName2 expectedCommand"
         ],

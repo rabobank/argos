@@ -5,7 +5,7 @@ info:
   license:
     name: Apache License 2.0
 servers:
-  - url: http://localhost:8080/api
+  - url: /api
 paths:
   /supplychain:
     post:
@@ -464,6 +464,9 @@ components:
           maxLength: 256
     LayoutMetaBlock:
       type: object
+      required:
+        - signatures
+        - layout
       properties:
         id:
           type: string
@@ -475,13 +478,18 @@ components:
           $ref: "#/components/schemas/Layout"
     Layout:
       type: object
+      required:
+        - authorizedKeyIds
+        - steps
       properties:
         authorizedKeyIds:
           type: array
+          minItems: 1
           items:
             $ref: '#/components/schemas/KeyId'
         steps:
           type: array
+          minItems: 1
           items:
             $ref: "#/components/schemas/Step"
     Step:
@@ -489,16 +497,21 @@ components:
       required:
         - name
         - requiredSignatures
+        - authorizedKeyIds
+        - expectedMaterials
+        - expectedProducts
       properties:
         name:
           type: string
         authorizedKeyIds:
           type: array
+          minItems: 1
           items:
             $ref: '#/components/schemas/KeyId'
-        requiredSignatures:
+        requiredNumberOfLinks:
           type: integer
           format: int32
+          minimum: 1
         expectedCommand:
           type: array
           items:

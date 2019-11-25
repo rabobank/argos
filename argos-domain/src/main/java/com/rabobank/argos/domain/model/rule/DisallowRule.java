@@ -6,9 +6,9 @@ import lombok.Builder;
 
 import java.util.Set;
 
-public final class DisAllowRule extends Rule {
+public final class DisallowRule extends Rule {
     @Builder
-    public DisAllowRule(String pattern) {
+    public DisallowRule(String pattern) {
         super(pattern);
     }
 

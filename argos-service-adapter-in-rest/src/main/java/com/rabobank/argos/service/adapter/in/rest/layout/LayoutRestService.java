@@ -1,16 +1,9 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
-import com.rabobank.argos.domain.model.Artifact;
 import com.rabobank.argos.domain.model.LayoutMetaBlock;
-import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
+import com.rabobank.argos.domain.repository.LayoutMetaBlockRepository;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LayoutApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestVerificationResult;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestVerifyCommand;
-import com.rabobank.argos.service.domain.VerificationRunProvider;
-import com.rabobank.argos.service.domain.VerificationRunProvider.VerificationRunResult;
-import com.rabobank.argos.service.domain.repository.LayoutMetaBlockRepository;
-import com.rabobank.argos.service.domain.repository.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,33 +23,20 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 public class LayoutRestService implements LayoutApi {
 
-    private final SupplyChainRepository supplyChainRepository;
-
     private final LayoutMetaBlockMapper converter;
 
     private final LayoutMetaBlockRepository repository;
 
-    private final SignatureValidatorService signatureValidatorService;
-
-    private final VerificationRunProvider verificationRunProvider;
-
-    private final ArtifactMapper artifactMapper;
-
-    private final VerificationRunResultMapper verificationRunResultMapper;
+    private final LayoutValidatorService validator;
 
     @Override
     public ResponseEntity<RestLayoutMetaBlock> createLayout(String supplyChainId, RestLayoutMetaBlock restLayoutMetaBlock) {
         log.info("createLayout for supplyChainId {}", supplyChainId);
-        if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "supply chain not found : " + supplyChainId);
-        }
-
 
         LayoutMetaBlock layoutMetaBlock = converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
-        layoutMetaBlock.getSignatures().forEach(signature -> signatureValidatorService.validateSignature(layoutMetaBlock.getLayout(), signature));
-
-
         layoutMetaBlock.setSupplyChainId(supplyChainId);
+        validator.validate(layoutMetaBlock);
+
         repository.save(layoutMetaBlock);
 
         URI location = ServletUriComponentsBuilder
@@ -74,9 +53,9 @@ public class LayoutRestService implements LayoutApi {
     public ResponseEntity<RestLayoutMetaBlock> updateLayout(String supplyChainId, String layoutId, RestLayoutMetaBlock restLayoutMetaBlock) {
         log.info("updateLayout for supplyChainId {}", supplyChainId);
         LayoutMetaBlock layoutMetaBlock = converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
-        layoutMetaBlock.getSignatures().forEach(signature -> signatureValidatorService.validateSignature(layoutMetaBlock.getLayout(), signature));
         layoutMetaBlock.setSupplyChainId(supplyChainId);
         layoutMetaBlock.setLayoutMetaBlockId(layoutId);
+        validator.validate(layoutMetaBlock);
         if (repository.update(supplyChainId, layoutId, layoutMetaBlock)) {
             return ResponseEntity.ok(converter.convertToRestLayoutMetaBlock(layoutMetaBlock));
         } else {
@@ -89,18 +68,6 @@ public class LayoutRestService implements LayoutApi {
         return repository.findBySupplyChainAndId(supplyChainId, layoutId)
                 .map(converter::convertToRestLayoutMetaBlock)
                 .map(ResponseEntity::ok).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "layout not found"));
-    }
-
-    @Override
-    public ResponseEntity<RestVerificationResult> performVerification(String supplyChainId, @Valid RestVerifyCommand restVerifyCommand) {
-
-        List<LayoutMetaBlock> layoutMetaBlocks = repository.findBySupplyChainId(supplyChainId);
-        if (layoutMetaBlocks.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no active layout could be found for supplychain:" + supplyChainId);
-        }
-        List<Artifact> expectedProducts = artifactMapper.mapToArtifacts(restVerifyCommand.getExpectedProducts());
-        VerificationRunResult verificationRunResult = verificationRunProvider.verifyRun(layoutMetaBlocks.iterator().next(), expectedProducts);
-        return ResponseEntity.ok(verificationRunResultMapper.mapToRestVerificationResult(verificationRunResult));
     }
 
     @Override
