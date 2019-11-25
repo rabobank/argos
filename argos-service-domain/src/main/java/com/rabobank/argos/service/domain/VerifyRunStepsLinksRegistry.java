@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface VerifyRunStepsLinksRegistry {
     Step getStepByStepName();
-
     List<LinkMetaBlock> getLinksByStepName();
 }

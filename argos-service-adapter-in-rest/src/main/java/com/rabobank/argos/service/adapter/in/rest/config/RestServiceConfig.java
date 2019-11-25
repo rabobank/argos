@@ -11,4 +11,5 @@ public class RestServiceConfig {
     public SignatureValidator signatureValidator() {
         return new SignatureValidator();
     }
+
 }

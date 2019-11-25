@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -55,5 +56,15 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
     @Override
     public void save(LinkMetaBlock link) {
         template.save(link, COLLECTION);
+    }
+
+    @Override
+    public List<LinkMetaBlock> findBySupplyChainStepNameAndSha(String supplyChainId, String stepName, String hash) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<LinkMetaBlock> findByRunId(String supplyChainId, String runId) {
+        return Collections.emptyList();
     }
 }
