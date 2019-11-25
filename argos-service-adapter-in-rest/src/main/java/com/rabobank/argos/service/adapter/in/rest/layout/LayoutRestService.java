@@ -1,9 +1,9 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
-import com.rabobank.argos.domain.model.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LayoutApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
-import com.rabobank.argos.service.domain.repository.LayoutMetaBlockRepository;
+import com.rabobank.argos.service.domain.layout.LayoutMetaBlockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

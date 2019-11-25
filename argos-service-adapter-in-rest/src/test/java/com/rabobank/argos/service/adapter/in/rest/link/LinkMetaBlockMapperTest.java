@@ -2,7 +2,7 @@ package com.rabobank.argos.service.adapter.in.rest.link;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabobank.argos.domain.model.LinkMetaBlock;
+import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;

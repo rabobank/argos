@@ -1,5 +1,6 @@
 package com.rabobank.argos.domain.model;
 
+import com.rabobank.argos.domain.PathHelper;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

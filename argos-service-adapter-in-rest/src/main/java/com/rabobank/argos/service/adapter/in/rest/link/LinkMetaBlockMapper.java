@@ -1,7 +1,7 @@
 package com.rabobank.argos.service.adapter.in.rest.link;
 
 
-import com.rabobank.argos.domain.model.LinkMetaBlock;
+import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
 import org.mapstruct.Mapper;
 

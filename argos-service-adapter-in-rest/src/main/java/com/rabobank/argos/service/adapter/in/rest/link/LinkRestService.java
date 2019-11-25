@@ -1,12 +1,12 @@
 package com.rabobank.argos.service.adapter.in.rest.link;
 
 
-import com.rabobank.argos.domain.model.LinkMetaBlock;
+import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LinkApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
-import com.rabobank.argos.service.domain.repository.LinkMetaBlockRepository;
-import com.rabobank.argos.service.domain.repository.SupplyChainRepository;
+import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
+import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

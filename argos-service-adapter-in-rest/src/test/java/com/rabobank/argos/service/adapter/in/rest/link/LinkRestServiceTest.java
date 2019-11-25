@@ -1,13 +1,13 @@
 package com.rabobank.argos.service.adapter.in.rest.link;
 
-import com.rabobank.argos.domain.model.Link;
-import com.rabobank.argos.domain.model.LinkMetaBlock;
-import com.rabobank.argos.domain.model.Signature;
-import com.rabobank.argos.domain.model.SupplyChain;
+import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.link.Link;
+import com.rabobank.argos.domain.link.LinkMetaBlock;
+import com.rabobank.argos.domain.supplychain.SupplyChain;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
-import com.rabobank.argos.service.domain.repository.LinkMetaBlockRepository;
-import com.rabobank.argos.service.domain.repository.SupplyChainRepository;
+import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
+import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

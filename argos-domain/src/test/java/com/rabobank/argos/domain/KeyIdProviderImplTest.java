@@ -1,6 +1,7 @@
 package com.rabobank.argos.domain;
 
-import com.rabobank.argos.domain.model.RSAPublicKeyFactory;
+import com.rabobank.argos.domain.key.KeyIdProviderImpl;
+import com.rabobank.argos.domain.key.RSAPublicKeyFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 

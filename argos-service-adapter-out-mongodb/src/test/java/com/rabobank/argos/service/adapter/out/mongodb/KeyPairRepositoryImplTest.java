@@ -1,6 +1,7 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
-import com.rabobank.argos.domain.model.KeyPair;
+import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.service.adapter.out.mongodb.key.KeyPairRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

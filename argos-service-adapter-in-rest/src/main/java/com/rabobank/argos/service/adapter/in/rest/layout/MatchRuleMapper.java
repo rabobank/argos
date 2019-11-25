@@ -1,6 +1,6 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
-import com.rabobank.argos.domain.model.rule.MatchRule;
+import com.rabobank.argos.domain.layout.rule.MatchRule;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRule;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;

@@ -8,12 +8,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.rabobank.argos.domain.ArgosError;
-import com.rabobank.argos.domain.model.Artifact;
-import com.rabobank.argos.domain.model.Layout;
-import com.rabobank.argos.domain.model.Link;
-import com.rabobank.argos.domain.model.Step;
-import com.rabobank.argos.domain.model.rule.MatchRule;
-import com.rabobank.argos.domain.model.rule.Rule;
+import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.layout.Step;
+import com.rabobank.argos.domain.layout.rule.MatchRule;
+import com.rabobank.argos.domain.layout.rule.Rule;
+import com.rabobank.argos.domain.link.Artifact;
+import com.rabobank.argos.domain.link.Link;
 import org.mapstruct.factory.Mappers;
 
 import java.io.IOException;

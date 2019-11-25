@@ -2,9 +2,9 @@ package com.rabobank.argos.argos4j.internal;
 
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.SigningKey;
-import com.rabobank.argos.domain.KeyIdProvider;
-import com.rabobank.argos.domain.KeyIdProviderImpl;
-import com.rabobank.argos.domain.model.Signature;
+import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.key.KeyIdProvider;
+import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import org.apache.commons.codec.binary.Hex;
 
 import java.nio.charset.StandardCharsets;

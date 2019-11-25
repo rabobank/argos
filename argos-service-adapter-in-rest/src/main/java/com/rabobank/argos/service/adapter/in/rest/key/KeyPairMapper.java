@@ -1,6 +1,6 @@
 package com.rabobank.argos.service.adapter.in.rest.key;
 
-import com.rabobank.argos.domain.model.KeyPair;
+import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
-import static com.rabobank.argos.domain.model.RSAPublicKeyFactory.instance;
+import static com.rabobank.argos.domain.key.RSAPublicKeyFactory.instance;
 
 @Mapper(componentModel = "spring")
 public interface KeyPairMapper {

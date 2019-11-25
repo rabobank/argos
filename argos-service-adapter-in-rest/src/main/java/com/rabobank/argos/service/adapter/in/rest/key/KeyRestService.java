@@ -1,11 +1,11 @@
 package com.rabobank.argos.service.adapter.in.rest.key;
 
-import com.rabobank.argos.domain.KeyIdProvider;
-import com.rabobank.argos.domain.KeyIdProviderImpl;
-import com.rabobank.argos.domain.model.KeyPair;
+import com.rabobank.argos.domain.key.KeyIdProvider;
+import com.rabobank.argos.domain.key.KeyIdProviderImpl;
+import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.KeyApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
-import com.rabobank.argos.service.domain.repository.KeyPairRepository;
+import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
