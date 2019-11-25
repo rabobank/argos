@@ -3,7 +3,7 @@ Feature: create a valid link
 
   Background:
     * url karate.properties['server.baseurl']
-    * def linkPath = '/api/supplychain/'+ __arg.id + '/link/'
+    * def linkPath = '/api/supplychain/'+ __arg.id + '/link'
     * call read('create-key.feature')
 
   Scenario: store link with valid specifications should return a 204

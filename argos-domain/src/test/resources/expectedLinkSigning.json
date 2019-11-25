@@ -1,0 +1,27 @@
+{
+  "command": [
+    "z",
+    "a"
+  ],
+  "materials": [
+    {
+      "hash": "hash2",
+      "uri": "abc.jar"
+    },
+    {
+      "hash": "hash1",
+      "uri": "zbc.jar"
+    }
+  ],
+  "products": [
+    {
+      "hash": "hash4",
+      "uri": "_abc.jar"
+    },
+    {
+      "hash": "hash3",
+      "uri": "_bc.jar"
+    }
+  ],
+  "stepName": null
+}

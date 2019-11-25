@@ -1,0 +1,66 @@
+{
+  "authorizedKeyIds": [
+    "key2",
+    "key1"
+  ],
+  "steps": [
+    {
+      "authorizedKeyIds": [
+        "step a key 2",
+        "step a key 1"
+      ],
+      "expectedCommand": [
+        "3",
+        "2",
+        "1"
+      ],
+      "expectedMaterials": null,
+      "expectedProducts": [
+        {
+          "pattern": "DisAllowRule",
+          "type": "DISALLOW"
+        },
+        {
+          "pattern": "MatchRule",
+          "destinationPathPrefix": "destinationPathPrefix",
+          "destinationStepName": "destinationStepName",
+          "destinationType": "MATERIALS",
+          "sourcePathPrefix": "sourcePathPrefix",
+          "type": "MATCH"
+        },
+        {
+          "pattern": "DeleteRule",
+          "type": "DELETE"
+        }
+      ],
+      "requiredNumberOfLinks": 23,
+      "stepName": "step a"
+    },
+    {
+      "authorizedKeyIds": null,
+      "expectedCommand": null,
+      "expectedMaterials": [
+        {
+          "pattern": "AllowRule",
+          "type": "ALLOW"
+        },
+        {
+          "pattern": "RequireRule",
+          "type": "REQUIRE"
+        }
+      ],
+      "expectedProducts": [
+        {
+          "pattern": "CreateRule",
+          "type": "CREATE"
+        },
+        {
+          "pattern": "ModifyRule",
+          "type": "MODIFY"
+        }
+      ],
+      "requiredNumberOfLinks": 1,
+      "stepName": "step b"
+    }
+  ]
+}

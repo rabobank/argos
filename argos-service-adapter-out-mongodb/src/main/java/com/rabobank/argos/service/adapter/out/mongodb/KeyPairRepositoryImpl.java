@@ -1,9 +1,8 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
-import com.rabobank.argos.domain.KeyPairRepository;
 import com.rabobank.argos.domain.model.KeyPair;
+import com.rabobank.argos.domain.repository.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
@@ -18,7 +17,6 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class KeyPairRepositoryImpl implements KeyPairRepository {
 
     private static final String COLLECTION = "keyPairs";
@@ -37,9 +35,18 @@ public class KeyPairRepositoryImpl implements KeyPairRepository {
 
     @Override
     public Optional<KeyPair> findByKeyId(String keyId) {
-        Query query = new Query(where(KEY_ID).is(keyId));
-        return Optional.ofNullable(template.findOne(query, KeyPair.class, COLLECTION));
+        return Optional.ofNullable(template.findOne(getPrimaryKeyQuery(keyId), KeyPair.class, COLLECTION));
     }
+
+    @Override
+    public boolean exists(String keyId) {
+        return template.exists(getPrimaryKeyQuery(keyId), KeyPair.class, COLLECTION);
+    }
+
+    private Query getPrimaryKeyQuery(String keyId) {
+        return new Query(where(KEY_ID).is(keyId));
+    }
+
 
     private void createIndex(IndexDefinition indexDefinition) {
         template.indexOps(COLLECTION).ensureIndex(indexDefinition);

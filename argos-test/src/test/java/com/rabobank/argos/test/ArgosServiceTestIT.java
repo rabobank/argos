@@ -36,4 +36,9 @@ public class ArgosServiceTestIT {
         return new Karate().feature("classpath:feature/supplychain.feature");
     }
 
+    @Karate.Test
+    Karate layout() {
+        return new Karate().feature("classpath:feature/layout.feature");
+    }
+
 }

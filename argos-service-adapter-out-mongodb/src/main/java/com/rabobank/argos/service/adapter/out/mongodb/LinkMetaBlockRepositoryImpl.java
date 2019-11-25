@@ -1,9 +1,8 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
-import com.rabobank.argos.domain.LinkMetaBlockRepository;
 import com.rabobank.argos.domain.model.LinkMetaBlock;
+import com.rabobank.argos.domain.repository.LinkMetaBlockRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
@@ -20,7 +19,6 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
 
     private static final String COLLECTION = "linkMetaBlocks";
@@ -51,7 +49,6 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
     public List<LinkMetaBlock> findBySupplyChainAndSha(String supplyChainId, String hash) {
         Query query = new Query(new Criteria(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId).andOperator(
                 new Criteria().orOperator(new Criteria(LINK_MATERIALS_HASH_FIELD).is(hash),new Criteria(LINK_PRODUCTS_HASH_FIELD).is(hash))));
-        log.info("{}", query);
         return template.find(query,LinkMetaBlock.class,COLLECTION);
     }
 
