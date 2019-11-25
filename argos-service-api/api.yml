@@ -5,7 +5,7 @@ info:
   license:
     name: Apache License 2.0
 servers:
-  - url: http://localhost:8080/api
+  - url: /api
 paths:
   /supplychain:
     post:
