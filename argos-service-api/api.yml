@@ -345,8 +345,11 @@ components:
     Link:
       type: object
       required:
+        - runId
         - stepName
       properties:
+        runId:
+          type: string
         command:
           type: array
           items:

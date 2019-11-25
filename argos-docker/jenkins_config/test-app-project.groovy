@@ -1,25 +1,16 @@
-import jenkins.model.*
-import hudson.security.*
-import hudson.tasks.*
-import jenkins.branch.*
-import jenkins.plugins.git.*
-import groovy.json.JsonSlurper
-import org.jenkinsci.plugins.workflow.multibranch.*
-import com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger
-import hudson.plugins.git.extensions.GitSCMExtension
-import hudson.plugins.git.extensions.impl.PathRestriction
+import hudson.model.FreeStyleProject
+import hudson.plugins.git.GitSCM
+import hudson.plugins.git.extensions.impl.CleanCheckout
 import hudson.plugins.git.extensions.impl.CloneOption
 import hudson.plugins.git.extensions.impl.LocalBranch
-import hudson.plugins.git.extensions.impl.CleanCheckout
 import hudson.tasks.Shell
-import hudson.plugins.git.GitSCM
-import hudson.model.FreeStyleProject
-
 import io.jenkins.plugins.argos.ArgosServiceConfiguration
 import io.jenkins.plugins.argos.recorders.ArgosRecorder
+import jenkins.branch.*
+import jenkins.plugins.git.*
+import org.jenkinsci.plugins.workflow.multibranch.*
 
 import java.util.logging.Logger
-import java.util.logging.Level
 
 def Logger logger = Logger.getLogger("")
 
@@ -65,7 +56,7 @@ argosConfig.setPort(8080)
 
 FreeStyleProject fp = instance.createProject(FreeStyleProject.class, "argos-test-app-freestyle-recording")
 fp.setScm(new GitSCM("https://github.com/rabobank/argos-test-app.git"))
-argosRecorder = new ArgosRecorder("argos-test-app", "bob", "build")
+argosRecorder = new ArgosRecorder("argos-test-app", "bob", "build", '${BUILD_NUMBER}')
 fp.getPublishersList().add(argosRecorder)
 fp.getBuildersList().add(new Shell("mvn clean install"))
 

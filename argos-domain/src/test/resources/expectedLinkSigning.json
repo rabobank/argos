@@ -23,5 +23,6 @@
       "uri": "_bc.jar"
     }
   ],
-  "stepName": null
+  "runId": "runId",
+  "stepName": "stepName"
 }
