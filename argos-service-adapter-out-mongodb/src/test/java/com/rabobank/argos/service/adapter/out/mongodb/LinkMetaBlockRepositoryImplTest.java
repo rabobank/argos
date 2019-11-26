@@ -83,6 +83,15 @@ class LinkMetaBlockRepositoryImplTest {
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"$or\" : [{ \"link.materials.hash\" : \"sha\"}, { \"link.products.hash\" : \"sha\"}]}]}, Fields: {}, Sort: {}"));
     }
 
+    @Test
+    void findBySupplyChainAndStepNameAndProductHash() {
+        when(template.find(any(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME))).thenReturn(singletonList(linkMetaBlock));
+        List<LinkMetaBlock> blocks = repository.findBySupplyChainAndStepNameAndProductHash(SUPPLY_CHAIN_ID, "stepName", SHA);
+        assertThat(blocks, hasSize(1));
+        assertThat(blocks.get(0), sameInstance(linkMetaBlock));
+        verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"stepName\" : \"stepName\"}, { \"link.products.hash\" : \"sha\"}]}, Fields: {}, Sort: {}"));
+    }
 
     @Test
     void save() {
