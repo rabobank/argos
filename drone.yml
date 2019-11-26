@@ -118,6 +118,25 @@ steps:
     depends_on: 
       - argos-jenkins
       - argos-service
+      
+  - name: build beta argos service image
+    image: plugins/docker
+    settings:
+      repo: rabobanknl/argos-service
+      tags: beta
+      context: argos-docker
+      dockerfile: argos-docker/ServiceDockerfile
+      username:
+        from_secret: docker_login_user
+      password:
+        from_secret: docker_login_token
+    depends_on: 
+      - regression test
+    when:
+      branch:
+        - develop
+      event:
+        - push
 
 volumes:
   - name: mvn_cache
