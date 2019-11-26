@@ -3,7 +3,11 @@
     "key2",
     "key1"
   ],
-  "expectedEndProducts": null,
+  "expectedEndProducts": [
+    {
+      "pattern": "MatchFiler"
+    }
+  ],
   "steps": [
     {
       "authorizedKeyIds": [
@@ -15,7 +19,6 @@
         "2",
         "1"
       ],
-      "expectedMaterials": null,
       "expectedProducts": [
         {
           "pattern": "DisAllowRule",
@@ -38,8 +41,6 @@
       "stepName": "step a"
     },
     {
-      "authorizedKeyIds": null,
-      "expectedCommand": null,
       "expectedMaterials": [
         {
           "pattern": "AllowRule",

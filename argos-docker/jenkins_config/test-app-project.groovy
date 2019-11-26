@@ -65,7 +65,7 @@ argosConfig.setPort(8080)
 
 FreeStyleProject fp = instance.createProject(FreeStyleProject.class, "argos-test-app-freestyle-recording")
 fp.setScm(new GitSCM("https://github.com/rabobank/argos-test-app.git"))
-argosRecorder = new ArgosRecorder("argos-test-app", "bob", "build")
+argosRecorder = new ArgosRecorder("argos-test-app", "bob", "build", '${BUILD_NUMBER}')
 fp.getPublishersList().add(argosRecorder)
 fp.getBuildersList().add(new Shell("mvn clean install"))
 

@@ -151,6 +151,7 @@
 								<excludedClasse>com.rabobank.argos.argos4j.rest.api.*</excludedClasse>
 								<excludedClasse>com.rabobank.argos.service.adapter.in.rest.api.*</excludedClasse>
 								<excludedClasse>*MapperImpl</excludedClasse>
+								<excludedClass>com.rabobank.argos.service.adapter.in.rest.TestITService</excludedClass>
 							</excludedClasses>
 							<targetClasses>
 								<param>com.rabobank.argos.*</param>

@@ -1,7 +1,7 @@
 Feature: Keypair
   Background:
     * url karate.properties['server.baseurl']
-    * call read('reset.feature')
+    * call read('classpath:feature/reset.feature')
 
   Scenario: store key with valid key should return a 204
     Given path '/api/key'

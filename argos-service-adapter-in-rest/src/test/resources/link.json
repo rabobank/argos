@@ -4,6 +4,7 @@
 		"signature": "sig1"
 	},
 	"link": {
+      "runId": "runId",
 		"command": [
 			"command1",
 			"command2"

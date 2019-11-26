@@ -1,5 +1,6 @@
 package com.rabobank.argos.domain.signing;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -38,6 +39,7 @@ public class JsonSigningSerializer implements SigningSerializer {
 
     private String serializeSignable(Object signable) {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
         SimpleModule module = new SimpleModule();
         module.addSerializer(Rule.class, new RuleSerializer());

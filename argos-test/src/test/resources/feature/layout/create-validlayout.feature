@@ -3,12 +3,13 @@ Feature: create a valid link
 
   Background:
     * url karate.properties['server.baseurl']
-    * def linkPath = '/api/supplychain/'+ __arg.id + '/layout'
-    * call read('create-key.feature')
+    * def linkPath = '/api/supplychain/'+ __arg.supplyChainId + '/layout'
 
   Scenario: store link with valid specifications should return a 204
+    * def layoutToBeSigned = read('classpath:testmessages/layout/valid-layout.json')
+    * def signedLayout = call read('sign-layout.feature') layoutToBeSigned
     Given path linkPath
-    And request read('../testmessages/valid-layout.json')
+    And request signedLayout.response
     And header Content-Type = 'application/json'
     When method POST
     Then status 201
