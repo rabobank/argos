@@ -5,7 +5,7 @@ import com.rabobank.argos.argos4j.Argos4jSettings;
 import com.rabobank.argos.argos4j.SigningKey;
 import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
-import com.rabobank.argos.domain.KeyIdProviderImpl;
+import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

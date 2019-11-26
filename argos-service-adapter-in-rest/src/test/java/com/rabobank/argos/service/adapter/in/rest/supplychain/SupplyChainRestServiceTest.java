@@ -1,9 +1,9 @@
 package com.rabobank.argos.service.adapter.in.rest.supplychain;
 
-import com.rabobank.argos.domain.model.SupplyChain;
-import com.rabobank.argos.domain.repository.SupplyChainRepository;
+import com.rabobank.argos.domain.supplychain.SupplyChain;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChainItem;
+import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,11 +1,11 @@
 package com.rabobank.argos.service.adapter.in.rest;
 
-import com.rabobank.argos.domain.model.KeyPair;
-import com.rabobank.argos.domain.model.Layout;
-import com.rabobank.argos.domain.model.Link;
-import com.rabobank.argos.domain.model.Signature;
-import com.rabobank.argos.domain.repository.KeyPairRepository;
+import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.signing.SignatureValidator;
+import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;

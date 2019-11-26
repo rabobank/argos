@@ -12,7 +12,7 @@ import com.offbytwo.jenkins.model.QueueReference;
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
-import com.rabobank.argos.domain.KeyIdProviderImpl;
+import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.openssl.PEMKeyPair;

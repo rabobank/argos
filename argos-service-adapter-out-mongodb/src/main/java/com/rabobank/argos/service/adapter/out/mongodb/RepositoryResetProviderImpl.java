@@ -1,6 +1,6 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
-import com.rabobank.argos.domain.RepositoryResetProvider;
+import com.rabobank.argos.service.domain.RepositoryResetProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;

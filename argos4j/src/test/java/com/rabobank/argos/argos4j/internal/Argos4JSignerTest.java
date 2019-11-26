@@ -1,7 +1,7 @@
 package com.rabobank.argos.argos4j.internal;
 
 import com.rabobank.argos.argos4j.SigningKey;
-import com.rabobank.argos.domain.model.Signature;
+import com.rabobank.argos.domain.Signature;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;

@@ -2,7 +2,7 @@ package com.rabobank.argos.service.adapter.in.rest.key;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabobank.argos.domain.model.KeyPair;
+import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;

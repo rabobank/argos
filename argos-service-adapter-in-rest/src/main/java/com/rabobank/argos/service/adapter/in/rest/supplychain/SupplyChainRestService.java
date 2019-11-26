@@ -1,10 +1,10 @@
 package com.rabobank.argos.service.adapter.in.rest.supplychain;
 
-import com.rabobank.argos.domain.model.SupplyChain;
-import com.rabobank.argos.domain.repository.SupplyChainRepository;
+import com.rabobank.argos.domain.supplychain.SupplyChain;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.SupplychainApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChainItem;
+import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

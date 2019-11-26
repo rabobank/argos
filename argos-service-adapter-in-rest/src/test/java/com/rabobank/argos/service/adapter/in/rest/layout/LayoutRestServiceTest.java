@@ -1,8 +1,8 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
-import com.rabobank.argos.domain.model.LayoutMetaBlock;
-import com.rabobank.argos.domain.repository.LayoutMetaBlockRepository;
+import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
+import com.rabobank.argos.service.domain.layout.LayoutMetaBlockRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

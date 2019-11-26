@@ -1,7 +1,8 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
 import com.mongodb.client.result.UpdateResult;
-import com.rabobank.argos.domain.model.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutMetaBlock;
+import com.rabobank.argos.service.adapter.out.mongodb.layout.LayoutMetaBlockRepositoryImpl;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

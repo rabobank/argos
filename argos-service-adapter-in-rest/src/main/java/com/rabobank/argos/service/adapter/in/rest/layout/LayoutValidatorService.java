@@ -1,11 +1,11 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
-import com.rabobank.argos.domain.model.Layout;
-import com.rabobank.argos.domain.model.LayoutMetaBlock;
-import com.rabobank.argos.domain.model.Signature;
-import com.rabobank.argos.domain.repository.KeyPairRepository;
-import com.rabobank.argos.domain.repository.SupplyChainRepository;
+import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
+import com.rabobank.argos.service.domain.key.KeyPairRepository;
+import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

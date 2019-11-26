@@ -37,9 +37,10 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>argos-domain</artifactId>
+            <artifactId>argos-service-domain</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
@@ -68,8 +69,6 @@
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
         </dependency>
-
-
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -103,8 +102,6 @@
             <version>${jsonassert.version}</version>
             <scope>test</scope>
         </dependency>
-
-
     </dependencies>
     <build>
         <plugins>

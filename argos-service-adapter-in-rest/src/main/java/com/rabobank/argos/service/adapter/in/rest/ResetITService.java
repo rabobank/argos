@@ -1,6 +1,6 @@
 package com.rabobank.argos.service.adapter.in.rest;
 
-import com.rabobank.argos.domain.RepositoryResetProvider;
+import com.rabobank.argos.service.domain.RepositoryResetProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PostMapping;

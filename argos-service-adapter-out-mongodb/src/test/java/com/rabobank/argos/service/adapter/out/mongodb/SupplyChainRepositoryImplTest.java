@@ -1,6 +1,7 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
-import com.rabobank.argos.domain.model.SupplyChain;
+import com.rabobank.argos.domain.supplychain.SupplyChain;
+import com.rabobank.argos.service.adapter.out.mongodb.supplychain.SupplyChainRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

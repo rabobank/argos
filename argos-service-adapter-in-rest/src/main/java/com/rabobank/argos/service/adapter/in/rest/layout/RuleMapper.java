@@ -1,13 +1,13 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
-import com.rabobank.argos.domain.model.rule.AllowRule;
-import com.rabobank.argos.domain.model.rule.CreateRule;
-import com.rabobank.argos.domain.model.rule.DeleteRule;
-import com.rabobank.argos.domain.model.rule.DisallowRule;
-import com.rabobank.argos.domain.model.rule.MatchRule;
-import com.rabobank.argos.domain.model.rule.ModifyRule;
-import com.rabobank.argos.domain.model.rule.RequireRule;
-import com.rabobank.argos.domain.model.rule.Rule;
+import com.rabobank.argos.domain.layout.rule.AllowRule;
+import com.rabobank.argos.domain.layout.rule.CreateRule;
+import com.rabobank.argos.domain.layout.rule.DeleteRule;
+import com.rabobank.argos.domain.layout.rule.DisallowRule;
+import com.rabobank.argos.domain.layout.rule.MatchRule;
+import com.rabobank.argos.domain.layout.rule.ModifyRule;
+import com.rabobank.argos.domain.layout.rule.RequireRule;
+import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRule;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
