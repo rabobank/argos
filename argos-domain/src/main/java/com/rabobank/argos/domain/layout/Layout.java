@@ -12,4 +12,5 @@ import java.util.List;
 public class Layout {
     private List<String> authorizedKeyIds;
     private List<Step> steps;
+    private List<MatchFilter> expectedEndProducts;
 }

@@ -59,7 +59,8 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
     }
 
     @Override
-    public List<LinkMetaBlock> findBySupplyChainStepNameAndSha(String supplyChainId, String stepName, String hash) {
+    public List<LinkMetaBlock> findBySupplyChainAndStepNameAndProductHash(String supplyChainId, String stepName, String hash) {
+
         return Collections.emptyList();
     }
 

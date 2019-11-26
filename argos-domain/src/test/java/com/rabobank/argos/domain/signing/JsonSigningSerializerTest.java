@@ -2,6 +2,7 @@ package com.rabobank.argos.domain.signing;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabobank.argos.domain.layout.DestinationType;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.AllowRule;
@@ -65,7 +66,7 @@ class JsonSigningSerializerTest {
                                                 .destinationPathPrefix("destinationPathPrefix")
                                                 .sourcePathPrefix("sourcePathPrefix")
                                                 .destinationStepName("destinationStepName")
-                                                .destinationType(MatchRule.DestinationType.MATERIALS)
+                                                .destinationType(DestinationType.DestinationType.MATERIALS)
                                                 .build(),
                                         DeleteRule.builder().pattern("DeleteRule").build()
                                 ))
