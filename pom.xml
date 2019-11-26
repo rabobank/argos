@@ -13,6 +13,7 @@
         <module>argos-docker</module>
 		<module>argos-test</module>
 		<module>argos-jenkins-base</module>
+        <module>argos-service-domain</module>
 	</modules>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos-parent</artifactId>

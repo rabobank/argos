@@ -10,7 +10,7 @@ import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChainItem;
-import com.rabobank.argos.domain.model.LinkMetaBlock;
+import com.rabobank.argos.domain.link.LinkMetaBlock;
 import feign.FeignException;
 import lombok.AllArgsConstructor;
 import org.mapstruct.factory.Mappers;

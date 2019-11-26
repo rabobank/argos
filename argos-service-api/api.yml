@@ -240,6 +240,7 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
+
   /supplychain/{supplyChainId}/layout/{layoutId}:
     get:
       summary: get layout
@@ -303,6 +304,35 @@ paths:
         '500':
           $ref: '#/components/responses/Error'
 
+  /supplychain/{supplyChainId}/verification:
+    post:
+      summary: creates a verification run
+      operationId: performVerification
+      tags:
+        - verification
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyCommand"
+      responses:
+        '200':
+          description: VerificationResult
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResult'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
 components:
   responses:
     ValidationError:
@@ -317,8 +347,25 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
-
   schemas:
+    VerifyCommand:
+      type: object
+      required:
+        - productsToVerify
+      properties:
+        expectedProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Artifact"
+
+    VerificationResult:
+      type: object
+      required:
+        - runIsValid
+      properties:
+        runIsValid:
+          type: boolean
+
     LinkMetaBlock:
       type: object
       required:
@@ -517,5 +564,3 @@ components:
       properties:
         message:
           type: string
-
-

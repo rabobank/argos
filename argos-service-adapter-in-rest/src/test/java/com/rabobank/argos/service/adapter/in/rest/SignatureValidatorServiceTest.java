@@ -1,10 +1,10 @@
 package com.rabobank.argos.service.adapter.in.rest;
 
-import com.rabobank.argos.domain.model.KeyPair;
-import com.rabobank.argos.domain.model.Link;
-import com.rabobank.argos.domain.model.Signature;
-import com.rabobank.argos.domain.repository.KeyPairRepository;
+import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.signing.SignatureValidator;
+import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

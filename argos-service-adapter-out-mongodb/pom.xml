@@ -37,7 +37,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>argos-domain</artifactId>
+            <artifactId>argos-service-domain</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

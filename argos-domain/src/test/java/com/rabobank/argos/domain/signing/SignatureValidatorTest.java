@@ -1,9 +1,9 @@
 package com.rabobank.argos.domain.signing;
 
 import com.rabobank.argos.domain.ArgosError;
-import com.rabobank.argos.domain.model.Artifact;
-import com.rabobank.argos.domain.model.Link;
-import com.rabobank.argos.domain.model.LinkMetaBlock;
+import com.rabobank.argos.domain.link.Artifact;
+import com.rabobank.argos.domain.link.Link;
+import com.rabobank.argos.domain.link.LinkMetaBlock;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,7 @@ class SignatureValidatorTest {
         String signature = Hex.encodeHexString(privateSignature.sign());
 
         LinkMetaBlock linkMetaBlock = LinkMetaBlock.builder()
-                .signature(com.rabobank.argos.domain.model.Signature.builder().signature(signature).build()).link(link).build();
+                .signature(com.rabobank.argos.domain.Signature.builder().signature(signature).build()).link(link).build();
         assertThat(validator.isValid(linkMetaBlock.getLink(), linkMetaBlock.getSignature().getSignature(), pair.getPublic()), is(true));
     }
 
@@ -67,7 +67,7 @@ class SignatureValidatorTest {
         link.setStepName("extra");
 
         LinkMetaBlock linkMetaBlock = LinkMetaBlock.builder()
-                .signature(com.rabobank.argos.domain.model.Signature.builder().signature(signature).build()).link(link).build();
+                .signature(com.rabobank.argos.domain.Signature.builder().signature(signature).build()).link(link).build();
         assertThat(validator.isValid(linkMetaBlock.getLink(), linkMetaBlock.getSignature().getSignature(), pair.getPublic()), is(false));
     }
 
@@ -75,7 +75,7 @@ class SignatureValidatorTest {
     void inValidSignature() {
         String signature = "bla";
         LinkMetaBlock linkMetaBlock = LinkMetaBlock.builder()
-                .signature(com.rabobank.argos.domain.model.Signature.builder().signature(signature).build()).link(link).build();
+                .signature(com.rabobank.argos.domain.Signature.builder().signature(signature).build()).link(link).build();
 
         ArgosError argosError = assertThrows(ArgosError.class, () -> validator.isValid(linkMetaBlock.getLink(), linkMetaBlock.getSignature().getSignature(), pair.getPublic()));
         assertThat(argosError.getMessage(), is("Odd number of characters."));

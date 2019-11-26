@@ -1,7 +1,7 @@
 package com.rabobank.argos.domain.signing;
 
-import com.rabobank.argos.domain.model.Layout;
-import com.rabobank.argos.domain.model.Link;
+import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.link.Link;
 
 public interface SigningSerializer {
 

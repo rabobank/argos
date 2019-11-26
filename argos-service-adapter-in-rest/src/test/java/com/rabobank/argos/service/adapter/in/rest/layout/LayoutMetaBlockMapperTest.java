@@ -3,7 +3,7 @@ package com.rabobank.argos.service.adapter.in.rest.layout;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabobank.argos.domain.model.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;

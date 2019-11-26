@@ -2,17 +2,17 @@ package com.rabobank.argos.domain.signing;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabobank.argos.domain.model.Artifact;
-import com.rabobank.argos.domain.model.Layout;
-import com.rabobank.argos.domain.model.Link;
-import com.rabobank.argos.domain.model.Step;
-import com.rabobank.argos.domain.model.rule.AllowRule;
-import com.rabobank.argos.domain.model.rule.CreateRule;
-import com.rabobank.argos.domain.model.rule.DeleteRule;
-import com.rabobank.argos.domain.model.rule.DisallowRule;
-import com.rabobank.argos.domain.model.rule.MatchRule;
-import com.rabobank.argos.domain.model.rule.ModifyRule;
-import com.rabobank.argos.domain.model.rule.RequireRule;
+import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.layout.Step;
+import com.rabobank.argos.domain.layout.rule.AllowRule;
+import com.rabobank.argos.domain.layout.rule.CreateRule;
+import com.rabobank.argos.domain.layout.rule.DeleteRule;
+import com.rabobank.argos.domain.layout.rule.DisallowRule;
+import com.rabobank.argos.domain.layout.rule.MatchRule;
+import com.rabobank.argos.domain.layout.rule.ModifyRule;
+import com.rabobank.argos.domain.layout.rule.RequireRule;
+import com.rabobank.argos.domain.link.Artifact;
+import com.rabobank.argos.domain.link.Link;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
