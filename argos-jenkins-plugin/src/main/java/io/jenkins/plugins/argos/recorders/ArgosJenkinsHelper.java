@@ -34,6 +34,7 @@ public class ArgosJenkinsHelper {
     private final String privateKeyCredentialId;
     private final String stepName;
     private final String supplyChainName;
+    private final String runId;
 
 
     public Argos4j createArgos() {
@@ -41,6 +42,7 @@ public class ArgosJenkinsHelper {
         checkProperty(privateKeyCredentialId, "privateKeyCredentialId");
         checkProperty(stepName, "stepName");
         checkProperty(supplyChainName, "supplyChainName");
+        checkProperty(runId, "runId");
 
 
         String argosServiceBaseUrl = ArgosServiceConfiguration.get().getArgosServiceBaseUrl()+"/api";
@@ -49,6 +51,7 @@ public class ArgosJenkinsHelper {
 
         return new Argos4j(Argos4jSettings.builder()
                 .stepName(stepName)
+                .runId(runId)
                 .argosServerBaseUrl(argosServiceBaseUrl)
                 .signingKey(getSigningKey(privateKeyCredentialId))
                 .supplyChainName(supplyChainName).build());

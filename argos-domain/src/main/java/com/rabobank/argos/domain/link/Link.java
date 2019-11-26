@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 @Builder
 public class Link {
+    private String runId;
     private String stepName;
     private List<String> command;
     private List<Artifact> materials;

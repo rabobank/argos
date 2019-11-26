@@ -7,8 +7,12 @@
     <f:entry title="${%stepName}" field="stepName">
       <f:textbox />
     </f:entry>
-    
+
     <f:entry title="${%supplyChainName}" field="supplyChainName">
+      <f:textbox />
+    </f:entry>
+
+    <f:entry title="${%runId}" field="runId">
       <f:textbox />
     </f:entry>
 </j:jelly>

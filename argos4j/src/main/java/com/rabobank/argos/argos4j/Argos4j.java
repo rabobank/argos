@@ -33,7 +33,7 @@ public class Argos4j implements Serializable {
     }
 
     public void store() {
-        Link link = Link.builder().materials(materials).products(products).stepName(settings.getStepName()).build();
+        Link link = Link.builder().runId(settings.getRunId()).materials(materials).products(products).stepName(settings.getStepName()).build();
         Signature signature = new Argos4JSigner().sign(settings.getSigningKey(), new JsonSigningSerializer().serialize(link));
         new ArgosServiceClient(settings).uploadLinkMetaBlockToService(LinkMetaBlock.builder().link(link).signature(signature).build());
     }
