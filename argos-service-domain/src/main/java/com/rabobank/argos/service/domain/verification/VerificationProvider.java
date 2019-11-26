@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,9 +42,8 @@ public class VerificationProvider {
 
     private List<LinkMetaBlock> getLinksForThisRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
         //layoutMetaBlock expectedEndProducts match rules apply
-
+        List<LinkMetaBlock> linksForThisRun = Collections.emptyList();
         Map<String, List<String>> hashRunIdMap = new HashMap<>();
-
 
         productsToVerify.forEach(artifact -> {
             matches(artifact, layoutMetaBlock.getLayout().getExpectedEndProducts()).forEach(matchFilter -> {
@@ -65,13 +65,12 @@ public class VerificationProvider {
             map.put(count, runid);
         });
 
-
-        String value = map.descendingMap().firstEntry().getValue();
-
-
-        return linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), value);
+        if (!map.isEmpty()) {
+            String value = map.descendingMap().firstEntry().getValue();
+            linksForThisRun = linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), value);
+        }
+        return linksForThisRun;
     }
-
 
     private List<MatchFilter> matches(Artifact artifact, List<MatchFilter> matchFilters) {
         return matchFilters.stream().filter(matchFilter -> matchFilter.matchUri(artifact.getUri())).collect(Collectors.toList());

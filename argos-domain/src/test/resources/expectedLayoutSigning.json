@@ -3,6 +3,7 @@
     "key2",
     "key1"
   ],
+  "expectedEndProducts": null,
   "steps": [
     {
       "authorizedKeyIds": [
