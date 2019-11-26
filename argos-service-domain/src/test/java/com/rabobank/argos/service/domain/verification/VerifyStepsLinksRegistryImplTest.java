@@ -11,10 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class VerifyStepsLinksRegistryImplTest {
@@ -29,16 +26,17 @@ class VerifyStepsLinksRegistryImplTest {
 
     @BeforeEach
     void setup() {
-        verifyStepsLinksRegistry = new VerifyStepsLinksRegistryImpl(linksByStepName, stepsByStepName);
+        verifyStepsLinksRegistry = VerifyStepsLinksRegistryImpl.builder().build();
     }
 
     @Test
     void getStepByStepName() {
-        assertThat(verifyStepsLinksRegistry.getLinksByStepName(), hasSize(0));
+        assertThrows(VerificationError.class, () -> verifyStepsLinksRegistry.getStepByStepName("stepName"));
+        ;
     }
 
     @Test
     void getLinksByStepName() {
-        assertThat(verifyStepsLinksRegistry.getStepByStepName(), is(nullValue()));
+        assertThrows(VerificationError.class, () -> verifyStepsLinksRegistry.getLinksByStepName("stepName"));
     }
 }

@@ -12,16 +12,24 @@ import java.util.Map;
 @Builder
 @RequiredArgsConstructor
 public class VerifyStepsLinksRegistryImpl implements VerifyStepsLinksRegistry {
-    private final Map<String, List<LinkMetaBlock>> linksByStepName;
-    private final Map<String, List<Step>> stepsByStepName;
+    @Builder.Default
+    private final Map<String, List<LinkMetaBlock>> linksByStepName = Collections.emptyMap();
+    @Builder.Default
+    private final Map<String, Step> stepByStepName = Collections.emptyMap();
 
     @Override
-    public Step getStepByStepName() {
-        return null;
+    public Step getStepByStepName(String stepName) {
+        if (!stepByStepName.containsKey(stepName)) {
+            throw new VerificationError("step with name: " + stepName + " could not be found");
+        }
+        return stepByStepName.get(stepName);
     }
 
     @Override
-    public List<LinkMetaBlock> getLinksByStepName() {
-        return Collections.emptyList();
+    public List<LinkMetaBlock> getLinksByStepName(String stepName) {
+        if (!linksByStepName.containsKey(stepName)) {
+            throw new VerificationError("LinkMetaBlocks with name: " + stepName + " could not be found");
+        }
+        return linksByStepName.get(stepName);
     }
 }
