@@ -137,6 +137,15 @@ steps:
         - develop
       event:
         - push
+        
+  - name: slack
+    image: plugins/slack
+    settings:
+       webhook:
+         from_secret: slack_webhook
+    depends_on: 
+      - regression test
+      - build beta argos service image
 
 volumes:
   - name: mvn_cache
