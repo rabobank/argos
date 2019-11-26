@@ -6,14 +6,14 @@ Feature: create a valid public key
 
   Scenario: store public key for links
     Given path '/api/key'
-    And request read('../testmessages/valid-key.json')
+    And request read('classpath:testmessages/key/valid-key.json')
     And header Content-Type = 'application/json'
     When method POST
     Then status 204
 
   Scenario: store public key for layouts
     Given path '/api/key'
-    And request read('../testmessages/valid-layout-key.json')
+    And request read('classpath:testmessages/key/valid-layout-key.json')
     And header Content-Type = 'application/json'
     When method POST
     Then status 204

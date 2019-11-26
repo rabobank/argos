@@ -3,7 +3,11 @@
     "key2",
     "key1"
   ],
-  "expectedEndProducts": null,
+  "expectedEndProducts": [
+    {
+      "pattern": "MatchFiler"
+    }
+  ],
   "steps": [
     {
       "authorizedKeyIds": [

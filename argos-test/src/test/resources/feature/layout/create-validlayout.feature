@@ -6,7 +6,7 @@ Feature: create a valid link
     * def linkPath = '/api/supplychain/'+ __arg.supplyChainId + '/layout'
 
   Scenario: store link with valid specifications should return a 204
-    * def layoutToBeSigned = read('../testmessages/valid-layout.json')
+    * def layoutToBeSigned = read('classpath:testmessages/layout/valid-layout.json')
     * def signedLayout = call read('sign-layout.feature') layoutToBeSigned
     Given path linkPath
     And request signedLayout.response

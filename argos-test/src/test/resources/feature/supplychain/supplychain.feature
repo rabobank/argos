@@ -2,7 +2,7 @@ Feature: SupplyChain
 
   Background:
     * url karate.properties['server.baseurl']
-    * call read('reset.feature')
+    * call read('classpath:feature/reset.feature')
 
   Scenario: store supplychain with valid name should return a 201
     Given path '/api/supplychain'
