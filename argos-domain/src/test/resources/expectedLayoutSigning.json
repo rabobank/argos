@@ -14,7 +14,6 @@
         "2",
         "1"
       ],
-      "expectedMaterials": null,
       "expectedProducts": [
         {
           "pattern": "DisAllowRule",
@@ -37,8 +36,6 @@
       "stepName": "step a"
     },
     {
-      "authorizedKeyIds": null,
-      "expectedCommand": null,
       "expectedMaterials": [
         {
           "pattern": "AllowRule",
