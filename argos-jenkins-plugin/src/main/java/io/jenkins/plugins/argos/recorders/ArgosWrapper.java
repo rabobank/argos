@@ -52,7 +52,7 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
      * Run Id of the pipeline
      */
     @DataBoundSetter
-    private String runId;
+    public String runId;
 
     private Argos4j argos4j;
 
