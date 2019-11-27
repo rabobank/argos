@@ -1,32 +1,21 @@
 {
-  "signatures": [
-    {
-      "keyId": "keyId1",
-      "signature": "signature1"
-    },
-    {
-      "keyId": "keyId2",
-      "signature": "signature2"
-    }
-  ],
   "layout": {
     "authorizedKeyIds": [
-      "authorizedKeyId1",
-      "authorizedKeyId2"
+      "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09",
+      "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
     ],
     "expectedEndProducts": [
       {
-        "pattern": "MATCHpattern",
+        "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
         "destinationType": "PRODUCTS",
-        "destinationStepName": "destinationStepName"
+        "destinationStepName": "build"
       }
     ],
     "steps": [
       {
-        "name": "stepName1",
+        "name": "build",
         "authorizedKeyIds": [
-          "stepName1 authorizedKeyId 1",
-          "stepName1 authorizedKeyId 2"
+          "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
         ],
         "requiredNumberOfLinks": 3,
         "expectedCommand": [
@@ -63,9 +52,9 @@
         ]
       },
       {
-        "name": "stepName2",
+        "name": "test",
         "authorizedKeyIds": [
-          "stepName2 authorizedKeyId"
+          "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09"
         ],
         "requiredNumberOfLinks": 45,
         "expectedCommand": [

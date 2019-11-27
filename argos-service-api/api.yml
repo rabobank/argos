@@ -480,6 +480,7 @@ components:
       type: object
       required:
         - authorizedKeyIds
+        - expectedEndProducts
         - steps
       properties:
         authorizedKeyIds:
@@ -487,11 +488,28 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/KeyId'
+        expectedEndProducts:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/MatchRule'
         steps:
           type: array
           minItems: 1
           items:
             $ref: "#/components/schemas/Step"
+    MatchRule:
+      type: object
+      properties:
+        pattern:
+          type: string
+        destinationType:
+          type: string
+          enum:
+            - PRODUCTS
+            - MATERIALS
+        destinationStepName:
+          type: string
     Step:
       type: object
       required:
