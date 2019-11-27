@@ -137,6 +137,28 @@ steps:
         - develop
       event:
         - push
+
+  - name: deploy snapshots to ossrh
+    image: rabobanknl/argos-build:latest
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
+    environment:
+      ossrh_username:
+        from_secret: ossrh_login_user
+      ossrh_password:
+        from_secret: ossrh_login_password
+    commands:
+      - mvn -f argos4j deploy
+      - mvn -f argos-service deploy
+    depends_on:
+      - regression test
+    when:
+      branch:
+        - develop
+        - master
+      event:
+        - push
         
   - name: slack
     image: plugins/slack
