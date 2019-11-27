@@ -1,90 +1,48 @@
 package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
-import com.rabobank.argos.domain.layout.MatchFilter;
-import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Artifact;
-import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
-import lombok.Builder;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.HashMap;
+import javax.annotation.PostConstruct;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class VerificationProvider {
 
-    // private final SignatureValidator signatureValidator;
-    // private final KeyPairRepository keyPairRepository;
     private final LinkMetaBlockRepository linkMetaBlockRepository;
+    private final RunIdResolver runIdResolver;
 
-    public VerificationRunResult verifyRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify
-    ) {
-        //verifySignatures(layoutMetaBlock);
-        List<LinkMetaBlock> links = getLinksForThisRun(layoutMetaBlock, productsToVerify);
-        //VerifyRunStepsLinksRegistry verifyRunStepsLinksRegistry = createStepsLinksRegistry(layoutMetaBlock.getLayout().getSteps());
-        return VerificationRunResult.builder().runIsValid(true).build();
+    private final List<Verification> verifications;
+
+    @PostConstruct
+    public void init() {
+        verifications.sort(Comparator.comparing(Verification::getPriority));
+        log.info("active verifications:");
+        verifications.forEach(verification -> log.info("{} : {}", verification.getPriority(), verification.getClass().getSimpleName()));
     }
 
-    private VerifyStepsLinksRegistry createStepsLinksRegistry(List<Step> steps) {
-        return VerifyStepsLinksRegistryImpl.builder().build();
+    public VerificationRunResult verifyRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
+        return runIdResolver.getRunId(layoutMetaBlock, productsToVerify)
+                .map(runId -> verifyRun(runId, layoutMetaBlock))
+                .orElse(VerificationRunResult.builder().runIsValid(false).build());
     }
 
-    private List<LinkMetaBlock> getLinksForThisRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
-        //layoutMetaBlock expectedEndProducts match rules apply
-        List<LinkMetaBlock> linksForThisRun = Collections.emptyList();
-        Map<String, List<String>> hashRunIdMap = new HashMap<>();
-
-        productsToVerify.forEach(artifact -> {
-            matches(artifact, layoutMetaBlock.getLayout().getExpectedEndProducts()).forEach(matchFilter -> {
-                hashRunIdMap.put(artifact.getHash(), linkMetaBlockRepository
-                        .findBySupplyChainAndStepNameAndProductHash(layoutMetaBlock.getSupplyChainId(), matchFilter.getDestinationStepName(), artifact.getHash())
-                        .stream().map(LinkMetaBlock::getLink).map(Link::getStepName).collect(Collectors.toList()));
-            });
-        });
-
-        Set<String> runIds = hashRunIdMap.values().stream().flatMap(List::stream).collect(Collectors.toSet());
-
-        TreeMap<Long, String> map = new TreeMap<>();
-
-        runIds.forEach(runid -> {
-            long count = hashRunIdMap.entrySet()
-                    .stream()
-                    .filter(entry -> entry.getValue().contains(runid))
-                    .count();
-            map.put(count, runid);
-        });
-
-        if (!map.isEmpty()) {
-            String value = map.descendingMap().firstEntry().getValue();
-            linksForThisRun = linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), value);
-        }
-        return linksForThisRun;
+    private VerificationRunResult verifyRun(String runId, LayoutMetaBlock layoutMetaBlock) {
+        return verifyRun(linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId), layoutMetaBlock);
     }
 
-    private List<MatchFilter> matches(Artifact artifact, List<MatchFilter> matchFilters) {
-        return matchFilters.stream().filter(matchFilter -> matchFilter.matchUri(artifact.getUri())).collect(Collectors.toList());
+    private VerificationRunResult verifyRun(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
+        VerificationContext context = VerificationContext.builder().linkMetaBlocks(linkMetaBlocks).layoutMetaBlock(layoutMetaBlock).build();
+        return verifications.stream().map(verification ->
+                verification.verify(context)).filter(result -> !result.isRunIsValid()).findFirst().orElse(VerificationRunResult.okay());
     }
-/*
-    private void verifySignatures(LayoutMetaBlock layoutMetaBlock) {
-
-    }*/
-
-    @Getter
-    @Builder
-    public static class VerificationRunResult {
-        private boolean runIsValid = false;
-    }
-
 
 }

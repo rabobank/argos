@@ -7,6 +7,13 @@
         "signature": "#string"
       }
     ],
+    "expectedEndProducts": [
+      {
+        "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
+        "destinationType": "PRODUCTS",
+        "destinationStepName": "build"
+      }
+    ],
     "layout": {
       "authorizedKeyIds": [
         "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09",

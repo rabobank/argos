@@ -25,7 +25,7 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
 
     private static final String COLLECTION = "linkMetaBlocks";
     private static final String SUPPLY_CHAIN_ID_FIELD = "supplyChainId";
-    private static final String STEP_NAME_FIELD = "stepName";
+    private static final String STEP_NAME_FIELD = "link.stepName";
     private static final String RUN_ID_FIELD = "link.runId";
     private static final String LINK_MATERIALS_HASH_FIELD = "link.materials.hash";
     private static final String LINK_PRODUCTS_HASH_FIELD = "link.products.hash";
@@ -78,11 +78,11 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
     }
 
     @Override
-    public List<LinkMetaBlock> findBySupplyChainAndStepNameAndProductHash(String supplyChainId, String stepName, String hash) {
+    public List<LinkMetaBlock> findBySupplyChainAndStepNameAndProductHashes(String supplyChainId, String stepName, List<String> hashes) {
         Query query = new Query(Criteria.where(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId)
                 .andOperator(
                         Criteria.where(STEP_NAME_FIELD).is(stepName),
-                        Criteria.where(LINK_PRODUCTS_HASH_FIELD).is(hash)
+                        Criteria.where(LINK_PRODUCTS_HASH_FIELD).in(hashes)
                 )
         );
         return template.find(query, LinkMetaBlock.class, COLLECTION);

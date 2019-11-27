@@ -11,12 +11,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 @ExtendWith(MockitoExtension.class)
 class VerifyStepsLinksRegistryImplTest {
 
-    private VerifyStepsLinksRegistry verifyStepsLinksRegistry;
+    private VerificationContext verifyStepsLinksRegistry;
 
     @Mock
     private Map<String, List<LinkMetaBlock>> linksByStepName;
@@ -26,17 +24,13 @@ class VerifyStepsLinksRegistryImplTest {
 
     @BeforeEach
     void setup() {
-        verifyStepsLinksRegistry = VerifyStepsLinksRegistryImpl.builder().build();
     }
 
     @Test
     void getStepByStepName() {
-        assertThrows(VerificationError.class, () -> verifyStepsLinksRegistry.getStepByStepName("stepName"));
-        ;
     }
 
     @Test
     void getLinksByStepName() {
-        assertThrows(VerificationError.class, () -> verifyStepsLinksRegistry.getLinksByStepName("stepName"));
     }
 }

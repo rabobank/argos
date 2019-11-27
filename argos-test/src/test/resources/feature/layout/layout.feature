@@ -33,7 +33,7 @@ Feature: Layout
     * def layoutId = layoutResponse.response.id
     * def requestBody = call read('sign-layout.feature') read('classpath:testmessages/layout/valid-update-layout.json')
     Given path layoutPath + '/' + layoutId
-    And request requestBody
+    And request requestBody.response
     And header Content-Type = 'application/json'
     When method PUT
     Then status 200
