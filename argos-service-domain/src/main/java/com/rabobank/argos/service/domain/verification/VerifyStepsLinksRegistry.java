@@ -6,7 +6,7 @@ import com.rabobank.argos.domain.link.LinkMetaBlock;
 import java.util.List;
 
 public interface VerifyStepsLinksRegistry {
-    Step getStepByStepName();
+    Step getStepByStepName(String stepName);
 
-    List<LinkMetaBlock> getLinksByStepName();
+    List<LinkMetaBlock> getLinksByStepName(String stepName);
 }
