@@ -52,20 +52,24 @@ public class RunIdResolver {
     public Optional<String> getRunId(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
 
         Layout layout = layoutMetaBlock.getLayout();
-        List<ExpectedProductWithRunIds> expectedProductWithRunIds = layout.getExpectedEndProducts().stream().map(expectedEndProduct -> ExpectedProductWithRunIds.builder()
-                .supplyChainId(layoutMetaBlock.getSupplyChainId())
-                .matchFilter(expectedEndProduct)
-                .matchedProductsToVerify(expectedEndProduct.matches(productsToVerify))
-                .build())
+        List<ExpectedProductWithRunIds> expectedProductWithRunIds = layout
+                .getExpectedEndProducts()
+                .stream()
+                .map(expectedEndProduct -> ExpectedProductWithRunIds.builder()
+                        .supplyChainId(layoutMetaBlock.getSupplyChainId())
+                        .matchFilter(expectedEndProduct)
+                        .matchedProductsToVerify(expectedEndProduct.matches(productsToVerify))
+                        .build())
                 .peek(this::addRunIds)
                 .peek(p -> log.info("{}", p))
                 .collect(toList());
 
 
-        Set<String> allRunIds = expectedProductWithRunIds.stream().map(ExpectedProductWithRunIds::getRunIds).flatMap(Set::stream).collect(Collectors.toCollection(TreeSet::new));
-
+        Set<String> allRunIds = expectedProductWithRunIds
+                .stream()
+                .map(ExpectedProductWithRunIds::getRunIds)
+                .flatMap(Set::stream).collect(Collectors.toCollection(TreeSet::new));
         return allRunIds.stream().filter(runId -> isInAll(runId, expectedProductWithRunIds)).findFirst();
-
     }
 
     private boolean isInAll(String runId, List<ExpectedProductWithRunIds> expectedProductWithRunIdsList) {
@@ -79,6 +83,8 @@ public class RunIdResolver {
                                 expectedProductWithRunIds.getSupplyChainId(),
                                 expectedProductWithRunIds.getStepName(),
                                 expectedProductWithRunIds.getHashes())
-                        .stream().map(LinkMetaBlock::getLink).map(Link::getRunId).collect(toList()));
+                        .stream()
+                        .map(LinkMetaBlock::getLink)
+                        .map(Link::getRunId).collect(toList()));
     }
 }

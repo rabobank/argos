@@ -19,7 +19,6 @@ public class VerificationProvider {
 
     private final LinkMetaBlockRepository linkMetaBlockRepository;
     private final RunIdResolver runIdResolver;
-
     private final List<Verification> verifications;
 
     @PostConstruct

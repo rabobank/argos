@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -20,10 +19,6 @@ public class MatchFilter {
     private String pattern;
     private DestinationType destinationType;
     private String destinationStepName;
-
-    public List<Artifact> applyFilter(List<Artifact> productsToVerify) {
-        return Collections.emptyList();
-    }
 
     public boolean matchUri(String uri) {
         return pattern.equals(uri);

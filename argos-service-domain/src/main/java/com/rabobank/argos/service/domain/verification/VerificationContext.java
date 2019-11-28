@@ -24,7 +24,6 @@ public class VerificationContext {
     public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
         this.linkMetaBlocks = linkMetaBlocks;
         this.layoutMetaBlock = layoutMetaBlock;
-
         layoutMetaBlock.getLayout().getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
         linkMetaBlocks.forEach(linkMetaBlock -> linksByStepName.getOrDefault(linkMetaBlock.getLink().getStepName(), new ArrayList<>()).add(linkMetaBlock));
     }
