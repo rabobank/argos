@@ -39,9 +39,14 @@ public class VerificationProvider {
     }
 
     private VerificationRunResult verifyRun(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
-        VerificationContext context = VerificationContext.builder().linkMetaBlocks(linkMetaBlocks).layoutMetaBlock(layoutMetaBlock).build();
-        return verifications.stream().map(verification ->
-                verification.verify(context)).filter(result -> !result.isRunIsValid()).findFirst().orElse(VerificationRunResult.okay());
+        VerificationContext context = VerificationContext.builder()
+                .linkMetaBlocks(linkMetaBlocks)
+                .layoutMetaBlock(layoutMetaBlock)
+                .build();
+        return verifications.stream()
+                .map(verification -> verification.verify(context))
+                .filter(result -> !result.isRunIsValid())
+                .findFirst().orElse(VerificationRunResult.okay());
     }
 
 }
