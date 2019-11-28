@@ -15,7 +15,7 @@ import static java.util.stream.Collectors.toSet;
 
 @Component
 @Slf4j
-public class CompleteBuildRunVerification implements Verification {
+public class BuildStepsCompletedVerification implements Verification {
     @Override
     public int getPriority() {
         return 2;
@@ -27,8 +27,8 @@ public class CompleteBuildRunVerification implements Verification {
     }
 
     private VerificationRunResult verifySteps(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
-        List<String> linkBuildSteps = linkMetaBlocks.stream().map(LinkMetaBlock::getLink).map(Link::getStepName).collect(toList());
-        Set<String> expectedSteps = layoutMetaBlock.getLayout().getSteps().stream().map(Step::getStepName).collect(toSet());
+        Set<String> linkBuildSteps = linkMetaBlocks.stream().map(LinkMetaBlock::getLink).map(Link::getStepName).collect(toSet());
+        List<String> expectedSteps = layoutMetaBlock.getLayout().getSteps().stream().map(Step::getStepName).collect(toList());
         log.info("linkBuildSteps: {} , expectedSteps: {}", linkBuildSteps, expectedSteps);
 
         return VerificationRunResult.builder().runIsValid(

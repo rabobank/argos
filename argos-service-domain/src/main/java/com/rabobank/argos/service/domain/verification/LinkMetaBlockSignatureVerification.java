@@ -6,6 +6,8 @@ import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import static java.util.stream.Collectors.toList;
+
 
 @Component
 @RequiredArgsConstructor
@@ -22,10 +24,11 @@ public class LinkMetaBlockSignatureVerification implements Verification {
 
     @Override
     public VerificationRunResult verify(VerificationContext context) {
-        return VerificationRunResult.builder().runIsValid(context.getLinkMetaBlocks().stream().map(this::verify).allMatch(result -> result)).build();
+        context.removeLinkMetaBlocks(context.getLinkMetaBlocks().stream().filter(linkMetaBlock -> !okay(linkMetaBlock)).collect(toList()));
+        return VerificationRunResult.okay();
     }
 
-    private boolean verify(LinkMetaBlock linkMetaBlock) {
+    private boolean okay(LinkMetaBlock linkMetaBlock) {
         return keyPairRepository.findByKeyId(linkMetaBlock.getSignature().getKeyId())
                 .map(keyPair -> signatureValidator.isValid(linkMetaBlock.getLink(),
                         linkMetaBlock.getSignature().getSignature(), keyPair.getPublicKey()))

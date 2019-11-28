@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 @Getter
 public class VerificationContext {
 
@@ -28,14 +27,12 @@ public class VerificationContext {
         linkMetaBlocks.forEach(linkMetaBlock -> linksByStepName.getOrDefault(linkMetaBlock.getLink().getStepName(), new ArrayList<>()).add(linkMetaBlock));
     }
 
-
     public Step getStepByStepName(String stepName) {
         if (!stepByStepName.containsKey(stepName)) {
             throw new VerificationError("step with name: " + stepName + " could not be found");
         }
         return stepByStepName.get(stepName);
     }
-
 
     public List<LinkMetaBlock> getLinksByStepName(String stepName) {
         if (!linksByStepName.containsKey(stepName)) {
@@ -44,4 +41,8 @@ public class VerificationContext {
         return linksByStepName.get(stepName);
     }
 
+    public void removeLinkMetaBlocks(List<LinkMetaBlock> linkMetaBlocksToRemove) {
+        linkMetaBlocks.removeAll(linkMetaBlocksToRemove);
+        linksByStepName.values().forEach(blocks -> blocks.removeAll(linkMetaBlocksToRemove));
+    }
 }

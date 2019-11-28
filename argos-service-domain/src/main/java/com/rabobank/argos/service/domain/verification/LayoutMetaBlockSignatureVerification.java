@@ -1,7 +1,6 @@
 package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
-import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.domain.signing.SignatureValidator;
 import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +23,6 @@ public class LayoutMetaBlockSignatureVerification implements Verification {
     @Override
     public VerificationRunResult verify(VerificationContext context) {
         return verify(context.getLayoutMetaBlock());
-    }
-
-    private VerificationRunResult verify(LinkMetaBlock linkMetaBlock) {
-        return keyPairRepository.findByKeyId(linkMetaBlock.getSignature().getKeyId())
-                .map(keyPair -> signatureValidator.isValid(linkMetaBlock.getLink(),
-                        linkMetaBlock.getSignature().getSignature(), keyPair.getPublicKey()))
-                .map(result -> VerificationRunResult.builder().runIsValid(result).build())
-                .orElse(VerificationRunResult.notOkay());
     }
 
     private VerificationRunResult verify(LayoutMetaBlock layoutMetaBlock) {
