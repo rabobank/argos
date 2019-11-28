@@ -160,7 +160,7 @@ steps:
       event:
         - push
         
-  - name: slack
+  - name: slack on success
     image: plugins/slack
     settings:
        webhook:
@@ -177,6 +177,29 @@ trigger:
   event:
     - push
     - pull_request
+
+---
+kind: pipeline
+name: report result
+type: docker
+
+steps:
+   
+  - name: slack on failure
+    image: plugins/slack
+    settings:
+       webhook:
+         from_secret: slack_webhook
+    trigger:
+       status:
+        - failure
+
+depends_on: 
+  - argosbuild
+
+trigger:
+  status:
+    - failure
 
 ---
 kind: pipeline
