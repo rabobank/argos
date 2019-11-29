@@ -115,29 +115,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>pitest</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.pitest</groupId>
-                        <artifactId>pitest-maven</artifactId>
-                        <version>${pitest.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>mutationCoverage</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <coverageThreshold>60</coverageThreshold>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
