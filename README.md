@@ -38,12 +38,80 @@ together with the links, signed by the designated
 particular [**supply chain run**](docs/terminology/terminology.md#scr),
 can be verified by the service.
 
-## Modules
+## SAAS service architecture
+In order to allow other parties to easily plug in their own storage and
+api implementations the service architecture is organised around the so
+called hexagonal architecture pattern.
 
+The hexagonal architecture is based on three principles and techniques:
+
+- Explicitly separate Application, Domain, and Infrastructure
+- Dependencies are going from Application and Infrastructure to the Domain
+- We isolate the boundaries by using Ports and Adapters
+
+See also these articles for more information about this architectural pattern:
+
+* [ports and adapters architecture](https://www.thinktocode.com/2018/07/19/ports-and-adapters-architecture/)
+* [hexagonal architecture](https://blog.octo.com/en/hexagonal-architecture-three-principles-and-an-implementation-example/)
+
+
+## Modules
+-   argos4j
+-   argos-docker
+-   argos-domain
+-   argos-jenkins-base
+-   argos-jenkins-plugin
+-   argos-service
+-   argos-service-adapter-in-rest
+-   argos-service-adapter-out-mongodb
+-   argos-service-api
+-   argos-service-domain
+-   argos-test
+   
  
 ### argos4j
-client library for java to allow 
+Java client library for creating,signing and sending link files to the
+Argos service.
 
+### argos-docker
+Docker compose file and Docker files used for running the Argos service
+locally and in the drone build pipeline.
+
+### argos-domain
+Core domain entities shared between the argos4j and the argos service
+modules.
+
+### argos-jenkins-base
+Jenkins docker base image used in argos-docker
+
+### argos-jenkins-plugin
+Plugin for jenkins that uses argos4j library to post signed link files
+with each build step to the argos service.
+
+### argos-service
+[Spring Boot](https://spring.io/projects/spring-boot) Java service to
+expose the REST API
+
+### argos-service-adapter-in-rest
+Incoming adapter implementing the
+[open api](https://swagger.io/specification/) REST specification.
+Defined in the argos-service-api module.
+
+### argos-service-adapter-out-mongodb
+Outgoing adapter using mongo db to implement the repository interfaces
+defined in the argos-service-domain module.
+
+### argos-service-api
+[Open api](https://swagger.io/specification/) specification for the
+Argos Service endpoints.
+
+### argos-service-domain
+Domain entities and interfaces specifically for the argos service.
+
+### argos-test
+
+Integration test module to run integration tests locally or as step in a
+drone pipeline.
 
 
 ## How to run
