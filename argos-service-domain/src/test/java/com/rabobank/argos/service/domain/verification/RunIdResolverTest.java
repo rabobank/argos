@@ -33,6 +33,7 @@ class RunIdResolverTest {
     public static final String ARTIFACT_JAVA = "/artifact.java";
     public static final String RUN_ID = "run_id";
     public static final String HASH = "hash";
+
     @Mock(answer = RETURNS_DEEP_STUBS)
     private LayoutMetaBlock layoutMetaBlock;
 
