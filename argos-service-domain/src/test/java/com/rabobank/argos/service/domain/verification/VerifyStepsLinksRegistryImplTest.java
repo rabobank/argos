@@ -14,7 +14,7 @@ import java.util.Map;
 @ExtendWith(MockitoExtension.class)
 class VerifyStepsLinksRegistryImplTest {
 
-    private VerificationContext verifyStepsLinksRegistry;
+    private VerificationContext verificationContext;
 
     @Mock
     private Map<String, List<LinkMetaBlock>> linksByStepName;

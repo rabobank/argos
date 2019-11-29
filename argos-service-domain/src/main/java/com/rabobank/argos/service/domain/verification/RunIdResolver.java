@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static com.rabobank.argos.domain.layout.DestinationType.MATERIALS;
+import static com.rabobank.argos.domain.layout.DestinationType.PRODUCTS;
 import static java.util.stream.Collectors.toList;
 
 @Component
@@ -77,6 +79,27 @@ public class RunIdResolver {
     }
 
     private void addRunIds(ExpectedProductWithRunIds expectedProductWithRunIds) {
+        if (PRODUCTS == expectedProductWithRunIds.matchFilter.getDestinationType()) {
+            searchInProductHashes(expectedProductWithRunIds);
+
+        } else if (MATERIALS == expectedProductWithRunIds.matchFilter.getDestinationType()) {
+            searchInMaterialsHashes(expectedProductWithRunIds);
+        }
+    }
+
+    private void searchInMaterialsHashes(ExpectedProductWithRunIds expectedProductWithRunIds) {
+        expectedProductWithRunIds.getRunIds().addAll(
+                linkMetaBlockRepository
+                        .findBySupplyChainAndStepNameAndMaterialHash(
+                                expectedProductWithRunIds.getSupplyChainId(),
+                                expectedProductWithRunIds.getStepName(),
+                                expectedProductWithRunIds.getHashes())
+                        .stream()
+                        .map(LinkMetaBlock::getLink)
+                        .map(Link::getRunId).collect(toList()));
+    }
+
+    private void searchInProductHashes(ExpectedProductWithRunIds expectedProductWithRunIds) {
         expectedProductWithRunIds.getRunIds().addAll(
                 linkMetaBlockRepository
                         .findBySupplyChainAndStepNameAndProductHashes(
@@ -87,4 +110,6 @@ public class RunIdResolver {
                         .map(LinkMetaBlock::getLink)
                         .map(Link::getRunId).collect(toList()));
     }
+
+
 }
