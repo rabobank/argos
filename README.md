@@ -1,10 +1,10 @@
 ARGOS Supply Chain Notary
 ============
- Argos provides a framework to protect the integrity of the software
- supply chain. It provides a
- [**REST API**](docs/terminology/terminology.md#restAPI) implemented as
- a [**SAAS**](docs/terminology/terminology.md#saas) and client libraries
- in order to protect the integrity of
+ Argos provides a framework to protect the integrity of a
+ [**software supply chain**](docs/terminology/terminology.md#ssc). It
+ provides a [**REST API**](docs/terminology/terminology.md#restAPI)
+ implemented as a [**SAAS**](docs/terminology/terminology.md#saas) and
+ client libraries in order to protect the integrity of
  [**artifacts**](docs/terminology/terminology.md#artifact) produced by a
  [**software supply chain**](docs/terminology/terminology.md#ssc).
  
@@ -28,14 +28,15 @@ to the **ARGOS service** in a
 consequence [**link**](docs/terminology/terminology.md#link) files
 provide the required evidence to establish a continuous chain that can
 be [**verified**](docs/terminology/terminology.md#verification) against
-the steps defined in the [**layout**](docs/terminology/terminology.md#layout)
+the steps defined in the
+[**layout**](docs/terminology/terminology.md#layout)
 
-The layout, signed by the
+The [**layout**](docs/terminology/terminology.md#layout), signed by the
 [**project owners**](docs/terminology/terminology.md#productOwner)
-together with the links, signed by the designated [**functionaries**]()
-for a particular
-[**supply chain run**](docs/terminology/terminology.md#scr), can be
-verified by the service.
+together with the links, signed by the designated
+[**functionaries**](docs/terminology/terminology.md#functionary) for a
+particular [**supply chain run**](docs/terminology/terminology.md#scr),
+can be verified by the service.
 
 ## Modules
 
