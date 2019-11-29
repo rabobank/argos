@@ -38,9 +38,9 @@ together with the links, signed by the designated
 particular [**supply chain run**](docs/terminology/terminology.md#scr),
 can be verified by the service.
 
-## SAAS service architecture
+## <a name="architecture"/> SAAS service architecture
 In order to allow other parties to easily plug in their own storage and
-api implementations the service architecture is organised around the so
+api implementations the service architecture is organized around the so
 called hexagonal architecture pattern.
 
 The hexagonal architecture is based on three principles and techniques:
@@ -95,12 +95,14 @@ expose the REST API
 ### argos-service-adapter-in-rest
 Incoming adapter implementing the
 [open api](https://swagger.io/specification/) REST specification.
-Defined in the argos-service-api module.
+Defined in the argos-service-api module. Using the entities and
+interfaces defined in the argos-domain and argos-service-domain modules.
+( See [architecture paragraph](#architecture) )
 
 ### argos-service-adapter-out-mongodb
 Outgoing adapter using mongo db to implement the repository interfaces
-defined in the argos-service-domain module.
-
+defined in the argos-service-domain module. ( See [architecture
+paragraph](#architecture) )
 ### argos-service-api
 [Open api](https://swagger.io/specification/) specification for the
 Argos Service endpoints.
