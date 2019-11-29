@@ -38,10 +38,10 @@ together with the links, signed by the designated
 particular [**supply chain run**](docs/terminology/terminology.md#scr),
 can be verified by the service.
 
-## <a name="architecture"/> SAAS service architecture
-In order to allow other parties to easily plug in their own storage and
-api implementations the service architecture is organized around the so
-called hexagonal architecture pattern.
+## <a name="architecture"/> Argos service architecture
+In order to allow other parties to easily add in their own storage and
+api implementations into the service. The architecture is organized
+around the so called hexagonal architecture pattern.
 
 The hexagonal architecture is based on three principles and techniques:
 
