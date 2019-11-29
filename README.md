@@ -32,9 +32,10 @@ the steps defined in the [**layout**](docs/terminology/terminology.md#layout)
 
 The layout, signed by the
 [**project owners**](docs/terminology/terminology.md#productOwner)
-together with the links, signed by the designated functionaries for a
-particular [**supply chain run**](docs/terminology/terminology.md#scr),
-can be verified by the service.
+together with the links, signed by the designated [**functionaries**]()
+for a particular
+[**supply chain run**](docs/terminology/terminology.md#scr), can be
+verified by the service.
 
 ## Modules
 

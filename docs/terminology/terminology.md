@@ -48,3 +48,6 @@
   and metadata included in the final product is used to ensure its
   correctness. Verification is performed by the **Argos service** by
   checking the supply chain layout and links for correctness.
+  
+*  <a name="scr"/>**Supply chain run** one particular run of a software
+   artifact through a supply chain.
