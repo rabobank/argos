@@ -1,28 +1,40 @@
 ARGOS Supply Chain Notary
 ============
-Provides a rest API implemented as **SAAS** and client libraries to
-protect the integrity of **artifacts** produced by a **software supply
-chain**.
+ Argos provides a framework to protect the integrity of the software
+ supply chain. It provides a
+ [**REST API**](docs/terminology/terminology.md#restAPI) implemented as
+ a [**SAAS**](docs/terminology/terminology.md#saas) and client libraries
+ in order to protect the integrity of
+ [**artifacts**](docs/terminology/terminology.md#artifact) produced by a
+ [**software supply chain**](docs/terminology/terminology.md#ssc).
  
-It does so by verifying that each **step** in the chain is carried out
-as planned, by authorized systems or personnel, and that the product is
-not tampered with in transit.
+It does so by verifying that each
+[**step**](docs/terminology/terminology.md#step) in the chain is carried
+out as planned, by authorized systems or personnel, and that the product
+is not tampered with in transit.
 
 It allows a
 [**project owner**](docs/terminology/terminology.md#productOwner) to
-create a layout. A **layout** lists the sequence of steps of the
-software supply chain, and the **functionaries** authorized to perform
-these steps.
+create a layout. A [**layout**](docs/terminology/terminology.md#layout)
+lists the sequence of steps of the software supply chain, and the
+[**functionaries**](docs/terminology/terminology.md#functionary)
+authorized to perform these steps.
 
-When a **functionary** performs a **step** it gathers information about
-the used commands and the related files and sends it to the **ARGOS
-servic**e in a link metadata file. As a consequence link files provide
-the required evidence to establish a continuous chain that can be
-validated against the steps defined in the **layout**.
+When a [**functionary**](docs/terminology/terminology.md#functionary)
+performs a [**step**](docs/terminology/terminology.md#step) it gathers
+information about the used commands and the related files and sends it
+to the **ARGOS service** in a
+[**link**](docs/terminology/terminology.md#link) metadata file. As a
+consequence [**link**](docs/terminology/terminology.md#link) files
+provide the required evidence to establish a continuous chain that can
+be [**verified**](docs/terminology/terminology.md#verification) against
+the steps defined in the [**layout**](docs/terminology/terminology.md#layout)
 
-The layout, signed by the **project owners**, together with the links,
-signed by the designated functionaries for a particular **supply chain
-run**, can be verified by the service.
+The layout, signed by the
+[**project owners**](docs/terminology/terminology.md#productOwner)
+together with the links, signed by the designated functionaries for a
+particular [**supply chain run**](docs/terminology/terminology.md#scr),
+can be verified by the service.
 
 ## Modules
 
@@ -33,34 +45,14 @@ client library for java to allow
 
 
 ## How to run
+See [developer documentation](docs/DEVELOPER.md)
 
-### Ports
-
-
-## Setup local environment
-
-
-## Local configuration
-
-
-## Docker
-
-
-**Notice:** Make sure to have all required dependencies installed
-- Java JDK8 <br/>
-`Please look up instructions for your OS`
-- Docker <br/>
-`Make sure permissions are correctly set up`
-- Docker-Compose <br/>
-`Make sure permissions are correctly set up`
-- Maven <br/>
-`sudo apt-get install maven`
-- Node & NPM <br/>
-`sudo apt-get install npm`
-- Chrome <br/>
-`For Ubuntu, find instructions here`<br/>
-[Please follow these instructions](https://askubuntu.com/a/510186)
 
 ## Decisions
 
 See [ADRs](docs/adr/index.md)
+
+## Contributing 
+
+See [contributing to Argos](CONTRIBUTING.md)
+
