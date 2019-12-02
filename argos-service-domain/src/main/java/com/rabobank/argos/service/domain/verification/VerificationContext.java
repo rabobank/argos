@@ -6,10 +6,10 @@ import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 public class VerificationContext {
@@ -24,7 +24,9 @@ public class VerificationContext {
         this.linkMetaBlocks = linkMetaBlocks;
         this.layoutMetaBlock = layoutMetaBlock;
         layoutMetaBlock.getLayout().getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
-        linkMetaBlocks.forEach(linkMetaBlock -> linksByStepName.getOrDefault(linkMetaBlock.getLink().getStepName(), new ArrayList<>()).add(linkMetaBlock));
+        linksByStepName = linkMetaBlocks
+                .stream()
+                .collect(Collectors.groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
     }
 
     public Step getStepByStepName(String stepName) {
@@ -36,7 +38,7 @@ public class VerificationContext {
 
     public List<LinkMetaBlock> getLinksByStepName(String stepName) {
         if (!linksByStepName.containsKey(stepName)) {
-            throw new VerificationError("LinkMetaBlocks with name: " + stepName + " could not be found");
+            throw new VerificationError("LinkMetaBlocks with step name: " + stepName + " could not be found");
         }
         return linksByStepName.get(stepName);
     }

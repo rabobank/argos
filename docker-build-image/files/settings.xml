@@ -1,0 +1,9 @@
+<settings>
+    <servers>
+        <server>
+            <id>ossrh</id>
+            <username>${env.ossrh_username}</username>
+            <password>${env.ossrh_password}</password>
+        </server>
+    </servers>
+</settings>

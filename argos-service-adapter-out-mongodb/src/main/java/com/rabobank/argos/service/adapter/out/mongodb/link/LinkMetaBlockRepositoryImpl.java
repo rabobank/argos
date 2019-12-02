@@ -89,11 +89,11 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
     }
 
     @Override
-    public List<LinkMetaBlock> findBySupplyChainAndStepNameAndMaterialHash(String supplyChainId, String stepName, String hash) {
+    public List<LinkMetaBlock> findBySupplyChainAndStepNameAndMaterialHash(String supplyChainId, String stepName, List<String> hashes) {
         Query query = new Query(Criteria.where(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId)
                 .andOperator(
                         Criteria.where(STEP_NAME_FIELD).is(stepName),
-                        Criteria.where(LINK_MATERIALS_HASH_FIELD).is(hash)
+                        Criteria.where(LINK_MATERIALS_HASH_FIELD).in(hashes)
                 )
         );
         return template.find(query, LinkMetaBlock.class, COLLECTION);

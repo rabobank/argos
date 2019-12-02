@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Set;
 
+import static com.rabobank.argos.service.domain.verification.Verification.Priority.BUILDSTEPS_COMPLETED;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -17,8 +18,8 @@ import static java.util.stream.Collectors.toSet;
 @Slf4j
 public class BuildStepsCompletedVerification implements Verification {
     @Override
-    public int getPriority() {
-        return 2;
+    public Priority getPriority() {
+        return BUILDSTEPS_COMPLETED;
     }
 
     @Override
@@ -27,8 +28,12 @@ public class BuildStepsCompletedVerification implements Verification {
     }
 
     private VerificationRunResult verifySteps(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
-        Set<String> linkBuildSteps = linkMetaBlocks.stream().map(LinkMetaBlock::getLink).map(Link::getStepName).collect(toSet());
-        List<String> expectedSteps = layoutMetaBlock.getLayout().getSteps().stream().map(Step::getStepName).collect(toList());
+        Set<String> linkBuildSteps = linkMetaBlocks.stream()
+                .map(LinkMetaBlock::getLink).map(Link::getStepName).collect(toSet());
+
+        List<String> expectedSteps = layoutMetaBlock.getLayout().getSteps().stream()
+                .map(Step::getStepName).collect(toList());
+
         log.info("linkBuildSteps: {} , expectedSteps: {}", linkBuildSteps, expectedSteps);
 
         return VerificationRunResult.builder().runIsValid(

@@ -6,6 +6,8 @@ import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import static com.rabobank.argos.service.domain.verification.Verification.Priority.LAYOUT_METABLOCK_SIGNATURE;
+
 
 @Component
 @RequiredArgsConstructor
@@ -16,8 +18,8 @@ public class LayoutMetaBlockSignatureVerification implements Verification {
     private final KeyPairRepository keyPairRepository;
 
     @Override
-    public int getPriority() {
-        return 0;
+    public Priority getPriority() {
+        return LAYOUT_METABLOCK_SIGNATURE;
     }
 
     @Override
@@ -27,8 +29,16 @@ public class LayoutMetaBlockSignatureVerification implements Verification {
 
     private VerificationRunResult verify(LayoutMetaBlock layoutMetaBlock) {
         return VerificationRunResult.builder()
-                .runIsValid(layoutMetaBlock.getSignatures().stream().allMatch(signature -> keyPairRepository.findByKeyId(signature.getKeyId())
-                        .map(keyPair -> signatureValidator.isValid(layoutMetaBlock.getLayout(), signature.getSignature(), keyPair.getPublicKey())).orElse(false)))
+                .runIsValid(layoutMetaBlock
+                        .getSignatures()
+                        .stream()
+                        .allMatch(signature -> keyPairRepository.findByKeyId(signature.getKeyId())
+                                .map(
+                                        keyPair -> signatureValidator
+                                                .isValid(layoutMetaBlock.getLayout(), signature.getSignature(), keyPair
+                                                        .getPublicKey()))
+                                .orElse(false))
+                )
                 .build();
 
     }
