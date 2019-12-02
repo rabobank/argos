@@ -58,7 +58,7 @@ class LayoutMetaBlockSignatureVerificationTest {
 
     @Test
     void getPriority() {
-        assertThat(verification.getPriority(), is(0));
+        assertThat(verification.getPriority(), is(Verification.Priority.LAYOUT_METABLOCK_SIGNATURE));
     }
 
     @Test

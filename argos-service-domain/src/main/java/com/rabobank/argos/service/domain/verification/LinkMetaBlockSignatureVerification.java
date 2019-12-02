@@ -6,6 +6,7 @@ import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import static com.rabobank.argos.service.domain.verification.Verification.Priority.LINK_METABLOCK_SIGNATURE;
 import static java.util.stream.Collectors.toList;
 
 
@@ -18,13 +19,14 @@ public class LinkMetaBlockSignatureVerification implements Verification {
     private final KeyPairRepository keyPairRepository;
 
     @Override
-    public int getPriority() {
-        return 1;
+    public Priority getPriority() {
+        return LINK_METABLOCK_SIGNATURE;
     }
 
     @Override
     public VerificationRunResult verify(VerificationContext context) {
-        context.removeLinkMetaBlocks(context.getLinkMetaBlocks().stream().filter(linkMetaBlock -> !okay(linkMetaBlock)).collect(toList()));
+        context.removeLinkMetaBlocks(context.getLinkMetaBlocks().stream()
+                .filter(linkMetaBlock -> !okay(linkMetaBlock)).collect(toList()));
         return VerificationRunResult.okay();
     }
 

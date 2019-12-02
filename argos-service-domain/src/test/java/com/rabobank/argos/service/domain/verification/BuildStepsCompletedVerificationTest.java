@@ -28,7 +28,7 @@ class BuildStepsCompletedVerificationTest {
 
     @Test
     void getPriority() {
-        assertThat(verification.getPriority(), is(2));
+        assertThat(verification.getPriority(), is(Verification.Priority.BUILDSTEPS_COMPLETED));
     }
 
     @Test

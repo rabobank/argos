@@ -111,8 +111,8 @@ class VerificationProviderTest {
     }
 
     private void setupMocking() {
-        when(lowPrio.getPriority()).thenReturn(3);
-        when(highPrio.getPriority()).thenReturn(1);
+        when(lowPrio.getPriority()).thenReturn(Verification.Priority.BUILDSTEPS_COMPLETED);
+        when(highPrio.getPriority()).thenReturn(Verification.Priority.LAYOUT_METABLOCK_SIGNATURE);
         verifications.add(lowPrio);
         verifications.add(highPrio);
         verificationProvider.init();

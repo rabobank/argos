@@ -60,7 +60,7 @@ class LinkMetaBlockSignatureVerificationTest {
 
     @Test
     void getPriority() {
-        assertThat(verification.getPriority(), is(1));
+        assertThat(verification.getPriority(), is(Verification.Priority.LINK_METABLOCK_SIGNATURE));
     }
 
     @Test
