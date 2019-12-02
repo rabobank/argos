@@ -42,14 +42,14 @@ public class LinkMetablockRepositoryITTest {
     @BeforeEach
     void setup() throws IOException {
         String ip = "localhost";
-        int port = 27017;
+        int port = Network.getFreeServerPort();
         IMongodConfig mongodConfig = new MongodConfigBuilder().version(Version.Main.PRODUCTION)
                 .net(new Net(ip, port, Network.localhostIsIPv6()))
                 .build();
         MongodStarter starter = MongodStarter.getDefaultInstance();
         mongodExecutable = starter.prepare(mongodConfig);
         mongodExecutable.start();
-        mongoTemplate = new MongoTemplate(MongoClients.create(), "test");
+        mongoTemplate = new MongoTemplate(MongoClients.create("mongodb://localhost:"+port), "test");
         linkMetaBlockRepository = new LinkMetaBlockRepositoryImpl(mongoTemplate);
 
     }
