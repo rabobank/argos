@@ -94,9 +94,8 @@ expose the REST API
 
 ### argos-service-adapter-in-rest
 Incoming adapter implementing the
-[open api](https://swagger.io/specification/) REST specification.
-Defined in the argos-service-api module. Using the entities and
-interfaces defined in the argos-domain and argos-service-domain modules.
+[open api](https://swagger.io/specification/) REST specification. This
+api is defined in the argos-service-api module. 
 ( See [architecture paragraph](#architecture) )
 
 ### argos-service-adapter-out-mongodb
