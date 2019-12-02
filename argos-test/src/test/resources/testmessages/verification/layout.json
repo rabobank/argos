@@ -1,21 +1,23 @@
 {
-  "signatures":[ {
-    "keyId": "wrong",
-    "signature": "87711cc6799952f6b1082eb5f212cfa074ba0be0e3ae177157a815e698897d7e40ee1d9d21671690cee2776a0c6537de6cd30b9dac12786fd108234ca94d244d2449f02f6bbd03e11b0dad867637c5703ffbbb977f9c3583452ec182f2d023d3a163435f4ca3c36d721c42689fec8cb53ead9d8e353077b0d675514f9f9a1291bb5fd0854eebe3b63ed0c59c968940f7ec4942d510042357e384d2839b42a4d0f7d6b62b0fbdba45d791a8a1e6817a5152343de110932cbcc0538ac190e393bc1172fe7ed0bc542f9ffb7e51a7fe1298f66c8adda4bede8bd9a5aad21327ebe0f152a48d52f504ea2f23403f1422b5a9a01ee8ff1904f8735bef9b50c86791e0"
-  }],
   "layout": {
     "authorizedKeyIds": [
-      "authorizedKeyId1",
-      "authorizedKeyId2"
+      "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09",
+      "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
+    ],
+    "expectedEndProducts": [
+      {
+        "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
+        "destinationType": "PRODUCTS",
+        "destinationStepName": "build"
+      }
     ],
     "steps": [
       {
-        "name": "stepName1",
+        "name": "build",
         "authorizedKeyIds": [
-          "stepName1 authorizedKeyId 1",
-          "stepName1 authorizedKeyId 2"
+          "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
         ],
-        "requiredSignatures": 3,
+        "requiredNumberOfLinks": 3,
         "expectedCommand": [
           "expectedCommand 1",
           "expectedCommand 2"
@@ -50,11 +52,11 @@
         ]
       },
       {
-        "name": "stepName2",
+        "name": "test",
         "authorizedKeyIds": [
-          "stepName2 authorizedKeyId"
+          "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09"
         ],
-        "requiredSignatures": 45,
+        "requiredNumberOfLinks": 45,
         "expectedCommand": [
           "stepName2 expectedCommand"
         ],

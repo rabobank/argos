@@ -1,6 +1,7 @@
 package com.rabobank.argos.domain.layout.rule;
 
 
+import com.rabobank.argos.domain.layout.DestinationType;
 import com.rabobank.argos.domain.link.Artifact;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,11 +13,6 @@ import java.util.Set;
 @Setter
 @Getter
 public final class MatchRule extends Rule {
-
-    public enum DestinationType {
-        PRODUCTS, MATERIALS
-
-    }
 
     private String sourcePathPrefix;
     private String destinationPathPrefix;

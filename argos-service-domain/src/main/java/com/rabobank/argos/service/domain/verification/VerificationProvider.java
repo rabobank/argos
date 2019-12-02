@@ -2,48 +2,51 @@ package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.link.Artifact;
-import lombok.Builder;
-import lombok.Getter;
+import com.rabobank.argos.domain.link.LinkMetaBlock;
+import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class VerificationProvider {
 
-    // private final SignatureValidator signatureValidator;
-    // private final KeyPairRepository keyPairRepository;
-    // private final LinkMetaBlockRepository linkMetaBlockRepository;
+    private final LinkMetaBlockRepository linkMetaBlockRepository;
+    private final RunIdResolver runIdResolver;
+    private final List<Verification> verifications;
 
-    public VerificationRunResult verifyRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify
-    ) {
-        //verifySignatures(layoutMetaBlock);
-        //List<LinkMetaBlock> links = getLinksForThisRun(layoutMetaBlock, productsToVerify);
-        //VerifyRunStepsLinksRegistry verifyRunStepsLinksRegistry = createStepsLinksRegistry(layoutMetaBlock.getLayout().getSteps());
-        return VerificationRunResult.builder().runIsValid(true).build();
+    @PostConstruct
+    public void init() {
+        verifications.sort(Comparator.comparing(Verification::getPriority));
+        log.info("active verifications:");
+        verifications.forEach(verification -> log.info("{} : {}", verification.getPriority(), verification.getClass().getSimpleName()));
     }
 
-    /*private VerifyRunStepsLinksRegistry createStepsLinksRegistry(List<Step> steps) {
-        return VerifyRunStepsLinksRegistryImpl.builder().build();
+    public VerificationRunResult verifyRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
+        return runIdResolver.getRunId(layoutMetaBlock, productsToVerify)
+                .map(runId -> verifyRun(runId, layoutMetaBlock))
+                .orElse(VerificationRunResult.builder().runIsValid(false).build());
     }
 
-    private List<LinkMetaBlock> getLinksForThisRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
-        layoutMetaBlock expectedEndProducts match rules apply
-
-        return Collections.emptyList();
+    private VerificationRunResult verifyRun(String runId, LayoutMetaBlock layoutMetaBlock) {
+        return verifyRun(linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId), layoutMetaBlock);
     }
 
-    private void verifySignatures(LayoutMetaBlock layoutMetaBlock) {
-
-    }*/
-
-    @Getter
-    @Builder
-    public static class VerificationRunResult {
-        private boolean runIsValid = false;
+    private VerificationRunResult verifyRun(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
+        VerificationContext context = VerificationContext.builder()
+                .linkMetaBlocks(linkMetaBlocks)
+                .layoutMetaBlock(layoutMetaBlock)
+                .build();
+        return verifications.stream()
+                .map(verification -> verification.verify(context))
+                .filter(result -> !result.isRunIsValid())
+                .findFirst().orElse(VerificationRunResult.okay());
     }
-
 
 }

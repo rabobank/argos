@@ -7,6 +7,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.model.RestVerificationResu
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestVerifyCommand;
 import com.rabobank.argos.service.domain.layout.LayoutMetaBlockRepository;
 import com.rabobank.argos.service.domain.verification.VerificationProvider;
+import com.rabobank.argos.service.domain.verification.VerificationRunResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,7 @@ public class VerificationRestService implements VerificationApi {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no active layout could be found for supplychain:" + supplyChainId);
         }
         List<Artifact> expectedProducts = artifactMapper.mapToArtifacts(restVerifyCommand.getExpectedProducts());
-        VerificationProvider.VerificationRunResult verificationRunResult = verificationProvider.verifyRun(layoutMetaBlocks.iterator().next(), expectedProducts);
+        VerificationRunResult verificationRunResult = verificationProvider.verifyRun(layoutMetaBlocks.iterator().next(), expectedProducts);
         return ResponseEntity.ok(verificationResultMapper.mapToRestVerificationResult(verificationRunResult));
     }
 }

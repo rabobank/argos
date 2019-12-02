@@ -60,7 +60,7 @@ class LinkMetaBlockRepositoryImplTest {
     void postPostConstruct() {
         when(template.indexOps(COLLECTION_NAME)).thenReturn(indexOperations);
         repository.postConstruct();
-        verify(template, times(3)).indexOps(COLLECTION_NAME);
+        verify(template, times(4)).indexOps(COLLECTION_NAME);
     }
 
     @Test
@@ -81,6 +81,26 @@ class LinkMetaBlockRepositoryImplTest {
         assertThat(blocks.get(0), sameInstance(linkMetaBlock));
         verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME));
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"$or\" : [{ \"link.materials.hash\" : \"sha\"}, { \"link.products.hash\" : \"sha\"}]}]}, Fields: {}, Sort: {}"));
+    }
+
+    @Test
+    void findBySupplyChainAndStepNameAndProductHashes() {
+        when(template.find(any(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME))).thenReturn(singletonList(linkMetaBlock));
+        List<LinkMetaBlock> blocks = repository.findBySupplyChainAndStepNameAndProductHashes(SUPPLY_CHAIN_ID, "stepName", singletonList(SHA));
+        assertThat(blocks, hasSize(1));
+        assertThat(blocks.get(0), sameInstance(linkMetaBlock));
+        verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"link.stepName\" : \"stepName\"}, { \"link.products.hash\" : { \"$in\" : [\"sha\"]}}]}, Fields: {}, Sort: {}"));
+    }
+
+    @Test
+    void findBySupplyChainAndStepNameAndMaterialHash() {
+        when(template.find(any(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME))).thenReturn(singletonList(linkMetaBlock));
+        List<LinkMetaBlock> blocks = repository.findBySupplyChainAndStepNameAndMaterialHash(SUPPLY_CHAIN_ID, "stepName", singletonList(SHA));
+        assertThat(blocks, hasSize(1));
+        assertThat(blocks.get(0), sameInstance(linkMetaBlock));
+        verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"link.stepName\" : \"stepName\"}, { \"link.materials.hash\" : { \"$in\" : [\"sha\"]}}]}, Fields: {}, Sort: {}"));
     }
 
     @Test

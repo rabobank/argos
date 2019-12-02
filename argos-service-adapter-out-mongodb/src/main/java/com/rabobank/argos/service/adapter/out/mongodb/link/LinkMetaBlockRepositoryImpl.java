@@ -13,8 +13,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -24,8 +25,10 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
 
     private static final String COLLECTION = "linkMetaBlocks";
     private static final String SUPPLY_CHAIN_ID_FIELD = "supplyChainId";
-    public static final String LINK_MATERIALS_HASH_FIELD = "link.materials.hash";
-    public static final String LINK_PRODUCTS_HASH_FIELD = "link.products.hash";
+    private static final String STEP_NAME_FIELD = "link.stepName";
+    private static final String RUN_ID_FIELD = "link.runId";
+    private static final String LINK_MATERIALS_HASH_FIELD = "link.materials.hash";
+    private static final String LINK_PRODUCTS_HASH_FIELD = "link.products.hash";
 
     private final MongoTemplate template;
 
@@ -34,6 +37,14 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
         createIndex(HashedIndex.hashed(SUPPLY_CHAIN_ID_FIELD));
         createIndex(new CompoundIndexDefinition(new Document(LINK_MATERIALS_HASH_FIELD,1)).named(LINK_MATERIALS_HASH_FIELD));
         createIndex(new CompoundIndexDefinition(new Document(LINK_PRODUCTS_HASH_FIELD,1)).named(LINK_PRODUCTS_HASH_FIELD));
+        createCompoundIndexOnSupplyChainAndStepName();
+    }
+
+    private void createCompoundIndexOnSupplyChainAndStepName() {
+        Map<String, Object> keys = new HashMap<>();
+        keys.put(SUPPLY_CHAIN_ID_FIELD, 1);
+        keys.put(STEP_NAME_FIELD, 1);
+        createIndex(new CompoundIndexDefinition(new Document(keys)).unique().named(SUPPLY_CHAIN_ID_FIELD + "_" + STEP_NAME_FIELD));
     }
 
     private void createIndex(IndexDefinition indexDefinition) {
@@ -48,8 +59,16 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
 
     @Override
     public List<LinkMetaBlock> findBySupplyChainAndSha(String supplyChainId, String hash) {
-        Query query = new Query(new Criteria(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId).andOperator(
-                new Criteria().orOperator(new Criteria(LINK_MATERIALS_HASH_FIELD).is(hash),new Criteria(LINK_PRODUCTS_HASH_FIELD).is(hash))));
+        Query query = new Query(new Criteria(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId)
+                .andOperator(
+                        new Criteria()
+                                .orOperator(
+                                        new Criteria(LINK_MATERIALS_HASH_FIELD).is(hash),
+                                        new Criteria(LINK_PRODUCTS_HASH_FIELD).is(hash)
+                                )
+                )
+        );
+
         return template.find(query,LinkMetaBlock.class,COLLECTION);
     }
 
@@ -59,12 +78,31 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
     }
 
     @Override
-    public List<LinkMetaBlock> findBySupplyChainStepNameAndSha(String supplyChainId, String stepName, String hash) {
-        return Collections.emptyList();
+    public List<LinkMetaBlock> findBySupplyChainAndStepNameAndProductHashes(String supplyChainId, String stepName, List<String> hashes) {
+        Query query = new Query(Criteria.where(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId)
+                .andOperator(
+                        Criteria.where(STEP_NAME_FIELD).is(stepName),
+                        Criteria.where(LINK_PRODUCTS_HASH_FIELD).in(hashes)
+                )
+        );
+        return template.find(query, LinkMetaBlock.class, COLLECTION);
+    }
+
+    @Override
+    public List<LinkMetaBlock> findBySupplyChainAndStepNameAndMaterialHash(String supplyChainId, String stepName, List<String> hashes) {
+        Query query = new Query(Criteria.where(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId)
+                .andOperator(
+                        Criteria.where(STEP_NAME_FIELD).is(stepName),
+                        Criteria.where(LINK_MATERIALS_HASH_FIELD).in(hashes)
+                )
+        );
+        return template.find(query, LinkMetaBlock.class, COLLECTION);
     }
 
     @Override
     public List<LinkMetaBlock> findByRunId(String supplyChainId, String runId) {
-        return Collections.emptyList();
+        Query query = new Query(new Criteria(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId)
+                .andOperator(new Criteria(RUN_ID_FIELD).is(runId)));
+        return template.find(query, LinkMetaBlock.class, COLLECTION);
     }
 }

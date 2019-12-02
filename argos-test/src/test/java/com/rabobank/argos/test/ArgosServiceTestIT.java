@@ -23,22 +23,26 @@ public class ArgosServiceTestIT {
 
     @Karate.Test
     Karate keypair() {
-        return new Karate().feature("classpath:feature/keypair.feature");
+        return new Karate().feature("classpath:feature/key/keypair.feature");
     }
 
     @Karate.Test
     Karate link() {
-        return new Karate().feature("classpath:feature/link.feature");
+        return new Karate().feature("classpath:feature/link/link.feature");
     }
 
     @Karate.Test
     Karate supplyChain() {
-        return new Karate().feature("classpath:feature/supplychain.feature");
+        return new Karate().feature("classpath:feature/supplychain/supplychain.feature");
     }
 
     @Karate.Test
     Karate layout() {
-        return new Karate().feature("classpath:feature/layout.feature");
+        return new Karate().feature("classpath:feature/layout/layout.feature");
     }
 
+    @Karate.Test
+    Karate verification() {
+        return new Karate().feature("classpath:feature/verification/verification.feature");
+    }
 }
