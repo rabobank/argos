@@ -73,7 +73,7 @@ public class LinkMetablockRepositoryITTest {
         assertThat(links, hasSize(1));
     }
 
-
+    @Test
     void findBySupplyChainAndStepNameAndProductHashesShouldNotRetreive() {
         loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndProductHashes(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, "INCORRECT_HASH"));
