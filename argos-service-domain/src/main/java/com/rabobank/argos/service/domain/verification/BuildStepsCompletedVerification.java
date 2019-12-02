@@ -1,7 +1,5 @@
 package com.rabobank.argos.service.domain.verification;
 
-import com.rabobank.argos.domain.layout.LayoutMetaBlock;
-import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.BUILDSTEPS_COMPLETED;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 @Component
@@ -24,16 +21,10 @@ public class BuildStepsCompletedVerification implements Verification {
 
     @Override
     public VerificationRunResult verify(VerificationContext context) {
-        return verifySteps(context.getLinkMetaBlocks(), context.getLayoutMetaBlock());
-    }
 
-    private VerificationRunResult verifySteps(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
-        Set<String> linkBuildSteps = linkMetaBlocks.stream()
-                .map(LinkMetaBlock::getLink).map(Link::getStepName).collect(toSet());
-
-        List<String> expectedSteps = layoutMetaBlock.getLayout().getSteps().stream()
-                .map(Step::getStepName).collect(toList());
-
+        Set<String> linkBuildSteps = context.getLinkMetaBlocks().stream().map(LinkMetaBlock::getLink).map(Link::getStepName)
+                .collect(toSet());
+        List<String> expectedSteps = context.getExpectedStepNames();
         log.info("linkBuildSteps: {} , expectedSteps: {}", linkBuildSteps, expectedSteps);
 
         return VerificationRunResult.builder().runIsValid(

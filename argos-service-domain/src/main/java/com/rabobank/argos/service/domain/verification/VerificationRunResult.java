@@ -1,6 +1,7 @@
 package com.rabobank.argos.service.domain.verification;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
@@ -8,11 +9,15 @@ import lombok.Getter;
 public class VerificationRunResult {
     private boolean runIsValid;
 
+    public static VerificationRunResult valid(boolean runIsValid) {
+        return VerificationRunResult.builder().runIsValid(runIsValid).build();
+    }
+
     public static VerificationRunResult notOkay() {
-        return VerificationRunResult.builder().runIsValid(false).build();
+        return valid(false);
     }
 
     public static VerificationRunResult okay() {
-        return VerificationRunResult.builder().runIsValid(true).build();
+        return valid(true);
     }
 }

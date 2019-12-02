@@ -33,7 +33,7 @@
           },
           {
             "ruleType": "CREATE",
-            "pattern": "CREATEpattern"
+            "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar"
           },
           {
             "ruleType": "DELETE",
@@ -47,7 +47,11 @@
         "expectedProducts": [
           {
             "ruleType": "CREATE",
-            "pattern": "CREATEpattern"
+            "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar"
+          },
+          {
+            "ruleType": "ALLOW",
+            "pattern": "**"
           }
         ]
       },
@@ -73,15 +77,7 @@
         "expectedProducts": [
           {
             "ruleType": "ALLOW",
-            "pattern": "ALLOW pattern"
-          },
-          {
-            "ruleType": "MODIFY",
-            "pattern": "MODIFY pattern"
-          },
-          {
-            "ruleType": "REQUIRE",
-            "pattern": "REQUIRE pattern"
+            "pattern": "**"
           }
         ]
       }

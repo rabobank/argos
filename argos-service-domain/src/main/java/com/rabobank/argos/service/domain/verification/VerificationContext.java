@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 @Getter
 public class VerificationContext {
 
@@ -46,5 +48,9 @@ public class VerificationContext {
     public void removeLinkMetaBlocks(List<LinkMetaBlock> linkMetaBlocksToRemove) {
         linkMetaBlocks.removeAll(linkMetaBlocksToRemove);
         linksByStepName.values().forEach(blocks -> blocks.removeAll(linkMetaBlocksToRemove));
+    }
+
+    public List<String> getExpectedStepNames() {
+        return layoutMetaBlock.getLayout().getSteps().stream().map(Step::getStepName).collect(toList());
     }
 }
