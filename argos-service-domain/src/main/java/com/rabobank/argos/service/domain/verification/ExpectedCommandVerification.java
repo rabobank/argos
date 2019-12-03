@@ -30,12 +30,25 @@ public class ExpectedCommandVerification implements Verification {
     }
 
     private static Predicate<LinkMetaBlock> linkMetaBlockDoesNotHaveRequiredCommands(VerificationContext context) {
-        return linkMetaBlock -> linkCommandsAreNullAndStepCommandsAreNot(context, linkMetaBlock) || linkCommandDoNotMatchStepCommands(context, linkMetaBlock);
+        return linkMetaBlock -> !bothAreNull(context, linkMetaBlock)
+                &&
+                (linkCommandsAreNullAndStepCommandsAreNot(context, linkMetaBlock)
+                        || stepCommandsAreNullAndLinkCommandsAreNot(context, linkMetaBlock)
+                        || linkCommandDoNotMatchStepCommands(context, linkMetaBlock)
+                );
+    }
+
+    private static boolean bothAreNull(VerificationContext context, LinkMetaBlock linkMetaBlock) {
+        return linkMetaBlock.getLink().getCommand() == null && getExpectedCommand(context, linkMetaBlock) == null;
     }
 
     private static boolean linkCommandDoNotMatchStepCommands(VerificationContext context, LinkMetaBlock linkMetaBlock) {
         return !getExpectedCommand(context, linkMetaBlock)
                 .containsAll(linkMetaBlock.getLink().getCommand());
+    }
+
+    private static boolean stepCommandsAreNullAndLinkCommandsAreNot(VerificationContext context, LinkMetaBlock linkMetaBlock) {
+        return getExpectedCommand(context, linkMetaBlock) == null && linkMetaBlock.getLink().getCommand() != null;
     }
 
     private static boolean linkCommandsAreNullAndStepCommandsAreNot(VerificationContext context, LinkMetaBlock linkMetaBlock) {
@@ -47,5 +60,4 @@ public class ExpectedCommandVerification implements Verification {
                 .getStepByStepName(linkMetaBlock.getLink().getStepName())
                 .getExpectedCommand();
     }
-
 }
