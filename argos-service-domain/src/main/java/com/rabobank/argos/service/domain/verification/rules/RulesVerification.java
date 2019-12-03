@@ -2,6 +2,7 @@ package com.rabobank.argos.service.domain.verification.rules;
 
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.Rule;
+import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class RulesVerification implements Verification {
 
     private final List<RuleVerification> ruleVerificationList;
 
-    private Map<Class<? extends Rule>, RuleVerification> rulesVerificationMap = new HashMap<>();
+    private Map<RuleType, RuleVerification> rulesVerificationMap = new EnumMap<>(RuleType.class);
 
     @Override
     public Priority getPriority() {
@@ -43,7 +44,7 @@ public class RulesVerification implements Verification {
 
     @PostConstruct
     public void init() {
-        ruleVerificationList.forEach(ruleVerification -> rulesVerificationMap.put(ruleVerification.getRuleClass(), ruleVerification));
+        ruleVerificationList.forEach(ruleVerification -> rulesVerificationMap.put(ruleVerification.getRuleType(), ruleVerification));
     }
 
     @Override
@@ -80,14 +81,14 @@ public class RulesVerification implements Verification {
 
     private Stream<RuleVerificationResult> verifyExpectedMaterials(VerificationContext verificationContext, Step step, Link link) {
         return step.getExpectedMaterials().stream().map(rule -> verifyRule(rule, link, ruleVerifier -> {
-            log.info("verify expected material {} for step {}", rule.getClass().getSimpleName(), step.getStepName());
+            log.info("verify expected material {} for step {}", rule.getRuleType(), step.getStepName());
             return ruleVerifier.verifyExpectedMaterials(RuleVerificationContext.builder().verificationContext(verificationContext).rule(rule).link(link).build());
         }));
     }
 
     private Stream<RuleVerificationResult> verifyExpectedProducts(VerificationContext verificationContext, Step step, Link link) {
         return step.getExpectedProducts().stream().map(rule -> verifyRule(rule, link, ruleVerifier -> {
-            log.info("verify expected product {} for step {}", rule.getClass().getSimpleName(), step.getStepName());
+            log.info("verify expected product {} for step {}", rule.getRuleType(), step.getStepName());
             return ruleVerifier.verifyExpectedProducts(RuleVerificationContext.builder().verificationContext(verificationContext).rule(rule).link(link).build());
         }));
     }
@@ -104,7 +105,7 @@ public class RulesVerification implements Verification {
     }
 
     private RuleVerificationResult verifyRule(Rule rule, Link link, Function<RuleVerification, RuleVerificationResult> ruleVerifyFunction) {
-        return Optional.ofNullable(rulesVerificationMap.get(rule.getClass()))
+        return Optional.ofNullable(rulesVerificationMap.get(rule.getRuleType()))
                 .map(ruleVerifyFunction)
                 .map(ruleVerificationResult -> logRuleVerificationResult(rule, link, ruleVerificationResult))
                 .orElseGet(() -> {
@@ -115,7 +116,7 @@ public class RulesVerification implements Verification {
 
     private RuleVerificationResult logRuleVerificationResult(Rule rule, Link link, RuleVerificationResult ruleVerificationResult) {
         log.info("verify result for {} on step {} was valid: {}, number of valid artifacts {}",
-                rule.getClass().getSimpleName(),
+                rule.getRuleType(),
                 link.getStepName(),
                 ruleVerificationResult.isValid(),
                 ruleVerificationResult.getValidatedArtifacts().size());

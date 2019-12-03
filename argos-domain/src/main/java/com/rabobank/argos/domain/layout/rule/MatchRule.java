@@ -18,7 +18,7 @@ public final class MatchRule extends Rule {
     @Builder
     public MatchRule(String pattern, String destinationPathPrefix, String sourcePathPrefix, DestinationType destinationType,
                      String destinationStepName) {
-        super(pattern);
+        super(RuleType.MATCH, pattern);
         this.sourcePathPrefix = sourcePathPrefix;
         this.destinationPathPrefix = destinationPathPrefix;
         this.destinationType = destinationType;

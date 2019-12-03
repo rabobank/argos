@@ -1,22 +1,13 @@
 package com.rabobank.argos.domain.signing;
 
-import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.Step;
-import com.rabobank.argos.domain.layout.rule.AllowRule;
-import com.rabobank.argos.domain.layout.rule.CreateRule;
-import com.rabobank.argos.domain.layout.rule.DeleteRule;
-import com.rabobank.argos.domain.layout.rule.DisallowRule;
 import com.rabobank.argos.domain.layout.rule.MatchRule;
-import com.rabobank.argos.domain.layout.rule.ModifyRule;
-import com.rabobank.argos.domain.layout.rule.RequireRule;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
 import org.mapstruct.Mapper;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -41,26 +32,14 @@ public interface Cloner {
     List<Rule> clone(List<Rule> rules);
 
     default Rule clone(Rule rule) {
-        try {
-            Method clone = this.getClass().getMethod("clone", rule.getClass());
-            return (Rule) clone.invoke(this, rule);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new ArgosError(e.getMessage(), e);
+        if (rule instanceof MatchRule) {
+            return clone((MatchRule) rule);
+        } else {
+            return new Rule(rule.getRuleType(), rule.getPattern());
         }
+
     }
 
-    AllowRule clone(AllowRule allowRule);
-
-    CreateRule clone(CreateRule createRule);
-
-    DeleteRule clone(DeleteRule deleteRule);
-
-    DisallowRule clone(DisallowRule disAllowRule);
-
     MatchRule clone(MatchRule matchRule);
-
-    ModifyRule clone(ModifyRule modifyRule);
-
-    RequireRule clone(RequireRule requireRule);
 
 }

@@ -6,13 +6,9 @@ import com.rabobank.argos.domain.layout.DestinationType;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.MatchFilter;
 import com.rabobank.argos.domain.layout.Step;
-import com.rabobank.argos.domain.layout.rule.AllowRule;
-import com.rabobank.argos.domain.layout.rule.CreateRule;
-import com.rabobank.argos.domain.layout.rule.DeleteRule;
-import com.rabobank.argos.domain.layout.rule.DisallowRule;
 import com.rabobank.argos.domain.layout.rule.MatchRule;
-import com.rabobank.argos.domain.layout.rule.ModifyRule;
-import com.rabobank.argos.domain.layout.rule.RequireRule;
+import com.rabobank.argos.domain.layout.rule.Rule;
+import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
 import org.junit.jupiter.api.Test;
@@ -52,12 +48,12 @@ class JsonSigningSerializerTest {
                                 .stepName("step b")
                                 .requiredNumberOfLinks(1)
                                 .expectedMaterials(Arrays.asList(
-                                        AllowRule.builder().pattern("AllowRule").build(),
-                                        RequireRule.builder().pattern("RequireRule").build()
+                                        new Rule(RuleType.ALLOW, "AllowRule"),
+                                        new Rule(RuleType.REQUIRE, "RequireRule")
                                 ))
                                 .expectedProducts(Arrays.asList(
-                                        CreateRule.builder().pattern("CreateRule").build(),
-                                        ModifyRule.builder().pattern("ModifyRule").build()
+                                        new Rule(RuleType.CREATE, "CreateRule"),
+                                        new Rule(RuleType.MODIFY, "ModifyRule")
                                 ))
                                 .build(),
                         Step.builder()
@@ -66,14 +62,15 @@ class JsonSigningSerializerTest {
                                 .requiredNumberOfLinks(23)
                                 .expectedCommand(Arrays.asList("3", "2", "1"))
                                 .expectedProducts(Arrays.asList(
-                                        DisallowRule.builder().pattern("DisAllowRule").build(),
+
+                                        new Rule(RuleType.DISALLOW, "DisAllowRule"),
                                         MatchRule.builder().pattern("MatchRule")
                                                 .destinationPathPrefix("destinationPathPrefix")
                                                 .sourcePathPrefix("sourcePathPrefix")
                                                 .destinationStepName("destinationStepName")
                                                 .destinationType(DestinationType.MATERIALS)
                                                 .build(),
-                                        DeleteRule.builder().pattern("DeleteRule").build()
+                                        new Rule(RuleType.DELETE, "DeleteRule")
                                 ))
                                 .build()
                 ))

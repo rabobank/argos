@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public abstract class Rule {
+public class Rule {
+    private RuleType ruleType;
     private String pattern;
 }
