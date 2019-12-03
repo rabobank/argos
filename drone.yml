@@ -5,7 +5,7 @@ type: docker
 
 steps:
   - name: build
-    image: rabobanknl/argos-build:develop
+    image: rabobanknl/argos-build:latest
     volumes:
       - name: mvn_cache
         path: /root/.m2/repository
@@ -29,7 +29,7 @@ steps:
       - build
 
   - name: sonar
-    image: rabobanknl/argos-build:develop
+    image: rabobanknl/argos-build:latest
     environment:
       SONAR_LOGIN:
         from_secret: sonar_login
@@ -42,7 +42,7 @@ steps:
       - build
 
   - name: pitest
-    image: rabobanknl/argos-build:develop
+    image: rabobanknl/argos-build:latest
     volumes:
       - name: mvn_cache
         path: /root/.m2/repository
@@ -108,7 +108,7 @@ steps:
       - build argos jenkins image
 
   - name: regression test
-    image: rabobanknl/argos-build:develop
+    image: rabobanknl/argos-build:latest
     volumes:
       - name: mvn_cache
         path: /root/.m2/repository
