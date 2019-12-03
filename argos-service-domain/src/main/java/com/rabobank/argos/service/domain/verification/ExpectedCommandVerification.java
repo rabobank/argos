@@ -1,6 +1,7 @@
 package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.link.LinkMetaBlock;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 @Component
+@Slf4j
 public class ExpectedCommandVerification implements Verification {
     @Override
     public Priority getPriority() {
@@ -23,6 +25,15 @@ public class ExpectedCommandVerification implements Verification {
                 .filter(linkMetaBlockDoesNotHaveRequiredCommands(context))
                 //find the first linkmetablock that fails
                 .findFirst();
+
+        failedCommandVerification
+                .ifPresent(linkMetaBlock ->
+                        log.info("failed verification step:{}, expectedcommands: {} , linkcommands: {}",
+                                context.getStepByStepName(linkMetaBlock.getLink().getStepName()).getStepName(),
+                                getExpectedCommand(context, linkMetaBlock),
+                                linkMetaBlock.getLink().getCommand())
+                );
+
         return VerificationRunResult
                 .builder()
                 .runIsValid(failedCommandVerification.isEmpty())
