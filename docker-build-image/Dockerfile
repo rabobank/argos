@@ -1,23 +1,6 @@
-FROM alpine:edge
-RUN apk update
-RUN apk --no-cache add openjdk11
-RUN apk --no-cache add openjdk8
-RUN apk add --no-cache curl tar bash procps
+FROM maven:3.6.3-jdk-11
 
-ARG MAVEN_VERSION=3.6.2
-ARG USER_HOME_DIR="/root"
-ARG SHA=d941423d115cd021514bfd06c453658b1b3e39e6240969caf4315ab7119a77299713f14b620fb2571a264f8dff2473d8af3cb47b05acf0036fc2553199a5c1ee
-ARG BASE_URL=https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries
+RUN apt-get update && apt-get install -y openjdk-8-jdk
 
-RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
-  && curl -fsSL -o /tmp/apache-maven.tar.gz ${BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
-  && echo "${SHA}  /tmp/apache-maven.tar.gz" | sha512sum -c - \
-  && tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 \
-  && rm -f /tmp/apache-maven.tar.gz \
-  && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
-
-ENV MAVEN_HOME /usr/share/maven
-ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
-
-COPY files/settings.xml ${MAVEN_CONFIG}/settings.xml
-COPY files/toolchains.xml ${MAVEN_CONFIG}/toolchains.xml
+COPY files/settings.xml /root/.m2/settings.xml
+COPY files/toolchains.xml /root/.m2/toolchains.xml

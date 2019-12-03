@@ -7,7 +7,7 @@
      <vendor>openjdk</vendor>
    </provides>
    <configuration>
-     <jdkHome>/usr/lib/jvm/java-1.8-openjdk</jdkHome>
+     <jdkHome>/usr/lib/jvm/java-8-openjdk-amd64</jdkHome>
    </configuration>
  </toolchain>
  <toolchain>
@@ -17,7 +17,7 @@
      <vendor>openjdk</vendor>
    </provides>
    <configuration>
-     <jdkHome>/usr/lib/jvm/java-11-openjdk</jdkHome>
+     <jdkHome>/usr/local/openjdk-11</jdkHome>
    </configuration>
  </toolchain>
 </toolchains>
