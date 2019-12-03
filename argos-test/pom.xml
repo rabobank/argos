@@ -178,15 +178,25 @@
                     <verbose>true</verbose>
                     <organizationName>Rabobank Nederland</organizationName>
                     <inceptionYear>2019</inceptionYear>
+                    <failOnMissingHeader>true</failOnMissingHeader>
+                    <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
                     <excludes>
-                <exclude>**/*.json</exclude>
-              </excludes>
+                        <exclude>**/*.json</exclude>
+                        <exclude>**/karate-config.js</exclude>
+                    </excludes>
+                    <roots>
+                       <root>src</root>
+                    </roots>
+                    <projectName>Argos Supply Chain Notary</projectName>
+                    <extraExtensions>
+                         <yml>properties</yml>
+                         <yaml>properties</yaml>
+                    </extraExtensions>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>first</id>
                         <goals>
-                            <goal>update-file-header</goal>
+                            <goal>check-file-header</goal>
                         </goals>
                         <phase>process-sources</phase>
                     </execution>
