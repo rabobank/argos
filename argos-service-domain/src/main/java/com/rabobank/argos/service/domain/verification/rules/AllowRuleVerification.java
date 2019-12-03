@@ -3,12 +3,16 @@ package com.rabobank.argos.service.domain.verification.rules;
 import com.rabobank.argos.domain.layout.rule.CreateRule;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.link.Artifact;
-import com.rabobank.argos.service.domain.verification.VerificationRunResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @Component
+@Slf4j
 public class AllowRuleVerification implements RuleVerification {
     @Override
     public Class<? extends Rule> getRuleClass() {
@@ -16,13 +20,18 @@ public class AllowRuleVerification implements RuleVerification {
     }
 
     @Override
-    public VerificationRunResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
-        List<Artifact> filteredProducts = context.getFilteredProducts();
+    public RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
+        List<Artifact> filteredProducts = context.getFilteredProducts().collect(toList());
         if (!filteredProducts.isEmpty() && context.notContainsMaterials(filteredProducts)) {
-            context.addValidatedArtifacts(filteredProducts);
-            return VerificationRunResult.okay();
+            return RuleVerificationResult.okay(new HashSet<>(filteredProducts));
         } else {
-            return VerificationRunResult.notOkay();
+            return RuleVerificationResult.notOkay();
         }
+    }
+
+    @Override
+    public RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context) {
+        log.warn("AllowRule in expectedMaterials not allowed");
+        return RuleVerificationResult.notOkay();
     }
 }

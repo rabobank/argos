@@ -1,13 +1,10 @@
 package com.rabobank.argos.service.domain.verification.rules;
 
 import com.rabobank.argos.domain.layout.rule.AllowRule;
-import com.rabobank.argos.domain.layout.rule.CreateRule;
 import com.rabobank.argos.domain.layout.rule.Rule;
-import com.rabobank.argos.domain.link.Artifact;
-import com.rabobank.argos.service.domain.verification.VerificationRunResult;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import static java.util.stream.Collectors.toSet;
 
 @Component
 public class CreateRuleVerification implements RuleVerification {
@@ -17,8 +14,12 @@ public class CreateRuleVerification implements RuleVerification {
     }
 
     @Override
-    public VerificationRunResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
-        context.addValidatedArtifacts(context.getFilteredProducts());
-        return VerificationRunResult.okay();
+    public RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
+        return RuleVerificationResult.okay(context.getFilteredProducts().collect(toSet()));
+    }
+
+    @Override
+    public RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context) {
+        return RuleVerificationResult.okay(context.getFilteredMaterials().collect(toSet()));
     }
 }

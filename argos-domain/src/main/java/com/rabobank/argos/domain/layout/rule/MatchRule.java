@@ -2,13 +2,9 @@ package com.rabobank.argos.domain.layout.rule;
 
 
 import com.rabobank.argos.domain.layout.DestinationType;
-import com.rabobank.argos.domain.link.Artifact;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Collections;
-import java.util.Set;
 
 @Setter
 @Getter
@@ -29,10 +25,6 @@ public final class MatchRule extends Rule {
         this.destinationStepName = destinationStepName;
     }
 
-    @Override
-    public Set<Artifact> verify(Set<Artifact> artifacts, Set<Artifact> materials, Set<Artifact> products) {
-        return Collections.emptySet();
-    }
 
 }
 

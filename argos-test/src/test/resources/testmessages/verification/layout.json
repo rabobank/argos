@@ -24,24 +24,8 @@
         ],
         "expectedMaterials": [
           {
-            "ruleType": "MATCH",
-            "pattern": "MATCHpattern",
-            "sourcePathPrefix": "sourcePathPrefix",
-            "destinationPathPrefix": "destinationPathPrefix",
-            "destinationType": "PRODUCTS",
-            "destinationStepName": "destinationStepName"
-          },
-          {
-            "ruleType": "CREATE",
-            "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar"
-          },
-          {
-            "ruleType": "DELETE",
-            "pattern": "DELETEpattern"
-          },
-          {
-            "ruleType": "DISALLOW",
-            "pattern": "DISALLOWpattern"
+            "ruleType": "ALLOW",
+            "pattern": "**"
           }
         ],
         "expectedProducts": [
@@ -66,12 +50,8 @@
         ],
         "expectedMaterials": [
           {
-            "ruleType": "MATCH",
-            "pattern": "MATCH pattern",
-            "sourcePathPrefix": "sourcePathPrefix",
-            "destinationPathPrefix": "destinationPathPrefix",
-            "destinationType": "MATERIALS",
-            "destinationStepName": "destinationStepName"
+            "ruleType": "ALLOW",
+            "pattern": "**"
           }
         ],
         "expectedProducts": [
