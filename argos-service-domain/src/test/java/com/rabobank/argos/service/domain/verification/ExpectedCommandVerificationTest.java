@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ExpectedCommandVerificationTest {
 
-    public static final String STEP_NAME = "stepName";
+    private static final String STEP_NAME = "stepName";
 
     private ExpectedCommandVerification expectedCommandVerification;
 
@@ -45,7 +45,6 @@ class ExpectedCommandVerificationTest {
         VerificationRunResult verificationRunResult = expectedCommandVerification.verify(context);
         assertThat(verificationRunResult.isRunIsValid(), is(true));
     }
-
 
     @Test
     void verifyWithBothNullShouldReturnValid() {
@@ -88,6 +87,7 @@ class ExpectedCommandVerificationTest {
 
     private void mockInValidWithNullInLink() {
         List<String> stepCommands = asList("command1", "command2");
+        when(step.getStepName()).thenReturn(STEP_NAME);
         when(step.getExpectedCommand()).thenReturn(stepCommands);
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
         when(linkMetaBlock.getLink().getCommand()).thenReturn(null);
@@ -98,6 +98,7 @@ class ExpectedCommandVerificationTest {
 
     private void mockInValidWithNullInStep() {
         List<String> linkCommands = asList("command1", "command2");
+        when(step.getStepName()).thenReturn(STEP_NAME);
         when(step.getExpectedCommand()).thenReturn(null);
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
         when(linkMetaBlock.getLink().getCommand()).thenReturn(linkCommands);
@@ -119,6 +120,7 @@ class ExpectedCommandVerificationTest {
     private void mockInValid() {
         List<String> stepCommands = asList("command1", "command2");
         List<String> linkCommands = asList("command1", "command3");
+        when(step.getStepName()).thenReturn(STEP_NAME);
         when(step.getExpectedCommand()).thenReturn(stepCommands);
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
         when(linkMetaBlock.getLink().getCommand()).thenReturn(linkCommands);
