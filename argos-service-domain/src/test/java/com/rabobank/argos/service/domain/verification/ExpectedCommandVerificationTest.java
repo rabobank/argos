@@ -53,6 +53,23 @@ class ExpectedCommandVerificationTest {
         assertThat(verificationRunResult.isRunIsValid(), is(false));
     }
 
+    @Test
+    void verifyWithNullCorrectCommandsShouldReturnInValid() {
+        mockInValidWithNull();
+        VerificationRunResult verificationRunResult = expectedCommandVerification.verify(context);
+        assertThat(verificationRunResult.isRunIsValid(), is(false));
+    }
+
+    private void mockInValidWithNull() {
+        List<String> stepCommands = asList("command1", "command2");
+        when(step.getExpectedCommand()).thenReturn(stepCommands);
+        when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
+        when(linkMetaBlock.getLink().getCommand()).thenReturn(null);
+        when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
+        when(context.getStepByStepName(eq(STEP_NAME))).thenReturn(step);
+        when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
+    }
+
     private void mockValid() {
         List<String> commands = asList("command1", "command2");
         when(step.getExpectedCommand()).thenReturn(commands);
