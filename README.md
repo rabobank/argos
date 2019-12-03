@@ -1,4 +1,4 @@
-ARGOS Supply Chain Notary
+ARGOS Supply Chain Notary ![Drone (cloud)](https://img.shields.io/drone/build/rabobank/argos)
 ============
  Argos provides a framework to protect the integrity of a
  [**software supply chain**](docs/terminology/terminology.md#ssc). It
