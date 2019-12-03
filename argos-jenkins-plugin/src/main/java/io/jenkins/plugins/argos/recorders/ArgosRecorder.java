@@ -111,7 +111,7 @@ public class ArgosRecorder extends Recorder {
         } catch (IOException e) {
             throw new Argos4jError(e.getMessage(), e);
         } catch (InterruptedException e) {
-            //ignore
+            Thread.currentThread().interrupt();
             return false;
         }
     }

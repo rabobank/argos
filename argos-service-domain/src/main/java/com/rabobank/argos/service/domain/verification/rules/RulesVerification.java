@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +26,8 @@ import java.util.stream.Stream;
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.RULES;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Component
 @RequiredArgsConstructor
@@ -68,15 +69,18 @@ public class RulesVerification implements Verification {
     }
 
     private VerificationRunResult verifyStep(VerificationContext context, Step step, Link link) {
-        Set<Artifact> validatedArtifacts = new HashSet<>();
-        Optional<RuleVerificationResult> optionalNotValidRule =
-                Stream.concat(verifyExpectedProducts(context, step, link), verifyExpectedMaterials(context, step, link))
-                        .peek(result -> validatedArtifacts.addAll(result.getValidatedArtifacts()))
-                        .filter(result -> !result.isValid())
-                        .findFirst();
+
+        List<RuleVerificationResult> verificationResults = Stream.concat(verifyExpectedProducts(context, step, link),
+                verifyExpectedMaterials(context, step, link)).collect(toList());
+
+        Optional<RuleVerificationResult> optionalNotValidRule = verificationResults.stream().filter(result -> !result.isValid()).findFirst();
 
         return optionalNotValidRule.map(result -> VerificationRunResult.valid(result.isValid()))
-                .orElseGet(() -> verifyResultAfterAllRulesAreVerified(step, link, validatedArtifacts));
+                .orElseGet(() -> verifyResultAfterAllRulesAreVerified(step, link, collectValidatedArtifacts(verificationResults)));
+    }
+
+    private Set<Artifact> collectValidatedArtifacts(List<RuleVerificationResult> verificationResults) {
+        return verificationResults.stream().map(RuleVerificationResult::getValidatedArtifacts).flatMap(Set::stream).collect(toSet());
     }
 
     private Stream<RuleVerificationResult> verifyExpectedMaterials(VerificationContext verificationContext, Step step, Link link) {
