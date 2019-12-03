@@ -74,11 +74,41 @@ public class LinkMetablockRepositoryITTest {
     }
 
     @Test
+    void findBySupplyChainAndStepNameAndMultipleProductHashesShouldRetreive() {
+        loadData();
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndProductHashes(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, HASH_2));
+        assertThat(links, hasSize(1));
+    }
+
+    @Test
     void findBySupplyChainAndStepNameAndProductHashesShouldNotRetreive() {
         loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndProductHashes(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, "INCORRECT_HASH"));
         assertThat(links, hasSize(0));
     }
+
+
+    @Test
+    void findBySupplyChainAndStepNameAndMaterialsHashesShouldRetreive() {
+        loadData();
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndMaterialHash(SUPPLYCHAIN, STEP_NAME, asList(HASH_1));
+        assertThat(links, hasSize(1));
+    }
+
+    @Test
+    void findBySupplyChainAndStepNameAndMultipleMaterialsHashesShouldRetreive() {
+        loadData();
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndMaterialHash(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, HASH_2));
+        assertThat(links, hasSize(1));
+    }
+
+    @Test
+    void findBySupplyChainAndStepNameAndMaterialsHashesShouldNotRetreive() {
+        loadData();
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndMaterialHash(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, "INCORRECT_HASH"));
+        assertThat(links, hasSize(0));
+    }
+
 
     private void loadData() {
         LinkMetaBlock linkmetaBlock = LinkMetaBlock

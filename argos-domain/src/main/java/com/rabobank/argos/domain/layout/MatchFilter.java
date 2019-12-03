@@ -25,14 +25,15 @@ public class MatchFilter {
 
     @Setter(AccessLevel.PRIVATE)
     @Getter(AccessLevel.PRIVATE)
-    private PathMatcher matcher;
+    private final PathMatcher matcher;
 
     @Builder
     public MatchFilter(String pattern, DestinationType destinationType, String destinationStepName) {
         this.pattern = pattern;
         this.destinationType = destinationType;
         this.destinationStepName = destinationStepName;
-        initializeMatcher();
+        this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
+
     }
 
     public boolean matchUri(String uri) {
@@ -43,7 +44,4 @@ public class MatchFilter {
         return productsToVerify.stream().filter(artifact -> matchUri(artifact.getUri())).collect(toList());
     }
 
-    private void initializeMatcher() {
-        matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-    }
 }
