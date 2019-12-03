@@ -1,0 +1,167 @@
+package com.rabobank.argos.service.adapter.out.mongodb;
+
+import com.mongodb.client.MongoClients;
+import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.link.Artifact;
+import com.rabobank.argos.domain.link.Link;
+import com.rabobank.argos.domain.link.LinkMetaBlock;
+import com.rabobank.argos.service.adapter.out.mongodb.link.LinkMetaBlockRepositoryImpl;
+import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
+import de.flapdoodle.embed.mongo.MongodExecutable;
+import de.flapdoodle.embed.mongo.MongodStarter;
+import de.flapdoodle.embed.mongo.config.IMongodConfig;
+import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
+import de.flapdoodle.embed.mongo.config.Net;
+import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.process.runtime.Network;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.data.mongodb.core.MongoTemplate;
+
+import java.io.IOException;
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
+
+public class LinkMetablockRepositoryITTest {
+
+    private static final String STEP_NAME = "stepName";
+    private static final String SUPPLYCHAIN = "supplychain";
+    private static final String HASH_1 = "74a88c1cb96211a8f648af3509a1207b2d4a15c0202cfaa10abad8cc26300c63";
+    private static final String HASH_2 = "1e6a4129c8b90e9b6c4727a59b1013d714576066ad1bad05034847f30ffb62b6";
+    private static final String ARGOS_TEST_IML = "argos-test.iml";
+    private static final String DOCKER_1_IML = "docker (1).iml";
+    public static final String RUN_ID = "runId";
+    private MongodExecutable mongodExecutable;
+    private MongoTemplate mongoTemplate;
+    private LinkMetaBlockRepository linkMetaBlockRepository;
+
+    @BeforeEach
+    void setup() throws IOException {
+        String ip = "localhost";
+        int port = Network.getFreeServerPort();
+        IMongodConfig mongodConfig = new MongodConfigBuilder().version(Version.Main.PRODUCTION)
+                .net(new Net(ip, port, Network.localhostIsIPv6()))
+                .build();
+        MongodStarter starter = MongodStarter.getDefaultInstance();
+        mongodExecutable = starter.prepare(mongodConfig);
+        mongodExecutable.start();
+        mongoTemplate = new MongoTemplate(MongoClients.create("mongodb://localhost:"+port), "test");
+        linkMetaBlockRepository = new LinkMetaBlockRepositoryImpl(mongoTemplate);
+
+    }
+
+    @AfterEach
+    void clean() {
+        mongodExecutable.stop();
+    }
+
+    @Test
+    void findByRunIdShouldRetreive() {
+        loadData();
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, RUN_ID);
+        assertThat(links, hasSize(1));
+    }
+
+    @Test
+    void findBySupplyChainAndStepNameAndProductHashesShouldRetreive() {
+        loadData();
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndProductHashes(SUPPLYCHAIN, STEP_NAME, asList(HASH_1));
+        assertThat(links, hasSize(1));
+    }
+
+    @Test
+    void findBySupplyChainAndStepNameAndMultipleProductHashesShouldRetreive() {
+        loadData();
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndProductHashes(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, HASH_2));
+        assertThat(links, hasSize(1));
+    }
+
+    @Test
+    void findBySupplyChainAndStepNameAndProductHashesShouldNotRetreive() {
+        loadData();
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndProductHashes(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, "INCORRECT_HASH"));
+        assertThat(links, hasSize(0));
+    }
+
+
+    @Test
+    void findBySupplyChainAndStepNameAndMaterialsHashesShouldRetreive() {
+        loadData();
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndMaterialHash(SUPPLYCHAIN, STEP_NAME, asList(HASH_1));
+        assertThat(links, hasSize(1));
+    }
+
+    @Test
+    void findBySupplyChainAndStepNameAndMultipleMaterialsHashesShouldRetreive() {
+        loadData();
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndMaterialHash(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, HASH_2));
+        assertThat(links, hasSize(1));
+    }
+
+    @Test
+    void findBySupplyChainAndStepNameAndMaterialsHashesShouldNotRetreive() {
+        loadData();
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndMaterialHash(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, "INCORRECT_HASH"));
+        assertThat(links, hasSize(0));
+    }
+
+
+    private void loadData() {
+        LinkMetaBlock linkmetaBlock = LinkMetaBlock
+                .builder()
+                .supplyChainId(SUPPLYCHAIN)
+                .signature(createSignature())
+                .link(createLink())
+                .build();
+        linkMetaBlockRepository.save(linkmetaBlock);
+    }
+
+    private Signature createSignature() {
+        return Signature.builder()
+                .keyId("2392017103413adf6fa3b535e3714b30bc0a901229d0e76784f5ffca653f905e")
+                .signature("signature")
+                .build();
+    }
+
+    private Link createLink() {
+        return Link
+                .builder()
+                .runId(RUN_ID)
+                .stepName(STEP_NAME)
+                .materials(createMaterials())
+                .products(createProducts())
+                .build();
+    }
+
+    private List<Artifact> createMaterials() {
+        return asList(
+
+                Artifact.builder()
+                        .hash(HASH_1)
+                        .uri(ARGOS_TEST_IML)
+                        .build(),
+
+                Artifact.builder()
+                        .hash(HASH_2)
+                        .uri(DOCKER_1_IML)
+                        .build());
+    }
+
+    private List<Artifact> createProducts() {
+        return asList(
+
+                Artifact.builder()
+                        .hash(HASH_1)
+                        .uri(ARGOS_TEST_IML)
+                        .build(),
+
+                Artifact.builder()
+                        .hash(HASH_2)
+                        .uri(DOCKER_1_IML)
+                        .build());
+    }
+}

@@ -90,7 +90,7 @@ class LinkMetaBlockRepositoryImplTest {
         assertThat(blocks, hasSize(1));
         assertThat(blocks.get(0), sameInstance(linkMetaBlock));
         verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME));
-        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"link.stepName\" : \"stepName\"}, { \"link.products.hash\" : { \"$in\" : [\"sha\"]}}]}, Fields: {}, Sort: {}"));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"link.stepName\" : \"stepName\"}, { \"link.products.hash\" : \"sha\"}]}, Fields: {}, Sort: {}"));
     }
 
     @Test
@@ -100,7 +100,7 @@ class LinkMetaBlockRepositoryImplTest {
         assertThat(blocks, hasSize(1));
         assertThat(blocks.get(0), sameInstance(linkMetaBlock));
         verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME));
-        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"link.stepName\" : \"stepName\"}, { \"link.materials.hash\" : { \"$in\" : [\"sha\"]}}]}, Fields: {}, Sort: {}"));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"link.stepName\" : \"stepName\"}, { \"link.materials.hash\" : \"sha\"}]}, Fields: {}, Sort: {}"));
     }
 
     @Test
