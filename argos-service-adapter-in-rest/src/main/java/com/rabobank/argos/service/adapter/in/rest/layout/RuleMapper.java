@@ -19,12 +19,10 @@ public abstract class RuleMapper {
 
     @ObjectFactory
     public Rule createRule(RestRule restRule) {
-        switch (restRule.getRuleType()) {
-            case MATCH:
-                return matchRuleMapper.mapFromRestRule(restRule);
-            default:
-                return new Rule(RuleType.valueOf(restRule.getRuleType().name()), restRule.getPattern());
+        if (restRule.getRuleType() == RestRule.RuleTypeEnum.MATCH) {
+            return matchRuleMapper.mapFromRestRule(restRule);
         }
+        return new Rule(RuleType.valueOf(restRule.getRuleType().name()), restRule.getPattern());
     }
 
     @ObjectFactory
