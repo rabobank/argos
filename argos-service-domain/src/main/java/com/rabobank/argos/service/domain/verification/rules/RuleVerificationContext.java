@@ -36,7 +36,7 @@ public class RuleVerificationContext<R extends Rule> {
         return artifacts.stream().filter(artifact -> matcher.matches(Paths.get(artifact.getUri())));
     }
 
-    public boolean notContainsMaterials(List<Artifact> artifacts) {
-        return artifacts.stream().noneMatch(artifact -> link.getMaterials().contains(artifact));
+    public boolean containsSomeMaterials(List<Artifact> artifacts) {
+        return artifacts.stream().anyMatch(artifact -> link.getMaterials().contains(artifact));
     }
 }

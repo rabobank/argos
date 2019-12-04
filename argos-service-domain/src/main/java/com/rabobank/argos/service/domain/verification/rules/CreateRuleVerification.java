@@ -22,7 +22,7 @@ public class CreateRuleVerification implements RuleVerification {
     @Override
     public RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
         List<Artifact> filteredProducts = context.getFilteredProducts().collect(toList());
-        if (!filteredProducts.isEmpty() && context.notContainsMaterials(filteredProducts)) {
+        if (!filteredProducts.isEmpty() && !context.containsSomeMaterials(filteredProducts)) {
             return RuleVerificationResult.okay(new HashSet<>(filteredProducts));
         } else {
             return RuleVerificationResult.notOkay();

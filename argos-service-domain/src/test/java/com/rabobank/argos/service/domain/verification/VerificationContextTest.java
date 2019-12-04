@@ -12,11 +12,13 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -31,10 +33,10 @@ class VerificationContextTest {
     @BeforeEach
     void setup() {
         when(layoutMetaBlock.getLayout().getSteps())
-                .thenReturn(singletonList(Step.builder().stepName(STEP_NAME).build()));
+                .thenReturn(List.of(Step.builder().stepName(STEP_NAME).build()));
 
-        linkMetaBlocks = singletonList(LinkMetaBlock
-                .builder().link(Link.builder().stepName(STEP_NAME).build()).build());
+        linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
+                .builder().link(Link.builder().stepName(STEP_NAME).build()).build()));
 
         verificationContext = VerificationContext
                 .builder()
@@ -59,5 +61,22 @@ class VerificationContextTest {
     void getStepByStepNameWithInValidStepReturnsException() {
         VerificationError error = assertThrows(VerificationError.class, () -> verificationContext.getLinksByStepName("incorrect"));
         assertThat(error.getMessage(), Is.is("LinkMetaBlocks with step name: incorrect could not be found"));
+    }
+
+    @Test
+    void getLinksByStepName() {
+        assertThat(verificationContext.getLinksByStepName(STEP_NAME).get(0), sameInstance(linkMetaBlocks.get(0)));
+    }
+
+    @Test
+    void getStepByStepName() {
+        assertThat(verificationContext.getStepByStepName(STEP_NAME), sameInstance(layoutMetaBlock.getLayout().getSteps().get(0)));
+    }
+
+    @Test
+    void removeLinkMetaBlocks() {
+        verificationContext.removeLinkMetaBlocks(List.of(linkMetaBlocks.get(0)));
+        assertThat(verificationContext.getLinkMetaBlocks(), empty());
+        assertThat(verificationContext.getLinksByStepName(STEP_NAME), empty());
     }
 }

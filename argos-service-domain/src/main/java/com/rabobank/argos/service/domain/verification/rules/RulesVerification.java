@@ -103,7 +103,7 @@ public class RulesVerification implements Verification {
             ArrayList<Artifact> unknownArtifacts = new ArrayList<>(link.getProducts());
             unknownArtifacts.addAll(link.getMaterials());
             unknownArtifacts.removeAll(validatedArtifacts);
-            log.warn("unknown artifacts in step {}\n{}", step.getStepName(), unknownArtifacts);
+            log.warn("unknown artifacts in step {}: {}", step.getStepName(), unknownArtifacts);
         }
         return VerificationRunResult.valid(valid);
     }
@@ -113,7 +113,7 @@ public class RulesVerification implements Verification {
                 .map(ruleVerifyFunction)
                 .map(ruleVerificationResult -> logRuleVerificationResult(rule, link, ruleVerificationResult))
                 .orElseGet(() -> {
-                    log.error("{} not implemented", rule.getClass().getSimpleName());
+                    log.error("rule verification {} not implemented", rule.getRuleType());
                     return RuleVerificationResult.notOkay();
                 });
     }
