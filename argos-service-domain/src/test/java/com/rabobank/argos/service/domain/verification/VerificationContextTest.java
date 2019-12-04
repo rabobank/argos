@@ -59,8 +59,7 @@ class VerificationContextTest {
 
     @Test
     void getStepByStepNameWithInValidStepReturnsException() {
-        VerificationError error = assertThrows(VerificationError.class, () -> verificationContext.getLinksByStepName("incorrect"));
-        assertThat(error.getMessage(), Is.is("LinkMetaBlocks with step name: incorrect could not be found"));
+        assertThat(verificationContext.getLinksByStepName("incorrect"), empty());
     }
 
     @Test

@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public final class MatchRule extends Rule {
+public class MatchRule extends Rule {
 
     private String sourcePathPrefix;
     private String destinationPathPrefix;
