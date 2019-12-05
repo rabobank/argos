@@ -22,19 +22,19 @@
       "expectedProducts": [
         {
           "pattern": "DisAllowRule",
-          "type": "DISALLOW"
+          "ruleType": "DISALLOW"
         },
         {
-          "pattern": "MatchRule",
           "destinationPathPrefix": "destinationPathPrefix",
           "destinationStepName": "destinationStepName",
           "destinationType": "MATERIALS",
-          "sourcePathPrefix": "sourcePathPrefix",
-          "type": "MATCH"
+          "pattern": "MatchRule",
+          "ruleType": "MATCH",
+          "sourcePathPrefix": "sourcePathPrefix"
         },
         {
           "pattern": "DeleteRule",
-          "type": "DELETE"
+          "ruleType": "DELETE"
         }
       ],
       "requiredNumberOfLinks": 23,
@@ -44,21 +44,21 @@
       "expectedMaterials": [
         {
           "pattern": "AllowRule",
-          "type": "ALLOW"
+          "ruleType": "ALLOW"
         },
         {
           "pattern": "RequireRule",
-          "type": "REQUIRE"
+          "ruleType": "REQUIRE"
         }
       ],
       "expectedProducts": [
         {
           "pattern": "CreateRule",
-          "type": "CREATE"
+          "ruleType": "CREATE"
         },
         {
           "pattern": "ModifyRule",
-          "type": "MODIFY"
+          "ruleType": "MODIFY"
         }
       ],
       "requiredNumberOfLinks": 1,

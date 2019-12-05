@@ -1,4 +1,4 @@
-package com.rabobank.argos.domain.layout.exceptions;
+package com.rabobank.argos.service.domain.verification.rules;
 
 /*-
  * #%L
@@ -9,9 +9,9 @@ package com.rabobank.argos.domain.layout.exceptions;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,16 +21,14 @@ package com.rabobank.argos.domain.layout.exceptions;
  */
 
 import com.rabobank.argos.domain.layout.rule.Rule;
-import com.rabobank.argos.domain.link.Artifact;
+import com.rabobank.argos.domain.layout.rule.RuleType;
 
-import java.util.Set;
+public interface RuleVerification {
 
-public class RuleVerificationError extends LayoutVerificationError {
+    RuleType getRuleType();
 
-    private static final long serialVersionUID = -6923219476614859770L;
+    RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context);
 
-    public RuleVerificationError(Rule rule, Set<Artifact> filteredArtifacts) {
-        super(String.format("\'%s [%s]\' matched the following " + "artifacts: [%s]", rule.getClass().getSimpleName(), rule.getPattern(),
-                filteredArtifacts));
-    }
+    RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context);
+
 }

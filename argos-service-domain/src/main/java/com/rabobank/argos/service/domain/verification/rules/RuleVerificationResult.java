@@ -1,4 +1,4 @@
-package com.rabobank.argos.domain.layout.rule;
+package com.rabobank.argos.service.domain.verification.rules;
 
 /*-
  * #%L
@@ -9,9 +9,9 @@ package com.rabobank.argos.domain.layout.rule;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,24 +20,28 @@ package com.rabobank.argos.domain.layout.rule;
  * #L%
  */
 
-import com.rabobank.argos.domain.layout.exceptions.RuleVerificationError;
+
 import com.rabobank.argos.domain.link.Artifact;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.Set;
 
-public final class DisallowRule extends Rule {
-    @Builder
-    public DisallowRule(String pattern) {
-        super(pattern);
+import static java.util.Collections.emptySet;
+
+@Builder
+@Getter
+public class RuleVerificationResult {
+
+    private boolean valid;
+
+    private final Set<Artifact> validatedArtifacts;
+
+    public static RuleVerificationResult okay(Set<Artifact> validatedArtifacts) {
+        return RuleVerificationResult.builder().valid(true).validatedArtifacts(validatedArtifacts).build();
     }
 
-    @Override
-    public Set<Artifact> verify(Set<Artifact> artifacts, Set<Artifact> materials, Set<Artifact> products) throws RuleVerificationError {
-        Set<Artifact> filteredArtifacts = filterArtifacts(artifacts);
-        if (!filteredArtifacts.isEmpty()) {
-            throw new RuleVerificationError(this, filteredArtifacts);
-        }
-        return filteredArtifacts;
+    public static RuleVerificationResult notOkay() {
+        return RuleVerificationResult.builder().valid(false).validatedArtifacts(emptySet()).build();
     }
 }

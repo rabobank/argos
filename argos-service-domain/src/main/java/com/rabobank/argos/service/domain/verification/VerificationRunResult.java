@@ -28,11 +28,11 @@ import lombok.Getter;
 public class VerificationRunResult {
     private boolean runIsValid;
 
-    public static VerificationRunResult notOkay() {
-        return VerificationRunResult.builder().runIsValid(false).build();
+    public static VerificationRunResult valid(boolean runIsValid) {
+        return VerificationRunResult.builder().runIsValid(runIsValid).build();
     }
 
     public static VerificationRunResult okay() {
-        return VerificationRunResult.builder().runIsValid(true).build();
+        return valid(true);
     }
 }
