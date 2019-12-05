@@ -22,7 +22,7 @@ package com.rabobank.argos.service.domain.verification;
 
 public interface Verification {
 
-    enum Priority {LAYOUT_METABLOCK_SIGNATURE, LINK_METABLOCK_SIGNATURE, BUILDSTEPS_COMPLETED, EXPECTED_COMMAND,RULES}
+    enum Priority {LAYOUT_METABLOCK_SIGNATURE, LINK_METABLOCK_SIGNATURE, BUILDSTEPS_COMPLETED, EXPECTED_COMMAND, REQUIRED_NUMBER_OF_LINKS, RULES}
 
     Priority getPriority();
 
