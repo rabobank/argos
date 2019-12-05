@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2019 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,12 +22,15 @@ import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.adapter.out.mongodb.link.LinkMetaBlockRepositoryImpl;
 import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
+import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodStarter;
 import de.flapdoodle.embed.mongo.config.IMongodConfig;
 import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
 import de.flapdoodle.embed.mongo.config.Net;
+import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
 import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.runtime.Network;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +40,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import java.io.IOException;
 import java.util.List;
 
+import static de.flapdoodle.embed.process.config.io.ProcessOutput.getDefaultInstanceSilent;
 import static java.util.Arrays.asList;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
@@ -51,7 +55,6 @@ public class LinkMetablockRepositoryITTest {
     private static final String DOCKER_1_IML = "docker (1).iml";
     public static final String RUN_ID = "runId";
     private MongodExecutable mongodExecutable;
-    private MongoTemplate mongoTemplate;
     private LinkMetaBlockRepository linkMetaBlockRepository;
 
     @BeforeEach
@@ -61,12 +64,12 @@ public class LinkMetablockRepositoryITTest {
         IMongodConfig mongodConfig = new MongodConfigBuilder().version(Version.Main.PRODUCTION)
                 .net(new Net(ip, port, Network.localhostIsIPv6()))
                 .build();
-        MongodStarter starter = MongodStarter.getDefaultInstance();
+        IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder().defaults(Command.MongoD).processOutput(getDefaultInstanceSilent()).build();
+        MongodStarter starter = MongodStarter.getInstance(runtimeConfig);
         mongodExecutable = starter.prepare(mongodConfig);
         mongodExecutable.start();
-        mongoTemplate = new MongoTemplate(MongoClients.create("mongodb://localhost:"+port), "test");
+        MongoTemplate mongoTemplate = new MongoTemplate(MongoClients.create("mongodb://localhost:" + port), "test");
         linkMetaBlockRepository = new LinkMetaBlockRepositoryImpl(mongoTemplate);
-
     }
 
     @AfterEach

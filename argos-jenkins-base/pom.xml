@@ -29,6 +29,10 @@
 	<description>Docker base for Jenkins test image for Argos Supply Chain Notary</description>
 	<url>https://github.com/rabobank/argos/argos-jenkins-base</url>
 
+	<properties>
+		<sonar.skip>true</sonar.skip>
+	</properties>
+
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>

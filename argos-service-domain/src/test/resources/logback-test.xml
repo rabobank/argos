@@ -15,8 +15,14 @@
     limitations under the License.
 
 -->
-<?jelly escape-by-default='true'?>
-<div>
-    This plugin enables an argos BuildStep that will be used to track build
-    information and record it as argos metadata.
-</div>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+    <root level="error">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
