@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 @Getter
@@ -38,7 +39,7 @@ public class VerificationContext {
 
     private final List<LinkMetaBlock> linkMetaBlocks;
     private final LayoutMetaBlock layoutMetaBlock;
-    private Map<String, List<LinkMetaBlock>> linksByStepName = new HashMap<>();
+    private final Map<String, List<LinkMetaBlock>> linksByStepName;
     private Map<String, Step> stepByStepName = new HashMap<>();
 
     @Builder
@@ -59,10 +60,7 @@ public class VerificationContext {
     }
 
     public List<LinkMetaBlock> getLinksByStepName(String stepName) {
-        if (!linksByStepName.containsKey(stepName)) {
-            throw new VerificationError("LinkMetaBlocks with step name: " + stepName + " could not be found");
-        }
-        return linksByStepName.get(stepName);
+        return linksByStepName.getOrDefault(stepName, emptyList());
     }
 
     public void removeLinkMetaBlocks(List<LinkMetaBlock> linkMetaBlocksToRemove) {

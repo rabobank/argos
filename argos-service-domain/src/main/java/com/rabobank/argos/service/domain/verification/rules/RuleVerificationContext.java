@@ -27,6 +27,8 @@ import com.rabobank.argos.service.domain.verification.VerificationContext;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
@@ -44,19 +46,39 @@ public class RuleVerificationContext<R extends Rule> {
     private final Link link;
 
     public Stream<Artifact> getFilteredProducts() {
-        return filterArtifacts(link.getProducts());
+        return getFilteredProducts(null);
     }
 
     public Stream<Artifact> getFilteredMaterials() {
-        return filterArtifacts(link.getMaterials());
+        return getFilteredMaterials(null);
     }
 
-    private Stream<Artifact> filterArtifacts(List<Artifact> artifacts) {
-        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + rule.getPattern());
-        return artifacts.stream().filter(artifact -> matcher.matches(Paths.get(artifact.getUri())));
+    public Stream<Artifact> getFilteredProducts(String prefix) {
+        return filterArtifacts(link.getProducts(), rule.getPattern(), prefix);
+    }
+
+    public Stream<Artifact> getFilteredMaterials(String prefix) {
+        return filterArtifacts(link.getMaterials(), rule.getPattern(), prefix);
+    }
+
+    public static Stream<Artifact> filterArtifacts(List<Artifact> artifacts, String pattern, @Nullable String prefix) {
+        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
+        return artifacts.stream().filter(artifact -> matcher.matches(Paths.get(getUri(artifact, prefix))));
+    }
+
+    private static String getUri(Artifact artifact, String prefix) {
+        if (StringUtils.hasLength(prefix) && artifact.getUri().startsWith(prefix)) {
+            return artifact.getUri().substring(prefix.length());
+        } else {
+            return artifact.getUri();
+        }
     }
 
     public boolean containsSomeMaterials(List<Artifact> artifacts) {
         return artifacts.stream().anyMatch(artifact -> link.getMaterials().contains(artifact));
+    }
+
+    public <T extends Rule> T getRule() {
+        return (T) rule;
     }
 }
