@@ -147,6 +147,8 @@
                     <header>https://raw.github.com/rabobank/argos/other-license-plugin/docs/header.txt</header>
 					<excludes>
 						<exclude>target/**</exclude>
+						<exclude>drone.yml</exclude>
+                        <exclude>docs/header.txt</exclude>
 					</excludes>
 					<useDefaultExcludes>true</useDefaultExcludes>
 					<properties>
