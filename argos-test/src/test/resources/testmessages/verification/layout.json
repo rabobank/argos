@@ -24,11 +24,19 @@
         ],
         "expectedMaterials": [
           {
+            "ruleType": "REQUIRE",
+            "pattern": "**Argos4jIT.java"
+          },
+          {
             "ruleType": "ALLOW",
             "pattern": "**"
           }
         ],
         "expectedProducts": [
+          {
+            "ruleType": "MODIFY",
+            "pattern": "target/maven-archiver/pom.properties"
+          },
           {
             "ruleType": "CREATE",
             "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar"
@@ -70,6 +78,10 @@
             "destinationPathPrefix": "target/",
             "destinationType": "PRODUCTS",
             "destinationStepName": "build"
+          },
+          {
+            "ruleType": "REQUIRE",
+            "pattern": "**Argos4jIT.java"
           },
           {
             "ruleType": "ALLOW",
