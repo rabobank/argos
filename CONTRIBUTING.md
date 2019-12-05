@@ -141,13 +141,13 @@ If you added a new file this should contain the default license header which giv
 Headers can be added with the following command:
 
 ```shell
-   mvn license:update-file-header
+   mvn license:format
 ```
 
 After this you can check the result:
 
 ```shell
-   mvn license:check-file-header
+   mvn license:check
 ```
 
 The generated changes should be comitted.

@@ -144,7 +144,7 @@
 					<failIfMissing>true</failIfMissing>
 					<strictCheck>true</strictCheck>
 					<aggregate>false</aggregate>
-                    <header>https://raw.github.com/rabobank/argos/other-license-plugin/docs/header.txt</header>
+                    <header>https://raw.github.com/rabobank/argos/develop/docs/header.txt</header>
 					<excludes>
 						<exclude>target/**</exclude>
 						<exclude>drone.yml</exclude>
