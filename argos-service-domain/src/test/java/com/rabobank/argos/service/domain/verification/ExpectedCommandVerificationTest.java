@@ -67,13 +67,6 @@ class ExpectedCommandVerificationTest {
     }
 
     @Test
-    void verifyWithBothNullShouldReturnValid() {
-        mockValidBothNull();
-        VerificationRunResult verificationRunResult = expectedCommandVerification.verify(context);
-        assertThat(verificationRunResult.isRunIsValid(), is(true));
-    }
-
-    @Test
     void verifyWithInCorrectCommandsShouldReturnInValid() {
         mockInValid();
         VerificationRunResult verificationRunResult = expectedCommandVerification.verify(context);
@@ -87,24 +80,6 @@ class ExpectedCommandVerificationTest {
         assertThat(verificationRunResult.isRunIsValid(), is(false));
     }
 
-    @Test
-    void verifyWithNullStepCommandsShouldReturnInValid() {
-        mockInValidWithNullInStep();
-        VerificationRunResult verificationRunResult = expectedCommandVerification.verify(context);
-        assertThat(verificationRunResult.isRunIsValid(), is(false));
-    }
-
-
-    private void mockValidBothNull() {
-
-        when(step.getExpectedCommand()).thenReturn(null);
-        when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
-        when(linkMetaBlock.getLink().getCommand()).thenReturn(null);
-        when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
-        when(context.getStepByStepName(eq(STEP_NAME))).thenReturn(step);
-        when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
-    }
-
     private void mockInValidWithNullInLink() {
         List<String> stepCommands = asList("command1", "command2");
         when(step.getStepName()).thenReturn(STEP_NAME);
@@ -116,15 +91,6 @@ class ExpectedCommandVerificationTest {
         when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
     }
 
-    private void mockInValidWithNullInStep() {
-        List<String> linkCommands = asList("command1", "command2");
-        when(step.getStepName()).thenReturn(STEP_NAME);
-        when(step.getExpectedCommand()).thenReturn(null);
-        when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
-        when(linkMetaBlock.getLink().getCommand()).thenReturn(linkCommands);
-        when(context.getStepByStepName(eq(STEP_NAME))).thenReturn(step);
-        when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
-    }
 
     private void mockValid() {
         List<String> commands = asList("command1", "command2");
