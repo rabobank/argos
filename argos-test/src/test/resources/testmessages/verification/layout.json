@@ -24,6 +24,10 @@
         ],
         "expectedMaterials": [
           {
+            "ruleType": "REQUIRE",
+            "pattern": "**Argos4jIT.java"
+          },
+          {
             "ruleType": "ALLOW",
             "pattern": "**"
           }
@@ -74,6 +78,10 @@
             "destinationPathPrefix": "target/",
             "destinationType": "PRODUCTS",
             "destinationStepName": "build"
+          },
+          {
+            "ruleType": "REQUIRE",
+            "pattern": "**Argos4jIT.java"
           },
           {
             "ruleType": "ALLOW",
