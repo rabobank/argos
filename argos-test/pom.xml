@@ -197,6 +197,7 @@
                     <aggregate>false</aggregate>
                     <excludes>
                         <exclude>target/**</exclude>
+                        <exclude>src/test/resources/karate-config.js</exclude>
                     </excludes>
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <properties>

@@ -148,7 +148,7 @@
 					<excludes>
 						<exclude>target/**</exclude>
 						<exclude>drone.yml</exclude>
-                        <exclude>docs/header.txt</exclude>
+                        <exclude>**/*.txt</exclude>
 					</excludes>
 					<useDefaultExcludes>true</useDefaultExcludes>
 					<properties>
