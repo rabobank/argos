@@ -119,34 +119,28 @@
 				<version>2.22.2</version>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
+				<groupId>com.mycila</groupId>
 				<artifactId>license-maven-plugin</artifactId>
-				<version>2.0.0</version>
+				<version>3.0</version>
 				<configuration>
-					<licenseName>apache_v2</licenseName>
-					<verbose>true</verbose>
-					<organizationName>Rabobank Nederland</organizationName>
-					<inceptionYear>2019</inceptionYear>
-					<failOnMissingHeader>true</failOnMissingHeader>
-                    <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
+					<quiet>false</quiet>
+					<failIfMissing>true</failIfMissing>
+					<strictCheck>true</strictCheck>
+					<aggregate>false</aggregate>
 					<excludes>
-						<exclude>**/*.json</exclude>
+						<exclude>target/**</exclude>
 					</excludes>
-					<roots>
-					   <root>src</root>
-					</roots>
-					<projectName>Argos Supply Chain Notary</projectName>
-					<extraExtensions>
-					     <yml>properties</yml>
-                         <yaml>properties</yaml>
-					</extraExtensions>
+					<useDefaultExcludes>true</useDefaultExcludes>
+					<properties>
+						<lic.year>2019</lic.year>
+					</properties>
+					<encoding>UTF-8</encoding>
 				</configuration>
 				<executions>
 					<execution>
 						<goals>
-							<goal>check-file-header</goal>
+							<goal>check</goal>
 						</goals>
-						<phase>process-sources</phase>
 					</execution>
 				</executions>
 			</plugin>
