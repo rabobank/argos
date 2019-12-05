@@ -17,7 +17,7 @@
         "authorizedKeyIds": [
           "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
         ],
-        "requiredNumberOfLinks": 3,
+        "requiredNumberOfLinks": 1,
         "expectedCommand": [
           "expectedCommand 1",
           "expectedCommand 2"
@@ -56,7 +56,7 @@
         "authorizedKeyIds": [
           "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09"
         ],
-        "requiredNumberOfLinks": 45,
+        "requiredNumberOfLinks": 1,
         "expectedCommand": [
           "stepName2 expectedCommand"
         ],
