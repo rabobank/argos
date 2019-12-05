@@ -58,8 +58,6 @@ Before you submit your Pull Request (PR) consider the following guidelines:
   that relates to your submission. You don't want to duplicate effort.
 1. Be sure that an issue describes the problem you're fixing, or documents the design for the feature you'd like to add.
   Discussing the design up front helps to ensure that we're ready to accept your work.
-1. Please sign our [Contributor License Agreement (CLA)](#cla) before sending PRs.
-  We cannot accept code without this. Make sure you sign with the primary email address of the Git identity that has been granted access to the Argos repository.
 1. Fork the rabobank/argos repo.
 1. Make your changes in a new git branch:
 
@@ -133,9 +131,26 @@ To ensure consistency throughout the source code, keep these rules in mind as yo
 
 * All features or bug fixes **must be tested** by one or more specs (unit-tests).
 * All public API methods **must be documented**. (Details TBC).
-* Every source file should contain the [license header](docs/LicenseHeader.java)
+* Every source file should contain the [license header](docs/LicenseHeader.java). See [License Header Instructions](#header_instructions).
 * Wrap all code at **100 characters**. An automated formatter is available, see
   [DEVELOPER.md](docs/DEVELOPER.md#clang-format).
+  
+## <a name="header_instructions"></a> License Header Instructions
+If you added a new file this should contain the default license header which gives the copy rights to the project.
+
+Headers can be added with the following command:
+
+```shell
+   mvn license:update-file-header
+```
+
+After this you can check the result:
+
+```shell
+   mvn license:check-file-header
+```
+
+The generated changes should be comitted.
 
 ## <a name="commit"></a> Commit Message Guidelines
 

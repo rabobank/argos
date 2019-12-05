@@ -541,6 +541,9 @@
         "uri": "target/test-classes/testmessages/valid-link.json",
         "hash": "1bff58e13347e8a043821236fdef341b555efdf1db2062eaeb10418285eaa779"
       }
+    ],
+    "command": [
+      "stepName2 expectedCommand"
     ]
   }
 }
