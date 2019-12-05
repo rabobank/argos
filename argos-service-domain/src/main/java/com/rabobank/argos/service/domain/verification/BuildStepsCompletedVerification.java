@@ -46,7 +46,6 @@ public class BuildStepsCompletedVerification implements Verification {
                 .collect(toSet());
         List<String> expectedSteps = context.getExpectedStepNames();
         log.info("linkBuildSteps: {} , expectedSteps: {}", linkBuildSteps, expectedSteps);
-
         return VerificationRunResult.builder().runIsValid(
                 linkBuildSteps.size() == expectedSteps.size() && expectedSteps.containsAll(linkBuildSteps))
                 .build();
