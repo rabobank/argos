@@ -80,10 +80,6 @@
         "hash": "bb380fd18af8cf818857bc2db67053d3642023fd165dac4b95660404853b4f4a"
       },
       {
-        "uri": "src/test/resources/testmessages/invalid-link.json",
-        "hash": "0a7f22930c56c897b987ad4dc45d541ff3a7153915293a3728d3e7efaa95ad5a"
-      },
-      {
         "uri": "src/test/resources/testmessages/valid-link-response.json",
         "hash": "f00989df70455c8319c23516da41131e42579f29b74963bd313a07966a4efbfc"
       },
@@ -260,10 +256,6 @@
         "hash": "bb380fd18af8cf818857bc2db67053d3642023fd165dac4b95660404853b4f4a"
       },
       {
-        "uri": "target/test-classes/testmessages/invalid-link.json",
-        "hash": "0a7f22930c56c897b987ad4dc45d541ff3a7153915293a3728d3e7efaa95ad5a"
-      },
-      {
         "uri": "target/test-classes/testmessages/valid-link-response.json",
         "hash": "f00989df70455c8319c23516da41131e42579f29b74963bd313a07966a4efbfc"
       },
@@ -308,10 +300,6 @@
       {
         "uri": "src/test/resources/application.conf",
         "hash": "1a701a0472fd3d6506ea9d3b9a23a56e49a1231aa27491cd6c55fbe254970709"
-      },
-      {
-        "uri": "src/test/resources/bob",
-        "hash": "9484e07b40a0d9c279e33054fa976e4ae5de6191b29e96ef4ce1d13af7626b34"
       },
       {
         "uri": "src/test/resources/feature/create-supplychain.feature",
@@ -468,10 +456,6 @@
       {
         "uri": "target/test-classes/application.conf",
         "hash": "1a701a0472fd3d6506ea9d3b9a23a56e49a1231aa27491cd6c55fbe254970709"
-      },
-      {
-        "uri": "target/test-classes/bob",
-        "hash": "9484e07b40a0d9c279e33054fa976e4ae5de6191b29e96ef4ce1d13af7626b34"
       },
       {
         "uri": "target/test-classes/com/rabobank/argos/test/Argos4jIT.class",
