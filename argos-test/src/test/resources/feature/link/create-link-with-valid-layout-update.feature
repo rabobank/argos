@@ -29,7 +29,6 @@ Feature: create a valid link
     * def step = layout.steps[stepIndex]
     * set step.authorizedKeyIds[0] = signedLink.response.signature.keyId
     * def layoutUpdated = call read('classpath:feature/layout/update-layout.feature') {supplyChainId:#(__arg.supplyChainId),json:#(__arg.layoutToBeUpdated),id:#(__arg.layoutToBeUpdated.id)}
-    * print layoutUpdated.response
     Given path linkPath
     And request signedLink.response
     And header Content-Type = 'application/json'

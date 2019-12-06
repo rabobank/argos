@@ -20,9 +20,9 @@ Feature: create a valid link
   Background:
     * url karate.properties['server.baseurl']
     * def linkPath = '/api/supplychain/'+ __arg.supplyChainId + '/link'
-
+    * def linkToBeSigned = read(__arg.json)
   Scenario: store link with valid specifications should return a 204
-    * def signedLink = call read('classpath:feature/link/sign-link.feature') json:#(read(__arg.json))
+    * def signedLink = call read('classpath:feature/link/sign-link.feature') {json:#(linkToBeSigned)}
     Given path linkPath
     And request signedLink.response
     And header Content-Type = 'application/json'

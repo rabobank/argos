@@ -24,7 +24,6 @@ Feature: update a valid layout
 
   Scenario: update layout with valid specifications should return a 201
     * def signedLayout = call read('classpath:feature/layout/sign-layout.feature') layoutJson
-    * print signedLayout.response
     Given path layoutPath
     And request signedLayout.response
     And header Content-Type = 'application/json'
