@@ -44,6 +44,10 @@
           {
             "ruleType": "ALLOW",
             "pattern": "**"
+          },
+          {
+            "ruleType": "DELETE",
+            "pattern": "**/*.java"
           }
         ]
       },
