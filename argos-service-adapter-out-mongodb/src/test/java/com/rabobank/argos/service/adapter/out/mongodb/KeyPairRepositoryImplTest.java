@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2019 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

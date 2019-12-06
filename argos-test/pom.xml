@@ -198,12 +198,19 @@
                     <excludes>
                         <exclude>target/**</exclude>
                         <exclude>src/test/resources/karate-config.js</exclude>
+                        <exclude>**/bob</exclude>
                     </excludes>
                     <useDefaultExcludes>true</useDefaultExcludes>
+                    <header>${project.basedir}/../docs/header.txt</header>
                     <properties>
                         <lic.year>2019</lic.year>
                     </properties>
                     <encoding>UTF-8</encoding>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                        <feature>SCRIPT_STYLE</feature>
+                        <conf>SCRIPT_STYLE</conf>
+                    </mapping>
                 </configuration>
                 <executions>
                     <execution>

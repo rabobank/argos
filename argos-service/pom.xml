@@ -238,6 +238,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -258,6 +259,7 @@
 							<goal>jar</goal>
 						</goals>
 						<configuration>
+							<quiet>true</quiet>
 						    <excludePackageNames>com.rabobank.argos.service.adapter.in.rest.api.*</excludePackageNames>
 						</configuration>
 					</execution>
@@ -287,13 +289,14 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <version>3.0</version>
                 <configuration>
-                    <quiet>false</quiet>
+                    <quiet>true</quiet>
                     <failIfMissing>true</failIfMissing>
                     <strictCheck>true</strictCheck>
                     <aggregate>false</aggregate>
                     <excludes>
                         <exclude>target/**</exclude>
                     </excludes>
+					<header>${project.basedir}/../docs/header.txt</header>
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <properties>
                         <lic.year>2019</lic.year>

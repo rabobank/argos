@@ -149,12 +149,20 @@
 						<exclude>target/**</exclude>
 						<exclude>drone.yml</exclude>
                         <exclude>**/*.txt</exclude>
+						<exclude>**/publickey</exclude>
+						<exclude>**/testkey.pub</exclude>
+						<exclude>**/bob</exclude>
 					</excludes>
 					<useDefaultExcludes>true</useDefaultExcludes>
 					<properties>
 						<lic.year>2019</lic.year>
 					</properties>
 					<encoding>UTF-8</encoding>
+					<mapping>
+						<java>SLASHSTAR_STYLE</java>
+						<ServiceDockerfile>SCRIPT_STYLE</ServiceDockerfile>
+						<JenkinsDockerfile>SCRIPT_STYLE</JenkinsDockerfile>
+					</mapping>
 				</configuration>
 				<executions>
 					<execution>

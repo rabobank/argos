@@ -203,12 +203,20 @@
                     <aggregate>false</aggregate>
                     <excludes>
                         <exclude>target/**</exclude>
+                        <exclude>work/**</exclude>
+                        <exclude>**/bob</exclude>
+                        <exclude>**/*.pem</exclude>
                     </excludes>
+                    <header>${project.basedir}/../docs/header.txt</header>
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <properties>
                         <lic.year>2019</lic.year>
                     </properties>
                     <encoding>UTF-8</encoding>
+                    <mapping>
+                        <jelly>XML_STYLE</jelly>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
                 </configuration>
                 <executions>
                     <execution>
