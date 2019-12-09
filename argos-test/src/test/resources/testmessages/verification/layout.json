@@ -44,6 +44,10 @@
           {
             "ruleType": "ALLOW",
             "pattern": "**"
+          },
+          {
+            "ruleType": "DELETE",
+            "pattern": "**/*.java"
           }
         ]
       },
@@ -66,6 +70,10 @@
             "destinationStepName": "build"
           },
           {
+            "ruleType": "DISALLOW",
+            "pattern": "**/invalid-link.json"
+          },
+          {
             "ruleType": "ALLOW",
             "pattern": "**"
           }
@@ -82,6 +90,10 @@
           {
             "ruleType": "REQUIRE",
             "pattern": "**Argos4jIT.java"
+          },
+          {
+            "ruleType": "DISALLOW",
+            "pattern": "**/bob"
           },
           {
             "ruleType": "ALLOW",
