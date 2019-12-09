@@ -116,7 +116,6 @@ class LayoutMetaBlockRepositoryImplTest {
     @Test
     void update() {
         when(template.getConverter()).thenReturn(converter);
-        when(converter.convertToMongoType(layoutMetaBlock)).thenReturn(layoutMetaBlockDocument);
         when(updateResult.getMatchedCount()).thenReturn(1L);
         when(template.updateFirst(any(Query.class), any(Update.class), eq(LayoutMetaBlock.class), eq(COLLECTION_NAME))).thenReturn(updateResult);
         assertThat(repository.update(SUPPLY_CHAIN_ID, LAYOUT_METABLOCK_ID, layoutMetaBlock), is(true));
@@ -124,5 +123,6 @@ class LayoutMetaBlockRepositoryImplTest {
         verify(template).updateFirst(queryArgumentCaptor.capture(), updateArgumentCaptor.capture(), eq(LayoutMetaBlock.class), eq(COLLECTION_NAME));
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"layoutMetaBlockId\" : \"layoutMetablockId\"}, Fields: {}, Sort: {}"));
         assertThat(updateArgumentCaptor.getValue().toString(), is("{}"));
+        verify(converter).write(eq(layoutMetaBlock),any(Document.class));
     }
 }

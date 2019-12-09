@@ -75,7 +75,8 @@ public class LayoutMetaBlockRepositoryImpl implements LayoutMetaBlockRepository 
     @Override
     public boolean update(String supplyChainId, String layoutMetaBlockId, LayoutMetaBlock layoutMetaBlock) {
         Query query = getPrimaryQuery(supplyChainId, layoutMetaBlockId);
-        Document document = (Document) template.getConverter().convertToMongoType(layoutMetaBlock);
+        Document document = new Document();
+        template.getConverter().write(layoutMetaBlock, document);
         UpdateResult updateResult = template.updateFirst(query, Update.fromDocument(document), LayoutMetaBlock.class, COLLECTION);
         return updateResult.getMatchedCount() > 0;
     }
