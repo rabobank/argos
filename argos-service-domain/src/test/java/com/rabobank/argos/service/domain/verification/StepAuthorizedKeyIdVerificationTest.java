@@ -21,14 +21,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,6 +53,9 @@ class StepAuthorizedKeyIdVerificationTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private LinkMetaBlock linkMetaBlock;
 
+    @Captor
+    ArgumentCaptor<List<LinkMetaBlock>> listArgumentCaptor;
+
     @BeforeEach
     void setup() {
         stepAuthorizedKeyIdVerification = new StepAuthorizedKeyIdVerification();
@@ -59,23 +68,28 @@ class StepAuthorizedKeyIdVerificationTest {
 
     @Test
     void verifyWithCorrectKeyIdShouldReturnValidResponse() {
-        when(step.getStepName()).thenReturn(STEP_NAME);
+        when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
+        when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
         when(context.getLayoutMetaBlock().getLayout().getSteps()).thenReturn(Collections.singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(Collections.singletonList("keyId"));
+        when(context.getStepByStepName(eq(STEP_NAME))).thenReturn(step);
         when(context.getLinksByStepName(eq(STEP_NAME))).thenReturn(Collections.singletonList(linkMetaBlock));
         when(linkMetaBlock.getSignature().getKeyId()).thenReturn("keyId");
         VerificationRunResult result = stepAuthorizedKeyIdVerification.verify(context);
+        verify(context, times(0)).removeLinkMetaBlocks(listArgumentCaptor.capture());
         assertThat(result.isRunIsValid(), is(true));
     }
 
     @Test
     void verifyWithCorrectIncorrectKeyIdShouldReturnInValidResponse() {
-        when(step.getStepName()).thenReturn(STEP_NAME);
+        when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
         when(context.getLayoutMetaBlock().getLayout().getSteps()).thenReturn(Collections.singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(Collections.singletonList("keyId"));
         when(context.getLinksByStepName(eq(STEP_NAME))).thenReturn(Collections.singletonList(linkMetaBlock));
         when(linkMetaBlock.getSignature().getKeyId()).thenReturn("unTrustedKeyId");
         VerificationRunResult result = stepAuthorizedKeyIdVerification.verify(context);
-        assertThat(result.isRunIsValid(), is(false));
+        verify(context).removeLinkMetaBlocks(listArgumentCaptor.capture());
+        assertThat(listArgumentCaptor.getValue(), hasSize(1));
+        assertThat(result.isRunIsValid(), is(true));
     }
 }

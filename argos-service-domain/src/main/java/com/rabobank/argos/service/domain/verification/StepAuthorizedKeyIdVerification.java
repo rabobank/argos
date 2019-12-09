@@ -15,11 +15,12 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-import com.rabobank.argos.domain.layout.Step;
+import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.STEP_AUTHORIZED_KEYID;
 
@@ -34,25 +35,29 @@ public class StepAuthorizedKeyIdVerification implements Verification {
 
     @Override
     public VerificationRunResult verify(VerificationContext context) {
-        Optional<Step> failedStepAuthorizedKeyIdVerification = context.getLayoutMetaBlock().getLayout().getSteps()
+
+        List<LinkMetaBlock> failedLinkAuthorizedKeyIdVerifications = context
+                .getLinkMetaBlocks()
                 .stream()
-                .filter(step -> linksWhereNotSignedByAuthorizedFunctionary(context, step))
-                .findFirst();
-        failedStepAuthorizedKeyIdVerification
-                .ifPresent(step ->
-                        log.info("failed verification step:{}, authorizedkeys: {} , link keys: {}",
-                                step.getStepName(),
-                                step.getAuthorizedKeyIds(),
-                                context.getLinksByStepName(step.getStepName())
-                        )
-                );
-        return VerificationRunResult.builder().runIsValid(failedStepAuthorizedKeyIdVerification.isEmpty()).build();
+                .filter(linkMetaBlock -> linkIsNotSignedByAuthorizedFunctionary(context, linkMetaBlock))
+                .collect(Collectors.toList());
+
+        if (!failedLinkAuthorizedKeyIdVerifications.isEmpty()) {
+            log.info("the following links were invalid and will be removed from the context: ",
+                    failedLinkAuthorizedKeyIdVerifications
+            );
+
+            context.removeLinkMetaBlocks(failedLinkAuthorizedKeyIdVerifications);
+        }
+
+        return VerificationRunResult.okay();
     }
 
-    private static boolean linksWhereNotSignedByAuthorizedFunctionary(VerificationContext context, Step step) {
-        return !context.getLinksByStepName(step.getStepName()).stream()
-                .filter(link -> step.getAuthorizedKeyIds().contains(link.getSignature().getKeyId()))
-                .findFirst().isPresent();
-
+    private static boolean linkIsNotSignedByAuthorizedFunctionary(VerificationContext context, LinkMetaBlock linkMetaBlock) {
+        return !context
+                .getStepByStepName(linkMetaBlock.getLink().getStepName())
+                .getAuthorizedKeyIds()
+                .contains(linkMetaBlock.getSignature().getKeyId());
     }
+
 }
