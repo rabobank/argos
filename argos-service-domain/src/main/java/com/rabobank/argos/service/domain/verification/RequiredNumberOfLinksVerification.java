@@ -16,10 +16,14 @@
 package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.Step;
+import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.REQUIRED_NUMBER_OF_LINKS;
 
@@ -55,6 +59,27 @@ public class RequiredNumberOfLinksVerification implements Verification {
     }
 
     private static boolean stepDoesNotHaveRequiredNumberOfLinks(Step step, VerificationContext context) {
-        return step.getRequiredNumberOfLinks() > context.getLinksByStepName(step.getStepName()).size();
+        List<LinkMetaBlock> linkMetaBlocks = context.getLinksByStepName(step.getStepName());
+        return step.getRequiredNumberOfLinks() > context.getLinksByStepName(step.getStepName()).size()
+                ||
+                keyIdsAreNotUnique(linkMetaBlocks);
+    }
+
+    private static boolean keyIdsAreNotUnique(List<LinkMetaBlock> linkMetaBlocks) {
+        Set<String> uniqueKeyIds = linkMetaBlocks
+                .stream()
+                .map(linkMetaBlock -> linkMetaBlock
+                        .getSignature()
+                        .getKeyId())
+                .collect(Collectors.toSet());
+
+        List<String> realKeyIds = linkMetaBlocks
+                .stream()
+                .map(linkMetaBlock -> linkMetaBlock
+                        .getSignature()
+                        .getKeyId())
+                .collect(Collectors.toList());
+
+        return uniqueKeyIds.size() != realKeyIds.size();
     }
 }
