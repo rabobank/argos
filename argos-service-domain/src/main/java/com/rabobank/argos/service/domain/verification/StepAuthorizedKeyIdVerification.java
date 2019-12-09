@@ -36,7 +36,7 @@ public class StepAuthorizedKeyIdVerification implements Verification {
     public VerificationRunResult verify(VerificationContext context) {
         Optional<Step> failedStepAuthorizedKeyIdVerification = context.getLayoutMetaBlock().getLayout().getSteps()
                 .stream()
-                .filter(step -> linksWhereNotSignedByAuthorizedFuntionary(context, step))
+                .filter(step -> linksWhereNotSignedByAuthorizedFunctionary(context, step))
                 .findFirst();
         failedStepAuthorizedKeyIdVerification
                 .ifPresent(step ->
@@ -49,7 +49,7 @@ public class StepAuthorizedKeyIdVerification implements Verification {
         return VerificationRunResult.builder().runIsValid(failedStepAuthorizedKeyIdVerification.isEmpty()).build();
     }
 
-    private static boolean linksWhereNotSignedByAuthorizedFuntionary(VerificationContext context, Step step) {
+    private static boolean linksWhereNotSignedByAuthorizedFunctionary(VerificationContext context, Step step) {
         return !context.getLinksByStepName(step.getStepName()).stream()
                 .filter(link -> step.getAuthorizedKeyIds().contains(link.getSignature().getKeyId()))
                 .findFirst().isPresent();
