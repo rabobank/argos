@@ -27,11 +27,11 @@ Feature: Verification
 
   Scenario: happy flow
     * def layout = 'classpath:testmessages/verification/layout.json'
-    * call read('classpath:feature/layout/create-layout.feature') {supplyChainId:#(supplyChainId), json:#(layout)}
+    * def layoutCreated = call read('classpath:feature/layout/create-layout.feature') {supplyChainId:#(supplyChainId), json:#(layout)}
     * def buildStepLink = 'classpath:testmessages/verification/build-step-link.json'
-    * call read('classpath:feature/link/create-link.feature') {supplyChainId:#(supplyChainId), json:#(buildStepLink)}
+    * call read('classpath:feature/link/create-link-with-valid-layout-update.feature') {supplyChainId:#(supplyChainId), json:#(buildStepLink),layoutToBeUpdated:#(layoutCreated.response),stepIndex:0}
     * def testStepLink = 'classpath:testmessages/verification/test-step-link.json'
-    * call read('classpath:feature/link/create-link.feature') {supplyChainId:#(supplyChainId), json:#(testStepLink)}
+    * call read('classpath:feature/link/create-link-with-valid-layout-update.feature') {supplyChainId:#(supplyChainId), json:#(testStepLink),layoutToBeUpdated:#(layoutCreated.response),stepIndex:1}
     Given path supplyChainPath + '/verification'
     And request {"expectedProducts": [{"uri": "target/argos-test-0.0.1-SNAPSHOT.jar","hash": "49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162"}]}
     And header Content-Type = 'application/json'

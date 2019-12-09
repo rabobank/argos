@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -61,7 +60,6 @@ public class TestITService {
 
     private final KeyPairRepository keyPairRepository;
 
-    @PostConstruct
 
     @PostMapping(value = "/reset-db")
     public void resetDatabase() {
@@ -74,6 +72,7 @@ public class TestITService {
         LayoutMetaBlock layoutMetaBlock = layoutMetaBlockMapper.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
         KeyPair keyPair = generateKeyPair();
         String keyId = storePublicKey(keyPair);
+        layoutMetaBlock.getLayout().setAuthorizedKeyIds(Collections.singletonList(keyId));
         String signature = createSignature(keyPair.getPrivate(), new JsonSigningSerializer().serialize(layoutMetaBlock.getLayout()));
         layoutMetaBlock.setSignatures(Collections.singletonList(Signature.builder().signature(signature).keyId(keyId).build()));
         return ResponseEntity.ok(layoutMetaBlockMapper.convertToRestLayoutMetaBlock(layoutMetaBlock));

@@ -33,6 +33,8 @@ public class ExpectedCommandVerification implements Verification {
 
     @Override
     public VerificationRunResult verify(VerificationContext context) {
+        // allemaal comparen  alle foute links verwijderen
+        // altijd isvalid == true
         // the optional is filled with the first failed command verification or empty
         Optional<LinkMetaBlock> failedCommandVerification = context.getLinkMetaBlocks()
                 .stream()
