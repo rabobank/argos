@@ -16,26 +16,23 @@
 
 Feature: Verification
 
-  Background:
-    * url karate.properties['server.baseurl']
-    * call read('classpath:feature/reset.feature')
-    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { name: 'name'}
-    * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
-    * call read('classpath:feature/key/create-key.feature')
-    * def supplyChainPath = '/api/supplychain/'+ supplyChain.response.id
-    * def supplyChainId = supplyChain.response.id
 
-  Scenario: happy flow
-    * def layout = 'classpath:testmessages/verification/layout.json'
-    * def layoutCreated = call read('classpath:feature/layout/create-layout.feature') {supplyChainId:#(supplyChainId), json:#(layout)}
-    * def buildStepLink = 'classpath:testmessages/verification/build-step-link.json'
-    * call read('classpath:feature/link/create-link-with-valid-layout-update.feature') {supplyChainId:#(supplyChainId), json:#(buildStepLink),layoutToBeUpdated:#(layoutCreated.response),stepIndex:0}
-    * def testStepLink = 'classpath:testmessages/verification/test-step-link.json'
-    * call read('classpath:feature/link/create-link-with-valid-layout-update.feature') {supplyChainId:#(supplyChainId), json:#(testStepLink),layoutToBeUpdated:#(layoutCreated.response),stepIndex:1}
-    Given path supplyChainPath + '/verification'
-    And request {"expectedProducts": [{"uri": "target/argos-test-0.0.1-SNAPSHOT.jar","hash": "49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162"}]}
-    And header Content-Type = 'application/json'
-    When method POST
-    Then status 200
-    And match response == {"runIsValid":true}
+  Scenario: happy flow all rules
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'happy-flow'}
+    And match resp.response == {"runIsValid":true}
 
+  Scenario: happy flow match-rule-happy-flow
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'match-rule-happy-flow'}
+    And match resp.response == {"runIsValid":true}
+
+  Scenario: happy flow match-rule-happy-flow-with-prefix
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'match-rule-happy-flow-with-prefix'}
+    And match resp.response == {"runIsValid":true}
+
+  Scenario: happy flow match-rule-no-destination-artifact
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'match-rule-no-destination-artifact'}
+    And match resp.response == {"runIsValid":false}
+
+  Scenario: happy flow match-rule-no-source-artifact
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'match-rule-no-source-artifact'}
+    And match resp.response == {"runIsValid":false}
