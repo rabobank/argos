@@ -19,12 +19,14 @@ import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.signing.SignatureValidator;
 import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.LAYOUT_METABLOCK_SIGNATURE;
 
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class LayoutMetaBlockSignatureVerification implements Verification {
 
@@ -43,17 +45,20 @@ public class LayoutMetaBlockSignatureVerification implements Verification {
     }
 
     private VerificationRunResult verify(LayoutMetaBlock layoutMetaBlock) {
+        boolean isValid = layoutMetaBlock
+                .getSignatures()
+                .stream()
+                .allMatch(signature -> keyPairRepository.findByKeyId(signature.getKeyId())
+                        .map(
+                                keyPair -> signatureValidator
+                                        .isValid(layoutMetaBlock.getLayout(), signature.getSignature(), keyPair
+                                                .getPublicKey()))
+                        .orElse(false));
+        if (!isValid) {
+            log.info("failed LayoutMetaBlockSignatureVerification ");
+        }
         return VerificationRunResult.builder()
-                .runIsValid(layoutMetaBlock
-                        .getSignatures()
-                        .stream()
-                        .allMatch(signature -> keyPairRepository.findByKeyId(signature.getKeyId())
-                                .map(
-                                        keyPair -> signatureValidator
-                                                .isValid(layoutMetaBlock.getLayout(), signature.getSignature(), keyPair
-                                                        .getPublicKey()))
-                                .orElse(false))
-                )
+                .runIsValid(isValid)
                 .build();
 
     }

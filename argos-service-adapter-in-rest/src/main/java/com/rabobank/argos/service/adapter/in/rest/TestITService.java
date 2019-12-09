@@ -71,6 +71,7 @@ public class TestITService {
         LayoutMetaBlock layoutMetaBlock = layoutMetaBlockMapper.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
         KeyPair keyPair = generateKeyPair();
         String keyId = storePublicKey(keyPair);
+        layoutMetaBlock.getLayout().setAuthorizedKeyIds(Collections.singletonList(keyId));
         String signature = createSignature(keyPair.getPrivate(), new JsonSigningSerializer().serialize(layoutMetaBlock.getLayout()));
         layoutMetaBlock.setSignatures(Collections.singletonList(Signature.builder().signature(signature).keyId(keyId).build()));
         return ResponseEntity.ok(layoutMetaBlockMapper.convertToRestLayoutMetaBlock(layoutMetaBlock));

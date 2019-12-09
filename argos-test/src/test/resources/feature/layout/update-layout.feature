@@ -15,15 +15,21 @@
 #
 
 @ignore
-Feature: sign link
+Feature: update a valid layout
 
   Background:
     * url karate.properties['server.baseurl']
-    * def linkToBeSigned = __arg.json
+    * def layoutPath = '/api/supplychain/'+ __arg.supplyChainId + '/layout/' + __arg.id
+    * json layoutJson = { layout:#(__arg.json.layout)}
 
-  Scenario: sign the layout should return 200
-    Given path '/integration-test/signLinkMetaBlock'
-    And request linkToBeSigned
+  Scenario: update layout with valid specifications should return a 201
+    * def signedLayout = call read('classpath:feature/layout/sign-layout.feature') layoutJson
+    Given path layoutPath
+    And request signedLayout.response
     And header Content-Type = 'application/json'
-    When method POST
+    When method PUT
     Then status 200
+    Given path layoutPath
+    When method GET
+    Then status 200
+

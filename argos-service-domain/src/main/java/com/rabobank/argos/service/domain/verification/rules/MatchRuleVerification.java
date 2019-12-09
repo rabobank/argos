@@ -89,7 +89,7 @@ public class MatchRuleVerification implements RuleVerification {
 
     private RuleVerificationResult verifyArtifacts(Stream<Artifact> filteredSourceArtifacts, Stream<Artifact> filteredDestinationArtifacts) {
         Set<Artifact> artifacts = filteredSourceArtifacts.collect(toSet());
-        if (areEqual(artifacts.stream().map(Artifact::getHash).collect(toSet()), filteredDestinationArtifacts.map(Artifact::getHash).collect(toSet()))) {
+        if (!artifacts.isEmpty() && areEqual(artifacts.stream().map(Artifact::getHash).collect(toSet()), filteredDestinationArtifacts.map(Artifact::getHash).collect(toSet()))) {
             return RuleVerificationResult.okay(artifacts);
         } else {
             return RuleVerificationResult.notOkay();

@@ -54,5 +54,5 @@ Feature: Layout
     When method PUT
     Then status 200
     * def layoutId = layoutResponse.response.id
-    * def expectedResponse = read('classpath:testmessages/layout/valid-update-layout.json')
+    * def expectedResponse = read('classpath:testmessages/layout/valid-update-layout-response.json')
     And match response contains expectedResponse
