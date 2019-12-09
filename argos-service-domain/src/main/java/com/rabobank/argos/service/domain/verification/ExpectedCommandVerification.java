@@ -58,25 +58,14 @@ public class ExpectedCommandVerification implements Verification {
     }
 
     private static Predicate<LinkMetaBlock> linkMetaBlockDoesNotHaveRequiredCommands(VerificationContext context) {
-        return linkMetaBlock -> bothAreNotNull(context, linkMetaBlock)
-                &&
-                (linkCommandsAreNullAndStepCommandsAreNot(context, linkMetaBlock)
-                        || stepCommandsAreNullAndLinkCommandsAreNot(context, linkMetaBlock)
-                        || linkCommandDoNotMatchStepCommands(context, linkMetaBlock)
-                );
-    }
-
-    private static boolean bothAreNotNull(VerificationContext context, LinkMetaBlock linkMetaBlock) {
-        return !(linkMetaBlock.getLink().getCommand() == null && getExpectedCommand(context, linkMetaBlock) == null);
+        return linkMetaBlock -> linkCommandsAreNullAndStepCommandsAreNot(context, linkMetaBlock)
+                ||
+                linkCommandDoNotMatchStepCommands(context, linkMetaBlock);
     }
 
     private static boolean linkCommandDoNotMatchStepCommands(VerificationContext context, LinkMetaBlock linkMetaBlock) {
         return !getExpectedCommand(context, linkMetaBlock)
                 .containsAll(linkMetaBlock.getLink().getCommand());
-    }
-
-    private static boolean stepCommandsAreNullAndLinkCommandsAreNot(VerificationContext context, LinkMetaBlock linkMetaBlock) {
-        return getExpectedCommand(context, linkMetaBlock) == null && linkMetaBlock.getLink().getCommand() != null;
     }
 
     private static boolean linkCommandsAreNullAndStepCommandsAreNot(VerificationContext context, LinkMetaBlock linkMetaBlock) {

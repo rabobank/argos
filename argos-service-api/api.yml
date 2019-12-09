@@ -534,12 +534,13 @@ components:
         - authorizedKeyIds
         - expectedMaterials
         - expectedProducts
+        - expectedCommand
       properties:
         name:
           type: string
         authorizedKeyIds:
           type: array
-          minItems: 1
+          minItems: 1ok
           items:
             $ref: '#/components/schemas/KeyId'
         requiredNumberOfLinks:
