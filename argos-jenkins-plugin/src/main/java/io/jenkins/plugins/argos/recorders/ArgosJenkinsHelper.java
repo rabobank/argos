@@ -62,7 +62,8 @@ public class ArgosJenkinsHelper {
 
         String argosServiceBaseUrl = ArgosServiceConfiguration.get().getArgosServiceBaseUrl()+"/api";
         checkProperty(argosServiceBaseUrl, "argosServiceBaseUrl");
-        log.info("argosServiceBaseUrl = {}",argosServiceBaseUrl);
+        log.info("argos4j version = {}", Argos4j.getVersion());
+        log.info("argosServiceBaseUrl = {}", argosServiceBaseUrl);
 
         return new Argos4j(Argos4jSettings.builder()
                 .stepName(stepName)

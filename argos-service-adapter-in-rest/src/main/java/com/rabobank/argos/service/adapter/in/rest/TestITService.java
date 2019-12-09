@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -60,8 +59,6 @@ public class TestITService {
     private final LinkMetaBlockMapper linkMetaBlockMapper;
 
     private final KeyPairRepository keyPairRepository;
-
-    @PostConstruct
 
     @PostMapping(value = "/reset-db")
     public void resetDatabase() {

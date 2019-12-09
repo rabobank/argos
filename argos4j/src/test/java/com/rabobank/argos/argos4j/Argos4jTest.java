@@ -79,6 +79,7 @@ class Argos4jTest {
                 .stepName("build")
                 .supplyChainName("supplyChainName")
                 .signingKey(SigningKey.builder().keyPair(pair).build())
+                .runId("runId")
                 .build();
         argos4j = new Argos4j(settings);
 
@@ -99,7 +100,7 @@ class Argos4jTest {
         argos4j.store();
         List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
         assertThat(requests, hasSize(2));
-        assertThat(requests.get(1).getBodyAsString(), endsWith(",\"link\":{\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}]}}"));
+        assertThat(requests.get(1).getBodyAsString(), endsWith(",\"link\":{\"runId\":\"runId\",\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}]}}"));
     }
 
     @Test
