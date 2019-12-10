@@ -64,3 +64,9 @@ Feature: Verification
     * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'disallow-rule-non-empty'}
     And match resp.response == {"runIsValid":false}
 
+  Scenario: allow-rule-no-match
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'allow-rule-no-match'}
+    And match resp.response == {"runIsValid":false}
+
+
+
