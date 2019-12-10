@@ -16,6 +16,7 @@
 package com.rabobank.argos.domain.link;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,6 +25,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@EqualsAndHashCode
 public class Link {
     private String runId;
     private String stepName;

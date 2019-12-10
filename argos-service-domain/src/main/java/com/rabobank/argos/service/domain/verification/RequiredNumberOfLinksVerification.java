@@ -15,17 +15,20 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
+import com.rabobank.argos.domain.Signature;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.REQUIRED_NUMBER_OF_LINKS;
+import static java.util.stream.Collectors.groupingBy;
 
 @Component
 @Slf4j
@@ -37,49 +40,28 @@ public class RequiredNumberOfLinksVerification implements Verification {
 
     @Override
     public VerificationRunResult verify(VerificationContext context) {
+        Map<Integer, List<LinkMetaBlock>> linkMetaBlockMap = context.getLinkMetaBlocks().stream()
+                .collect(groupingBy(f -> f.getLink().hashCode()));
 
-        Optional<Step> failedRequiredNumberOfLinks = context
-                .getLayoutMetaBlock()
-                .getLayout()
-                .getSteps()
-                .stream()
-                .filter(step -> stepDoesNotHaveRequiredNumberOfLinks(step, context))
-                .findFirst();
-
-        failedRequiredNumberOfLinks
-                .ifPresent(step -> log.info("failed verification step:{}, requiredNumberOfLinks: {} , actual links: {}",
-                        step.getStepName(),
-                        step.getRequiredNumberOfLinks(),
-                        context.getLinksByStepName(step.getStepName()).size())
-                );
-
-        return VerificationRunResult
-                .builder()
-                .runIsValid(failedRequiredNumberOfLinks.isEmpty()).build();
-    }
-
-    private static boolean stepDoesNotHaveRequiredNumberOfLinks(Step step, VerificationContext context) {
-        List<LinkMetaBlock> linkMetaBlocks = context.getLinksByStepName(step.getStepName());
-        return step.getRequiredNumberOfLinks() > context.getLinksByStepName(step.getStepName()).size()
-                ||
-                keyIdsAreNotUnique(linkMetaBlocks);
-    }
-
-    private static boolean keyIdsAreNotUnique(List<LinkMetaBlock> linkMetaBlocks) {
-        Set<String> uniqueKeyIds = linkMetaBlocks
-                .stream()
-                .map(linkMetaBlock -> linkMetaBlock
-                        .getSignature()
-                        .getKeyId())
-                .collect(Collectors.toSet());
-
-        List<String> realKeyIds = linkMetaBlocks
-                .stream()
-                .map(linkMetaBlock -> linkMetaBlock
-                        .getSignature()
-                        .getKeyId())
+        List<LinkMetaBlock> invalidLinkMetaBlock = linkMetaBlockMap.values().stream()
+                .filter(linkMetaBlocks -> isInvalid(linkMetaBlocks, context))
+                .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        return uniqueKeyIds.size() != realKeyIds.size();
+        log.info("{} invalid Link Meta Blocks", invalidLinkMetaBlock.size());
+        context.removeLinkMetaBlocks(invalidLinkMetaBlock);
+
+        return VerificationRunResult.okay();
+    }
+
+    private boolean isInvalid(List<LinkMetaBlock> linkMetaBlocks, VerificationContext context) {
+        String stepName = linkMetaBlocks.get(0).getLink().getStepName();
+        Step step = context.getStepByStepName(stepName);
+        if (linkMetaBlocks.size() >= step.getRequiredNumberOfLinks()) {
+            Set<String> linkKeyIds = linkMetaBlocks.stream().map(LinkMetaBlock::getSignature).map(Signature::getKeyId).collect(Collectors.toSet());
+            return !linkKeyIds.containsAll(step.getAuthorizedKeyIds());
+        } else {
+            return true;
+        }
     }
 }
