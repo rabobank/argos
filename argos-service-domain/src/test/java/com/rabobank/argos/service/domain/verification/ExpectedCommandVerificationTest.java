@@ -21,6 +21,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -30,7 +32,9 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +46,9 @@ class ExpectedCommandVerificationTest {
 
     @Mock
     private VerificationContext context;
+
+    @Captor
+    private ArgumentCaptor<List<LinkMetaBlock>> listArgumentCaptor;
 
     @Mock
     private Step step;
@@ -62,22 +69,25 @@ class ExpectedCommandVerificationTest {
     }
 
     @Test
-    void verifyWithInCorrectCommandsShouldReturnInValid() {
+    void verifyWithInCorrectCommandsShouldRemoveInvalidLinks() {
         mockInValid();
         VerificationRunResult verificationRunResult = expectedCommandVerification.verify(context);
-        assertThat(verificationRunResult.isRunIsValid(), is(false));
+        verify(context).removeLinkMetaBlocks(listArgumentCaptor.capture());
+        assertThat(listArgumentCaptor.getValue(), hasSize(1));
+        assertThat(verificationRunResult.isRunIsValid(), is(true));
     }
 
     @Test
-    void verifyWithNullCorrectCommandsShouldReturnInValid() {
+    void verifyWithNullCorrectCommandsShouldRemoveInvalidLinks() {
         mockInValidWithNullInLink();
         VerificationRunResult verificationRunResult = expectedCommandVerification.verify(context);
-        assertThat(verificationRunResult.isRunIsValid(), is(false));
+        verify(context).removeLinkMetaBlocks(listArgumentCaptor.capture());
+        assertThat(listArgumentCaptor.getValue(), hasSize(1));
+        assertThat(verificationRunResult.isRunIsValid(), is(true));
     }
 
     private void mockInValidWithNullInLink() {
         List<String> stepCommands = asList("command1", "command2");
-        when(step.getStepName()).thenReturn(STEP_NAME);
         when(step.getExpectedCommand()).thenReturn(stepCommands);
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
         when(linkMetaBlock.getLink().getCommand()).thenReturn(null);
@@ -101,7 +111,6 @@ class ExpectedCommandVerificationTest {
     private void mockInValid() {
         List<String> stepCommands = asList("command1", "command2");
         List<String> linkCommands = asList("command1", "command3");
-        when(step.getStepName()).thenReturn(STEP_NAME);
         when(step.getExpectedCommand()).thenReturn(stepCommands);
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
         when(linkMetaBlock.getLink().getCommand()).thenReturn(linkCommands);

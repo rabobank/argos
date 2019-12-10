@@ -20,8 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -33,27 +33,23 @@ public class ExpectedCommandVerification implements Verification {
 
     @Override
     public VerificationRunResult verify(VerificationContext context) {
-        // allemaal comparen  alle foute links verwijderen
-        // altijd isvalid == true
-        // the optional is filled with the first failed command verification or empty
-        Optional<LinkMetaBlock> failedCommandVerification = context.getLinkMetaBlocks()
+
+        List<LinkMetaBlock> failedCommandVerifications = context.getLinkMetaBlocks()
                 .stream()
                 //check each link for failed required commands
                 .filter(linkMetaBlockDoesNotHaveRequiredCommands(context))
-                //find the first linkmetablock that fails
-                .findFirst();
+                //find the first link metablock that fails
+                .collect(Collectors.toList());
 
-        failedCommandVerification
-                .ifPresent(linkMetaBlock ->
-                        log.info("failed verification step:{}, expectedcommands: {} , linkcommands: {}",
-                                context.getStepByStepName(linkMetaBlock.getLink().getStepName()).getStepName(),
-                                getExpectedCommand(context, linkMetaBlock),
-                                linkMetaBlock.getLink().getCommand())
-                );
+        if (!failedCommandVerifications.isEmpty()) {
+            log.info("the following links have incorrect commands and will be removed from context: {}",
+                    failedCommandVerifications);
+            context.removeLinkMetaBlocks(failedCommandVerifications);
+        }
 
         return VerificationRunResult
                 .builder()
-                .runIsValid(failedCommandVerification.isEmpty())
+                .runIsValid(true)
                 .build();
     }
 
