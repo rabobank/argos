@@ -15,11 +15,16 @@
  */
 package com.rabobank.argos.argos4j;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.io.IOException;
 import java.util.Properties;
 
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VersionInfo {
+
     public static String getInfo() {
         try {
             Properties properties = new Properties();
