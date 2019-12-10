@@ -1,0 +1,106 @@
+{
+  "layout": {
+    "authorizedKeyIds": [
+      "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09",
+      "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
+    ],
+    "expectedEndProducts": [
+      {
+        "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
+        "destinationType": "PRODUCTS",
+        "destinationStepName": "build"
+      }
+    ],
+    "steps": [
+      {
+        "name": "build",
+        "authorizedKeyIds": [
+          "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
+        ],
+        "requiredNumberOfLinks": 1,
+        "expectedCommand": [
+          "expectedCommand 1",
+          "expectedCommand 2"
+        ],
+        "expectedMaterials": [
+          {
+            "ruleType": "REQUIRE",
+            "pattern": "**Argos4jIT.java"
+          },
+          {
+            "ruleType": "ALLOW",
+            "pattern": "**"
+          }
+        ],
+        "expectedProducts": [
+          {
+            "ruleType": "MODIFY",
+            "pattern": "target/maven-archiver/pom.properties"
+          },
+          {
+            "ruleType": "CREATE",
+            "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar"
+          },
+          {
+            "ruleType": "ALLOW",
+            "pattern": "**"
+          },
+          {
+            "ruleType": "DELETE",
+            "pattern": "**/*.java"
+          }
+        ]
+      },
+      {
+        "name": "test",
+        "authorizedKeyIds": [
+          "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09"
+        ],
+        "requiredNumberOfLinks": 1,
+        "expectedCommand": [
+          "stepName2 expectedCommand"
+        ],
+        "expectedMaterials": [
+          {
+            "ruleType": "MATCH",
+            "pattern": "pom.xml",
+            "sourcePathPrefix": "sourcePathPrefix",
+            "destinationPathPrefix": "destinationPathPrefix",
+            "destinationType": "MATERIALS",
+            "destinationStepName": "build"
+          },
+          {
+            "ruleType": "DISALLOW",
+            "pattern": "**/invalid-link.json"
+          },
+          {
+            "ruleType": "ALLOW",
+            "pattern": "**"
+          }
+        ],
+        "expectedProducts": [
+          {
+            "ruleType": "MATCH",
+            "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
+            "sourcePathPrefix": "",
+            "destinationPathPrefix": "target/",
+            "destinationType": "PRODUCTS",
+            "destinationStepName": "build"
+          },
+          {
+            "ruleType": "REQUIRE",
+            "pattern": "**Argos4jIT.java"
+          },
+          {
+            "ruleType": "ALLOW",
+            "pattern": "**"
+          },
+          {
+            "ruleType": "DISALLOW",
+            "pattern": "**"
+          }
+        ]
+      }
+    ]
+  }
+}
