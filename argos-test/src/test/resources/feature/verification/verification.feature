@@ -16,7 +16,6 @@
 
 Feature: Verification
 
-
   Scenario: happy flow all rules
     * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'happy-flow'}
     And match resp.response == {"runIsValid":true}
@@ -36,3 +35,38 @@ Feature: Verification
   Scenario: happy flow match-rule-no-source-artifact
     * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'match-rule-no-source-artifact'}
     And match resp.response == {"runIsValid":false}
+
+  Scenario: build-steps-incomplete-run
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'build-steps-incomplete-run'}
+    And match resp.response == {"runIsValid":false}
+
+  Scenario: commands-incorrect
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'commands-incorrect'}
+    And match resp.response == {"runIsValid":false}
+
+  Scenario: delete-rule-no-deletion
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'delete-rule-no-deletion'}
+    And match resp.response == {"runIsValid":false}
+
+  Scenario: create-rule-no-creation
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'create-rule-no-creation'}
+    And match resp.response == {"runIsValid":false}
+
+  Scenario: modify-rule-not-modified
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'modify-rule-not-modified'}
+    And match resp.response == {"runIsValid":false}
+
+  Scenario: require-rule-no-required-product-material
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'require-rule-no-required-product-material'}
+    And match resp.response == {"runIsValid":false}
+
+  Scenario: disallow-rule-non-empty
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'disallow-rule-non-empty'}
+    And match resp.response == {"runIsValid":false}
+
+  Scenario: allow-rule-no-match
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { testDir: 'allow-rule-no-match'}
+    And match resp.response == {"runIsValid":false}
+
+
+

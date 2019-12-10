@@ -46,7 +46,7 @@ public class CreateRuleVerification implements RuleVerification {
 
     @Override
     public RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context) {
-        log.warn("AllowRule in expectedMaterials not allowed");
+        log.warn("CreateRule in expectedMaterials not allowed");
         return RuleVerificationResult.notOkay();
     }
 }

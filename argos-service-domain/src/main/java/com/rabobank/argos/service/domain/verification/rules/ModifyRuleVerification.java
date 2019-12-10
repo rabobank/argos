@@ -54,6 +54,7 @@ public class ModifyRuleVerification implements RuleVerification {
                 .map(artifacts -> RuleVerificationResult.notOkay())
                 .findFirst()
                 .orElseGet(() -> RuleVerificationResult.okay(filteredProducts));
+
     }
 
     private Predicate<List<Artifact>> filterNotValidArtifacts() {
