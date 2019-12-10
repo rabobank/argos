@@ -60,7 +60,6 @@ public class TestITService {
 
     private final KeyPairRepository keyPairRepository;
 
-
     @PostMapping(value = "/reset-db")
     public void resetDatabase() {
         log.info("resetDatabase");

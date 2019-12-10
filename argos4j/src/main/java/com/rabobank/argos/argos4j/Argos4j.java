@@ -53,4 +53,7 @@ public class Argos4j implements Serializable {
         new ArgosServiceClient(settings).uploadLinkMetaBlockToService(LinkMetaBlock.builder().link(link).signature(signature).build());
     }
 
+    public static String getVersion() {
+        return VersionInfo.getInfo();
+    }
 }

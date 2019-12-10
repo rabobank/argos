@@ -35,7 +35,7 @@
 		<sonar.exclusions>file:**/generated-sources/**</sonar.exclusions>
 		<junit-jupiter.version>5.5.2</junit-jupiter.version>
 		<swagger-annotations.version>1.5.23</swagger-annotations.version>
-		<swagger-ui.version>3.23.8</swagger-ui.version>
+		<swagger-ui.version>3.24.3</swagger-ui.version>
 	</properties>
 
 	<licenses>
@@ -203,12 +203,33 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>4.0.0</version>
+				<executions>
+					<execution>
+						<id>get-the-git-infos</id>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+						<phase>initialize</phase>
+					</execution>
+				</executions>
+				<configuration>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<includeOnlyProperties>
+						<includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+					</includeOnlyProperties>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${spring-boot.version}</version>
 				<executions>
 					<execution>
 						<goals>
+							<goal>build-info</goal>
 							<goal>repackage</goal>
 						</goals>
 					</execution>
