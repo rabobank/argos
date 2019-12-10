@@ -21,14 +21,13 @@ import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.REQUIRED_NUMBER_OF_LINKS;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toSet;
 
 @Component
 @Slf4j
@@ -40,28 +39,28 @@ public class RequiredNumberOfLinksVerification implements Verification {
 
     @Override
     public VerificationRunResult verify(VerificationContext context) {
-        Map<Integer, List<LinkMetaBlock>> linkMetaBlockMap = context.getLinkMetaBlocks().stream()
-                .collect(groupingBy(f -> f.getLink().hashCode()));
-
-        List<LinkMetaBlock> invalidLinkMetaBlock = linkMetaBlockMap.values().stream()
-                .filter(linkMetaBlocks -> isInvalid(linkMetaBlocks, context))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        log.info("{} invalid Link Meta Blocks", invalidLinkMetaBlock.size());
-        context.removeLinkMetaBlocks(invalidLinkMetaBlock);
-
-        return VerificationRunResult.okay();
+        return context.getExpectedStepNames().stream().map(stepName -> isValid(stepName, context))
+                .filter(valid -> !valid).findFirst()
+                .map(VerificationRunResult::valid).orElse(VerificationRunResult.okay());
     }
 
-    private boolean isInvalid(List<LinkMetaBlock> linkMetaBlocks, VerificationContext context) {
-        String stepName = linkMetaBlocks.get(0).getLink().getStepName();
-        Step step = context.getStepByStepName(stepName);
-        if (linkMetaBlocks.size() >= step.getRequiredNumberOfLinks()) {
-            Set<String> linkKeyIds = linkMetaBlocks.stream().map(LinkMetaBlock::getSignature).map(Signature::getKeyId).collect(Collectors.toSet());
-            return !linkKeyIds.containsAll(step.getAuthorizedKeyIds());
+    private boolean isValid(String stepName, VerificationContext context) {
+        Map<Integer, List<LinkMetaBlock>> linkMetaBlockMap = context.getLinksByStepName(stepName).stream()
+                .collect(groupingBy(f -> f.getLink().hashCode()));
+        if (linkMetaBlockMap.size() == 1) {
+            return isValid(linkMetaBlockMap.values().iterator().next(), context.getStepByStepName(stepName));
         } else {
-            return true;
+            log.info("more then one or no links with the same hash for step {}", stepName);
+            return false;
+        }
+    }
+
+    private boolean isValid(List<LinkMetaBlock> linkMetaBlocks, Step step) {
+        if (linkMetaBlocks.size() >= step.getRequiredNumberOfLinks()) {
+            Set<String> linkKeyIds = linkMetaBlocks.stream().map(LinkMetaBlock::getSignature).map(Signature::getKeyId).collect(toSet());
+            return linkKeyIds.containsAll(step.getAuthorizedKeyIds());
+        } else {
+            return false;
         }
     }
 }
