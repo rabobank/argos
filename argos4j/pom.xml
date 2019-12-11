@@ -443,10 +443,10 @@
 					<artifactId>${artifactId}</artifactId>
 					<version>${version}</version>
 					<packaging>jar</packaging>
-					<pomFile>{build.directory}/pom.xml</pomFile>
-					<files>{build.directory}/${build.finalName}.jar,
-						{build.directory}/${build.finalName}-sources.jar,
-						{build.directory}/${build.finalName}-javadoc.jar,
+					<pomFile>${build.directory}/pom.xml</pomFile>
+					<files>${build.directory}/${build.finalName}.jar,
+						${build.directory}/${build.finalName}-sources.jar,
+						${build.directory}/${build.finalName}-javadoc.jar,
 						${build.directory}/pom.xml
 					</files>
 					<types>
