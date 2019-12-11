@@ -15,7 +15,6 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-import com.rabobank.argos.domain.Signature;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +22,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.REQUIRED_NUMBER_OF_LINKS;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toSet;
 
 @Component
 @Slf4j
@@ -56,11 +53,6 @@ public class RequiredNumberOfLinksVerification implements Verification {
     }
 
     private boolean isValid(List<LinkMetaBlock> linkMetaBlocks, Step step) {
-        if (linkMetaBlocks.size() >= step.getRequiredNumberOfLinks()) {
-            Set<String> linkKeyIds = linkMetaBlocks.stream().map(LinkMetaBlock::getSignature).map(Signature::getKeyId).collect(toSet());
-            return linkKeyIds.containsAll(step.getAuthorizedKeyIds());
-        } else {
-            return false;
-        }
+        return linkMetaBlocks.size() >= step.getRequiredNumberOfLinks();
     }
 }
