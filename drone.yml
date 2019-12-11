@@ -44,11 +44,11 @@ steps:
         - argos4j/dependency-reduced-pom.xml
         - argos-service/target/*.jar
         - argos-service/pom.xml
-    when:
-      event:
-        - push
-    depends_on:
-      - build
+  #    when:
+  #      branch:
+  #        - master
+  #      event:
+  #        - tag
 
   - name: deploy to sonatype
     image: rabobanknl/argos-build:latest
