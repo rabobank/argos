@@ -3,6 +3,10 @@ kind: pipeline
 name: argosbuild
 type: docker
 
+services:
+  - name: nexus
+    image: sonatype/nexus:2.14.15-01
+
 steps:
   - name: build
     image: rabobanknl/argos-build:latest
@@ -100,6 +104,7 @@ steps:
     image: rabobanknl/argos-jenkins:${DRONE_COMMIT:0:8}
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+      snapshotsUrl: http://nexus:8081/nexus/content/repositories/snapshots/
     volumes:
       - name: mvn_cache
         path: /root/.m2/repository
@@ -118,6 +123,7 @@ steps:
     depends_on: 
       - argos-jenkins
       - argos-service
+      - nexus
       
   - name: build beta argos service image
     image: plugins/docker

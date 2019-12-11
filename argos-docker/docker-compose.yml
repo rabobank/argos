@@ -40,12 +40,15 @@ services:
       dockerfile: JenkinsDockerfile
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - snapshotsUrl=http://nexus:8081/nexus/content/repositories/snapshots/
     ports:
       - 9080:8080
     depends_on:
       - argos-service
- #     - sonarqube
-      
- # sonarqube:
- #   image: sonarqube
+      - nexus
+
+  nexus:
+    image: sonatype/nexus:2.14.15-01
+    ports:
+      - 8081:8081
 
