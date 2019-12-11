@@ -26,6 +26,7 @@ public class Properties {
     private static Properties INSTANCE;
     private final String jenkinsBaseUrl;
     private final String integrationTestServiceBaseUrl;
+    private final String nexusSnapshotUrl;
 
     public static Properties getInstance() {
         if (INSTANCE == null) {
@@ -39,6 +40,7 @@ public class Properties {
         apiBaseUrl = conf.getString("argos-service.rest-api.base-url");
         jenkinsBaseUrl = conf.getString("jenkins.base-url");
         integrationTestServiceBaseUrl = conf.getString("argos-integration-test-service.rest-api.base-url");
+        nexusSnapshotUrl = conf.getString("nexus.snapshot-url");
 
     }
 }

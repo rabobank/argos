@@ -68,7 +68,7 @@ steps:
   - name: build argos service image
     image: plugins/docker
     settings:
-      repo: rabobanknl/argos-service
+      repo: rabobanknl/argos-service-snapshot
       tags: ${DRONE_COMMIT:0:8}
       context: argos-docker
       dockerfile: argos-docker/ServiceDockerfile
@@ -98,7 +98,7 @@ steps:
   - name: build argos jenkins image
     image: plugins/docker
     settings:
-      repo: rabobanknl/argos-jenkins
+      repo: rabobanknl/argos-jenkins-snapshot
       tags: ${DRONE_COMMIT:0:8}
       context: argos-docker
       dockerfile: argos-docker/JenkinsDockerfile
@@ -118,7 +118,7 @@ steps:
       - sonar
 
   - name: argos-service
-    image: rabobanknl/argos-service:${DRONE_COMMIT:0:8}
+    image: rabobanknl/argos-service-snapshot:${DRONE_COMMIT:0:8}
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
     detach: true
@@ -136,7 +136,7 @@ steps:
       - build argos integration test service image
 
   - name: argos-jenkins
-    image: rabobanknl/argos-jenkins:${DRONE_COMMIT:0:8}
+    image: rabobanknl/argos-jenkins-snapshot:${DRONE_COMMIT:0:8}
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
       snapshotsUrl: http://nexus:8081/nexus/content/repositories/snapshots/

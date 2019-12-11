@@ -15,6 +15,8 @@
  */
 package com.rabobank.argos.test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.common.base.Optional;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
@@ -27,7 +29,10 @@ import com.offbytwo.jenkins.model.QueueReference;
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
+import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
+import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChainItem;
 import com.rabobank.argos.domain.key.KeyIdProviderImpl;
+
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.openssl.PEMKeyPair;
@@ -36,6 +41,7 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,6 +53,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.Map;
@@ -54,7 +62,11 @@ import java.util.stream.Stream;
 
 import static com.rabobank.argos.test.TestHelper.clearDatabase;
 import static com.rabobank.argos.test.TestHelper.getKeyApiApi;
+import static com.rabobank.argos.test.TestHelper.getLayoutApi;
 import static com.rabobank.argos.test.TestHelper.getSupplychainApi;
+import static com.rabobank.argos.test.TestHelper.signLayout;
+import static com.rabobank.argos.test.TestHelper.getSnapshotHash;
+import static com.rabobank.argos.test.TestHelper.isValidEndProduct;
 import static com.rabobank.argos.test.TestHelper.waitForArgosServiceToStart;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -68,6 +80,7 @@ public class JenkinsTestIT {
     private static Properties properties = Properties.getInstance();
     private static final String SERVER_BASEURL = "server.baseurl";
     private JenkinsServer jenkins;
+    private String supplyChainId;
 
     @BeforeAll
     static void startup() {
@@ -78,11 +91,13 @@ public class JenkinsTestIT {
     }
 
     @BeforeEach
-    void setUp() throws URISyntaxException {
+    void setUp() throws URISyntaxException, JsonMappingException, JsonProcessingException {
         clearDatabase();
-        getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
+        RestSupplyChainItem restSupplyChainItem = getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
+        this.supplyChainId = restSupplyChainItem.getId();
         PublicKey publicKey = getPemKeyPair(getClass().getResourceAsStream("/bob")).getPublic();
         getKeyApiApi().storeKey(new RestKeyPair().publicKey(publicKey.getEncoded()).keyId(new KeyIdProviderImpl().computeKeyId(publicKey)));
+        this.createLayout(this.supplyChainId);
         jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
     }
 
@@ -102,6 +117,17 @@ public class JenkinsTestIT {
             }
         });
         log.info("jenkins started");
+    }
+    
+    private void createLayout(String supplyChainId) throws JsonMappingException, JsonProcessingException {
+        String metaBlockJson = "";
+        try {
+            metaBlockJson = new String(Files.readAllBytes(Paths.get("src/test/resources/to-verify-layout.json")));
+        } catch (IOException e) {
+            throw new Argos4jError(e.toString(), e);
+        }
+        RestLayoutMetaBlock restLayoutMetaBlock = signLayout(metaBlockJson);
+        getLayoutApi().createLayout(supplyChainId, restLayoutMetaBlock);
     }
 
     @Test
@@ -123,7 +149,9 @@ public class JenkinsTestIT {
         Map<String, Job> jobs = folderJob.getJobs();
         int buildNumber = runBuild(jobs.get("master"));
 
-        verifyJobResult(jenkins.getJob(folderJob, "master"), buildNumber);
+        verifyJobResult(jenkins.getJob(folderJob, "master"), buildNumber);        
+
+        verifyEndProducts();
     }
 
 
@@ -149,6 +177,12 @@ public class JenkinsTestIT {
             Stream.of(build.details().getConsoleOutputText().split("\\r?\\n")).forEach(log::error);
         }
         assertThat(build.details().getResult(), is(BuildResult.SUCCESS));
+    }
+    
+    public void verifyEndProducts() {
+        String hash = getSnapshotHash();
+        String endProductJson = String.format("{\"expectedProducts\": [{\"uri\": \"argos-test-app.war\",\"hash\": \"%s\"}]}", hash);
+        assertTrue(isValidEndProduct(endProductJson, this.supplyChainId));
     }
 
     private JobWithDetails getJob(String name) throws IOException {
