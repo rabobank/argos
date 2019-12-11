@@ -41,7 +41,9 @@ steps:
         from_secret: argos-signing-private-key-passphrase
       files:
         - argos4j/target/*.jar
+        - argos4j/dependency-reduced-pom.xml
         - argos-service/target/*.jar
+        - argos-service/pom.xml
     when:
       event:
         - push
@@ -56,6 +58,8 @@ steps:
     commands:
       - ls -l argos4j/target/
       - mvn -q -f argos4j/pom.xml deploy:deploy
+    depends_on:
+      - sign artifacts
     #    when:
     #      branch:
     #        - master

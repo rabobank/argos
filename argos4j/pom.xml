@@ -443,6 +443,7 @@
 					<artifactId>${artifactId}</artifactId>
 					<version>${version}</version>
 					<packaging>jar</packaging>
+					<pomFile>dependency-reduced-pom.xml</pomFile>
 					<sources>${build.directory}/${build.finalName}-sources.jar</sources>
 					<javadoc>${build.directory}/${build.finalName}-javadoc.jar</javadoc>
 				</configuration>
@@ -451,26 +452,4 @@
 		</plugins>
 	</build>
 
-	<profiles>
-		<profile>
-			<id>sonatype</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>
