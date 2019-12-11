@@ -15,10 +15,10 @@ steps:
         path: /root/.m2/repository
     commands:
       - mvn -q versions:set -DnewVersion=0.0.1
-      - mvn -q -f argos4j/pom.xml -DnewVersion=0.0.1
-      - mvn -q -f argos-jenkins-plugin/pom.xml -DnewVersion=0.0.1
-      - mvn -q -f argos-service/pom.xml -DnewVersion=0.0.1
-      - mvn -q -f argos-test/pom.xml -DnewVersion=0.0.1
+      - mvn -q -f argos4j/pom.xml versions:set -DnewVersion=0.0.1
+      - mvn -q -f argos-jenkins-plugin/pom.xml versions:set -DnewVersion=0.0.1
+      - mvn -q -f argos-service/pom.xml versions:set -DnewVersion=0.0.1
+      - mvn -q -f argos-test/pom.xml versions:set -DnewVersion=0.0.1
   #    when:
   #      branch:
   #        - master
