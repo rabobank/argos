@@ -55,6 +55,11 @@ steps:
     volumes:
       - name: mvn_cache
         path: /root/.m2/repository
+    environment:
+      ossrh_username:
+        from_secret: ossrh_login_user
+      ossrh_password:
+        from_secret: ossrh_login_password
     commands:
       - cp argos4j/dependency-reduced-pom.xml argos4j/target/pom.xml
       - cp argos4j/dependency-reduced-pom.xml.asc argos4j/target/pom.xml.asc
