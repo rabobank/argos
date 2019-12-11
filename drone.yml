@@ -57,7 +57,7 @@ steps:
         path: /root/.m2/repository
     commands:
       - ls -l argos4j/target/
-      - mvn -q -f argos4j/pom.xml deploy:deploy
+      - mvn -q -f argos4j/pom.xml deploy:deploy-file
     #    when:
     #      branch:
     #        - master

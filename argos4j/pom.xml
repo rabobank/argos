@@ -443,7 +443,12 @@
 					<artifactId>${artifactId}</artifactId>
 					<version>${version}</version>
 					<packaging>jar</packaging>
-					<pomFile>dependency-reduced-pom.xml</pomFile>
+					<pomFile>${project.basedir}/dependency-reduced-pom.xml</pomFile>
+					<files>{build.directory}/${build.finalName}.jar.asc,
+						{build.directory}/${build.finalName}-sources.jar.asc,
+						{build.directory}/${build.finalName}-javadoc.jar.asc,
+						${project.basedir}/dependency-reduced-pom.xml.asc
+					</files>
 					<sources>${build.directory}/${build.finalName}-sources.jar</sources>
 					<javadoc>${build.directory}/${build.finalName}-javadoc.jar</javadoc>
 				</configuration>
