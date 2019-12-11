@@ -444,18 +444,12 @@
 					<version>${version}</version>
 					<packaging>jar</packaging>
 					<pomFile>${build.directory}/pom.xml</pomFile>
-					<files>${build.directory}/${build.finalName}.jar,
-						${build.directory}/${build.finalName}-sources.jar,
-						${build.directory}/${build.finalName}-javadoc.jar,
-						${build.directory}/pom.xml
-					</files>
-					<types>
-						asc,asc,asc,asc
-					</types>
+					<files>${build.directory}/${build.finalName}.jar.asc,${build.directory}/${build.finalName}-sources.jar.asc,${build.directory}/${build.finalName}-javadoc.jar.asc,${build.directory}/pom.xml.asc</files>
+					<types>jar.asc,jar.asc,jar.asc,xml.asc</types>
+					<classifiers>,sources,javadoc,</classifiers>
 					<sources>${build.directory}/${build.finalName}-sources.jar</sources>
 					<javadoc>${build.directory}/${build.finalName}-javadoc.jar</javadoc>
 				</configuration>
-
 			</plugin>
 		</plugins>
 	</build>
