@@ -58,8 +58,6 @@ steps:
     commands:
       - ls -l argos4j/target/
       - mvn -q -f argos4j/pom.xml deploy:deploy
-    depends_on:
-      - sign artifacts
     #    when:
     #      branch:
     #        - master
