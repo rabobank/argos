@@ -43,7 +43,7 @@ steps:
         - argos4j/target/*.jar
         - argos4j/dependency-reduced-pom.xml
         - argos-service/target/*.jar
-        - argos-service/pom.xml
+        - argos-service/target/pom.xml
   #    when:
   #      branch:
   #        - master
@@ -63,8 +63,9 @@ steps:
     commands:
       - cp argos4j/dependency-reduced-pom.xml argos4j/target/pom.xml
       - cp argos4j/dependency-reduced-pom.xml.asc argos4j/target/pom.xml.asc
-      - ls -l argos4j/target/
       - mvn -q -f argos4j/pom.xml deploy:deploy-file
+      - mvn -q -f argos-service/pom.xml deploy:deploy-file
+      - mvn scm:checkin -Dmessage='new version'
     #    when:
     #      branch:
     #        - master
