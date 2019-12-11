@@ -16,43 +16,49 @@
 package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.Step;
+import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static java.util.Arrays.asList;
+import java.util.List;
+
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RequiredNumberOfLinksVerificationTest {
 
     private static final String STEP_NAME = "stepName";
-    private static final String KEY_1 = "key1";
-    private static final String KEY_2 = "key2";
     private RequiredNumberOfLinksVerification requiredNumberOfLinksVerification;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private VerificationContext context;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private Step step;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+
     private LinkMetaBlock linkMetaBlock;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+
     private LinkMetaBlock linkMetaBlock2;
 
     @BeforeEach
     void setup() {
         requiredNumberOfLinksVerification = new RequiredNumberOfLinksVerification();
+        linkMetaBlock = createLinkMetaBlock(STEP_NAME);
+        linkMetaBlock2 = createLinkMetaBlock(STEP_NAME);
+    }
 
+    private LinkMetaBlock createLinkMetaBlock(String stepName) {
+        return LinkMetaBlock.builder().link(Link.builder().stepName(stepName).build()).build();
     }
 
     @Test
@@ -62,46 +68,45 @@ class RequiredNumberOfLinksVerificationTest {
 
     @Test
     void verifyWithRequiredNumberOfLinksShouldReturnValid() {
-        when(linkMetaBlock.getSignature().getKeyId()).thenReturn(KEY_1);
-        when(context.getLayoutMetaBlock().getLayout().getSteps()).thenReturn(singletonList(step));
-        when(step.getStepName()).thenReturn(STEP_NAME);
+        when(context.getExpectedStepNames()).thenReturn(singletonList(STEP_NAME));
+        when(context.getStepByStepName(STEP_NAME)).thenReturn(step);
         when(step.getRequiredNumberOfLinks()).thenReturn(1);
-        when(context.getLinksByStepName(eq(STEP_NAME))).thenReturn(singletonList(linkMetaBlock));
+        when(context.getLinksByStepName(STEP_NAME)).thenReturn(singletonList(linkMetaBlock));
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(true));
+        verify(context, times(0)).removeLinkMetaBlocks(anyList());
     }
 
     @Test
     void verifyWithNoRequiredNumberOfLinksShouldReturnInValid() {
-        when(context.getLayoutMetaBlock().getLayout().getSteps()).thenReturn(singletonList(step));
-        when(step.getStepName()).thenReturn(STEP_NAME);
+        when(context.getExpectedStepNames()).thenReturn(singletonList(STEP_NAME));
+        when(context.getStepByStepName(STEP_NAME)).thenReturn(step);
+        when(context.getLinksByStepName(STEP_NAME)).thenReturn(singletonList(linkMetaBlock));
         when(step.getRequiredNumberOfLinks()).thenReturn(2);
-        when(context.getLinksByStepName(eq(STEP_NAME))).thenReturn(singletonList(linkMetaBlock));
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
+        verify(context, times(0)).removeLinkMetaBlocks(anyList());
     }
 
     @Test
-    void verifyWithRequiredNumberOfLinksAndUniqueKeysShouldReturnValid() {
-        when(linkMetaBlock.getSignature().getKeyId()).thenReturn(KEY_1);
-        when(linkMetaBlock2.getSignature().getKeyId()).thenReturn(KEY_2);
-        when(context.getLayoutMetaBlock().getLayout().getSteps()).thenReturn(singletonList(step));
-        when(step.getStepName()).thenReturn(STEP_NAME);
+    void verifyWithRequiredNumberOfLinks2ShouldReturnValid() {
+        when(context.getExpectedStepNames()).thenReturn(singletonList(STEP_NAME));
+        when(context.getStepByStepName(STEP_NAME)).thenReturn(step);
         when(step.getRequiredNumberOfLinks()).thenReturn(2);
-        when(context.getLinksByStepName(eq(STEP_NAME))).thenReturn(asList(linkMetaBlock, linkMetaBlock2));
+        when(context.getLinksByStepName(STEP_NAME)).thenReturn(List.of(linkMetaBlock, linkMetaBlock2));
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(true));
+        verify(context, times(0)).removeLinkMetaBlocks(anyList());
     }
 
+
     @Test
-    void verifyWithRequiredNumberOfLinksAndNonUniqueKeysShouldReturnInValid() {
-        when(linkMetaBlock.getSignature().getKeyId()).thenReturn(KEY_1);
-        when(linkMetaBlock2.getSignature().getKeyId()).thenReturn(KEY_1);
-        when(context.getLayoutMetaBlock().getLayout().getSteps()).thenReturn(singletonList(step));
-        when(step.getStepName()).thenReturn(STEP_NAME);
-        when(step.getRequiredNumberOfLinks()).thenReturn(2);
-        when(context.getLinksByStepName(eq(STEP_NAME))).thenReturn(asList(linkMetaBlock, linkMetaBlock2));
+    void verifyTwoLinkHashesForOneStepIsInvalid() {
+        when(context.getExpectedStepNames()).thenReturn(singletonList(STEP_NAME));
+        linkMetaBlock.getLink().setCommand(List.of("cmd"));
+        when(context.getLinksByStepName(STEP_NAME)).thenReturn(List.of(linkMetaBlock, linkMetaBlock2));
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
+        verify(context, times(0)).removeLinkMetaBlocks(anyList());
     }
 }
