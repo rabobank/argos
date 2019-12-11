@@ -30,7 +30,7 @@ steps:
       - name: mvn_cache
         path: /root/.m2/repository
     commands:
-      - mvn -q install -Psonatype -Dgpg.passphrase=${argos-signing-private-key-passphrase}
+      - mvn -q install -Psonatype -Dgpg.passphrase=$argos-signing-private-key-passphrase
 
   - name: deploy to sonatype
     image: rabobanknl/argos-build:latest
