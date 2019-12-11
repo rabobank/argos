@@ -221,7 +221,7 @@
 	</distributionManagement>
 
 	<build>
-
+		<finalName>argos4j</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -423,15 +423,54 @@
 					<mapping>
 						<java>SLASHSTAR_STYLE</java>
 					</mapping>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>3.0.0-M1</version>
+				<configuration>
+					<repositoryId>ossrh</repositoryId>
+					<file>${build.directory}/${build.finalName}.jar</file>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+					<groupId>${groupId}</groupId>
+					<artifactId>${artifactId}</artifactId>
+					<version>${version}</version>
+					<packaging>jar</packaging>
+					<sources>${build.directory}/${build.finalName}-sources.jar</sources>
+					<javadoc>${build.directory}/${build.finalName}-javadoc.jar</javadoc>
+				</configuration>
+
+			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>sonatype</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
