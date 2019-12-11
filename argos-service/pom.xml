@@ -370,7 +370,7 @@
 					<version>${project.version}</version>
 					<packaging>jar</packaging>
 					<pomFile>${project.build.directory}/pom.xml</pomFile>
-					<files>${project.build.directory}/${project.build.finalName}.jar.asc,${project.build.directory}/${project.build.finalName}-sources.jar.asc,${project.build.directory}/${project.build.finalName}-javadoc.jar.asc,$${project.build.directory}/pom.xml.asc</files>
+					<files>${project.build.directory}/${project.build.finalName}.jar.asc,${project.build.directory}/${project.build.finalName}-sources.jar.asc,${project.build.directory}/${project.build.finalName}-javadoc.jar.asc,${project.build.directory}/pom.xml.asc</files>
 					<types>jar.asc,jar.asc,jar.asc,xml.asc</types>
 					<classifiers>,sources,javadoc,</classifiers>
 					<sources>${project.build.directory}/${project.build.finalName}-sources.jar</sources>
