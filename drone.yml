@@ -8,7 +8,7 @@ services:
     image: sonatype/nexus:2.14.15-01
 
 steps:
-  - name: set-version
+  - name: set version
     image: rabobanknl/argos-build:latest
     volumes:
       - name: mvn_cache
@@ -31,6 +31,20 @@ steps:
         path: /root/.m2/repository
     commands:
       - mvn -q install
+
+  - name: deploy to sonatype
+    image: rabobanknl/argos-build:latest
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
+    commands:
+      - mvn -q -f argos4j/pom.xml deploy:deploy
+      - mvn -q -f argos-service/pom.xml deploy:deploy
+#    when:
+#      branch:
+#        - master
+#      event:
+#        - tag
       
 #  - name: sign artifacts
 #    image: plugins/gpgsign
