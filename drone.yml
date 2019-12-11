@@ -62,12 +62,14 @@ steps:
         from_secret: ossrh_login_password
       github_token:
         from_secret: github_token
+      github_user:
+        from_secret: github_user
     commands:
       - cp argos4j/dependency-reduced-pom.xml argos4j/target/pom.xml
       - cp argos4j/dependency-reduced-pom.xml.asc argos4j/target/pom.xml.asc
       - mvn -q -f argos4j/pom.xml deploy:deploy-file
       - mvn -q -f argos-service/pom.xml deploy:deploy-file
-      - mvn scm:checkin -Dmessage='new version' -Dpassphrase=$github_token
+      - mvn scm:checkin -Dmessage='new version' -Dpassword=$github_token -Dusername=$github_user
     #    when:
     #      branch:
     #        - master
