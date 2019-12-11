@@ -57,7 +57,7 @@ steps:
         path: /root/.m2/repository
     commands:
       - cp argos4j/dependency-reduced-pom.xml argos4j/target/pom.xml
-      - cp argos4j/dependency-reduced-pom.xml.acs argos4j/target/pom.xml.asc
+      - cp argos4j/dependency-reduced-pom.xml.asc argos4j/target/pom.xml.asc
       - ls -l argos4j/target/
       - mvn -q -f argos4j/pom.xml deploy:deploy-file
     #    when:
