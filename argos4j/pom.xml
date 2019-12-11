@@ -439,9 +439,9 @@
 					<repositoryId>ossrh</repositoryId>
 					<file>${project.build.directory}/${project.build.finalName}.jar</file>
 					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-					<groupId>${groupId}</groupId>
-					<artifactId>${artifactId}</artifactId>
-					<version>${version}</version>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>${project.artifactId}</artifactId>
+					<version>${project.version}</version>
 					<packaging>jar</packaging>
 					<pomFile>${project.build.directory}/pom.xml</pomFile>
 					<files>${project.build.directory}/${project.build.finalName}.jar.asc,${project.build.directory}/${project.build.finalName}-sources.jar.asc,${project.build.directory}/${project.build.finalName}-javadoc.jar.asc,$${project.build.directory}/pom.xml.asc</files>

@@ -363,18 +363,18 @@
 				<version>3.0.0-M1</version>
 				<configuration>
 					<repositoryId>ossrh</repositoryId>
-					<file>${build.directory}/${build.finalName}.jar</file>
+					<file>${project.build.directory}/${project.build.finalName}.jar</file>
 					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-					<groupId>${groupId}</groupId>
-					<artifactId>${artifactId}</artifactId>
-					<version>${version}</version>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>${project.artifactId}</artifactId>
+					<version>${project.version}</version>
 					<packaging>jar</packaging>
-					<pomFile>${build.directory}/pom.xml</pomFile>
-					<files>${build.directory}/${build.finalName}.jar.asc,${build.directory}/${build.finalName}-sources.jar.asc,${build.directory}/${build.finalName}-javadoc.jar.asc,${build.directory}/pom.xml.asc</files>
+					<pomFile>${project.build.directory}/pom.xml</pomFile>
+					<files>${project.build.directory}/${project.build.finalName}.jar.asc,${project.build.directory}/${project.build.finalName}-sources.jar.asc,${project.build.directory}/${project.build.finalName}-javadoc.jar.asc,$${project.build.directory}/pom.xml.asc</files>
 					<types>jar.asc,jar.asc,jar.asc,xml.asc</types>
 					<classifiers>,sources,javadoc,</classifiers>
-					<sources>${build.directory}/${build.finalName}-sources.jar</sources>
-					<javadoc>${build.directory}/${build.finalName}-javadoc.jar</javadoc>
+					<sources>${project.build.directory}/${project.build.finalName}-sources.jar</sources>
+					<javadoc>${project.build.directory}/${project.build.finalName}-javadoc.jar</javadoc>
 				</configuration>
 			</plugin>
 		</plugins>
