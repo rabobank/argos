@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Getter
 @Setter
@@ -29,7 +30,10 @@ import java.util.List;
 public class Link {
     private String runId;
     private String stepName;
-    private List<String> command;
-    private List<Artifact> materials;
-    private List<Artifact> products;
+    @Builder.Default
+    private List<String> command = new ArrayList<>();
+    @Builder.Default
+    private List<Artifact> materials = new ArrayList<>();
+    @Builder.Default
+    private List<Artifact> products = new ArrayList<>();
 }

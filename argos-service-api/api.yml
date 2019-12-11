@@ -410,6 +410,9 @@ components:
       required:
         - runId
         - stepName
+        - command
+        - materials
+        - products
       properties:
         runId:
           type: string
