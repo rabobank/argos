@@ -18,7 +18,7 @@ steps:
         from_secret: github_token
       github_user:
         from_secret: github_user
-      new_version: '0.0.1-alpha'
+      new_version: '0.0.1-SNAPSHOT'
     commands:
       - mvn -q versions:set -DnewVersion=$new_version
       - mvn -q -f argos4j/pom.xml versions:set -DnewVersion=$new_version
