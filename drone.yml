@@ -13,12 +13,20 @@ steps:
     volumes:
       - name: mvn_cache
         path: /root/.m2/repository
+    environment:
+      github_token:
+        from_secret: github_token
+      github_user:
+        from_secret: github_user
+      new_version: 0.0.1
     commands:
-      - mvn -q versions:set -DnewVersion=0.0.1
-      - mvn -q -f argos4j/pom.xml versions:set -DnewVersion=0.0.1
-      - mvn -q -f argos-jenkins-plugin/pom.xml versions:set -DnewVersion=0.0.1
-      - mvn -q -f argos-service/pom.xml versions:set -DnewVersion=0.0.1
-      - mvn -q -f argos-test/pom.xml versions:set -DnewVersion=0.0.1
+      - mvn -q versions:set -DnewVersion=$new_version
+      - mvn -q -f argos4j/pom.xml versions:set -DnewVersion==$new_version
+      - mvn -q -f argos-jenkins-plugin/pom.xml versions:set -DnewVersion==$new_version
+      - mvn -q -f argos-service/pom.xml versions:set -DnewVersion==$new_version
+      - mvn -q -f argos-test/pom.xml versions:set -DnewVersion==$new_version
+      - mvn -q scm:checkin -Dmessage='version $new_version' -Dpassword=$github_token -Dusername=$github_user
+
   #    when:
   #      branch:
   #        - master
@@ -60,16 +68,11 @@ steps:
         from_secret: ossrh_login_user
       ossrh_password:
         from_secret: ossrh_login_password
-      github_token:
-        from_secret: github_token
-      github_user:
-        from_secret: github_user
     commands:
       - cp argos4j/dependency-reduced-pom.xml argos4j/target/pom.xml
       - cp argos4j/dependency-reduced-pom.xml.asc argos4j/target/pom.xml.asc
       - mvn -q -f argos4j/pom.xml deploy:deploy-file
       - mvn -q -f argos-service/pom.xml deploy:deploy-file
-      - mvn scm:checkin -Dmessage='new version' -Dpassword=$github_token -Dusername=$github_user
     #    when:
     #      branch:
     #        - master
