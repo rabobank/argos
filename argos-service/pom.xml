@@ -22,7 +22,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos-service</artifactId>
-	<version>=0.0.1</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<description>Argos service for Argos Supply Chain Notary</description>
 	<url>https://github.com/rabobank/argos/argos-service</url>
 

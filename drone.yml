@@ -18,20 +18,21 @@ steps:
         from_secret: github_token
       github_user:
         from_secret: github_user
-      new_version: 0.0.1
+      new_version: '0.0.1-alpha'
     commands:
       - mvn -q versions:set -DnewVersion=$new_version
       - mvn -q -f argos4j/pom.xml versions:set -DnewVersion==$new_version
       - mvn -q -f argos-jenkins-plugin/pom.xml versions:set -DnewVersion==$new_version
       - mvn -q -f argos-service/pom.xml versions:set -DnewVersion==$new_version
       - mvn -q -f argos-test/pom.xml versions:set -DnewVersion==$new_version
-      - mvn -q scm:checkin -Dmessage='version $new_version' -Dpassword=$github_token -Dusername=$github_user
+      - mvn -q scm:checkin -Dmessage='version ${new_version}' -Dpassword=$github_token -Dusername=$github_user
+    when:
+      branch:
+        - master
+        - build-release
+      event:
+        - push
 
-  #    when:
-  #      branch:
-  #        - master
-  #      event:
-  #        - tag
   - name: build
     image: rabobanknl/argos-build:latest
     volumes:
@@ -52,11 +53,13 @@ steps:
         - argos4j/dependency-reduced-pom.xml
         - argos-service/target/*.jar
         - argos-service/target/pom.xml
-  #    when:
-  #      branch:
-  #        - master
-  #      event:
-  #        - tag
+    when:
+      branch:
+        - develop
+        - master
+        - build-release
+      event:
+        - push
 
   - name: deploy to sonatype
     image: rabobanknl/argos-build:latest
@@ -73,11 +76,14 @@ steps:
       - cp argos4j/dependency-reduced-pom.xml.asc argos4j/target/pom.xml.asc
       - mvn -q -f argos4j/pom.xml deploy:deploy-file
       - mvn -q -f argos-service/pom.xml deploy:deploy-file
-    #    when:
-    #      branch:
-    #        - master
-    #      event:
-    #        - tag
+    when:
+      branch:
+        - develop
+        - master
+        - build-release
+      event:
+        - push
+
 #
 #  - name: sonar
 #    image: rabobanknl/argos-build:latest
