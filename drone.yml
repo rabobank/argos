@@ -21,11 +21,11 @@ steps:
       new_version: '0.0.1-alpha'
     commands:
       - mvn -q versions:set -DnewVersion=$new_version
-      - mvn -q -f argos4j/pom.xml versions:set -DnewVersion==$new_version
-      - mvn -q -f argos-jenkins-plugin/pom.xml versions:set -DnewVersion==$new_version
-      - mvn -q -f argos-service/pom.xml versions:set -DnewVersion==$new_version
-      - mvn -q -f argos-test/pom.xml versions:set -DnewVersion==$new_version
-      - mvn -q scm:checkin -Dmessage='version ${new_version}' -Dpassword=$github_token -Dusername=$github_user
+      - mvn -q -f argos4j/pom.xml versions:set -DnewVersion=$new_version
+      - mvn -q -f argos-jenkins-plugin/pom.xml versions:set -DnewVersion=$new_version
+      - mvn -q -f argos-service/pom.xml versions:set -DnewVersion=$new_version
+      - mvn -q -f argos-test/pom.xml versions:set -DnewVersion=$new_version
+      - mvn -q scm:checkin -Dmessage=$new_version -Dpassword=$github_token -Dusername=$github_user
     when:
       branch:
         - master
