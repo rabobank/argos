@@ -76,7 +76,7 @@ steps:
       repo: rabobanknl/argos-integration-test-service
       tags: ${DRONE_COMMIT:0:8}
       context: argos-docker
-      dockerfile: argos-docker/ServiceDockerfile
+      dockerfile: argos-docker/IntegrationTestServiceDockerfile
       username:
         from_secret: docker_login_user
       password:
