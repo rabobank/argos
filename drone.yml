@@ -64,7 +64,7 @@ steps:
     commands:
       - mvn -q -e verify -Ppitest
     depends_on:
-      - build
+      - sonar
 
   - name: build argos service image
     image: plugins/docker
