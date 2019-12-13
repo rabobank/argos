@@ -28,7 +28,7 @@
 
     <artifactId>argos-integration-test-service</artifactId>
     <description>Argos integration test service used to create test fixtures for rest api testing</description>
-    <url>https://github.com/rabobank/argos/argos-service-adapter-out-mongodb</url>
+    <url>https://github.com/rabobank/argos/argos-integration-test-service</url>
 
     <licenses>
         <license>
