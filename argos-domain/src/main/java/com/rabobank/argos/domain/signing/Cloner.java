@@ -16,6 +16,7 @@
 package com.rabobank.argos.domain.signing;
 
 import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.MatchRule;
 import com.rabobank.argos.domain.layout.rule.Rule;
@@ -39,6 +40,10 @@ public interface Cloner {
     Artifact clone(Artifact artifact);
 
     Layout clone(Layout layout);
+
+    List<LayoutSegment> cloneLayoutSegments(List<LayoutSegment> layoutSegments);
+
+    LayoutSegment clone(LayoutSegment layoutSegment);
 
     List<Step> cloneSteps(List<Step> steps);
 

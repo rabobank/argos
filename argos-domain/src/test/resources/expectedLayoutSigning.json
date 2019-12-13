@@ -8,61 +8,66 @@
       "pattern": "MatchFiler"
     }
   ],
-  "steps": [
+  "layoutSegments": [
     {
-      "authorizedKeyIds": [
-        "step a key 2",
-        "step a key 1"
-      ],
-      "expectedCommand": [
-        "3",
-        "2",
-        "1"
-      ],
-      "expectedProducts": [
+      "name": "segment 1",
+      "steps": [
         {
-          "pattern": "DisAllowRule",
-          "ruleType": "DISALLOW"
+          "authorizedKeyIds": [
+            "step a key 2",
+            "step a key 1"
+          ],
+          "expectedCommand": [
+            "3",
+            "2",
+            "1"
+          ],
+          "expectedProducts": [
+            {
+              "pattern": "DisAllowRule",
+              "ruleType": "DISALLOW"
+            },
+            {
+              "destinationPathPrefix": "destinationPathPrefix",
+              "destinationStepName": "destinationStepName",
+              "destinationType": "MATERIALS",
+              "pattern": "MatchRule",
+              "ruleType": "MATCH",
+              "sourcePathPrefix": "sourcePathPrefix"
+            },
+            {
+              "pattern": "DeleteRule",
+              "ruleType": "DELETE"
+            }
+          ],
+          "requiredNumberOfLinks": 23,
+          "stepName": "step a"
         },
         {
-          "destinationPathPrefix": "destinationPathPrefix",
-          "destinationStepName": "destinationStepName",
-          "destinationType": "MATERIALS",
-          "pattern": "MatchRule",
-          "ruleType": "MATCH",
-          "sourcePathPrefix": "sourcePathPrefix"
-        },
-        {
-          "pattern": "DeleteRule",
-          "ruleType": "DELETE"
+          "expectedMaterials": [
+            {
+              "pattern": "AllowRule",
+              "ruleType": "ALLOW"
+            },
+            {
+              "pattern": "RequireRule",
+              "ruleType": "REQUIRE"
+            }
+          ],
+          "expectedProducts": [
+            {
+              "pattern": "CreateRule",
+              "ruleType": "CREATE"
+            },
+            {
+              "pattern": "ModifyRule",
+              "ruleType": "MODIFY"
+            }
+          ],
+          "requiredNumberOfLinks": 1,
+          "stepName": "step b"
         }
-      ],
-      "requiredNumberOfLinks": 23,
-      "stepName": "step a"
-    },
-    {
-      "expectedMaterials": [
-        {
-          "pattern": "AllowRule",
-          "ruleType": "ALLOW"
-        },
-        {
-          "pattern": "RequireRule",
-          "ruleType": "REQUIRE"
-        }
-      ],
-      "expectedProducts": [
-        {
-          "pattern": "CreateRule",
-          "ruleType": "CREATE"
-        },
-        {
-          "pattern": "ModifyRule",
-          "ruleType": "MODIFY"
-        }
-      ],
-      "requiredNumberOfLinks": 1,
-      "stepName": "step b"
+      ]
     }
   ]
 }

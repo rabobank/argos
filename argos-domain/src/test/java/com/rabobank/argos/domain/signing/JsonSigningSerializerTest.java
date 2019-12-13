@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabobank.argos.domain.layout.DestinationType;
 import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.MatchFilter;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.MatchRule;
@@ -30,8 +31,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -57,38 +58,38 @@ class JsonSigningSerializerTest {
     @Test
     void serializeLayout() throws IOException {
         String serialized = new JsonSigningSerializer().serialize(Layout.builder()
-                .expectedEndProducts(Collections.singletonList(MatchFilter.builder().pattern("MatchFiler").build()))
-                .steps(Arrays.asList(
-                        Step.builder()
-                                .stepName("step b")
-                                .requiredNumberOfLinks(1)
-                                .expectedMaterials(Arrays.asList(
-                                        new Rule(RuleType.ALLOW, "AllowRule"),
-                                        new Rule(RuleType.REQUIRE, "RequireRule")
-                                ))
-                                .expectedProducts(Arrays.asList(
-                                        new Rule(RuleType.CREATE, "CreateRule"),
-                                        new Rule(RuleType.MODIFY, "ModifyRule")
-                                ))
-                                .build(),
-                        Step.builder()
-                                .stepName("step a")
-                                .authorizedKeyIds(Arrays.asList("step a key 2", "step a key 1"))
-                                .requiredNumberOfLinks(23)
-                                .expectedCommand(Arrays.asList("3", "2", "1"))
-                                .expectedProducts(Arrays.asList(
-
-                                        new Rule(RuleType.DISALLOW, "DisAllowRule"),
-                                        MatchRule.builder().pattern("MatchRule")
-                                                .destinationPathPrefix("destinationPathPrefix")
-                                                .sourcePathPrefix("sourcePathPrefix")
-                                                .destinationStepName("destinationStepName")
-                                                .destinationType(DestinationType.MATERIALS)
-                                                .build(),
-                                        new Rule(RuleType.DELETE, "DeleteRule")
-                                ))
-                                .build()
-                ))
+                .expectedEndProducts(singletonList(MatchFilter.builder().pattern("MatchFiler").build()))
+                .layoutSegments(singletonList(LayoutSegment.builder().name("segment 1")
+                        .steps(Arrays.asList(
+                                Step.builder()
+                                        .stepName("step b")
+                                        .requiredNumberOfLinks(1)
+                                        .expectedMaterials(Arrays.asList(
+                                                new Rule(RuleType.ALLOW, "AllowRule"),
+                                                new Rule(RuleType.REQUIRE, "RequireRule")
+                                        ))
+                                        .expectedProducts(Arrays.asList(
+                                                new Rule(RuleType.CREATE, "CreateRule"),
+                                                new Rule(RuleType.MODIFY, "ModifyRule")
+                                        ))
+                                        .build(),
+                                Step.builder()
+                                        .stepName("step a")
+                                        .authorizedKeyIds(Arrays.asList("step a key 2", "step a key 1"))
+                                        .requiredNumberOfLinks(23)
+                                        .expectedCommand(Arrays.asList("3", "2", "1"))
+                                        .expectedProducts(Arrays.asList(
+                                                new Rule(RuleType.DISALLOW, "DisAllowRule"),
+                                                MatchRule.builder().pattern("MatchRule")
+                                                        .destinationPathPrefix("destinationPathPrefix")
+                                                        .sourcePathPrefix("sourcePathPrefix")
+                                                        .destinationStepName("destinationStepName")
+                                                        .destinationType(DestinationType.MATERIALS)
+                                                        .build(),
+                                                new Rule(RuleType.DELETE, "DeleteRule")
+                                        ))
+                                        .build()
+                        )).build()))
                 .authorizedKeyIds(Arrays.asList("key2", "key1"))
                 .build()
         );

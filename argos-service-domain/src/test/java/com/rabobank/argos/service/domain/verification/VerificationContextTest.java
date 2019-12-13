@@ -47,7 +47,7 @@ class VerificationContextTest {
 
     @BeforeEach
     void setup() {
-        when(layoutMetaBlock.getLayout().getSteps())
+        when(layoutMetaBlock.getLayout().getLayoutSegments().get(0).getSteps())
                 .thenReturn(List.of(Step.builder().stepName(STEP_NAME).build()));
 
         linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
@@ -84,7 +84,7 @@ class VerificationContextTest {
 
     @Test
     void getStepByStepName() {
-        assertThat(verificationContext.getStepByStepName(STEP_NAME), sameInstance(layoutMetaBlock.getLayout().getSteps().get(0)));
+        assertThat(verificationContext.getStepByStepName(STEP_NAME), sameInstance(layoutMetaBlock.getLayout().getLayoutSegments().get(0).getSteps().get(0)));
     }
 
     @Test

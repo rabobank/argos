@@ -11,43 +11,48 @@
         "destinationStepName": "build"
       }
     ],
-    "steps": [
+    "layoutSegments": [
       {
-        "name": "stepName1",
-        "authorizedKeyIds": [
-          "#string"
-        ],
-        "requiredNumberOfLinks": 3,
-        "expectedCommand": [
-          "expectedCommand 1",
-          "expectedCommand 2"
-        ],
-        "expectedMaterials": [
+        "name": "segment 1",
+        "steps": [
           {
-            "ruleType": "MATCH",
-            "pattern": "MATCHpattern",
-            "sourcePathPrefix": "sourcePathPrefix",
-            "destinationPathPrefix": "destinationPathPrefix",
-            "destinationType": "PRODUCTS",
-            "destinationStepName": "destinationStepName"
-          },
-          {
-            "ruleType": "CREATE",
-            "pattern": "CREATEpattern"
-          },
-          {
-            "ruleType": "DELETE",
-            "pattern": "DELETEpattern"
-          },
-          {
-            "ruleType": "DISALLOW",
-            "pattern": "DISALLOWpattern"
-          }
-        ],
-        "expectedProducts": [
-          {
-            "ruleType": "CREATE",
-            "pattern": "CREATEpattern"
+            "name": "stepName1",
+            "authorizedKeyIds": [
+              "#string"
+            ],
+            "requiredNumberOfLinks": 3,
+            "expectedCommand": [
+              "expectedCommand 1",
+              "expectedCommand 2"
+            ],
+            "expectedMaterials": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "MATCHpattern",
+                "sourcePathPrefix": "sourcePathPrefix",
+                "destinationPathPrefix": "destinationPathPrefix",
+                "destinationType": "PRODUCTS",
+                "destinationStepName": "destinationStepName"
+              },
+              {
+                "ruleType": "CREATE",
+                "pattern": "CREATEpattern"
+              },
+              {
+                "ruleType": "DELETE",
+                "pattern": "DELETEpattern"
+              },
+              {
+                "ruleType": "DISALLOW",
+                "pattern": "DISALLOWpattern"
+              }
+            ],
+            "expectedProducts": [
+              {
+                "ruleType": "CREATE",
+                "pattern": "CREATEpattern"
+              }
+            ]
           }
         ]
       }

@@ -43,7 +43,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RunIdResolverTest {
-    public static final String SUPPLY_CHAIN_ID = "supply-chain-id";
     public static final String STEP_NAME = "stepName";
     public static final String ARTIFACT_JAVA = "/artifact.java";
     public static final String RUN_ID = "run_id";
@@ -61,7 +60,7 @@ class RunIdResolverTest {
     @BeforeEach
     public void setup() {
         withLayout(DestinationType.PRODUCTS);
-        when(layoutMetaBlock.getLayout().getSteps())
+        when(layoutMetaBlock.getLayout().getLayoutSegments().get(0).getSteps())
                 .thenReturn(singletonList(Step.builder().stepName(STEP_NAME).build()));
         productsToVerify = singletonList(Artifact.builder().hash(HASH).uri(ARTIFACT_JAVA).build());
 

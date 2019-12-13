@@ -17,6 +17,7 @@ package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
@@ -91,6 +92,9 @@ class VerificationProviderTest {
     @Captor
     private ArgumentCaptor<VerificationContext> verificationContextArgumentCaptor;
 
+    @Mock
+    private LayoutSegment layoutSegment;
+
     @BeforeEach
     public void setup() {
         verifications = new ArrayList<>();
@@ -134,7 +138,8 @@ class VerificationProviderTest {
 
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLYCHAIN_ID);
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
-        when(layout.getSteps()).thenReturn(List.of(step));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(List.of(step));
 
         when(linkMetaBlock.getLink()).thenReturn(link);
         when(link.getStepName()).thenReturn(STEPNAME);

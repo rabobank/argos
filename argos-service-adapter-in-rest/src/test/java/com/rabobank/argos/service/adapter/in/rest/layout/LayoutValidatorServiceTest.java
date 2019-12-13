@@ -18,6 +18,7 @@ package com.rabobank.argos.service.adapter.in.rest.layout;
 import com.rabobank.argos.domain.Signature;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.domain.key.KeyPairRepository;
@@ -31,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -69,6 +71,9 @@ class LayoutValidatorServiceTest {
     @Mock
     private Step step;
 
+    @Mock
+    private LayoutSegment layoutSegment;
+
     @BeforeEach
     void setUp() {
         service = new LayoutValidatorService(supplyChainRepository, signatureValidatorService, keyPairRepository);
@@ -82,7 +87,8 @@ class LayoutValidatorServiceTest {
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
 
         when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
-        when(layout.getSteps()).thenReturn(singletonList(step));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
 
         when(keyPairRepository.exists(KEY_ID_1)).thenReturn(true);
@@ -101,7 +107,8 @@ class LayoutValidatorServiceTest {
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
 
         when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
-        when(layout.getSteps()).thenReturn(singletonList(step));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
 
         when(keyPairRepository.exists(KEY_ID_1)).thenReturn(true);
@@ -121,7 +128,8 @@ class LayoutValidatorServiceTest {
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
 
         when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
-        when(layout.getSteps()).thenReturn(singletonList(step));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
 
         when(keyPairRepository.exists(KEY_ID_1)).thenReturn(true);

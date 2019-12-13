@@ -62,7 +62,7 @@ public class LayoutValidatorService {
 
     private void validateAutorizationKeyIds(Layout layout) {
         layout.getAuthorizedKeyIds().forEach(this::keyExists);
-        layout.getSteps().forEach(step -> step.getAuthorizedKeyIds().forEach(this::keyExists));
+        layout.getLayoutSegments().forEach(layoutSegment -> layoutSegment.getSteps().forEach(step -> step.getAuthorizedKeyIds().forEach(this::keyExists)));
     }
 
     private void keyExists(String keyId) {

@@ -22,27 +22,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
 import org.mapstruct.factory.Mappers;
 
-import java.util.Comparator;
+import static java.util.Comparator.comparing;
 
 public class JsonSigningSerializer implements SigningSerializer {
 
     @Override
     public String serialize(Link link) {
         Link linkClone = Mappers.getMapper(Cloner.class).clone(link);
-        linkClone.getMaterials().sort(Comparator.comparing(Artifact::getUri));
-        linkClone.getProducts().sort(Comparator.comparing(Artifact::getUri));
+        linkClone.getMaterials().sort(comparing(Artifact::getUri));
+        linkClone.getProducts().sort(comparing(Artifact::getUri));
         return serializeSignable(linkClone);
     }
 
     @Override
     public String serialize(Layout layout) {
         Layout layoutClone = Mappers.getMapper(Cloner.class).clone(layout);
-        layoutClone.getSteps().sort(Comparator.comparing(Step::getStepName));
+        layoutClone.getLayoutSegments().sort(comparing(LayoutSegment::getName));
+        layoutClone.getLayoutSegments().forEach(layoutSegment -> layoutSegment.getSteps().sort(comparing(Step::getStepName)));
         return serializeSignable(layoutClone);
     }
 

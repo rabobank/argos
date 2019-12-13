@@ -17,6 +17,7 @@ package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
@@ -84,7 +85,7 @@ class BuildStepsCompletedVerificationTest {
 
     private LayoutMetaBlock mockLayoutMetaBlock(String... stepName) {
         List<Step> steps = Stream.of(stepName).map(step -> Step.builder().stepName(step).build()).collect(toList());
-        return LayoutMetaBlock.builder().layout(Layout.builder().steps(steps).build()).build();
+        return LayoutMetaBlock.builder().layout(Layout.builder().layoutSegments(List.of(LayoutSegment.builder().steps(steps).build())).build()).build();
     }
 
     private List<LinkMetaBlock> mockLinks(String... stepName) {

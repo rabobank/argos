@@ -41,7 +41,7 @@ public class VerificationContext {
     public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
         this.linkMetaBlocks = linkMetaBlocks;
         this.layoutMetaBlock = layoutMetaBlock;
-        layoutMetaBlock.getLayout().getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
+        layoutMetaBlock.getLayout().getLayoutSegments().get(0).getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
         linksByStepName = linkMetaBlocks
                 .stream()
                 .collect(Collectors.groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
@@ -64,6 +64,6 @@ public class VerificationContext {
     }
 
     public List<String> getExpectedStepNames() {
-        return layoutMetaBlock.getLayout().getSteps().stream().map(Step::getStepName).collect(toList());
+        return layoutMetaBlock.getLayout().getLayoutSegments().get(0).getSteps().stream().map(Step::getStepName).collect(toList());
     }
 }
