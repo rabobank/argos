@@ -364,7 +364,6 @@
 				<configuration>
 					<repositoryId>ossrh</repositoryId>
 					<file>${project.build.directory}/${project.build.finalName}.jar</file>
-					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 					<groupId>${project.groupId}</groupId>
 					<artifactId>${project.artifactId}</artifactId>
 					<version>${project.version}</version>
