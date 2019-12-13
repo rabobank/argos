@@ -33,6 +33,7 @@
 		<module>argos-test</module>
 		<module>argos-jenkins-base</module>
 		<module>argos-service-domain</module>
+		<module>argos-integrationtest-service</module>
 	</modules>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos-parent</artifactId>
@@ -218,7 +219,7 @@
 								<excludedClasse>com.rabobank.argos.argos4j.rest.api.*</excludedClasse>
 								<excludedClasse>com.rabobank.argos.service.adapter.in.rest.api.*</excludedClasse>
 								<excludedClasse>*MapperImpl</excludedClasse>
-								<excludedClass>com.rabobank.argos.service.adapter.in.rest.TestITService</excludedClass>
+								<excludedClass>com.rabobank.argos.integrationtest.service.TestITService</excludedClass>
 							</excludedClasses>
 							<targetClasses>
 								<param>com.rabobank.argos.*</param>

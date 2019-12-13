@@ -327,6 +327,9 @@
                             <systemPropertyVariables>
                                 <argos-service.rest-api.base-url>http://argos-service:8080</argos-service.rest-api.base-url>
                                 <jenkins.base-url>http://argos-jenkins:8080</jenkins.base-url>
+                                <argos-integration-test-service.rest-api.base-url>
+                                    >http://argos-integration-test-service:2877
+                                </argos-integration-test-service.rest-api.base-url>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>
