@@ -117,13 +117,13 @@ steps:
       - build argos service image
 
   - name: argos-integration-test-service
-      image: rabobanknl/argos-service:${DRONE_COMMIT:0:8}
-      environment:
-        spring.data.mongodb.uri: mongodb://mongodb/test
-      detach: true
-      depends_on:
-        - mongodb
-        - build argos integration test service image
+    image: rabobanknl/argos-service:${DRONE_COMMIT:0:8}
+    environment:
+      spring.data.mongodb.uri: mongodb://mongodb/test
+    detach: true
+    depends_on:
+      - mongodb
+      - build argos integration test service image
 
   - name: argos-jenkins
     image: rabobanknl/argos-jenkins:${DRONE_COMMIT:0:8}
