@@ -171,23 +171,23 @@ steps:
         - push
 
   - name: build beta argos integration-test service image
-      image: plugins/docker
-      settings:
-        repo: rabobanknl/argos-integration-test-service
-        tags: beta
-        context: argos-docker
-        dockerfile: argos-docker/IntegrationTestServiceDockerfile
-        username:
-          from_secret: docker_login_user
-        password:
-          from_secret: docker_login_token
-      depends_on:
+    image: plugins/docker
+    settings:
+      repo: rabobanknl/argos-integration-test-service
+      tags: beta
+      context: argos-docker
+      dockerfile: argos-docker/IntegrationTestServiceDockerfile
+      username:
+        from_secret: docker_login_user
+      password:
+        from_secret: docker_login_token
+    depends_on:
         - regression test
-      when:
-        branch:
-          - develop
-        event:
-          - push
+    when:
+      branch:
+        - develop
+      event:
+        - push
 
   - name: deploy snapshots to ossrh
     image: rabobanknl/argos-build:latest
