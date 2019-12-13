@@ -28,12 +28,12 @@
 		<module>argos-service-adapter-in-rest</module>
 		<module>argos-service-adapter-out-mongodb</module>
 		<module>argos-service</module>
+		<module>argos-integration-test-service</module>
 		<module>argos-jenkins-plugin</module>
 		<module>argos-docker</module>
 		<module>argos-test</module>
 		<module>argos-jenkins-base</module>
 		<module>argos-service-domain</module>
-		<module>argos-integration-test-service</module>
 	</modules>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos-parent</artifactId>
