@@ -57,7 +57,7 @@ Feature: Verification
     And match resp.response == {"runIsValid":false}
 
   Scenario: modify-rule-not-modified
-    * def resp = call read('classpath:feature/verification/verification-template.feature')  { verificationRequest:#(defaultVerificationRequest),testDir: ''modify-rule-not-modified',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature')  { verificationRequest:#(defaultVerificationRequest),testDir: 'modify-rule-not-modified',steps:#(defaultSteps)}
     And match resp.response == {"runIsValid":false}
 
   Scenario: require-rule-no-required-product-material
