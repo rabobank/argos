@@ -1,0 +1,95 @@
+{
+  "signatures":[ {
+    "keyId": "wrong",
+    "signature": "87711cc6799952f6b1082eb5f212cfa074ba0be0e3ae177157a815e698897d7e40ee1d9d21671690cee2776a0c6537de6cd30b9dac12786fd108234ca94d244d2449f02f6bbd03e11b0dad867637c5703ffbbb977f9c3583452ec182f2d023d3a163435f4ca3c36d721c42689fec8cb53ead9d8e353077b0d675514f9f9a1291bb5fd0854eebe3b63ed0c59c968940f7ec4942d510042357e384d2839b42a4d0f7d6b62b0fbdba45d791a8a1e6817a5152343de110932cbcc0538ac190e393bc1172fe7ed0bc542f9ffb7e51a7fe1298f66c8adda4bede8bd9a5aad21327ebe0f152a48d52f504ea2f23403f1422b5a9a01ee8ff1904f8735bef9b50c86791e0"
+  }],
+  "layout": {
+    "authorizedKeyIds": [
+      "authorizedKeyId1",
+      "authorizedKeyId2"
+    ],
+    "expectedEndProducts": [
+      {
+        "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
+        "destinationType": "PRODUCTS",
+        "destinationStepName": "build"
+      }
+    ],
+    "steps": [
+      {
+        "name": "stepName1",
+        "authorizedKeyIds": [
+          "stepName1 authorizedKeyId 1",
+          "stepName1 authorizedKeyId 2"
+        ],
+        "requiredSignatures": 3,
+        "expectedCommand": [
+          "expectedCommand 1",
+          "expectedCommand 2"
+        ],
+        "expectedMaterials": [
+          {
+            "ruleType": "MATCH",
+            "pattern": "MATCHpattern",
+            "sourcePathPrefix": "sourcePathPrefix",
+            "destinationPathPrefix": "destinationPathPrefix",
+            "destinationType": "PRODUCTS",
+            "destinationStepName": "destinationStepName"
+          },
+          {
+            "ruleType": "CREATE",
+            "pattern": "CREATEpattern"
+          },
+          {
+            "ruleType": "DELETE",
+            "pattern": "DELETEpattern"
+          },
+          {
+            "ruleType": "DISALLOW",
+            "pattern": "DISALLOWpattern"
+          }
+        ],
+        "expectedProducts": [
+          {
+            "ruleType": "CREATE",
+            "pattern": "CREATEpattern"
+          }
+        ]
+      },
+      {
+        "name": "stepName2",
+        "authorizedKeyIds": [
+          "stepName2 authorizedKeyId"
+        ],
+        "requiredSignatures": 45,
+        "expectedCommand": [
+          "stepName2 expectedCommand"
+        ],
+        "expectedMaterials": [
+          {
+            "ruleType": "MATCH",
+            "pattern": "MATCH pattern",
+            "sourcePathPrefix": "sourcePathPrefix",
+            "destinationPathPrefix": "destinationPathPrefix",
+            "destinationType": "MATERIALS",
+            "destinationStepName": "destinationStepName"
+          }
+        ],
+        "expectedProducts": [
+          {
+            "ruleType": "ALLOW",
+            "pattern": "ALLOW pattern"
+          },
+          {
+            "ruleType": "MODIFY",
+            "pattern": "MODIFY pattern"
+          },
+          {
+            "ruleType": "REQUIRE",
+            "pattern": "REQUIRE pattern"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.jenkins.plugins.argos.recorders;
 
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
@@ -34,6 +49,7 @@ public class ArgosJenkinsHelper {
     private final String privateKeyCredentialId;
     private final String stepName;
     private final String supplyChainName;
+    private final String runId;
 
 
     public Argos4j createArgos() {
@@ -41,14 +57,17 @@ public class ArgosJenkinsHelper {
         checkProperty(privateKeyCredentialId, "privateKeyCredentialId");
         checkProperty(stepName, "stepName");
         checkProperty(supplyChainName, "supplyChainName");
+        checkProperty(runId, "runId");
 
 
         String argosServiceBaseUrl = ArgosServiceConfiguration.get().getArgosServiceBaseUrl()+"/api";
         checkProperty(argosServiceBaseUrl, "argosServiceBaseUrl");
-        log.info("argosServiceBaseUrl = {}",argosServiceBaseUrl);
+        log.info("argos4j version = {}", Argos4j.getVersion());
+        log.info("argosServiceBaseUrl = {}", argosServiceBaseUrl);
 
         return new Argos4j(Argos4jSettings.builder()
                 .stepName(stepName)
+                .runId(runId)
                 .argosServerBaseUrl(argosServiceBaseUrl)
                 .signingKey(getSigningKey(privateKeyCredentialId))
                 .supplyChainName(supplyChainName).build());

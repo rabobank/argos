@@ -3,6 +3,10 @@ kind: pipeline
 name: argosbuild
 type: docker
 
+services:
+  - name: nexus
+    image: sonatype/nexus:2.14.15-01
+
 steps:
   - name: build
     image: rabobanknl/argos-build:latest
@@ -100,6 +104,7 @@ steps:
     image: rabobanknl/argos-jenkins:${DRONE_COMMIT:0:8}
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+      snapshotsUrl: http://nexus:8081/nexus/content/repositories/snapshots/
     volumes:
       - name: mvn_cache
         path: /root/.m2/repository
@@ -118,6 +123,57 @@ steps:
     depends_on: 
       - argos-jenkins
       - argos-service
+      - nexus
+      
+  - name: build beta argos service image
+    image: plugins/docker
+    settings:
+      repo: rabobanknl/argos-service
+      tags: beta
+      context: argos-docker
+      dockerfile: argos-docker/ServiceDockerfile
+      username:
+        from_secret: docker_login_user
+      password:
+        from_secret: docker_login_token
+    depends_on: 
+      - regression test
+    when:
+      branch:
+        - develop
+      event:
+        - push
+
+  - name: deploy snapshots to ossrh
+    image: rabobanknl/argos-build:latest
+    volumes:
+      - name: mvn_cache
+        path: /root/.m2/repository
+    environment:
+      ossrh_username:
+        from_secret: ossrh_login_user
+      ossrh_password:
+        from_secret: ossrh_login_password
+    commands:
+      - mvn -f argos4j deploy
+      - mvn -f argos-service deploy
+    depends_on:
+      - regression test
+    when:
+      branch:
+        - develop
+        - master
+      event:
+        - push
+
+  - name: slack on success
+    image: plugins/slack
+    settings:
+      webhook:
+        from_secret: slack_webhook
+    depends_on:
+      - regression test
+      - build beta argos service image
 
 volumes:
   - name: mvn_cache
@@ -127,6 +183,29 @@ trigger:
   event:
     - push
     - pull_request
+
+---
+kind: pipeline
+name: report result
+type: docker
+
+steps:
+
+  - name: slack on failure
+    image: plugins/slack
+    settings:
+      webhook:
+        from_secret: slack_webhook
+    trigger:
+      status:
+        - failure
+
+depends_on:
+  - argosbuild
+
+trigger:
+  status:
+    - failure
 
 ---
 kind: pipeline

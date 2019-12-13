@@ -1,0 +1,19 @@
+{
+  "link": {
+    "runId": "69af2dd",
+    "stepName": "build",
+    "materials": [
+      {
+        "uri": "target/argos-test-0.0.1-SNAPSHOT.jar",
+        "hash": "49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162"
+      }
+    ],
+    "products": [
+      {
+        "uri": "target/argos-test-0.0.1-SNAPSHOT.jar",
+        "hash": "49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162"
+      }
+    ],
+    "command": []
+  }
+}

@@ -1,3 +1,19 @@
+#
+# Copyright (C) 2019 Rabobank Nederland
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 openapi: "3.0.0"
 info:
   version: 1.0.0
@@ -5,7 +21,7 @@ info:
   license:
     name: Apache License 2.0
 servers:
-  - url: http://localhost:8080/api
+  - url: /api
 paths:
   /supplychain:
     post:
@@ -32,17 +48,9 @@ paths:
                 format: uri
               description: location where the created supplychain can be found
         '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/ValidationError'
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
 
     get:
       summary: search a supplychain
@@ -65,18 +73,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/SupplyChainItem"
-        '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
 
   /supplychain/{supplyChainId}:
     get:
@@ -98,20 +96,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SupplyChainItem"
-        '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
 
-  /supplychain/{supplyChainId}/link/:
+  /supplychain/{supplyChainId}/link:
     get:
       summary: find link
       operationId: findLink
@@ -139,18 +127,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/LinkMetaBlock"
-        '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
     post:
       summary: Create a link
       operationId: createLink
@@ -172,17 +150,9 @@ paths:
         '204':
           description: no content
         '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/ValidationError'
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
   /key:
     post:
       summary: stores a public and private key pair
@@ -198,17 +168,9 @@ paths:
         '204':
           description: no content
         '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/ValidationError'
         '500':
-          description: server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/Error'
   /key/{keyId}:
     get:
       summary: get a key pair by id
@@ -233,19 +195,193 @@ paths:
               schema:
                 $ref: "#/components/schemas/KeyPair"
         '400':
-          description: validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/ValidationError'
         '500':
-          description: server error
+          $ref: '#/components/responses/Error'
+  /supplychain/{supplyChainId}/layout:
+    get:
+      summary: get layout
+      operationId: findLayout
+      tags:
+        - layout
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: array of layouts
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                type: array
+                items:
+                  $ref: "#/components/schemas/LayoutMetaBlock"
+        '500':
+          $ref: '#/components/responses/Error'
+    post:
+      summary: Create a layout
+      operationId: createLayout
+      tags:
+        - layout
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LayoutMetaBlock"
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LayoutMetaBlock"
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: location where the created layout metablock can be found
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /supplychain/{supplyChainId}/layout/{layoutId}:
+    get:
+      summary: get layout
+      operationId: getLayout
+      tags:
+        - layout
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+        - name: layoutId
+          in: path
+          description: layout id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: layouts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LayoutMetaBlock"
+        '500':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: update a layout
+      operationId: updateLayout
+      tags:
+        - layout
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+        - name: layoutId
+          in: path
+          description: layout id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LayoutMetaBlock"
+      responses:
+        '200':
+          description: updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LayoutMetaBlock"
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /supplychain/{supplyChainId}/verification:
+    post:
+      summary: creates a verification run
+      operationId: performVerification
+      tags:
+        - verification
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyCommand"
+      responses:
+        '200':
+          description: VerificationResult
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResult'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
 components:
+  responses:
+    ValidationError:
+      description: validation error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Error:
+      description: server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
   schemas:
+    VerifyCommand:
+      type: object
+      required:
+        - productsToVerify
+      properties:
+        expectedProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Artifact"
+
+    VerificationResult:
+      type: object
+      required:
+        - runIsValid
+      properties:
+        runIsValid:
+          type: boolean
+
     LinkMetaBlock:
       type: object
       required:
@@ -263,10 +399,7 @@ components:
         - signature
       properties:
         keyId:
-          type: string
-          minLength: 64
-          maxLength: 64
-          pattern: '^[0-9a-f]*$'
+          $ref: '#/components/schemas/KeyId'
         signature:
           type: string
           minLength: 512
@@ -275,8 +408,14 @@ components:
     Link:
       type: object
       required:
+        - runId
         - stepName
+        - command
+        - materials
+        - products
       properties:
+        runId:
+          type: string
         command:
           type: array
           items:
@@ -289,6 +428,7 @@ components:
         stepName:
           type: string
         products:
+          type: array
           items:
             $ref: "#/components/schemas/Artifact"
     Artifact:
@@ -313,10 +453,7 @@ components:
         - publicKey
       properties:
         keyId:
-          type: string
-          minLength: 64
-          maxLength: 64
-          pattern: '^[0-9a-f]*$'
+          $ref: '#/components/schemas/KeyId'
         publicKey:
           type: string
           format: byte
@@ -344,6 +481,123 @@ components:
         name:
           type: string
           maxLength: 256
+    LayoutMetaBlock:
+      type: object
+      required:
+        - signatures
+        - layout
+      properties:
+        id:
+          type: string
+        signatures:
+          type: array
+          items:
+            $ref: "#/components/schemas/Signature"
+        layout:
+          $ref: "#/components/schemas/Layout"
+    Layout:
+      type: object
+      required:
+        - authorizedKeyIds
+        - expectedEndProducts
+        - steps
+      properties:
+        authorizedKeyIds:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/KeyId'
+        expectedEndProducts:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/MatchRule'
+        steps:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/Step"
+    MatchRule:
+      type: object
+      properties:
+        pattern:
+          type: string
+        destinationType:
+          type: string
+          enum:
+            - PRODUCTS
+            - MATERIALS
+        destinationStepName:
+          type: string
+    Step:
+      type: object
+      required:
+        - name
+        - requiredSignatures
+        - authorizedKeyIds
+        - expectedMaterials
+        - expectedProducts
+        - expectedCommand
+      properties:
+        name:
+          type: string
+        authorizedKeyIds:
+          type: array
+          minItems: 1ok
+          items:
+            $ref: '#/components/schemas/KeyId'
+        requiredNumberOfLinks:
+          type: integer
+          format: int32
+          minimum: 1
+        expectedCommand:
+          type: array
+          items:
+            type: string
+            pattern: '^[0-9a-f]*$'
+        expectedMaterials:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rule"
+        expectedProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rule"
+    KeyId:
+      type: string
+      description: key id is a hash of the public key
+      minLength: 64
+      maxLength: 64
+      pattern: '^[0-9a-f]*$'
+    Rule:
+      type: object
+      required:
+        - ruleType
+        - pattern
+      properties:
+        ruleType:
+          type: string
+          enum:
+            - ALLOW
+            - CREATE
+            - DELETE
+            - DISALLOW
+            - MATCH
+            - MODIFY
+            - REQUIRE
+        pattern:
+          type: string
+        sourcePathPrefix:
+          type: string
+        destinationPathPrefix:
+          type: string
+        destinationType:
+          type: string
+          enum:
+            - PRODUCTS
+            - MATERIALS
+        destinationStepName:
+          type: string
     Error:
       type: object
       required:
