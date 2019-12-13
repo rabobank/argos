@@ -33,7 +33,7 @@
 		<module>argos-test</module>
 		<module>argos-jenkins-base</module>
 		<module>argos-service-domain</module>
-		<module>argos-integrationtest-service</module>
+		<module>argos-integration-test-service</module>
 	</modules>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos-parent</artifactId>
