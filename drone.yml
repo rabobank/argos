@@ -69,7 +69,6 @@ steps:
     depends_on: 
       - pitest
       - sonar
-
   - name: build argos integration test service image
       image: plugins/docker
       settings:
