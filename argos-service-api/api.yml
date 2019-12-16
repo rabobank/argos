@@ -532,6 +532,11 @@ components:
             $ref: "#/components/schemas/Step"
     MatchRule:
       type: object
+      required:
+        - pattern
+        - destinationType
+        - destinationSegmentName
+        - destinationStepName
       properties:
         pattern:
           type: string
@@ -540,6 +545,8 @@ components:
           enum:
             - PRODUCTS
             - MATERIALS
+        destinationSegmentName:
+          type: string
         destinationStepName:
           type: string
     Step:

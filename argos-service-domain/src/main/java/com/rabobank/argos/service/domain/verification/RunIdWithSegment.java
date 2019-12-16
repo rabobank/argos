@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.layout;
+package com.rabobank.argos.service.domain.verification;
 
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
-@Setter
-@Getter
-@ToString
+import java.util.Optional;
+
 @Builder
-public class MatchFilter {
-
-    private String pattern;
-    private DestinationType destinationType;
-    private String destinationStepName;
-    private String destinationSegmentName;
-
+@Getter
+public class RunIdWithSegment {
+    private final Optional<String> optionalRunId;
+    private final LayoutSegment segment;
 }
