@@ -31,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,7 +57,6 @@ public class TestITService implements IntegrationTestServiceApi {
 
     private final KeyPairRepository keyPairRepository;
 
-    @PostMapping(value = "/reset-db")
     @Override
     public ResponseEntity<Void> resetDatabase() {
         log.info("resetDatabase");
@@ -67,7 +65,6 @@ public class TestITService implements IntegrationTestServiceApi {
     }
 
     @Override
-    @PostMapping(value = "/signLayoutMetaBlock")
     public ResponseEntity<RestLayoutMetaBlock> signLayout(@RequestBody RestLayoutMetaBlock restLayoutMetaBlock) {
         LayoutMetaBlock layoutMetaBlock = layoutMetaBlockMapper.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
         KeyPair keyPair = generateKeyPair();
@@ -79,7 +76,6 @@ public class TestITService implements IntegrationTestServiceApi {
     }
 
     @Override
-    @PostMapping(value = "/signLinkMetaBlock")
     public ResponseEntity<RestLinkMetaBlock> signLink(@RequestBody RestLinkMetaBlock restLinkMetaBlock) {
         LinkMetaBlock linkMetaBlock = linkMetaBlockMapper.convertFromRestLinkMetaBlock(restLinkMetaBlock);
         KeyPair keyPair = generateKeyPair();
