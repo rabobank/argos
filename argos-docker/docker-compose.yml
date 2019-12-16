@@ -39,7 +39,7 @@ services:
         - 2877:2877
       depends_on:
         - mongodb
-        -
+
   mongodb:
     image: mongo:4.2.1-bionic
     ports:

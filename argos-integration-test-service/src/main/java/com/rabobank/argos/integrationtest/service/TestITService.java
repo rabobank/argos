@@ -21,6 +21,7 @@ import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.domain.signing.JsonSigningSerializer;
+import com.rabobank.argos.integrationtest.argos.service.api.handler.IntegrationTestServiceApi;
 import com.rabobank.argos.integrationtest.argos.service.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.integrationtest.argos.service.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.integrationtest.service.layout.LayoutMetaBlockMapper;
@@ -47,7 +48,7 @@ import java.util.Collections;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class TestITService {
+public class TestITService implements IntegrationTestServiceApi {
 
     private final RepositoryResetProvider repositoryResetProvider;
 
@@ -58,11 +59,14 @@ public class TestITService {
     private final KeyPairRepository keyPairRepository;
 
     @PostMapping(value = "/reset-db")
-    public void resetDatabase() {
+    @Override
+    public ResponseEntity<Void> resetDatabase() {
         log.info("resetDatabase");
         repositoryResetProvider.resetAllRepositories();
+        return null;
     }
 
+    @Override
     @PostMapping(value = "/signLayoutMetaBlock")
     public ResponseEntity<RestLayoutMetaBlock> signLayout(@RequestBody RestLayoutMetaBlock restLayoutMetaBlock) {
         LayoutMetaBlock layoutMetaBlock = layoutMetaBlockMapper.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
@@ -74,6 +78,7 @@ public class TestITService {
         return ResponseEntity.ok(layoutMetaBlockMapper.convertToRestLayoutMetaBlock(layoutMetaBlock));
     }
 
+    @Override
     @PostMapping(value = "/signLinkMetaBlock")
     public ResponseEntity<RestLinkMetaBlock> signLink(@RequestBody RestLinkMetaBlock restLinkMetaBlock) {
         LinkMetaBlock linkMetaBlock = linkMetaBlockMapper.convertFromRestLinkMetaBlock(restLinkMetaBlock);
