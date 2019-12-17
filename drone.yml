@@ -31,7 +31,6 @@ steps:
       branch:
         - master
         - develop
-        - build-release
       event:
         - push
 
@@ -178,6 +177,7 @@ steps:
     when:
       branch:
         - develop
+        - master
       event:
         - push
 
@@ -246,7 +246,6 @@ steps:
     when:
       branch:
         - develop
-        - build-release
       event:
         - push
 
