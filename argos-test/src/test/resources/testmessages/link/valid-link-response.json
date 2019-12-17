@@ -6,6 +6,7 @@
     },
     "link": {
       "runId": "69af2dd",
+      "command": [],
       "materials": [
         {
           "uri": "argos-test.iml",

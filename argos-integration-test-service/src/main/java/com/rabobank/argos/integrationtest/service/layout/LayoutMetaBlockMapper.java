@@ -13,27 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.link;
+package com.rabobank.argos.integrationtest.service.layout;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import com.rabobank.argos.domain.layout.LayoutMetaBlock;
+import com.rabobank.argos.integrationtest.argos.service.api.model.RestLayoutMetaBlock;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import java.util.List;
-import java.util.ArrayList;
 
-@Getter
-@Setter
-@Builder
-@EqualsAndHashCode
-public class Link {
-    private String runId;
-    private String stepName;
-    @Builder.Default
-    private List<String> command = new ArrayList<>();
-    @Builder.Default
-    private List<Artifact> materials = new ArrayList<>();
-    @Builder.Default
-    private List<Artifact> products = new ArrayList<>();
+@Mapper(componentModel = "spring", uses = {StepMapper.class})
+public interface LayoutMetaBlockMapper {
+
+    LayoutMetaBlock convertFromRestLayoutMetaBlock(RestLayoutMetaBlock metaBlock);
+
+    @Mapping(source = "layoutMetaBlockId", target = "id")
+    RestLayoutMetaBlock convertToRestLayoutMetaBlock(LayoutMetaBlock metaBlock);
 }

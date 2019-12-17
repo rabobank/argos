@@ -1,0 +1,184 @@
+@startuml
+
+skinparam roundcorner 25
+skinparam defaultFontColor Black
+skinparam defaultFontSize 12
+skinparam Padding 10
+skinparam pageMargin 40
+skinparam classFontSize 14
+skinparam classFontColor black
+skinparam classFontStyle bold
+skinparam ArrowFontStyle bold
+skinparam ArrowThickness 2
+skinparam class {
+	BackgroundColor PaleGreen
+	ArrowColor DarkSlateGray
+	ArrowFontColor Black
+	BorderColor SlateGray
+}
+skinparam stereotypeCBackgroundColor Snow
+
+class SupplyChain #Tan {
+  UUID
+  name
+}
+
+class Label #Tan {
+}
+
+together  {
+    class Signature #pink {
+    signature
+    }
+
+    together {
+        class Key #pink {
+        keyId
+        }
+
+        class PubKey #pink {
+        keyId
+        }
+    }
+
+    together {
+        class RSAKey #pink {
+        }
+
+        class GPGKey #pink {
+        }
+    }
+    Signature "0..*" -down- "1" Key
+    Key "1" - "1" PubKey
+    Key <|-down- GPGKey
+    Key <|-down- RSAKey
+}
+
+
+together {
+    class Verifyable #PaleTurquoise {
+    }
+
+    together {
+        class LayoutMetablock {
+        }
+
+        class LinkMetablock {
+        }
+    }
+
+    class Signable #PaleTurquoise {
+    }
+
+    together {
+        class Layout #Gainsboro {
+        }
+
+        class Link  #Gainsboro {
+        runID
+        }
+
+        class Command  #Gainsboro {
+        }
+    }
+
+    together {
+        class Step  #Gainsboro {
+        name
+        }
+
+        class Artifact  #Gainsboro {
+        }
+    }
+    Verifyable <|-down- LayoutMetablock
+    Verifyable <|-down LinkMetablock
+    Layout  "0..*" - "0..*" Layout : Sublayout
+    Signable <|-left- Layout
+    Signable <|-down- Link
+    Link "0..*" .. "1" Step
+    LinkMetablock "1" -down- "1" Link
+    LayoutMetablock "1" -down- "1" Layout
+    Layout <|-down- Link
+    Artifact "0..*" -up- "0..*" Link : Materials
+    Artifact "0..*" -up- "0..*" Link : Products
+    Command "1" -left- "1" Link
+}
+
+
+together {
+    class Privilege #cornsilk {
+        type
+    }
+
+    class Role #cornsilk {
+    }
+
+    class User #cornsilk {
+        UUID
+    }
+
+        Class ImportLink #cornsilk {
+        }
+
+        Class Read #cornsilk {
+        }
+    ImportLink -up-|> Privilege
+    Label -down- Privilege
+    Read -up-|> Privilege
+    SupplyChain  "0..*" -down- "0..*" Label
+    User "1" -down- "0..*" Role
+    User "0..*" - "0..*" Label
+    Privilege "1..*" -down- "1..*" Role
+}
+
+together {
+    class Rule #Plum
+    {
+        pattern
+    }
+
+
+        Class Modifyable #Plum {
+        }
+
+        Class Allow  #Plum {
+        }
+
+        Class DisAllow #Plum {
+        }
+
+        Class CreateRule #Plum {
+        }
+
+        Class ModifyRule #Plum {
+
+        }
+        Class MatchRule #Plum {
+        }
+
+        Class DeleteRule #Plum {
+        }
+
+        Class RequireRule #Plum {
+        }
+    }
+    Rule <|-up- Allow
+    Rule <|-up- CreateRule
+    Rule <|-right- DeleteRule
+    Rule <|-down- DisAllow
+    Rule <|-down- MatchRule
+    Rule <|-down- ModifyRule
+    Rule <|-left- RequireRule
+    Rule <|-up- Modifyable
+
+
+PubKey "0..*" - "0..*" Layout
+Key "1..*" -down- "-" Step : authorized
+Key "1" - "1" PubKey
+
+SupplyChain - LayoutMetablock
+SupplyChain - LinkMetablock
+
+Rule "0..*" - "1" Step
+
+@enduml

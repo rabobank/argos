@@ -14,12 +14,14 @@
 # limitations under the License.
 #
 
-
+@Ignore
 Feature: Verification template
 
   Background:
-    * def testFilesDir = __arg.testDir
     * url karate.properties['server.baseurl']
+    * def verificationRequest = __arg.verificationRequest
+    * def testFilesDir = __arg.testDir
+    * def steps = __arg.steps
     * call read('classpath:feature/reset.feature')
     * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { name: 'name'}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
@@ -31,12 +33,13 @@ Feature: Verification template
     Given print 'testFilesDir : ', testFilesDir
     * def layout = 'classpath:testmessages/verification/'+testFilesDir+'/layout.json'
     * def layoutCreated = call read('classpath:feature/layout/create-layout.feature') {supplyChainId:#(supplyChainId), json:#(layout)}
-    * def buildStepLink = 'classpath:testmessages/verification/'+testFilesDir+'/build-step-link.json'
-    * call read('classpath:feature/link/create-link-with-valid-layout-update.feature') {supplyChainId:#(supplyChainId), json:#(buildStepLink),layoutToBeUpdated:#(layoutCreated.response),stepIndex:0}
-    * def testStepLink = 'classpath:testmessages/verification/'+testFilesDir+'/test-step-link.json'
-    * call read('classpath:feature/link/create-link-with-valid-layout-update.feature') {supplyChainId:#(supplyChainId), json:#(testStepLink),layoutToBeUpdated:#(layoutCreated.response),stepIndex:1}
+    # this creates an array of stepLinksJson messages
+    * def stepLinksJsonMapper = function(jsonlink, i){ return  {supplyChainId:supplyChainId, json:'classpath:testmessages/verification/'+testFilesDir+'/'+jsonlink,layoutToBeUpdated:layoutCreated.response,stepIndex:i}}
+    * def stepLinksJson = karate.map(steps, stepLinksJsonMapper)
+    # when a call to a feature presented with an array of messages it will cal the feature template iteratively
+    * call read('classpath:feature/link/create-link-with-valid-layout-update.feature') stepLinksJson
     Given path supplyChainPath + '/verification'
-    And request {"expectedProducts": [{"uri": "target/argos-test-0.0.1-SNAPSHOT.jar","hash": "49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162"}]}
+    And request  verificationRequest
     And header Content-Type = 'application/json'
     When method POST
     Then status 200

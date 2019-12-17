@@ -33,7 +33,7 @@ public class Argos4jSettings implements Serializable {
     private final boolean followSymlinkDirs = true;
 
     @Builder.Default
-    private final boolean normalizeLineEndings = true;
+    private final boolean normalizeLineEndings = false;
 
     private final String supplyChainName;
     private final String runId;

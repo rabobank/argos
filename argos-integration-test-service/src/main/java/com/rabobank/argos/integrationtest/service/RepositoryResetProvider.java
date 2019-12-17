@@ -13,27 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.link;
+package com.rabobank.argos.integrationtest.service;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.util.List;
-import java.util.ArrayList;
-
-@Getter
-@Setter
-@Builder
-@EqualsAndHashCode
-public class Link {
-    private String runId;
-    private String stepName;
-    @Builder.Default
-    private List<String> command = new ArrayList<>();
-    @Builder.Default
-    private List<Artifact> materials = new ArrayList<>();
-    @Builder.Default
-    private List<Artifact> products = new ArrayList<>();
+public interface RepositoryResetProvider {
+    void resetAllRepositories();
 }

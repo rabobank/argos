@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.link;
+package com.rabobank.argos.integrationtest.service.layout;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import com.rabobank.argos.domain.layout.rule.MatchRule;
+import com.rabobank.argos.integrationtest.argos.service.api.model.RestRule;
+import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import java.util.List;
-import java.util.ArrayList;
+@Mapper(componentModel = "spring")
+public interface MatchRuleMapper {
 
-@Getter
-@Setter
-@Builder
-@EqualsAndHashCode
-public class Link {
-    private String runId;
-    private String stepName;
-    @Builder.Default
-    private List<String> command = new ArrayList<>();
-    @Builder.Default
-    private List<Artifact> materials = new ArrayList<>();
-    @Builder.Default
-    private List<Artifact> products = new ArrayList<>();
+    @Mapping(source = "destinationPathPrefix", target = "destinationPathPrefix")
+    MatchRule mapFromRestRule(RestRule restRule);
+
+    @InheritInverseConfiguration
+    RestRule mapToRestRule(MatchRule rule);
 }
