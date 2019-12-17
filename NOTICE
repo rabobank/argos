@@ -1,5 +1,5 @@
-Argos
-Copyright 2019 and onwards Rabobank Nederland
+Argos Supply Chain Notary
+Copyright 2019 Rabobank Nederland
 
 This product includes software developed at
 Rabobank Nederland (http://www.rabobank.com).
@@ -8,7 +8,8 @@ The implementation for Argos is based on initial ideas published by
 
 Santiago Torres-Arias, New York University; 
 Hammad Afzali, New Jersey Institute of Technology; 
-Trishank Karthik Kuppusamy, Datadog; Reza Curtmola, New Jersey Institute of Technology; 
+Trishank Karthik Kuppusamy, Datadog;
+Reza Curtmola, New Jersey Institute of Technology; 
 Justin Cappos, New York University, 
 
 "in-toto: Providing farm-to-table guarantees for bits and bytes" available at https://www.usenix.org/system/files/sec19-torres-arias.pdf

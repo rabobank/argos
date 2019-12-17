@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.rabobank.argos.argos4j;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -64,6 +79,7 @@ class Argos4jTest {
                 .stepName("build")
                 .supplyChainName("supplyChainName")
                 .signingKey(SigningKey.builder().keyPair(pair).build())
+                .runId("runId")
                 .build();
         argos4j = new Argos4j(settings);
 
@@ -78,19 +94,19 @@ class Argos4jTest {
     @Test
     void storeMetablockLinkForDirectory() {
         wireMockServer.stubFor(get(urlEqualTo("/api/supplychain?name=supplyChainName")).willReturn(ok().withBody("[{\"name\":\"supplyChainName\",\"id\":\"supplyChainId\"}]")));
-        wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link/")).willReturn(noContent()));
+        wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link")).willReturn(noContent()));
         argos4j.collectMaterials(sharedTempDir.getAbsoluteFile());
         argos4j.collectProducts(sharedTempDir.getAbsoluteFile());
         argos4j.store();
         List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
         assertThat(requests, hasSize(2));
-        assertThat(requests.get(1).getBodyAsString(), endsWith(",\"link\":{\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hash\":\"616e953d8784d4e15a17055a91ac7539bca32350850ac5157efffdda6a719a7b\"}]}}"));
+        assertThat(requests.get(1).getBodyAsString(), endsWith(",\"link\":{\"runId\":\"runId\",\"command\":[],\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"cb6bdad36690e8024e7df13e6796ae6603f2cb9cf9f989c9ff939b2ecebdcb91\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hash\":\"cb6bdad36690e8024e7df13e6796ae6603f2cb9cf9f989c9ff939b2ecebdcb91\"}]}}"));
     }
 
     @Test
     void storeMetablockLinkForDirectoryFailed() {
         wireMockServer.stubFor(get(urlEqualTo("/api/supplychain?name=supplyChainName")).willReturn(ok().withBody("[{\"name\":\"supplyChainName\",\"id\":\"supplyChainId\"}]")));
-        wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link/")).willReturn(serverError()));
+        wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link")).willReturn(serverError()));
         Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store());
         assertThat(error.getMessage(), is("500 "));
     }
@@ -98,7 +114,7 @@ class Argos4jTest {
     @Test
     void storeMetablockLinkForDirectoryUnexectedResonse() {
         wireMockServer.stubFor(get(urlEqualTo("/api/supplychain?name=supplyChainName")).willReturn(badRequest()));
-        wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link/")).willReturn(ok()));
+        wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link")).willReturn(ok()));
         Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store());
         assertThat(error.getMessage(), is("400 "));
     }

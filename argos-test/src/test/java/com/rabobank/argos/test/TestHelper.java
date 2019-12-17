@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.rabobank.argos.test;
 
 import com.rabobank.argos.argos4j.rest.api.ApiClient;
@@ -27,7 +42,7 @@ public class TestHelper {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(properties.getApiBaseUrl() + "/integration-test/reset-db"))
+                    .uri(URI.create(properties.getIntegrationTestServiceBaseUrl() + "/integration-test/reset-db"))
                     .method("POST", HttpRequest.BodyPublishers.noBody())
                     .build();
             HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -54,6 +69,26 @@ public class TestHelper {
         });
 
         log.info("argos service started");
+    }
+
+
+    public static void waitForArgosIntegrationTestServiceToStart() {
+        log.info("Waiting for argos integration test service start");
+        HttpClient client = HttpClient.newHttpClient();
+        await().atMost(30, SECONDS).until(() -> {
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(properties.getIntegrationTestServiceBaseUrl() + "/actuator/health"))
+                        .build();
+                HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
+                return 200 == send.statusCode();
+            } catch (IOException e) {
+                //ignore
+                return false;
+            }
+        });
+
+        log.info("argos integration test service started");
     }
 
     public static LinkApi getLinkApi() {

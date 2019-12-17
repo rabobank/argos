@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2019 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import jenkins.model.*
 import hudson.security.*
 import hudson.tasks.*
@@ -65,7 +80,7 @@ argosConfig.setPort(8080)
 
 FreeStyleProject fp = instance.createProject(FreeStyleProject.class, "argos-test-app-freestyle-recording")
 fp.setScm(new GitSCM("https://github.com/rabobank/argos-test-app.git"))
-argosRecorder = new ArgosRecorder("argos-test-app", "bob", "build")
+argosRecorder = new ArgosRecorder("argos-test-app", "bob", "build", '${BUILD_NUMBER}')
 fp.getPublishersList().add(argosRecorder)
 fp.getBuildersList().add(new Shell("mvn clean install"))
 

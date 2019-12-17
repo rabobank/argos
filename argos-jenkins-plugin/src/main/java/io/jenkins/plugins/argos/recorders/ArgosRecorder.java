@@ -1,9 +1,25 @@
+/*
+ * Copyright (C) 2019 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.jenkins.plugins.argos.recorders;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jError;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -23,9 +39,11 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.plaincredentials.FileCredentials;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -35,12 +53,14 @@ import java.util.Optional;
  */
 public class ArgosRecorder extends Recorder {
 
+    @DataBoundSetter
     private String supplyChainName;
     /**
      * Credential id with private key to load.
      * <p>
      * If not defined signing will not be performed.
      */
+    @DataBoundSetter
     private String privateKeyCredentialId;
 
     /**
@@ -48,7 +68,14 @@ public class ArgosRecorder extends Recorder {
      * <p>
      * If not defined, will default to step
      */
+    @DataBoundSetter
     private String stepName;
+
+    /**
+     * Run Id of the pipeline
+     */
+    @DataBoundSetter
+    private String runId;
 
     /**
      * Link metadata used to record this step
@@ -57,25 +84,51 @@ public class ArgosRecorder extends Recorder {
 
 
     @DataBoundConstructor
-    public ArgosRecorder(String supplyChainName, String privateKeyCredentialId, String stepName) {
+    public ArgosRecorder(String supplyChainName, String privateKeyCredentialId, String stepName, String runId) {
         this.stepName = stepName;
         this.supplyChainName = supplyChainName;
         this.privateKeyCredentialId = privateKeyCredentialId;
+        this.runId = runId;
     }
 
+    public String getSupplyChainName() {
+        return supplyChainName;
+    }
+
+    public String getPrivateKeyCredentialId() {
+        return privateKeyCredentialId;
+    }
+
+    public String getStepName() {
+        return stepName;
+    }
+
+    public String getRunId() {
+        return runId;
+    }
 
     @Override
     public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
+        try {
+            String cwdStr = getCwdStr(build);
+            listener.getLogger().println("[argos] Recording state before build " + cwdStr);
+            listener.getLogger().println("[argos] using step name: " + stepName);
 
-        String cwdStr = getCwdStr(build);
+            EnvVars environment = build.getEnvironment(listener);
+            argos4j = new ArgosJenkinsHelper(
+                    environment.expand(privateKeyCredentialId),
+                    environment.expand(stepName),
+                    environment.expand(supplyChainName),
+                    environment.expand(runId)).createArgos();
 
-        listener.getLogger().println("[argos] Recording state before build " + cwdStr);
-        listener.getLogger().println("[argos] using step name: " + stepName);
-
-        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, stepName, supplyChainName).createArgos();
-
-        argos4j.collectMaterials(new File(cwdStr));
-        return true;
+            argos4j.collectMaterials(new File(cwdStr));
+            return true;
+        } catch (IOException e) {
+            throw new Argos4jError(e.getMessage(), e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
     }
 
     private String getCwdStr(AbstractBuild<?, ?> build) {

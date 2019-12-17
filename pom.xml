@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!--
+
+    Copyright (C) 2019 Rabobank Nederland
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>pom</packaging>
 	<modules>
@@ -9,56 +28,58 @@
 		<module>argos-service-adapter-in-rest</module>
 		<module>argos-service-adapter-out-mongodb</module>
 		<module>argos-service</module>
+		<module>argos-integration-test-service</module>
 		<module>argos-jenkins-plugin</module>
-        <module>argos-docker</module>
+		<module>argos-docker</module>
 		<module>argos-test</module>
 		<module>argos-jenkins-base</module>
+		<module>argos-service-domain</module>
 	</modules>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos-parent</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-    <description>Argos Supply Chain Notary</description>
-    <url>https://github.com/rabobank/argos</url>
+	<version>0.0.1-ALPHA</version>
+	<description>Argos Supply Chain Notary</description>
+	<url>https://github.com/rabobank/argos</url>
 
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
 
-    <developers>
-        <developer>
-            <name>Gerard Borst</name>
-            <email>gerard.borst@rabobank.nl</email>
-            <organization>Rabobank</organization>
-            <organizationUrl>https://www.rabobank.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Bart Kors</name>
-            <email>bart.kors@rabobank.nl</email>
-            <organization>Rabobank</organization>
-            <organizationUrl>https://www.rabobank.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Michel Durieux</name>
-            <email>michel.durieux@rabobank.nl</email>
-            <organization>Rabobank</organization>
-            <organizationUrl>https://www.rabobank.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Geert van der Sterre</name>
-            <email>geert.van.der.sterre@rabobank.nl</email>
-            <organization>Rabobank</organization>
-            <organizationUrl>https://www.rabobank.com</organizationUrl>
-        </developer>
-    </developers>
+	<developers>
+		<developer>
+			<name>Gerard Borst</name>
+			<email>gerard.borst@rabobank.nl</email>
+			<organization>Rabobank</organization>
+			<organizationUrl>https://www.rabobank.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Bart Kors</name>
+			<email>bart.kors@rabobank.nl</email>
+			<organization>Rabobank</organization>
+			<organizationUrl>https://www.rabobank.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Michel Durieux</name>
+			<email>michel.durieux@rabobank.nl</email>
+			<organization>Rabobank</organization>
+			<organizationUrl>https://www.rabobank.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Geert van der Sterre</name>
+			<email>geert.van.der.sterre@rabobank.nl</email>
+			<organization>Rabobank</organization>
+			<organizationUrl>https://www.rabobank.com</organizationUrl>
+		</developer>
+	</developers>
 
-    <scm>
-        <connection>scm:git:git://github.com/rabobank/argos.git</connection>
-        <developerConnection>scm:git:ssh://github.com:rabobank/argos.git</developerConnection>
-        <url>https://github.com/rabobank/argos/tree/master</url>
-    </scm>
+	<scm>
+		<connection>scm:git:https://github.com/rabobank/argos.git</connection>
+		<developerConnection>scm:git:https://github.com/rabobank/argos.git</developerConnection>
+		<url>https://github.com/rabobank/argos/tree/master</url>
+	</scm>
 
 	<properties>
 		<java.version>11</java.version>
@@ -74,7 +95,7 @@
 		<swagger-annotations.version>1.5.23</swagger-annotations.version>
 		<jsonassert.version>1.5.0</jsonassert.version>
 		<jackson-databind-nullable.version>0.1.0</jackson-databind-nullable.version>
-        <jackson-databind.version>2.10.0</jackson-databind.version>
+		<jackson-databind.version>2.10.0</jackson-databind.version>
 	</properties>
 
 	<dependencies>
@@ -115,8 +136,56 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.22.2</version>
 			</plugin>
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<quiet>false</quiet>
+					<failIfMissing>true</failIfMissing>
+					<strictCheck>true</strictCheck>
+					<aggregate>false</aggregate>
+                    <header>https://raw.github.com/rabobank/argos/develop/docs/header.txt</header>
+					<excludes>
+						<exclude>target/**</exclude>
+						<exclude>drone.yml</exclude>
+                        <exclude>**/*.txt</exclude>
+						<exclude>**/publickey</exclude>
+						<exclude>**/testkey.pub</exclude>
+						<exclude>**/bob</exclude>
+					</excludes>
+					<useDefaultExcludes>true</useDefaultExcludes>
+					<properties>
+						<lic.year>2019</lic.year>
+					</properties>
+					<encoding>UTF-8</encoding>
+					<mapping>
+						<java>SLASHSTAR_STYLE</java>
+						<ServiceDockerfile>SCRIPT_STYLE</ServiceDockerfile>
+						<JenkinsDockerfile>SCRIPT_STYLE</JenkinsDockerfile>
+					</mapping>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 
 	<profiles>
 		<profile>
@@ -150,6 +219,8 @@
 								<excludedClasse>com.rabobank.argos.argos4j.rest.api.*</excludedClasse>
 								<excludedClasse>com.rabobank.argos.service.adapter.in.rest.api.*</excludedClasse>
 								<excludedClasse>*MapperImpl</excludedClasse>
+								<excludedClass>com.rabobank.argos.integrationtest.service.*</excludedClass>
+								<excludedClass>com.rabobank.argos.integrationtest.argos.service.api.*</excludedClass>
 							</excludedClasses>
 							<targetClasses>
 								<param>com.rabobank.argos.*</param>
@@ -179,7 +250,7 @@
 						<artifactId>jacoco-maven-plugin</artifactId>
 						<version>0.8.4</version>
 						<executions>
-							<!--genereer report voor elke submodule-->
+							<!--genereer report voor elke submodule -->
 							<execution>
 								<id>reporting</id>
 								<goals>

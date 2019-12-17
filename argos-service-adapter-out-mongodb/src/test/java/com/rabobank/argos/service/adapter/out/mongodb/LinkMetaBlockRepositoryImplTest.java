@@ -1,6 +1,22 @@
+/*
+ * Copyright (C) 2019 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.rabobank.argos.service.adapter.out.mongodb;
 
-import com.rabobank.argos.domain.model.LinkMetaBlock;
+import com.rabobank.argos.domain.link.LinkMetaBlock;
+import com.rabobank.argos.service.adapter.out.mongodb.link.LinkMetaBlockRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,7 +75,7 @@ class LinkMetaBlockRepositoryImplTest {
     void postPostConstruct() {
         when(template.indexOps(COLLECTION_NAME)).thenReturn(indexOperations);
         repository.postConstruct();
-        verify(template, times(3)).indexOps(COLLECTION_NAME);
+        verify(template, times(4)).indexOps(COLLECTION_NAME);
     }
 
     @Test
@@ -78,10 +94,28 @@ class LinkMetaBlockRepositoryImplTest {
         List<LinkMetaBlock> blocks = repository.findBySupplyChainAndSha(SUPPLY_CHAIN_ID, SHA);
         assertThat(blocks, hasSize(1));
         assertThat(blocks.get(0), sameInstance(linkMetaBlock));
-
         verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME));
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"$or\" : [{ \"link.materials.hash\" : \"sha\"}, { \"link.products.hash\" : \"sha\"}]}]}, Fields: {}, Sort: {}"));
+    }
 
+    @Test
+    void findBySupplyChainAndStepNameAndProductHashes() {
+        when(template.find(any(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME))).thenReturn(singletonList(linkMetaBlock));
+        List<LinkMetaBlock> blocks = repository.findBySupplyChainAndStepNameAndProductHashes(SUPPLY_CHAIN_ID, "stepName", singletonList(SHA));
+        assertThat(blocks, hasSize(1));
+        assertThat(blocks.get(0), sameInstance(linkMetaBlock));
+        verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"link.stepName\" : \"stepName\"}, { \"link.products.hash\" : \"sha\"}]}, Fields: {}, Sort: {}"));
+    }
+
+    @Test
+    void findBySupplyChainAndStepNameAndMaterialHash() {
+        when(template.find(any(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME))).thenReturn(singletonList(linkMetaBlock));
+        List<LinkMetaBlock> blocks = repository.findBySupplyChainAndStepNameAndMaterialHash(SUPPLY_CHAIN_ID, "stepName", singletonList(SHA));
+        assertThat(blocks, hasSize(1));
+        assertThat(blocks.get(0), sameInstance(linkMetaBlock));
+        verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"link.stepName\" : \"stepName\"}, { \"link.materials.hash\" : \"sha\"}]}, Fields: {}, Sort: {}"));
     }
 
     @Test

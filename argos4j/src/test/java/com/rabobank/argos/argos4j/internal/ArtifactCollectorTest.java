@@ -1,9 +1,28 @@
+/*
+ * Copyright (C) 2019 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.rabobank.argos.argos4j.internal;
 
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.Argos4jSettings;
-import com.rabobank.argos.domain.model.Artifact;
+import com.rabobank.argos.domain.link.Artifact;
+
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.input.UnixLineEndingInputStream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -11,10 +30,13 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
+import java.security.MessageDigest;
 import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -26,6 +48,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.condition.OS.WINDOWS;
 
 class ArtifactCollectorTest {
@@ -87,7 +110,7 @@ class ArtifactCollectorTest {
     @Test
     @DisabledOnOs(WINDOWS)
     void collectOnFileWithBasePath() {
-        List<Artifact> artifacts = sort(new ArtifactCollector(Argos4jSettings.builder().build(), onFileDir.getPath()).collect(""));
+        List<Artifact> artifacts = sort(new ArtifactCollector(Argos4jSettings.builder().normalizeLineEndings(true).build(), onFileDir.getPath()).collect(""));
         assertThat(artifacts, hasSize(3));
         checkLevel2File(artifacts.get(0), "linkdir");
         checkLevel2Zip(artifacts.get(1), "linkdir");
@@ -123,7 +146,7 @@ class ArtifactCollectorTest {
 
     @Test
     void collectOnFileWithBasePathNotFollowLinks() {
-        List<Artifact> artifacts = new ArtifactCollector(Argos4jSettings.builder().followSymlinkDirs(false).build(), onFileDir.getPath()).collect("");
+        List<Artifact> artifacts = new ArtifactCollector(Argos4jSettings.builder().normalizeLineEndings(true).followSymlinkDirs(false).build(), onFileDir.getPath()).collect("");
         assertThat(artifacts, hasSize(1));
         checkTextartifact(artifacts.get(0));
     }
@@ -159,7 +182,7 @@ class ArtifactCollectorTest {
 
     @Test
     void collectOnFileWithoutBasePathNotFollowLinks() {
-        List<Artifact> artifacts = new ArtifactCollector(Argos4jSettings.builder().followSymlinkDirs(false).build(), null).collect(onFileDir.getPath());
+        List<Artifact> artifacts = new ArtifactCollector(Argos4jSettings.builder().normalizeLineEndings(true).followSymlinkDirs(false).build(), null).collect(onFileDir.getPath());
         assertThat(artifacts, hasSize(1));
         Artifact artifact = artifacts.get(0);
         assertThat(artifact.getUri(), endsWith("on file dir/text.txt"));
@@ -170,6 +193,29 @@ class ArtifactCollectorTest {
     void collectOneFileThatIsInTheIgnoreFilter() {
         List<Artifact> artifacts = new ArtifactCollector(Argos4jSettings.builder().followSymlinkDirs(false).build(), null).collect(ignoredFile.getPath());
         assertThat(artifacts, hasSize(0));
+    }
+    
+    @Test
+    void checkShaIndependentOfImplementation() {
+        String dirname = "src/test/resources/artifactcollectertest";
+        String expectedHash = this.createHash(dirname+"/argos-test-app.war");
+        File artifactCollecterTestDir = new File(dirname);
+        List<Artifact> artifacts = new ArtifactCollector(Argos4jSettings.builder().build(), null).collect(artifactCollecterTestDir.getPath());
+        assertEquals(expectedHash, artifacts.get(0).getHash());
+    }
+    
+    private String createHash(String filename) {
+        MessageDigest digest = DigestUtils.getSha256Digest();
+        byte[] result = new byte[digest.getDigestLength()];
+        try (InputStream file = new FileInputStream(filename)) {
+            int length;
+            while ((length = file.read(result)) != -1) {
+                digest.update(result, 0, length);
+            }
+        } catch (IOException e) {
+            throw new Argos4jError("The file " + filename + " couldn't be recorded: " + e.getMessage());
+        }
+        return Hex.encodeHexString(digest.digest());
     }
 
 }

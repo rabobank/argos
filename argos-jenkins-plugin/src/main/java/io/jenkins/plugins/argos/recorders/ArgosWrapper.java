@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.jenkins.plugins.argos.recorders;
 
 import com.rabobank.argos.argos4j.Argos4j;
@@ -48,13 +63,20 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
     @DataBoundSetter
     public String supplyChainName;
 
+    /**
+     * Run Id of the pipeline
+     */
+    @DataBoundSetter
+    public String runId;
+
     private Argos4j argos4j;
 
     @DataBoundConstructor
-    public ArgosWrapper(String privateKeyCredentialId, String stepName, String supplyChainName) {
+    public ArgosWrapper(String privateKeyCredentialId, String stepName, String supplyChainName, String runId) {
         this.privateKeyCredentialId = privateKeyCredentialId;
         this.stepName = stepName;
         this.supplyChainName = supplyChainName;
+        this.runId = runId;
     }
 
     @Override
@@ -70,7 +92,7 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
 
 
         listener.getLogger().println("[argos] creating metadata... ");
-        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, stepName, supplyChainName).createArgos();
+        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, stepName, supplyChainName, runId).createArgos();
 
         argos4j.collectMaterials(new File(workspace.getRemote()));
 
