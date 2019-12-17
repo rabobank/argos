@@ -14,16 +14,12 @@
 # limitations under the License.
 #
 
-@ignore
-Feature: sign layout
+FROM openjdk:11.0.5-jre-slim-buster
 
-  Background:
-    * url karate.properties['server.integration-test-service.baseurl']
-    * def layoutToBeSigned = __arg
+RUN adduser --system --home /home/argos --uid 1000 argos
 
-  Scenario: sign the layout should return 200
-    Given path '/integration-test/signLayoutMetaBlock'
-    And request layoutToBeSigned
-    And header Content-Type = 'application/json'
-    When method POST
-    Then status 200
+USER argos
+
+ADD target/lib/argos-integration-test-service.jar /
+
+ENTRYPOINT ["java","-jar","/argos-integration-test-service.jar"]

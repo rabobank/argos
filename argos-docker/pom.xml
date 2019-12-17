@@ -47,8 +47,8 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git:git://github.com/rabobank/argos.git</connection>
-		<developerConnection>scm:git:ssh://github.com:rabobank/argos.git</developerConnection>
+		<connection>scm:git:https://github.com/rabobank/argos.git</connection>
+		<developerConnection>scm:git:https://github.com/rabobank/argos.git</developerConnection>
 		<url>https://github.com/rabobank/argos/tree/master</url>
 	</scm>
 
@@ -63,7 +63,7 @@
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>copy-service-jar</id>
+						<id>copy-service-jars</id>
 						<phase>generate-resources</phase>
 						<goals>
 							<goal>copy</goal>
@@ -83,6 +83,13 @@
 									<artifactId>argos</artifactId>
 									<version>${project.version}</version>
 									<type>hpi</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>argos-integration-test-service</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
 							</artifactItems>

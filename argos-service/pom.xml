@@ -73,8 +73,8 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git:git://github.com/rabobank/argos.git</connection>
-		<developerConnection>scm:git:ssh://github.com:rabobank/argos.git</developerConnection>
+		<connection>scm:git:https://github.com/rabobank/argos.git</connection>
+		<developerConnection>scm:git:https://github.com/rabobank/argos.git</developerConnection>
 		<url>https://github.com/rabobank/argos/tree/master</url>
 	</scm>
 
@@ -234,6 +234,9 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -332,6 +335,47 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>xml-maven-plugin</artifactId>
+				<version>1.0.2</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>transform</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<transformationSets>
+						<transformationSet>
+							<dir>${project.basedir}</dir>
+							<includes>pom.xml</includes>
+							<stylesheet>${project.basedir}/remove-dependencies.xsl</stylesheet>
+							<outputDir>${project.build.directory}</outputDir>
+						</transformationSet>
+					</transformationSets>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>3.0.0-M1</version>
+				<configuration>
+					<repositoryId>ossrh</repositoryId>
+					<file>${project.build.directory}/${project.build.finalName}.jar</file>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>${project.artifactId}</artifactId>
+					<version>${project.version}</version>
+					<packaging>jar</packaging>
+					<pomFile>${project.build.directory}/pom.xml</pomFile>
+					<files>${project.build.directory}/${project.build.finalName}.jar.asc,${project.build.directory}/${project.build.finalName}-sources.jar.asc,${project.build.directory}/${project.build.finalName}-javadoc.jar.asc,${project.build.directory}/pom.xml.asc</files>
+					<types>jar.asc,jar.asc,jar.asc,xml.asc</types>
+					<classifiers>,sources,javadoc,</classifiers>
+					<sources>${project.build.directory}/${project.build.finalName}-sources.jar</sources>
+					<javadoc>${project.build.directory}/${project.build.finalName}-javadoc.jar</javadoc>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
