@@ -16,6 +16,7 @@
 package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
@@ -44,19 +45,24 @@ public class VerificationProvider {
     }
 
     public VerificationRunResult verifyRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
-        return runIdResolver.getRunId(layoutMetaBlock, productsToVerify)
-                .map(runId -> verifyRun(runId, layoutMetaBlock))
-                .orElse(VerificationRunResult.builder().runIsValid(false).build());
+        return runIdResolver.getRunIdPerSegment(layoutMetaBlock, productsToVerify)
+                .stream()
+                .map(runIdWithSegment -> verifyRun(runIdWithSegment, layoutMetaBlock))
+                .filter(verificationRunResult -> !verificationRunResult.isRunIsValid()).findFirst()
+                .orElse(VerificationRunResult.okay());
     }
 
-    private VerificationRunResult verifyRun(String runId, LayoutMetaBlock layoutMetaBlock) {
-        return verifyRun(linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId), layoutMetaBlock);
+    private VerificationRunResult verifyRun(RunIdWithSegment runIdWithSegment, LayoutMetaBlock layoutMetaBlock) {
+        return runIdWithSegment.getOptionalRunId()
+                .map(runId -> verifyRun(linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId), runIdWithSegment.getSegment(), layoutMetaBlock))
+                .orElse(VerificationRunResult.valid(false));
     }
 
-    private VerificationRunResult verifyRun(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
+    private VerificationRunResult verifyRun(List<LinkMetaBlock> linkMetaBlocks, LayoutSegment segment, LayoutMetaBlock layoutMetaBlock) {
         VerificationContext context = VerificationContext.builder()
                 .linkMetaBlocks(linkMetaBlocks)
                 .layoutMetaBlock(layoutMetaBlock)
+                .segment(segment)
                 .build();
         return verifications.stream()
                 .map(verification -> verification.verify(context))

@@ -5,6 +5,9 @@
   ],
   "expectedEndProducts": [
     {
+      "destinationSegmentName": "destinationSegmentName",
+      "destinationStepName": "destinationStepName",
+      "destinationType": "PRODUCTS",
       "pattern": "MatchFiler"
     }
   ],

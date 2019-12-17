@@ -8,7 +8,8 @@
       {
         "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
         "destinationType": "PRODUCTS",
-        "destinationStepName": "build"
+        "destinationStepName": "build",
+        "destinationSegmentName": "segment 1"
       }
     ],
     "layoutSegments": [

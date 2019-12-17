@@ -93,7 +93,7 @@ class VerificationProviderTest {
     private ArgumentCaptor<VerificationContext> verificationContextArgumentCaptor;
 
     @Mock
-    private LayoutSegment layoutSegment;
+    private LayoutSegment segment;
 
     @BeforeEach
     public void setup() {
@@ -115,6 +115,7 @@ class VerificationProviderTest {
         VerificationContext verificationContext = verificationContextArgumentCaptor.getValue();
         assertThat(verificationContext.getLayoutMetaBlock(), sameInstance(layoutMetaBlock));
         assertThat(verificationContext.getLinkMetaBlocks(), hasItem(linkMetaBlock));
+        assertThat(verificationContext.getSegment(), sameInstance(segment));
 
         verify(highPrio).verify(any(VerificationContext.class));
 
@@ -137,14 +138,13 @@ class VerificationProviderTest {
         verificationProvider.init();
 
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLYCHAIN_ID);
-        when(layoutMetaBlock.getLayout()).thenReturn(layout);
-        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
-        when(layoutSegment.getSteps()).thenReturn(List.of(step));
+
 
         when(linkMetaBlock.getLink()).thenReturn(link);
         when(link.getStepName()).thenReturn(STEPNAME);
 
-        when(runIdResolver.getRunId(layoutMetaBlock, List.of(artifact))).thenReturn(Optional.of(RUN_ID));
+        when(runIdResolver.getRunIdPerSegment(layoutMetaBlock, List.of(artifact)))
+                .thenReturn(List.of(RunIdWithSegment.builder().segment(segment).optionalRunId(Optional.of(RUN_ID)).build()));
         when(linkMetaBlockRepository.findByRunId(SUPPLYCHAIN_ID, RUN_ID)).thenReturn(List.of(linkMetaBlock));
 
         when(lowPrio.verify(any(VerificationContext.class))).thenReturn(verificationRunResultLow);

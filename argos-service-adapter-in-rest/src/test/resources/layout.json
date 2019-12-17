@@ -18,7 +18,8 @@
       {
         "pattern": "MATCHpattern",
         "destinationType": "PRODUCTS",
-        "destinationStepName": "destinationStepName"
+        "destinationStepName": "destinationStepName",
+        "destinationSegmentName": "destinationSegmentName"
       }
     ],
     "layoutSegments": [

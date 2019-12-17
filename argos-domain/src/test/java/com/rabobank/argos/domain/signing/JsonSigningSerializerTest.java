@@ -58,7 +58,11 @@ class JsonSigningSerializerTest {
     @Test
     void serializeLayout() throws IOException {
         String serialized = new JsonSigningSerializer().serialize(Layout.builder()
-                .expectedEndProducts(singletonList(MatchFilter.builder().pattern("MatchFiler").build()))
+                .expectedEndProducts(singletonList(MatchFilter.builder()
+                        .destinationSegmentName("destinationSegmentName")
+                        .destinationType(DestinationType.PRODUCTS)
+                        .destinationStepName("destinationStepName")
+                        .pattern("MatchFiler").build()))
                 .layoutSegments(singletonList(LayoutSegment.builder().name("segment 1")
                         .steps(Arrays.asList(
                                 Step.builder()
