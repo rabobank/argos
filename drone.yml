@@ -40,6 +40,8 @@ steps:
         path: /root/.m2/repository
     commands:
       - mvn -q install
+    depends_on:
+      - set version
 
   - name: sonar
     image: rabobanknl/argos-build:latest
