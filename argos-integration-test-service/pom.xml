@@ -20,14 +20,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>com.rabobank.argos</groupId>
         <artifactId>argos-parent</artifactId>
+        <groupId>com.rabobank.argos</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>argos-service-adapter-in-rest</artifactId>
-    <description>Argos service adapter for Argos Supply Chain Notary</description>
-    <url>https://github.com/rabobank/argos/argos-service-adapter-in-rest</url>
+
+    <artifactId>argos-integration-test-service</artifactId>
+    <description>Argos integration test service used to create test fixtures for rest api testing</description>
+    <url>https://github.com/rabobank/argos/argos-integration-test-service</url>
 
     <licenses>
         <license>
@@ -46,21 +47,21 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/rabobank/argos.git</connection>
-        <developerConnection>scm:git:https://github.com/rabobank/argos.git</developerConnection>
+        <connection>scm:git:git://github.com/rabobank/argos.git</connection>
+        <developerConnection>scm:git:ssh://github.com:rabobank/argos.git</developerConnection>
         <url>https://github.com/rabobank/argos/tree/master</url>
     </scm>
-    
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>argos-service-domain</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>argos-service-adapter-out-mongodb</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -87,41 +88,60 @@
             <version>${commons-io.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.skyscreamer</groupId>
-            <artifactId>jsonassert</artifactId>
-            <version>${jsonassert.version}</version>
-            <scope>test</scope>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jackson-databind</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-info</goal>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -163,7 +183,7 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- Download Swagger UI webjar. -->
+                <!--copy argos service api -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -190,6 +210,33 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/api</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources/</directory>
+                                    <includes>
+                                        <include>test-service-api.yml</include>
+                                    </includes>
+                                </resource>
+
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
@@ -202,22 +249,24 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.build.directory}/api/api.yml</inputSpec>
+                            <inputSpec>${project.build.directory}/api/test-service-api.yml</inputSpec>
                             <generatorName>spring</generatorName>
                             <configOptions>
                                 <interfaceOnly>true</interfaceOnly>
+                                <useBeanValidation>false</useBeanValidation>
                                 <useTags>true</useTags>
                                 <java8>true</java8>
                                 <dateLibrary>java8</dateLibrary>
                             </configOptions>
                             <modelNamePrefix>Rest</modelNamePrefix>
                             <configHelp>false</configHelp>
-                            <apiPackage>com.rabobank.argos.service.adapter.in.rest.api.handler</apiPackage>
-                            <modelPackage>com.rabobank.argos.service.adapter.in.rest.api.model</modelPackage>
+                            <apiPackage>com.rabobank.argos.integrationtest.argos.service.api.handler</apiPackage>
+                            <modelPackage>com.rabobank.argos.integrationtest.argos.service.api.model</modelPackage>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 </project>

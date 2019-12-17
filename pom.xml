@@ -28,6 +28,7 @@
 		<module>argos-service-adapter-in-rest</module>
 		<module>argos-service-adapter-out-mongodb</module>
 		<module>argos-service</module>
+		<module>argos-integration-test-service</module>
 		<module>argos-jenkins-plugin</module>
 		<module>argos-docker</module>
 		<module>argos-test</module>
@@ -75,8 +76,8 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git:git://github.com/rabobank/argos.git</connection>
-		<developerConnection>scm:git:ssh://github.com:rabobank/argos.git</developerConnection>
+		<connection>scm:git:https://github.com/rabobank/argos.git</connection>
+		<developerConnection>scm:git:https://github.com/rabobank/argos.git</developerConnection>
 		<url>https://github.com/rabobank/argos/tree/master</url>
 	</scm>
 
@@ -218,7 +219,8 @@
 								<excludedClasse>com.rabobank.argos.argos4j.rest.api.*</excludedClasse>
 								<excludedClasse>com.rabobank.argos.service.adapter.in.rest.api.*</excludedClasse>
 								<excludedClasse>*MapperImpl</excludedClasse>
-								<excludedClass>com.rabobank.argos.service.adapter.in.rest.TestITService</excludedClass>
+								<excludedClass>com.rabobank.argos.integrationtest.service.*</excludedClass>
+								<excludedClass>com.rabobank.argos.integrationtest.argos.service.api.*</excludedClass>
 							</excludedClasses>
 							<targetClasses>
 								<param>com.rabobank.argos.*</param>

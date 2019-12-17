@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.in.rest;
+package com.rabobank.argos.integrationtest.service;
 
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.Signature;
@@ -21,18 +21,16 @@ import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.domain.signing.JsonSigningSerializer;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestLayoutMetaBlock;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
-import com.rabobank.argos.service.adapter.in.rest.layout.LayoutMetaBlockMapper;
-import com.rabobank.argos.service.adapter.in.rest.link.LinkMetaBlockMapper;
-import com.rabobank.argos.service.domain.RepositoryResetProvider;
+import com.rabobank.argos.integrationtest.argos.service.api.handler.IntegrationTestServiceApi;
+import com.rabobank.argos.integrationtest.argos.service.api.model.RestLayoutMetaBlock;
+import com.rabobank.argos.integrationtest.argos.service.api.model.RestLinkMetaBlock;
+import com.rabobank.argos.integrationtest.service.layout.LayoutMetaBlockMapper;
+import com.rabobank.argos.integrationtest.service.link.LinkMetaBlockMapper;
 import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,12 +43,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.util.Collections;
 
-@Profile("integration-test")
 @RequestMapping("/integration-test")
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class TestITService {
+public class TestITService implements IntegrationTestServiceApi {
 
     private final RepositoryResetProvider repositoryResetProvider;
 
@@ -60,13 +57,14 @@ public class TestITService {
 
     private final KeyPairRepository keyPairRepository;
 
-    @PostMapping(value = "/reset-db")
-    public void resetDatabase() {
+    @Override
+    public ResponseEntity<Void> resetDatabase() {
         log.info("resetDatabase");
         repositoryResetProvider.resetAllRepositories();
+        return null;
     }
 
-    @PostMapping(value = "/signLayoutMetaBlock")
+    @Override
     public ResponseEntity<RestLayoutMetaBlock> signLayout(@RequestBody RestLayoutMetaBlock restLayoutMetaBlock) {
         LayoutMetaBlock layoutMetaBlock = layoutMetaBlockMapper.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
         KeyPair keyPair = generateKeyPair();
@@ -77,7 +75,7 @@ public class TestITService {
         return ResponseEntity.ok(layoutMetaBlockMapper.convertToRestLayoutMetaBlock(layoutMetaBlock));
     }
 
-    @PostMapping(value = "/signLinkMetaBlock")
+    @Override
     public ResponseEntity<RestLinkMetaBlock> signLink(@RequestBody RestLinkMetaBlock restLinkMetaBlock) {
         LinkMetaBlock linkMetaBlock = linkMetaBlockMapper.convertFromRestLinkMetaBlock(restLinkMetaBlock);
         KeyPair keyPair = generateKeyPair();

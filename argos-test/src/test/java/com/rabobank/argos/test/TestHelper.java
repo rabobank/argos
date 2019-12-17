@@ -42,7 +42,7 @@ public class TestHelper {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(properties.getApiBaseUrl() + "/integration-test/reset-db"))
+                    .uri(URI.create(properties.getIntegrationTestServiceBaseUrl() + "/integration-test/reset-db"))
                     .method("POST", HttpRequest.BodyPublishers.noBody())
                     .build();
             HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -69,6 +69,26 @@ public class TestHelper {
         });
 
         log.info("argos service started");
+    }
+
+
+    public static void waitForArgosIntegrationTestServiceToStart() {
+        log.info("Waiting for argos integration test service start");
+        HttpClient client = HttpClient.newHttpClient();
+        await().atMost(30, SECONDS).until(() -> {
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(properties.getIntegrationTestServiceBaseUrl() + "/actuator/health"))
+                        .build();
+                HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
+                return 200 == send.statusCode();
+            } catch (IOException e) {
+                //ignore
+                return false;
+            }
+        });
+
+        log.info("argos integration test service started");
     }
 
     public static LinkApi getLinkApi() {
