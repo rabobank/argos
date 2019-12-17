@@ -13,8 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain;
+package com.rabobank.argos.integrationtest.service.layout;
 
-public interface RepositoryResetProvider {
-    void resetAllRepositories();
+import com.rabobank.argos.domain.layout.Step;
+import com.rabobank.argos.integrationtest.argos.service.api.model.RestStep;
+import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring", uses = {RuleMapper.class})
+public interface StepMapper {
+
+    @Mapping(source = "name", target = "stepName")
+    Step mapFromRestStep(RestStep restStep);
+
+    @InheritInverseConfiguration
+    RestStep mapToRestStep(Step step);
 }

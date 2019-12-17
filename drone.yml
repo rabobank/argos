@@ -15,7 +15,7 @@ steps:
         path: /root/.m2/repository
     commands:
       - mvn -q install
-      
+
   - name: sign artifacts
     image: plugins/gpgsign
     settings:
@@ -29,7 +29,7 @@ steps:
     when:
       event:
         - push
-    depends_on: 
+    depends_on:
       - build
 
   - name: sonar
@@ -42,7 +42,7 @@ steps:
         path: /root/.m2/repository
     commands:
       - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=rabobank_argos -Dsonar.organization=rabobank -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
-    depends_on: 
+    depends_on:
       - build
 
   - name: pitest
@@ -52,7 +52,7 @@ steps:
         path: /root/.m2/repository
     commands:
       - mvn -q -e verify -Ppitest
-    depends_on: 
+    depends_on:
       - sonar
 
   - name: build argos service image
@@ -66,9 +66,25 @@ steps:
         from_secret: docker_login_user
       password:
         from_secret: docker_login_token
-    depends_on: 
+    depends_on:
       - pitest
       - sonar
+
+  - name: build argos integration test service image
+    image: plugins/docker
+    settings:
+      repo: rabobanknl/argos-integration-test-service
+      tags: ${DRONE_COMMIT:0:8}
+      context: argos-docker
+      dockerfile: argos-docker/IntegrationTestServiceDockerfile
+      username:
+        from_secret: docker_login_user
+      password:
+        from_secret: docker_login_token
+    depends_on:
+      - pitest
+      - sonar
+
   - name: build argos jenkins image
     image: plugins/docker
     settings:
@@ -80,26 +96,35 @@ steps:
         from_secret: docker_login_user
       password:
         from_secret: docker_login_token
-    depends_on: 
+    depends_on:
       - pitest
       - sonar
 
   - name: mongodb
     image: mongo:4.2.1-bionic
     detach: true
-    depends_on: 
+    depends_on:
       - pitest
       - sonar
+
   - name: argos-service
     image: rabobanknl/argos-service:${DRONE_COMMIT:0:8}
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
-      spring.profiles.active: default,integration-test
     detach: true
-    depends_on: 
+    depends_on:
       - mongodb
       - build argos service image
-    
+
+  - name: argos-integration-test-service
+    image: rabobanknl/argos-integration-test-service:${DRONE_COMMIT:0:8}
+    environment:
+      spring.data.mongodb.uri: mongodb://mongodb/test
+    detach: true
+    depends_on:
+      - mongodb
+      - build argos integration test service image
+
   - name: argos-jenkins
     image: rabobanknl/argos-jenkins:${DRONE_COMMIT:0:8}
     environment:
@@ -120,11 +145,12 @@ steps:
     commands:
       - cd argos-test
       - mvn -q clean verify -Pregression-test-drone
-    depends_on: 
+    depends_on:
       - argos-jenkins
       - argos-service
+      - argos-integration-test-service
       - nexus
-      
+
   - name: build beta argos service image
     image: plugins/docker
     settings:
@@ -136,7 +162,7 @@ steps:
         from_secret: docker_login_user
       password:
         from_secret: docker_login_token
-    depends_on: 
+    depends_on:
       - regression test
     when:
       branch:

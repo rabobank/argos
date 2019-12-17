@@ -14,16 +14,22 @@
 # limitations under the License.
 #
 
-@ignore
-Feature: sign layout
-
-  Background:
-    * url karate.properties['server.integration-test-service.baseurl']
-    * def layoutToBeSigned = __arg
-
-  Scenario: sign the layout should return 200
-    Given path '/integration-test/signLayoutMetaBlock'
-    And request layoutToBeSigned
-    And header Content-Type = 'application/json'
-    When method POST
-    Then status 200
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost/test
+  jackson:
+    default-property-inclusion: non_null
+management:
+  endpoints:
+    enabled-by-default: false
+    jmx:
+      exposure:
+        include: ''
+  endpoint:
+    info:
+      enabled: true
+    health:
+      enabled: true
+server:
+  port: 2877

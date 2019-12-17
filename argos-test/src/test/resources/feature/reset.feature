@@ -18,7 +18,7 @@
 Feature: reset
 
   Background:
-    * url karate.properties['server.baseurl']
+    * url karate.properties['server.integration-test-service.baseurl']
 
   Scenario:
     Given path '/integration-test/reset-db'

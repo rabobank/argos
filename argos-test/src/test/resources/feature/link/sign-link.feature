@@ -18,7 +18,7 @@
 Feature: sign link
 
   Background:
-    * url karate.properties['server.baseurl']
+    * url karate.properties['server.integration-test-service.baseurl']
     * def linkToBeSigned = __arg.json
 
   Scenario: sign the layout should return 200

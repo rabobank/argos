@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.out.mongodb;
+package com.rabobank.argos.integrationtest.service;
 
-import com.rabobank.argos.service.domain.RepositoryResetProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
-@Profile("integration-test")
 @Component
 @RequiredArgsConstructor
 public class RepositoryResetProviderImpl implements RepositoryResetProvider {

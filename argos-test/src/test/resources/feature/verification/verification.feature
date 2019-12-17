@@ -48,6 +48,18 @@ Feature: Verification
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'commands-incorrect',steps:#(defaultSteps)}
     And match resp.response == {"runIsValid":false}
 
+  Scenario: delete-rule-no-deletion
+    * def resp = call read('classpath:feature/verification/verification-template.feature')  { verificationRequest:#(defaultVerificationRequest),testDir: 'delete-rule-no-deletion',steps:#(defaultSteps)}
+    And match resp.response == {"runIsValid":false}
+
+  Scenario: create-rule-no-creation
+    * def resp = call read('classpath:feature/verification/verification-template.feature')  { verificationRequest:#(defaultVerificationRequest),testDir: 'create-rule-no-creation',steps:#(defaultSteps)}
+    And match resp.response == {"runIsValid":false}
+
+  Scenario: modify-rule-not-modified
+    * def resp = call read('classpath:feature/verification/verification-template.feature')  { verificationRequest:#(defaultVerificationRequest),testDir: 'modify-rule-not-modified',steps:#(defaultSteps)}
+    And match resp.response == {"runIsValid":false}
+
   Scenario: require-rule-no-required-product-material
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'require-rule-no-required-product-material',steps:#(defaultSteps)}
     And match resp.response == {"runIsValid":false}
