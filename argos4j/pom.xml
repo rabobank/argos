@@ -22,7 +22,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos4j</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1-ALPHA</version>
 	<description>Java client for Argos Supply Chain Notary</description>
 	<url>https://github.com/rabobank/argos/argos4j</url>
 
