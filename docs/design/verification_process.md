@@ -43,8 +43,8 @@ The clients should set a runId which is as unique as possible. This runId is use
                 continue (with next expectedEndProducts)
             for every runId in runIds (1)
                 links = getLinksWithRunId
-                linkSets = getLinkSets
-        for every linkSet in linkSets
+                linkSegmentSets = getSegmentLinkSets
+        for every set in linkSegmentSets
             result = processRestOfVerification
             if result is valid
                 return result
@@ -77,33 +77,37 @@ The next phase `getRunIds` has the following possible outcomes:
 1. If after processing all matchrules, there are still not-matched artifacts it means the current set of end products is not valid so continue with the next set
 
 ---
-The function `getLinkSets` will group all links per step in equal links and next a permutation will be made over the groups per step this will result in a set of set of links. If links, generated for the same step, are different, even if all have the same runId, they belong to different concrete runs and should be verified independently.
+The function `getSegmentLinkSets` will group all links per step in equal links and next a permutation will be made over the groups per step this will result in a set of set of links. If links, generated for the same step, are different, even if all have the same runId, they belong to different concrete runs and should be verified independently.
 
-![link sets](images/link_sets.png)
+![segment sets](images/segment_sets.png)
 
 This results in the following sets of link objects to verify
 
-| Verify Set  | Link Sets |           |           |
+| Segment Set | Link Sets |           |           |
 | ----------- | --------- | --------- | --------- | 
-| verifySet1  | linkSetA1 | linkSetB1 | linkSetC1 | 
-| verifySet2  | linkSetA1 | linkSetB1 | linkSetC2 |
-| verifySet3  | linkSetA1 | linkSetB2 | linkSetC1 |
-| verifySet4  | linkSetA1 | linkSetB2 | linkSetC2 |
-| verifySet5  | linkSetA1 | linkSetB3 | linkSetC1 |
-| verifySet6  | linkSetA1 | linkSetB3 | linkSetC2 |
+| segmentSet1 | linkSetA1 | linkSetB1 | linkSetC1 | 
+| segmentSet2 | linkSetA1 | linkSetB1 | linkSetC2 |
+| segmentSet3 | linkSetA1 | linkSetB2 | linkSetC1 |
+| segmentSet4 | linkSetA1 | linkSetB2 | linkSetC2 |
+| segmentSet5 | linkSetA1 | linkSetB3 | linkSetC1 |
+| segmentSet6 | linkSetA1 | linkSetB3 | linkSetC2 |
 
 
 ```
-    def getLinkSets
-        linkSets = []
+    def getSegmentLinkSets
+        segmentLinkSets = []
         for every step
             stepLinkSets[step] = group all links on equal links
+        tempSegmentSet = []
         for every step in stepLinkSets
-            tempSets = []
+            tempSegmentSet = []
             for every linkSet in stepLinkSets[step]
-                for every set in linkSets
-                    tempSets.append(set+linkSet)
-            linkSets = tempSets
+                if segmentLinkSets is empty
+                    tempSegmentSet.append(linkSet)
+                else
+                    for set in segmentLinkSets
+                        tempSegmentSet.append(set+linkSet)
+            segmentLinkSets = tempSegmentSet
 ```
 
 
