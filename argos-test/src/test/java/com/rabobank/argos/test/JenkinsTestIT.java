@@ -65,6 +65,7 @@ import static org.hamcrest.core.Is.is;
 @Slf4j
 public class JenkinsTestIT {
 
+    public static final String TEST_APP_BRANCH = "segment";
     private static Properties properties = Properties.getInstance();
     private static final String SERVER_BASEURL = "server.baseurl";
     private JenkinsServer jenkins;
@@ -121,9 +122,9 @@ public class JenkinsTestIT {
         JobWithDetails job = getJob("argos-test-app-pipeline");
         FolderJob folderJob = jenkins.getFolderJob(job).get();
         Map<String, Job> jobs = folderJob.getJobs();
-        int buildNumber = runBuild(jobs.get("master"));
+        int buildNumber = runBuild(jobs.get(TEST_APP_BRANCH));
 
-        verifyJobResult(jenkins.getJob(folderJob, "master"), buildNumber);
+        verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
     }
 
 
@@ -159,7 +160,7 @@ public class JenkinsTestIT {
     private boolean hasMaster(JobWithDetails pipeLineJob) throws IOException {
         Optional<FolderJob> folderJob = jenkins.getFolderJob(pipeLineJob);
         return folderJob.isPresent() &&
-                folderJob.get().getJob("master") != null;
+                folderJob.get().getJob(TEST_APP_BRANCH) != null;
     }
 
 

@@ -409,12 +409,17 @@ components:
       type: object
       required:
         - runId
+        - segmentName
         - stepName
         - command
         - materials
         - products
       properties:
         runId:
+          type: string
+        stepName:
+          type: string
+        segmentName:
           type: string
         command:
           type: array
@@ -425,8 +430,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Artifact"
-        stepName:
-          type: string
         products:
           type: array
           items:

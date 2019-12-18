@@ -44,6 +44,7 @@ class JsonSigningSerializerTest {
         String serialized = new JsonSigningSerializer().serialize(Link.builder()
                 .stepName("stepName")
                 .runId("runId")
+                .segmentName("segmentName")
                 .materials(Arrays.asList(
                         Artifact.builder().uri("zbc.jar").hash("hash1").build(),
                         Artifact.builder().uri("abc.jar").hash("hash2").build()))

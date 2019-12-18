@@ -66,6 +66,7 @@ public class Argos4jIT {
 
         Argos4jSettings settings = Argos4jSettings.builder()
                 .argosServerBaseUrl(properties.getApiBaseUrl() + "/api")
+                .segmentName("segmentName")
                 .stepName("build")
                 .runId("runId")
                 .supplyChainName("test-supply-chain")

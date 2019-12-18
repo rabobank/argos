@@ -41,6 +41,7 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
 
     private static final String COLLECTION = "linkMetaBlocks";
     private static final String SUPPLY_CHAIN_ID_FIELD = "supplyChainId";
+    private static final String SEGMENT_NAME_FIELD = "link.segmentName";
     private static final String STEP_NAME_FIELD = "link.stepName";
     private static final String RUN_ID_FIELD = "link.runId";
     private static final String LINK_MATERIALS_HASH_FIELD = "link.materials.hash";
@@ -59,8 +60,9 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
     private void createCompoundIndexOnSupplyChainAndStepName() {
         Map<String, Object> keys = new HashMap<>();
         keys.put(SUPPLY_CHAIN_ID_FIELD, 1);
+        keys.put(SEGMENT_NAME_FIELD, 1);
         keys.put(STEP_NAME_FIELD, 1);
-        createIndex(new CompoundIndexDefinition(new Document(keys)).unique().named(SUPPLY_CHAIN_ID_FIELD + "_" + STEP_NAME_FIELD));
+        createIndex(new CompoundIndexDefinition(new Document(keys)).unique().named(SUPPLY_CHAIN_ID_FIELD + "_" + SEGMENT_NAME_FIELD + "_" + STEP_NAME_FIELD));
     }
 
     private void createIndex(IndexDefinition indexDefinition) {
@@ -94,9 +96,10 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
     }
 
     @Override
-    public List<LinkMetaBlock> findBySupplyChainAndStepNameAndProductHashes(String supplyChainId, String stepName, List<String> hashes) {
+    public List<LinkMetaBlock> findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(String supplyChainId, String segmentName, String stepName, List<String> hashes) {
         Criteria rootCriteria = Criteria.where(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId);
         List<Criteria> andCriteria = new ArrayList<>();
+        andCriteria.add(Criteria.where(SEGMENT_NAME_FIELD).is(segmentName));
         andCriteria.add(Criteria.where(STEP_NAME_FIELD).is(stepName));
         hashes.forEach(hash -> andCriteria.add(Criteria.where(LINK_PRODUCTS_HASH_FIELD).is(hash)));
         rootCriteria.andOperator(andCriteria.toArray(new Criteria[andCriteria.size()]));
@@ -105,9 +108,10 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
     }
 
     @Override
-    public List<LinkMetaBlock> findBySupplyChainAndStepNameAndMaterialHash(String supplyChainId, String stepName, List<String> hashes) {
+    public List<LinkMetaBlock> findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(String supplyChainId, String segmentName, String stepName, List<String> hashes) {
         Criteria rootCriteria = Criteria.where(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId);
         List<Criteria> andCriteria = new ArrayList<>();
+        andCriteria.add(Criteria.where(SEGMENT_NAME_FIELD).is(segmentName));
         andCriteria.add(Criteria.where(STEP_NAME_FIELD).is(stepName));
         hashes.forEach(hash -> andCriteria.add(Criteria.where(LINK_MATERIALS_HASH_FIELD).is(hash)));
         rootCriteria.andOperator(andCriteria.toArray(new Criteria[andCriteria.size()]));

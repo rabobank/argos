@@ -6,6 +6,7 @@
     },
     "link": {
       "runId": "#string",
+      "segmentName": "segment 1",
       "command": [],
       "materials": [
         {

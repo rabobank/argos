@@ -1,9 +1,9 @@
 {
   "link": {
     "runId": "69af2dd",
+    "segmentName": "segment 1",
     "stepName": "build",
     "materials": [
-
       {
         "uri": "pom.xml",
         "hash": "df272f57191b2d45b55e04c8602194d724e485aefc77827ceba798352cb2bd77"

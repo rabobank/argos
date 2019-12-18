@@ -48,9 +48,13 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
     public String privateKeyCredentialId;
 
     /**
+     * Name of the segment to execute.
+     */
+    @DataBoundSetter
+    private String segmentName;
+
+    /**
      * Name of the step to execute.
-     * <p>
-     * If not defined, will default to step
      */
     @DataBoundSetter
     public String stepName;
@@ -72,8 +76,9 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
     private Argos4j argos4j;
 
     @DataBoundConstructor
-    public ArgosWrapper(String privateKeyCredentialId, String stepName, String supplyChainName, String runId) {
+    public ArgosWrapper(String privateKeyCredentialId, String stepName, String segmentName, String supplyChainName, String runId) {
         this.privateKeyCredentialId = privateKeyCredentialId;
+        this.segmentName = segmentName;
         this.stepName = stepName;
         this.supplyChainName = supplyChainName;
         this.runId = runId;
@@ -92,7 +97,7 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
 
 
         listener.getLogger().println("[argos] creating metadata... ");
-        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, stepName, supplyChainName, runId).createArgos();
+        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, segmentName, stepName, supplyChainName, runId).createArgos();
 
         argos4j.collectMaterials(new File(workspace.getRemote()));
 

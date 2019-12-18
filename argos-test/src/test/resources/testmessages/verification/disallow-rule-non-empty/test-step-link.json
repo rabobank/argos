@@ -1,9 +1,9 @@
 {
   "link": {
     "runId": "69af2dd",
+    "segmentName": "segment 1",
     "stepName": "test",
     "materials": [
-
       {
         "uri": "src/test/java/com/rabobank/argos/test/Argos4jIT.java",
         "hash": "ec792b16cd2b2446011acd992f6d8224862367373b0a85b1fc3bea890587f646"
