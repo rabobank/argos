@@ -34,7 +34,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-public class TestHelper {
+public class ServiceStatusHelper {
 
     private static Properties properties = Properties.getInstance();
 

@@ -52,10 +52,10 @@ import java.security.PublicKey;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.rabobank.argos.test.TestHelper.clearDatabase;
-import static com.rabobank.argos.test.TestHelper.getKeyApiApi;
-import static com.rabobank.argos.test.TestHelper.getSupplychainApi;
-import static com.rabobank.argos.test.TestHelper.waitForArgosServiceToStart;
+import static com.rabobank.argos.test.ServiceStatusHelper.clearDatabase;
+import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApiApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;

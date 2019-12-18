@@ -25,7 +25,7 @@
           "name": "segment 1",
           "steps": [
             {
-              "name": "stepName1",
+              "name": "build",
               "authorizedKeyIds": [
                 "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
               ],
