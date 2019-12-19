@@ -54,9 +54,9 @@ public class VerificationProvider {
 
     private VerificationRunResult verifyRun(RunIdsWithSegment runIdsWithSegment, LayoutMetaBlock layoutMetaBlock) {
         return runIdsWithSegment.getRunIds().stream()
-                .peek(runId -> log.info("segment {} with rundId {} is ", runIdsWithSegment.getSegment().getName(), runId))
+                .peek(runId -> log.info("verify segment {} with rundId {}", runIdsWithSegment.getSegment().getName(), runId))
                 .map(runId -> verifyRun(linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId), runIdsWithSegment.getSegment(), layoutMetaBlock))
-                .peek(verificationRunResult -> log.info("valid: {}", verificationRunResult.isRunIsValid()))
+                .peek(verificationRunResult -> log.info("segment validity: {}", verificationRunResult.isRunIsValid()))
                 .filter(VerificationRunResult::isRunIsValid)
                 .findFirst().orElse(VerificationRunResult.valid(false));
     }

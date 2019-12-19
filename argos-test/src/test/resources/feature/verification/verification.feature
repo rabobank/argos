@@ -78,6 +78,9 @@ Feature: Verification
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'allow-rule-no-match',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":false}
 
-
+  Scenario: multiple-run-id-happy-flow
+    * def steps = [{link:'runid1-build-step-link.json', signingKey:2},{link:'runid1-test-step-link.json', signingKey:3},{link:'runid2-build-step-link.json', signingKey:2},{link:'runid2-test-step-link.json',signingKey:3}]
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'multiple-run-id-happy-flow',steps:#(steps),layoutSigningKey:1}
+    And match resp.response == {"runIsValid":true}
 
 
