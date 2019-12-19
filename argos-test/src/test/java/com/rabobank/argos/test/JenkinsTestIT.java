@@ -52,10 +52,10 @@ import java.security.PublicKey;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.rabobank.argos.test.ServiceStatusHelper.clearDatabase;
-import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApiApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
+import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -83,7 +83,7 @@ public class JenkinsTestIT {
         clearDatabase();
         getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
         PublicKey publicKey = getPemKeyPair(getClass().getResourceAsStream("/bob")).getPublic();
-        getKeyApiApi().storeKey(new RestKeyPair().publicKey(publicKey.getEncoded()).keyId(new KeyIdProviderImpl().computeKeyId(publicKey)));
+        getKeyApi().storeKey(new RestKeyPair().publicKey(publicKey.getEncoded()).keyId(new KeyIdProviderImpl().computeKeyId(publicKey)));
         jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
     }
 

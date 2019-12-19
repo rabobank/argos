@@ -53,6 +53,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.skip>true</sonar.skip>
         <karate.version>0.9.4</karate.version>
+        <swagger-annotations-version>1.5.22</swagger-annotations-version>
+        <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
+        <lombok.version>1.18.10</lombok.version>
     </properties>
 
     <dependencies>
@@ -72,6 +75,12 @@
             <artifactId>awaitility</artifactId>
             <version>4.0.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger-annotations-version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.typesafe</groupId>
@@ -152,6 +161,66 @@
     <build>
         <plugins>
             <plugin>
+                <!-- Download Swagger UI webjar. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-api</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>argos-integration-test-service</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <includes>**/*.json</includes>
+                                </artifactItem>
+                            </artifactItems>
+
+                            <outputDirectory>${project.build.directory}/api</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>4.1.3</version>
+                <executions>
+                    <execution>
+                        <id>api</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.build.directory}/api/BOOT-INF/classes/static/swagger/openapi.json
+                            </inputSpec>
+                            <generatorName>java</generatorName>
+                            <configOptions>
+                                <java8>true</java8>
+                                <dateLibrary>java8</dateLibrary>
+                                <useRuntimeException>true</useRuntimeException>
+                                <library>feign</library>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                            </configOptions>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <modelNamePrefix>Test</modelNamePrefix>
+                            <configHelp>false</configHelp>
+                            <apiPackage>com.rabobank.argos.test.rest.api.client</apiPackage>
+                            <modelPackage>com.rabobank.argos.test.rest.api.model</modelPackage>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
@@ -160,9 +229,14 @@
                     <target>11</target>
                     <annotationProcessorPaths>
                         <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.10</version>
+                            <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
