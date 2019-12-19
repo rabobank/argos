@@ -34,7 +34,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -74,16 +73,16 @@ public class RunIdResolver {
 
     }
 
-    public List<RunIdWithSegment> getRunIdPerSegment(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
+    public List<RunIdsWithSegment> getRunIdPerSegment(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
         Layout layout = layoutMetaBlock.getLayout();
 
-        return layout.getLayoutSegments().stream().map(segment -> RunIdWithSegment.builder()
+        return layout.getLayoutSegments().stream().map(segment -> RunIdsWithSegment.builder()
                 .segment(segment)
-                .optionalRunId(getRunIdForSegment(layoutMetaBlock, segment, productsToVerify)).build())
+                .runIds(getRunIdsForSegment(layoutMetaBlock, segment, productsToVerify)).build())
                 .collect(toList());
     }
 
-    private Optional<String> getRunIdForSegment(LayoutMetaBlock layoutMetaBlock, LayoutSegment segment, List<Artifact> productsToVerify) {
+    private Set<String> getRunIdsForSegment(LayoutMetaBlock layoutMetaBlock, LayoutSegment segment, List<Artifact> productsToVerify) {
         Layout layout = layoutMetaBlock.getLayout();
         List<MatchedProductWithRunIds> matchedProductWithRunIds = layout
                 .getExpectedEndProducts()
@@ -99,11 +98,10 @@ public class RunIdResolver {
                 .collect(toList());
 
 
-        Set<String> allRunIds = matchedProductWithRunIds
+        return matchedProductWithRunIds
                 .stream()
                 .map(MatchedProductWithRunIds::getRunIds)
                 .flatMap(Set::stream).collect(toCollection(TreeSet::new));
-        return allRunIds.stream().filter(runId -> isInAll(runId, matchedProductWithRunIds)).findFirst();
     }
 
     private List<Artifact> matches(MatchFilter matchFilter, List<Artifact> productsToVerify) {
@@ -111,9 +109,6 @@ public class RunIdResolver {
         return productsToVerify.stream().filter(artifact -> matcher.matches(Paths.get(artifact.getUri()))).collect(toList());
     }
 
-    private boolean isInAll(String runId, List<MatchedProductWithRunIds> matchedProductWithRunIdsList) {
-        return matchedProductWithRunIdsList.stream().allMatch(matchedProductWithRunIds -> matchedProductWithRunIds.getRunIds().contains(runId));
-    }
 
     private void addRunIds(MatchedProductWithRunIds matchedProductWithRunIds) {
         if (PRODUCTS == matchedProductWithRunIds.matchFilter.getDestinationType()) {

@@ -19,11 +19,11 @@ import com.rabobank.argos.domain.layout.LayoutSegment;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.Optional;
+import java.util.Set;
 
 @Builder
 @Getter
-public class RunIdWithSegment {
-    private final Optional<String> optionalRunId;
+public class RunIdsWithSegment {
+    private final Set<String> runIds;
     private final LayoutSegment segment;
 }

@@ -35,8 +35,9 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -93,17 +94,17 @@ class RunIdResolverTest {
 
         when(linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(SUPPLY_CHAIN_ID, SEGMENT_NAME, STEP_NAME, List.of(HASH)))
                 .thenReturn(singletonList(LinkMetaBlock.builder().link(Link.builder().runId(RUN_ID).build()).build()));
-        List<RunIdWithSegment> runIdWithSegments = resolver.getRunIdPerSegment(layoutMetaBlock, productsToVerify);
-        assertThat(runIdWithSegments.get(0).getOptionalRunId().get(), is(RUN_ID));
-        assertThat(runIdWithSegments.get(0).getSegment(), sameInstance(layoutSegment));
+        List<RunIdsWithSegment> runIdsWithSegments = resolver.getRunIdPerSegment(layoutMetaBlock, productsToVerify);
+        assertThat(runIdsWithSegments.get(0).getRunIds(), contains(RUN_ID));
+        assertThat(runIdsWithSegments.get(0).getSegment(), sameInstance(layoutSegment));
     }
 
     @Test
     void getRunIdWithInValidProductsShouldReturnEmpty() {
         when(linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(SUPPLY_CHAIN_ID, SEGMENT_NAME, STEP_NAME, List.of(HASH)))
                 .thenReturn(emptyList());
-        List<RunIdWithSegment> runIdWithSegments = resolver.getRunIdPerSegment(layoutMetaBlock, productsToVerify);
-        assertThat(runIdWithSegments.get(0).getOptionalRunId().isPresent(), is(false));
+        List<RunIdsWithSegment> runIdsWithSegments = resolver.getRunIdPerSegment(layoutMetaBlock, productsToVerify);
+        assertThat(runIdsWithSegments.get(0).getRunIds(), empty());
     }
 
     @Test
@@ -112,8 +113,8 @@ class RunIdResolverTest {
         when(linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(SUPPLY_CHAIN_ID, SEGMENT_NAME, STEP_NAME, List.of(HASH)))
                 .thenReturn(singletonList(LinkMetaBlock
                         .builder().link(Link.builder().runId(RUN_ID).build()).build()));
-        List<RunIdWithSegment> runIdWithSegments = resolver.getRunIdPerSegment(layoutMetaBlock, productsToVerify);
-        assertThat(runIdWithSegments.get(0).getOptionalRunId().get(), is(RUN_ID));
-        assertThat(runIdWithSegments.get(0).getSegment(), sameInstance(layoutSegment));
+        List<RunIdsWithSegment> runIdsWithSegments = resolver.getRunIdPerSegment(layoutMetaBlock, productsToVerify);
+        assertThat(runIdsWithSegments.get(0).getRunIds(), contains(RUN_ID));
+        assertThat(runIdsWithSegments.get(0).getSegment(), sameInstance(layoutSegment));
     }
 }
