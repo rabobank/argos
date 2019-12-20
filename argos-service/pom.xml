@@ -373,8 +373,8 @@
 					<files>
 						${project.build.directory}/${project.build.finalName}.jar.asc,${project.build.directory}/${project.build.finalName}-sources.jar.asc,${project.build.directory}/${project.build.finalName}-javadoc.jar.asc,${project.build.directory}/pom.xml.asc
 					</files>
-					<types>jar.asc,jar.asc,jar.asc,xml.asc</types>
-					<classifiers>,sources,javadoc,pom</classifiers>
+					<types>jar.asc,jar.asc,jar.asc,pom.asc</types>
+					<classifiers>,sources,javadoc,</classifiers>
 					<sources>${project.build.directory}/${project.build.finalName}-sources.jar</sources>
 					<javadoc>${project.build.directory}/${project.build.finalName}-javadoc.jar</javadoc>
 				</configuration>
