@@ -18,7 +18,7 @@ steps:
         from_secret: github_token
       github_user:
         from_secret: github_user
-      new_version: '0.0.1-SNAPSHOT'
+      new_version: '0.0.1-ALPHA'
     commands:
       - echo "update version to ${new_version}"
       - mvn -q versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
@@ -29,8 +29,7 @@ steps:
       - mvn -q scm:checkin -Dmessage=$new_version -Dpassword=$github_token -Dusername=$github_user
     when:
       branch:
-        - master
-        - develop
+        - 0.0.1-ALPHA
       event:
         - push
 
@@ -41,6 +40,8 @@ steps:
         path: /root/.m2/repository
     commands:
       - mvn -q install
+    depends_on:
+      - set version
 
   - name: sonar
     image: rabobanknl/argos-build:latest
@@ -165,7 +166,7 @@ steps:
     image: plugins/docker
     settings:
       repo: rabobanknl/argos-service
-      tags: '0.0.1-SNAPSHOT'
+      tags: '0.0.1-ALPHA'
       context: argos-docker
       dockerfile: argos-docker/ServiceDockerfile
       username:
