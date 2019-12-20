@@ -37,6 +37,7 @@
 		<junit-jupiter.version>5.5.2</junit-jupiter.version>
 		<swagger-annotations.version>1.5.23</swagger-annotations.version>
 		<swagger-ui.version>3.24.3</swagger-ui.version>
+		<sonar.skip>true</sonar.skip>
 	</properties>
 
 	<licenses>

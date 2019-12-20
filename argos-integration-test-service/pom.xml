@@ -30,6 +30,10 @@
     <description>Argos integration test service used to create test fixtures for rest api testing</description>
     <url>https://github.com/rabobank/argos/argos-integration-test-service</url>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
