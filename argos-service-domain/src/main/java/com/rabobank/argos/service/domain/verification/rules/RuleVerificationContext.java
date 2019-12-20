@@ -17,7 +17,6 @@ package com.rabobank.argos.service.domain.verification.rules;
 
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.link.Artifact;
-import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.service.domain.verification.VerificationContext;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,7 +37,8 @@ public class RuleVerificationContext<R extends Rule> {
 
     private final VerificationContext verificationContext;
     private final R rule;
-    private final Link link;
+    private final List<Artifact> materials;
+    private final List<Artifact> products;
 
     public Stream<Artifact> getFilteredProducts() {
         return getFilteredProducts(null);
@@ -49,11 +49,11 @@ public class RuleVerificationContext<R extends Rule> {
     }
 
     public Stream<Artifact> getFilteredProducts(String prefix) {
-        return filterArtifacts(link.getProducts(), rule.getPattern(), prefix);
+        return filterArtifacts(products, rule.getPattern(), prefix);
     }
 
     public Stream<Artifact> getFilteredMaterials(String prefix) {
-        return filterArtifacts(link.getMaterials(), rule.getPattern(), prefix);
+        return filterArtifacts(materials, rule.getPattern(), prefix);
     }
 
     public static Stream<Artifact> filterArtifacts(List<Artifact> artifacts, String pattern, @Nullable String prefix) {
@@ -70,7 +70,7 @@ public class RuleVerificationContext<R extends Rule> {
     }
 
     public boolean containsSomeMaterials(List<Artifact> artifacts) {
-        return artifacts.stream().anyMatch(artifact -> link.getMaterials().contains(artifact));
+        return artifacts.stream().anyMatch(materials::contains);
     }
 
     public <T extends Rule> T getRule() {

@@ -30,11 +30,13 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.RULES;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.ArgumentMatchers.any;
@@ -110,10 +112,13 @@ class RulesVerificationTest {
 
         assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
 
-        verify(ruleVerification).verifyExpectedMaterials(ruleVerificationContextArgumentCaptor.capture());
+        verify(verificationContext).removeLinkMetaBlocks(Collections.emptyList());
+
+        verify(ruleVerification).verifyExpectedProducts(ruleVerificationContextArgumentCaptor.capture());
         RuleVerificationContext<?> ruleVerificationContext = ruleVerificationContextArgumentCaptor.getValue();
-        assertThat(ruleVerificationContext.getLink(), sameInstance(link));
-        assertThat(ruleVerificationContext.getRule(), sameInstance(expectedMaterialRule));
+        assertThat(ruleVerificationContext.getMaterials(), empty());
+        assertThat(ruleVerificationContext.getProducts(), empty());
+        assertThat(ruleVerificationContext.getRule(), sameInstance(expectedProductRule));
         assertThat(ruleVerificationContext.getVerificationContext(), sameInstance(verificationContext));
     }
 
@@ -128,7 +133,7 @@ class RulesVerificationTest {
         when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
         when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(productArtifact));
 
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
         verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
 
     }
@@ -144,7 +149,7 @@ class RulesVerificationTest {
         when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
         when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(productArtifact));
 
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
         verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
 
     }
@@ -163,7 +168,7 @@ class RulesVerificationTest {
         when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
         when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of());
 
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
         verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
 
     }
@@ -182,7 +187,7 @@ class RulesVerificationTest {
         when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of());
         when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(productArtifact));
 
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
         verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
 
     }
@@ -197,7 +202,7 @@ class RulesVerificationTest {
 
         when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
 
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
         verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
 
     }
@@ -208,7 +213,6 @@ class RulesVerificationTest {
         when(verificationContext.getExpectedStepNames()).thenReturn(List.of(STEP_NAME));
         when(verificationContext.getStepByStepName(STEP_NAME)).thenReturn(step);
         when(linkMetaBlock.getLink()).thenReturn(link);
-        when(link.getStepName()).thenReturn(STEP_NAME);
         when(verificationContext.getLinksByStepName(STEP_NAME)).thenReturn(List.of(linkMetaBlock));
 
         when(step.getStepName()).thenReturn(STEP_NAME);

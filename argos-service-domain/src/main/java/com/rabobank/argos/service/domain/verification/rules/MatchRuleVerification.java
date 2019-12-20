@@ -43,12 +43,12 @@ public class MatchRuleVerification implements RuleVerification {
 
     @Override
     public RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
-        return verify(context, filterSourceArtifacts(context.getLink().getProducts(), context.getRule()));
+        return verify(context, filterSourceArtifacts(context.getProducts(), context.getRule()));
     }
 
     @Override
     public RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context) {
-        return verify(context, filterSourceArtifacts(context.getLink().getMaterials(), context.getRule()));
+        return verify(context, filterSourceArtifacts(context.getMaterials(), context.getRule()));
     }
 
     private RuleVerificationResult verify(RuleVerificationContext<? extends Rule> context, Stream<Artifact> filteredSourceArtifacts) {
