@@ -47,7 +47,7 @@ public class RequiredNumberOfLinksVerification implements Verification {
         if (linkMetaBlockMap.size() == 1) {
             return isValid(linkMetaBlockMap.values().iterator().next(), context.getStepByStepName(stepName));
         } else {
-            log.info("more then one or no links with the same hash for step {}", stepName);
+            log.info("more than one or no links with the same hash for step {}", stepName);
             return false;
         }
     }
