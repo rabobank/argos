@@ -47,6 +47,7 @@ import java.util.Collections;
 public class ArgosJenkinsHelper {
 
     private final String privateKeyCredentialId;
+    private final String layoutSegmentName;
     private final String stepName;
     private final String supplyChainName;
     private final String runId;
@@ -55,6 +56,7 @@ public class ArgosJenkinsHelper {
     public Argos4j createArgos() {
 
         checkProperty(privateKeyCredentialId, "privateKeyCredentialId");
+        checkProperty(layoutSegmentName, "layoutSegmentName");
         checkProperty(stepName, "stepName");
         checkProperty(supplyChainName, "supplyChainName");
         checkProperty(runId, "runId");
@@ -66,6 +68,7 @@ public class ArgosJenkinsHelper {
         log.info("argosServiceBaseUrl = {}", argosServiceBaseUrl);
 
         return new Argos4j(Argos4jSettings.builder()
+                .layoutSegmentName(layoutSegmentName)
                 .stepName(stepName)
                 .runId(runId)
                 .argosServerBaseUrl(argosServiceBaseUrl)

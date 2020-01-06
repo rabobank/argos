@@ -20,8 +20,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 @EqualsAndHashCode
 public class Link {
     private String runId;
+    private String layoutSegmentName;
     private String stepName;
     @Builder.Default
     private List<String> command = new ArrayList<>();

@@ -5,6 +5,7 @@
   },
   "link": {
     "runId": "69af2dd",
+    "layoutSegmentName": "segment 1",
     "command": [
       "command1",
       "command2"

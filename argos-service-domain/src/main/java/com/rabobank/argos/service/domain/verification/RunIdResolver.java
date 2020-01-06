@@ -60,6 +60,10 @@ public class RunIdResolver {
         @Builder.Default
         private Set<String> runIds = new TreeSet<>();
 
+        String getSegmentName() {
+            return matchFilter.getDestinationSegmentName();
+        }
+
         String getStepName() {
             return matchFilter.getDestinationStepName();
         }
@@ -122,8 +126,9 @@ public class RunIdResolver {
     private void searchInMaterialsHashes(MatchedProductWithRunIds matchedProductWithRunIds) {
         matchedProductWithRunIds.getRunIds().addAll(
                 linkMetaBlockRepository
-                        .findBySupplyChainAndStepNameAndMaterialHash(
+                        .findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(
                                 matchedProductWithRunIds.getSupplyChainId(),
+                                matchedProductWithRunIds.getSegmentName(),
                                 matchedProductWithRunIds.getStepName(),
                                 matchedProductWithRunIds.getHashes())
                         .stream()
@@ -134,8 +139,9 @@ public class RunIdResolver {
     private void searchInProductHashes(MatchedProductWithRunIds matchedProductWithRunIds) {
         matchedProductWithRunIds.getRunIds().addAll(
                 linkMetaBlockRepository
-                        .findBySupplyChainAndStepNameAndProductHashes(
+                        .findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(
                                 matchedProductWithRunIds.getSupplyChainId(),
+                                matchedProductWithRunIds.getSegmentName(),
                                 matchedProductWithRunIds.getStepName(),
                                 matchedProductWithRunIds.getHashes())
                         .stream()
