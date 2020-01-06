@@ -51,7 +51,7 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
      * Name of the segment to execute.
      */
     @DataBoundSetter
-    private String layoutSegmentName;
+    public String layoutSegmentName;
 
     /**
      * Name of the step to execute.
