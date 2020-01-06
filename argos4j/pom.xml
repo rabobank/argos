@@ -16,13 +16,13 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos4j</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<name>Argos4j</name>
 	<description>Java client for Argos Supply Chain Notary</description>
 	<url>https://github.com/rabobank/argos/argos4j</url>
 
@@ -443,8 +443,10 @@
 					<version>${project.version}</version>
 					<packaging>jar</packaging>
 					<pomFile>${project.build.directory}/pom.xml</pomFile>
-					<files>${project.build.directory}/${project.build.finalName}.jar.asc,${project.build.directory}/${project.build.finalName}-sources.jar.asc,${project.build.directory}/${project.build.finalName}-javadoc.jar.asc,${project.build.directory}/pom.xml.asc</files>
-					<types>jar.asc,jar.asc,jar.asc,xml.asc</types>
+					<files>
+						${project.build.directory}/${project.build.finalName}.jar.asc,${project.build.directory}/${project.build.finalName}-sources.jar.asc,${project.build.directory}/${project.build.finalName}-javadoc.jar.asc,${project.build.directory}/pom.xml.asc
+					</files>
+					<types>jar.asc,jar.asc,jar.asc,pom.asc</types>
 					<classifiers>,sources,javadoc,</classifiers>
 					<sources>${project.build.directory}/${project.build.finalName}-sources.jar</sources>
 					<javadoc>${project.build.directory}/${project.build.finalName}-javadoc.jar</javadoc>
@@ -453,4 +455,40 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>sonar</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>0.8.4</version>
+						<executions>
+							<!--genereer report voor elke submodule -->
+							<execution>
+								<id>reporting</id>
+								<goals>
+									<goal>prepare-agent</goal>
+									<goal>report</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>default-report</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>report</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.sonarsource.scanner.maven</groupId>
+						<artifactId>sonar-maven-plugin</artifactId>
+						<version>3.6.1.1688</version>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
