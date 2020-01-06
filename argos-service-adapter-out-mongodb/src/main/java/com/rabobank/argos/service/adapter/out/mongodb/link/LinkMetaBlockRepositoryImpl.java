@@ -41,7 +41,7 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
 
     private static final String COLLECTION = "linkMetaBlocks";
     private static final String SUPPLY_CHAIN_ID_FIELD = "supplyChainId";
-    private static final String SEGMENT_NAME_FIELD = "link.segmentName";
+    private static final String SEGMENT_NAME_FIELD = "link.layoutSegmentName";
     private static final String STEP_NAME_FIELD = "link.stepName";
     private static final String RUN_ID_FIELD = "link.runId";
     private static final String LINK_MATERIALS_HASH_FIELD = "link.materials.hash";

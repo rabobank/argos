@@ -17,7 +17,7 @@ package com.rabobank.argos.service.domain.verification;
 
 public interface Verification {
     //pretest                                                                              //these steps mutate the context
-    enum Priority {LAYOUT_AUTHORIZED_KEYID, LAYOUT_METABLOCK_SIGNATURE, BUILDSTEPS_COMPLETED, STEP_AUTHORIZED_KEYID, LINK_METABLOCK_SIGNATURE, EXPECTED_COMMAND, REQUIRED_NUMBER_OF_LINKS, RULES}
+    enum Priority {LAYOUT_AUTHORIZED_KEYID, LAYOUT_METABLOCK_SIGNATURE, BUILDSTEPS_COMPLETED, STEP_AUTHORIZED_KEYID, LINK_METABLOCK_SIGNATURE, EXPECTED_COMMAND, RULES, REQUIRED_NUMBER_OF_LINKS}
 
     Priority getPriority();
 

@@ -3,6 +3,7 @@
     "z",
     "a"
   ],
+  "layoutSegmentName": "layoutSegmentName",
   "materials": [
     {
       "hash": "hash2",
@@ -24,6 +25,5 @@
     }
   ],
   "runId": "runId",
-  "segmentName": "segmentName",
   "stepName": "stepName"
 }
