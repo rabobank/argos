@@ -107,11 +107,11 @@ public class Argos4jIT {
     private RestLayout createLayout(String layoutKeyId, String linkKeyId) {
         return new RestLayout().addAuthorizedKeyIdsItem(layoutKeyId)
                 .addExpectedEndProductsItem(new RestMatchRule()
-                        .destinationSegmentName("segmentName")
+                        .destinationSegmentName("layoutSegmentName")
                         .destinationStepName("build")
                         .destinationType(RestMatchRule.DestinationTypeEnum.PRODUCTS)
                         .pattern("**/karate-config.js"))
-                .addLayoutSegmentsItem(new RestLayoutSegment().name("segmentName")
+                .addLayoutSegmentsItem(new RestLayoutSegment().name("layoutSegmentName")
                         .addStepsItem(new RestStep().requiredNumberOfLinks(1)
                                 .addExpectedProductsItem(new RestRule().ruleType(RestRule.RuleTypeEnum.ALLOW).pattern("**"))
                                 .addExpectedMaterialsItem(new RestRule().ruleType(RestRule.RuleTypeEnum.ALLOW).pattern("**"))
