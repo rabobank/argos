@@ -409,7 +409,7 @@ components:
       type: object
       required:
         - runId
-        - segmentName
+        - layoutSegmentName
         - stepName
         - command
         - materials
@@ -419,7 +419,7 @@ components:
           type: string
         stepName:
           type: string
-        segmentName:
+        layoutSegmentName:
           type: string
         command:
           type: array
