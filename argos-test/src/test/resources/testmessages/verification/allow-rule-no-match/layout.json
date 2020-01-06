@@ -1,8 +1,7 @@
 {
   "layout": {
     "authorizedKeyIds": [
-      "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09",
-      "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
+      "c8df0a497ab0df7136c4f97892f17914e6e5e021fdc039f0ea7c27d5a95c1254"
     ],
     "expectedEndProducts": [
       {
@@ -19,7 +18,7 @@
           {
             "name": "build",
             "authorizedKeyIds": [
-              "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
+              "56c7d930998b6039a925d5dee95f1349f53fc51e9bcdfcd7d50ecb58a9201a12"
             ],
             "requiredNumberOfLinks": 1,
             "expectedCommand": [
@@ -58,7 +57,7 @@
           {
             "name": "test",
             "authorizedKeyIds": [
-              "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09"
+              "a97daeaf3afaed859472a367da7a860b4b90eefb97fe51384bd45e9eed020b5b"
             ],
             "requiredNumberOfLinks": 1,
             "expectedCommand": [

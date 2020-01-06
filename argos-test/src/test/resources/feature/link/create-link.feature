@@ -21,8 +21,9 @@ Feature: create a valid link
     * url karate.properties['server.baseurl']
     * def linkPath = '/api/supplychain/'+ __arg.supplyChainId + '/link'
     * def linkToBeSigned = read(__arg.json)
+    * def keyNumber = __arg.keyNumber
   Scenario: store link with valid specifications should return a 204
-    * def signedLink = call read('classpath:feature/link/sign-link.feature') {json:#(linkToBeSigned)}
+    * def signedLink = call read('classpath:feature/link/sign-link.feature') {json:#(linkToBeSigned),keyNumber:#(keyNumber)}
     Given path linkPath
     And request signedLink.response
     And header Content-Type = 'application/json'

@@ -20,9 +20,11 @@ Feature: create a valid layout
   Background:
     * url karate.properties['server.baseurl']
     * def layoutPath = '/api/supplychain/'+ __arg.supplyChainId + '/layout'
+    * def layoutToBeSigned = read(__arg.json)
+    * def keyNumber = __arg.keyNumber
 
   Scenario: store layout with valid specifications should return a 201
-    * def signedLayout = call read('classpath:feature/layout/sign-layout.feature') read(__arg.json)
+    * def signedLayout = call read('classpath:feature/layout/sign-layout.feature') {json:#(layoutToBeSigned),keyNumber:#(keyNumber)}
     Given path layoutPath
     And request signedLayout.response
     And header Content-Type = 'application/json'

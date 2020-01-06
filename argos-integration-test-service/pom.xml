@@ -16,15 +16,17 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>argos-parent</artifactId>
         <groupId>com.rabobank.argos</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <properties>
+        <swagger-ui.version>3.24.3</swagger-ui.version>
+    </properties>
 
     <artifactId>argos-integration-test-service</artifactId>
     <description>Argos integration test service used to create test fixtures for rest api testing</description>
@@ -208,6 +210,24 @@
                             <outputDirectory>${project.build.directory}/api</outputDirectory>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>swagger-ui</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.webjars</groupId>
+                                    <artifactId>swagger-ui</artifactId>
+                                    <version>${swagger-ui.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <excludes>**/*index.html</excludes>
+                            <outputDirectory>${project.build.directory}/swagger-ui</outputDirectory>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -231,7 +251,24 @@
                                         <include>test-service-api.yml</include>
                                     </includes>
                                 </resource>
-
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-swagger-ui</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/static/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/swagger-ui/META-INF/resources/webjars/swagger-ui/${swagger-ui.version}
+                                    </directory>
+                                    <filtering>false</filtering>
+                                </resource>
                             </resources>
                         </configuration>
                     </execution>
@@ -262,6 +299,19 @@
                             <configHelp>false</configHelp>
                             <apiPackage>com.rabobank.argos.integrationtest.argos.service.api.handler</apiPackage>
                             <modelPackage>com.rabobank.argos.integrationtest.argos.service.api.model</modelPackage>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>json</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.build.directory}/api/test-service-api.yml</inputSpec>
+                            <generatorName>openapi</generatorName>
+                            <output>${project.build.directory}/classes/static/swagger</output>
+                            <generateSupportingFiles>false</generateSupportingFiles>
                         </configuration>
                     </execution>
                 </executions>

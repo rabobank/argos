@@ -17,8 +17,10 @@ package com.rabobank.argos.test;
 
 import com.rabobank.argos.argos4j.rest.api.ApiClient;
 import com.rabobank.argos.argos4j.rest.api.client.KeyApi;
+import com.rabobank.argos.argos4j.rest.api.client.LayoutApi;
 import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
+import com.rabobank.argos.argos4j.rest.api.client.VerificationApi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -29,28 +31,11 @@ import java.net.http.HttpResponse;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 public class ServiceStatusHelper {
 
     private static Properties properties = Properties.getInstance();
-
-    public static void clearDatabase() {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(properties.getIntegrationTestServiceBaseUrl() + "/integration-test/reset-db"))
-                    .method("POST", HttpRequest.BodyPublishers.noBody())
-                    .build();
-            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertThat(send.statusCode(), is(200));
-        } catch (IOException | InterruptedException e) {
-            fail(e.getMessage());
-        }
-    }
 
     public static void waitForArgosServiceToStart() {
         log.info("Waiting for argos service start");
@@ -99,11 +84,20 @@ public class ServiceStatusHelper {
         return getApiClient().buildClient(SupplychainApi.class);
     }
 
-    public static KeyApi getKeyApiApi() {
+    public static KeyApi getKeyApi() {
         return getApiClient().buildClient(KeyApi.class);
+    }
+
+    public static VerificationApi getVerificationApi() {
+        return getApiClient().buildClient(VerificationApi.class);
+    }
+
+    public static LayoutApi getLayoutApi() {
+        return getApiClient().buildClient(LayoutApi.class);
     }
 
     private static ApiClient getApiClient() {
         return new ApiClient().setBasePath(properties.getApiBaseUrl() + "/api");
     }
+
 }

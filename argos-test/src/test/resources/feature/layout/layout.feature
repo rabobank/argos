@@ -19,13 +19,14 @@ Feature: Layout
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
+    * call read('classpath:feature/key/insert-test-key-pairs.feature')
     * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { name: 'name'}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
     * call read('classpath:feature/key/create-key.feature')
     * def validLayout = 'classpath:testmessages/layout/valid-layout.json'
 
   Scenario: store layout with valid specifications should return a 200
-    * call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout)}
+    * call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
 
   Scenario: store link with invalid specifications should return a 400 error
     Given path layoutPath
@@ -36,7 +37,7 @@ Feature: Layout
     And match response contains read('classpath:testmessages/layout/invalid-layout-response.json')
 
   Scenario: find layout with valid supplychainid should return a 200
-    * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout)}
+    * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
     Given path layoutPath
     When method GET
     Then status 200
@@ -45,9 +46,10 @@ Feature: Layout
     And match response[*] contains response
 
   Scenario: update a layout should return a 200
-    * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout)}
+    * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
     * def layoutId = layoutResponse.response.id
-    * def requestBody = call read('sign-layout.feature') read('classpath:testmessages/layout/valid-update-layout.json')
+    * def layoutToBeSigned = read('classpath:testmessages/layout/valid-update-layout.json')
+    * def requestBody = call read('sign-layout.feature') {json:#(layoutToBeSigned),keyNumber:3}
     Given path layoutPath + '/' + layoutId
     And request requestBody.response
     And header Content-Type = 'application/json'
