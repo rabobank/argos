@@ -51,7 +51,7 @@ public class Argos4j implements Serializable {
         Link link = Link.builder().runId(settings.getRunId())
                 .materials(materials)
                 .products(products)
-                .segmentName(settings.getSegmentName())
+                .layoutSegmentName(settings.getLayoutSegmentName())
                 .stepName(settings.getStepName()).build();
         Signature signature = new Argos4JSigner().sign(settings.getSigningKey(), new JsonSigningSerializer().serialize(link));
         new ArgosServiceClient(settings).uploadLinkMetaBlockToService(LinkMetaBlock.builder().link(link).signature(signature).build());

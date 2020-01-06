@@ -150,7 +150,7 @@ public class LinkMetablockRepositoryIT {
         return Link
                 .builder()
                 .runId(RUN_ID)
-                .segmentName(SEGMENT_NAME)
+                .layoutSegmentName(SEGMENT_NAME)
                 .stepName(STEP_NAME)
                 .materials(createMaterials())
                 .products(createProducts())
