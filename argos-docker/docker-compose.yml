@@ -28,17 +28,17 @@ services:
       - 8080:8080
     depends_on:
       - mongodb
-      -
-    argos-integration-test-service:
-      build:
-        context: .
-        dockerfile:IntegrationTestServiceDockerfile
-      environment:
-        spring.data.mongodb.uri: mongodb://mongodb/test
-      ports:
-        - 2877:2877
-      depends_on:
-        - mongodb
+
+  argos-integration-test-service:
+    build:
+      context: .
+      dockerfile: IntegrationTestServiceDockerfile
+    environment:
+      spring.data.mongodb.uri: mongodb://mongodb/test
+    ports:
+      - 2877:2877
+    depends_on:
+      - mongodb
 
   mongodb:
     image: mongo:4.2.1-bionic
