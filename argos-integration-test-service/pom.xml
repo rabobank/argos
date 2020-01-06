@@ -26,15 +26,12 @@
     <modelVersion>4.0.0</modelVersion>
     <properties>
         <swagger-ui.version>3.24.3</swagger-ui.version>
+        <sonar.skip>true</sonar.skip>
     </properties>
 
     <artifactId>argos-integration-test-service</artifactId>
     <description>Argos integration test service used to create test fixtures for rest api testing</description>
     <url>https://github.com/rabobank/argos/argos-integration-test-service</url>
-
-    <properties>
-        <sonar.skip>true</sonar.skip>
-    </properties>
 
     <licenses>
         <license>
