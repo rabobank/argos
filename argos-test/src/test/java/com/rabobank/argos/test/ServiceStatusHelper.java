@@ -15,22 +15,38 @@
  */
 package com.rabobank.argos.test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rabobank.argos.argos4j.rest.api.ApiClient;
 import com.rabobank.argos.argos4j.rest.api.client.KeyApi;
 import com.rabobank.argos.argos4j.rest.api.client.LayoutApi;
 import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
+import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
+
 import com.rabobank.argos.argos4j.rest.api.client.VerificationApi;
+import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.security.MessageDigest;
+
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 public class ServiceStatusHelper {
@@ -55,6 +71,27 @@ public class ServiceStatusHelper {
 
         log.info("argos service started");
     }
+
+
+    public static String getSnapshotHash() {
+        try {
+            HttpClient client = HttpClient.newBuilder().followRedirects(Redirect.ALWAYS).build();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(properties.getNexusSnapshotUrl()))
+                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .build();
+            HttpResponse<byte[]> send = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+            assertThat(send.statusCode(), is(200));
+            MessageDigest digest = DigestUtils.getSha256Digest();
+            digest.update(send.body(), 0, send.body().length);
+            String hash = Hex.encodeHexString(digest.digest());
+            return hash;
+        } catch (IOException | InterruptedException e) {
+            fail(e.getMessage());
+        }
+        return null;
+    }
+
 
 
     public static void waitForArgosIntegrationTestServiceToStart() {
@@ -86,6 +123,10 @@ public class ServiceStatusHelper {
 
     public static KeyApi getKeyApi() {
         return getApiClient().buildClient(KeyApi.class);
+    }
+
+    public static boolean isValidEndProduct(String supplyChainId, RestVerifyCommand verifyCommand) {
+        return getVerificationApi().performVerification(supplyChainId, verifyCommand).getRunIsValid();
     }
 
     public static VerificationApi getVerificationApi() {
