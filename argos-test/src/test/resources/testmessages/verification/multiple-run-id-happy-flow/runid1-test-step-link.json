@@ -1,7 +1,7 @@
 {
   "link": {
     "runId": "runid1",
-    "segmentName": "segment 1",
+    "layoutSegmentName": "segment 1",
     "stepName": "test",
     "materials": [
       {

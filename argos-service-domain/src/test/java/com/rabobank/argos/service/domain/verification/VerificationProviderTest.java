@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -105,12 +106,11 @@ class VerificationProviderTest {
     void verifyShouldProduceVerificationRunResult() {
         setupMocking();
 
+        when(lowPrio.verify(any(VerificationContext.class))).thenReturn(verificationRunResultLow);
+        when(highPrio.verify(any(VerificationContext.class))).thenReturn(verificationRunResultHigh);
         when(verificationRunResultLow.isRunIsValid()).thenReturn(true);
         when(verificationRunResultHigh.isRunIsValid()).thenReturn(true);
-
-
         assertThat(verificationProvider.verifyRun(layoutMetaBlock, List.of(artifact)).isRunIsValid(), is(true));
-
         verify(lowPrio).verify(verificationContextArgumentCaptor.capture());
         VerificationContext verificationContext = verificationContextArgumentCaptor.getValue();
         assertThat(verificationContext.getLayoutMetaBlock(), sameInstance(layoutMetaBlock));
@@ -124,31 +124,26 @@ class VerificationProviderTest {
     @Test
     void verifyShouldProduceFalseVerificationRunResult() {
         setupMocking();
-        when(verificationRunResultLow.isRunIsValid()).thenReturn(false);
-        when(verificationRunResultHigh.isRunIsValid()).thenReturn(true);
+        when(highPrio.verify(any(VerificationContext.class))).thenReturn(verificationRunResultHigh);
         assertThat(verificationProvider.verifyRun(layoutMetaBlock, List.of(artifact)).isRunIsValid(), is(false));
-
     }
 
     private void setupMocking() {
         when(lowPrio.getPriority()).thenReturn(Verification.Priority.BUILDSTEPS_COMPLETED);
         when(highPrio.getPriority()).thenReturn(Verification.Priority.LAYOUT_METABLOCK_SIGNATURE);
-        verifications.add(lowPrio);
-        verifications.add(highPrio);
-        verificationProvider.init();
-
+        when(step.getStepName()).thenReturn(STEPNAME);
+        when(linkMetaBlock.getLink()).thenReturn(link);
+        when(segment.getSteps()).thenReturn(Collections.singletonList(step));
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLYCHAIN_ID);
-
-
         when(linkMetaBlock.getLink()).thenReturn(link);
         when(link.getStepName()).thenReturn(STEPNAME);
-
         when(runIdResolver.getRunIdPerSegment(layoutMetaBlock, List.of(artifact)))
                 .thenReturn(List.of(RunIdsWithSegment.builder().segment(segment).runIds(Set.of(RUN_ID)).build()));
         when(linkMetaBlockRepository.findByRunId(SUPPLYCHAIN_ID, RUN_ID)).thenReturn(List.of(linkMetaBlock));
 
-        when(lowPrio.verify(any(VerificationContext.class))).thenReturn(verificationRunResultLow);
-        when(highPrio.verify(any(VerificationContext.class))).thenReturn(verificationRunResultHigh);
+        verifications.add(lowPrio);
+        verifications.add(highPrio);
+        verificationProvider.init();
     }
 
 }

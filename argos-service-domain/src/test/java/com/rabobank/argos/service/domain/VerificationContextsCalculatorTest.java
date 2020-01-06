@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.rabobank.argos.service.domain;
 
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
@@ -22,7 +37,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class StepWithEqualLinkSetsContainerTest {
+class VerificationContextsCalculatorTest {
 
     private static final String STEPNAME1 = "STEP_ONE";
     private static final String STEPNAME2 = "STEP_TWO";
@@ -53,13 +68,20 @@ class StepWithEqualLinkSetsContainerTest {
     private LinkMetaBlock linkMetaBlock3_1;
     private LinkMetaBlock linkMetaBlock3_2;
 
-    private StepWithEqualLinkSetsContainer stepWithEqualLinkSetsContainer;
-
+    private VerificationContextsCalculator verificationContextsCalculator;
 
     @Test
-    void calculatePossibleVerificationContexts() {
-        setupMocks();
-        List<VerificationContext> result = stepWithEqualLinkSetsContainer.calculatePossibleVerificationContexts();
+    void calculatePossibleVerificationContextsWithOneStepAndMultipleSetsShouldResultCorrectCombinations() {
+        setupMocksForOneStep();
+        List<VerificationContext> result = verificationContextsCalculator.calculatePossibleVerificationContexts();
+        assertThat(result, hasSize(2));
+
+    }
+
+    @Test
+    void calculatePossibleVerificationContextsWithMultipleStepsAndMultipleSetsShouldReturnCorrectCombinations() {
+        setupMocksForMultipleSteps();
+        List<VerificationContext> result = verificationContextsCalculator.calculatePossibleVerificationContexts();
         assertThat(result, hasSize(8));
         assertThat(result.get(0).getLinkMetaBlocks(), hasSize(3));
         assertThat(result.get(0).getLinkMetaBlocks().get(0), is(linkMetaBlock1_2));
@@ -95,7 +117,7 @@ class StepWithEqualLinkSetsContainerTest {
         assertThat(result.get(7).getLinkMetaBlocks().get(2), is(linkMetaBlock3_1));
     }
 
-    private void setupMocks() {
+    private void setupMocksForMultipleSteps() {
         when(step1.getStepName()).thenReturn(STEPNAME1);
         when(step2.getStepName()).thenReturn(STEPNAME2);
         when(step3.getStepName()).thenReturn(STEPNAME3);
@@ -110,7 +132,7 @@ class StepWithEqualLinkSetsContainerTest {
                 .link(Link
                         .builder()
                         .stepName(STEPNAME1)
-                        .segmentName(SEGMENT_NAME)
+                        .layoutSegmentName(SEGMENT_NAME)
                         .build())
                 .build();
 
@@ -119,7 +141,7 @@ class StepWithEqualLinkSetsContainerTest {
                         .builder()
                         .stepName(STEPNAME1)
                         .command(singletonList("cmd"))
-                        .segmentName(SEGMENT_NAME)
+                        .layoutSegmentName(SEGMENT_NAME)
                         .build())
                 .build();
 
@@ -128,7 +150,7 @@ class StepWithEqualLinkSetsContainerTest {
                 .link(Link
                         .builder()
                         .stepName(STEPNAME2)
-                        .segmentName(SEGMENT_NAME)
+                        .layoutSegmentName(SEGMENT_NAME)
                         .build())
                 .build();
 
@@ -137,7 +159,7 @@ class StepWithEqualLinkSetsContainerTest {
                         .builder()
                         .stepName(STEPNAME2)
                         .command(singletonList("cmd"))
-                        .segmentName(SEGMENT_NAME)
+                        .layoutSegmentName(SEGMENT_NAME)
                         .build())
                 .build();
 
@@ -145,7 +167,7 @@ class StepWithEqualLinkSetsContainerTest {
                 .link(Link
                         .builder()
                         .stepName(STEPNAME3)
-                        .segmentName(SEGMENT_NAME)
+                        .layoutSegmentName(SEGMENT_NAME)
                         .build())
                 .build();
 
@@ -154,12 +176,46 @@ class StepWithEqualLinkSetsContainerTest {
                         .builder()
                         .stepName(STEPNAME3)
                         .command(singletonList("cmd"))
-                        .segmentName(SEGMENT_NAME)
+                        .layoutSegmentName(SEGMENT_NAME)
                         .build())
                 .build();
 
-        stepWithEqualLinkSetsContainer = new StepWithEqualLinkSetsContainer(
+        verificationContextsCalculator = new VerificationContextsCalculator(
                 asList(linkMetaBlock1_1, linkMetaBlock1_2, linkMetaBlock2_1, linkMetaBlock2_2, linkMetaBlock3_1, linkMetaBlock3_2),
+                layoutSegment,
+                layoutMetaBlock
+        );
+    }
+
+    private void setupMocksForOneStep() {
+        when(step1.getStepName()).thenReturn(STEPNAME1);
+
+        when(layoutMetaBlock.getLayout().getLayoutSegments())
+                .thenReturn(singletonList(layoutSegment));
+
+        when(layoutSegment.getSteps())
+                .thenReturn(asList(step1));
+
+        linkMetaBlock1_1 = LinkMetaBlock.builder()
+                .link(Link
+                        .builder()
+                        .stepName(STEPNAME1)
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .build())
+                .build();
+
+        linkMetaBlock1_2 = LinkMetaBlock.builder()
+                .link(Link
+                        .builder()
+                        .stepName(STEPNAME1)
+                        .command(singletonList("cmd"))
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .build())
+                .build();
+
+
+        verificationContextsCalculator = new VerificationContextsCalculator(
+                asList(linkMetaBlock1_1, linkMetaBlock1_2),
                 layoutSegment,
                 layoutMetaBlock
         );
