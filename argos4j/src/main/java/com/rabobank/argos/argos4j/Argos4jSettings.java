@@ -37,7 +37,7 @@ public class Argos4jSettings implements Serializable {
 
     private final String supplyChainName;
     private final String runId;
-    private final String segmentName;
+    private final String layoutSegmentName;
     private final String stepName;
     private final SigningKey signingKey;
     private final String argosServerBaseUrl;

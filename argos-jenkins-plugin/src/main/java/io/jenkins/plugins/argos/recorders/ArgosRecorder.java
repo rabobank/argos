@@ -67,7 +67,7 @@ public class ArgosRecorder extends Recorder {
      * Name of the segment to execute.
      */
     @DataBoundSetter
-    private final String segmentName;
+    private final String layoutSegmentName;
 
     /**
      * Name of the step to execute.
@@ -88,9 +88,9 @@ public class ArgosRecorder extends Recorder {
 
 
     @DataBoundConstructor
-    public ArgosRecorder(String supplyChainName, String privateKeyCredentialId, String segmentName, String stepName, String runId) {
+    public ArgosRecorder(String supplyChainName, String privateKeyCredentialId, String layoutSegmentName, String stepName, String runId) {
         this.stepName = stepName;
-        this.segmentName = segmentName;
+        this.layoutSegmentName = layoutSegmentName;
         this.supplyChainName = supplyChainName;
         this.privateKeyCredentialId = privateKeyCredentialId;
         this.runId = runId;
@@ -108,8 +108,8 @@ public class ArgosRecorder extends Recorder {
         return stepName;
     }
 
-    public String getSegmentName() {
-        return segmentName;
+    public String getLayoutSegmentName() {
+        return layoutSegmentName;
     }
 
     public String getRunId() {
@@ -127,7 +127,7 @@ public class ArgosRecorder extends Recorder {
             argos4j = new ArgosJenkinsHelper(
                     environment.expand(privateKeyCredentialId),
                     environment.expand(stepName),
-                    environment.expand(segmentName),
+                    environment.expand(layoutSegmentName),
                     environment.expand(supplyChainName),
                     environment.expand(runId)).createArgos();
 
