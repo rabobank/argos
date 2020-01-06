@@ -30,9 +30,6 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.FileSystems;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -105,10 +102,8 @@ public class RunIdResolver {
     }
 
     private List<Artifact> matches(MatchFilter matchFilter, List<Artifact> productsToVerify) {
-        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + matchFilter.getPattern());
-        return productsToVerify.stream().filter(artifact -> matcher.matches(Paths.get(artifact.getUri()))).collect(toList());
+        return productsToVerify.stream().filter(artifact -> ArtifactMatcher.matches(artifact.getUri(), matchFilter.getPattern())).collect(toList());
     }
-
 
     private void addRunIds(MatchedProductWithRunIds matchedProductWithRunIds) {
         if (PRODUCTS == matchedProductWithRunIds.matchFilter.getDestinationType()) {

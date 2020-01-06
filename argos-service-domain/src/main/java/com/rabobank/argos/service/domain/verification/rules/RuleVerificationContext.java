@@ -17,6 +17,7 @@ package com.rabobank.argos.service.domain.verification.rules;
 
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.link.Artifact;
+import com.rabobank.argos.service.domain.verification.ArtifactMatcher;
 import com.rabobank.argos.service.domain.verification.VerificationContext;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,9 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
-import java.nio.file.FileSystems;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -57,8 +55,7 @@ public class RuleVerificationContext<R extends Rule> {
     }
 
     public static Stream<Artifact> filterArtifacts(List<Artifact> artifacts, String pattern, @Nullable String prefix) {
-        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-        return artifacts.stream().filter(artifact -> matcher.matches(Paths.get(getUri(artifact, prefix))));
+        return artifacts.stream().filter(artifact -> ArtifactMatcher.matches(getUri(artifact, prefix), pattern));
     }
 
     private static String getUri(Artifact artifact, String prefix) {
