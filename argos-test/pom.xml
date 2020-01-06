@@ -203,7 +203,7 @@
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <header>${project.basedir}/../docs/header.txt</header>
                     <properties>
-                        <lic.year>2019</lic.year>
+                        <lic.year>2020</lic.year>
                     </properties>
                     <encoding>UTF-8</encoding>
                     <mapping>
