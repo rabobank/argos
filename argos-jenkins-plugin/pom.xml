@@ -207,7 +207,7 @@
                         <exclude>**/bob</exclude>
                         <exclude>**/*.pem</exclude>
                     </excludes>
-                    <header>${project.basedir}/../docs/header.txt</header>
+                    <header>https://raw.github.com/rabobank/argos/develop/docs/header.txt</header>
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <properties>
                         <lic.year>2020</lic.year>
