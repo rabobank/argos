@@ -42,7 +42,7 @@ class VerificationContextsProviderTest {
     private static final String STEPNAME1 = "STEP_ONE";
     private static final String STEPNAME2 = "STEP_TWO";
     private static final String STEPNAME3 = "STEP_THREE";
-    public static final String SEGMENT_NAME = "segmentName";
+    private static final String SEGMENT_NAME = "segmentName";
 
     @Mock
     private Step step1;
@@ -84,15 +84,6 @@ class VerificationContextsProviderTest {
         List<VerificationContext> result = verificationContextsProvider.calculatePossibleVerificationContexts();
         assertThat(result, hasSize(0));
 
-    }
-
-    private void setupMocksForNoLinks() {
-        when(step1.getStepName()).thenReturn(STEPNAME1);
-        when(layoutMetaBlock.getLayout().getLayoutSegments())
-                .thenReturn(singletonList(layoutSegment));
-        when(layoutSegment.getSteps())
-                .thenReturn(asList(step1));
-        verificationContextsProvider = new VerificationContextsProvider(emptyList(), layoutSegment, layoutMetaBlock);
     }
 
     @Test
@@ -211,7 +202,7 @@ class VerificationContextsProviderTest {
                 .thenReturn(singletonList(layoutSegment));
 
         when(layoutSegment.getSteps())
-                .thenReturn(asList(step1));
+                .thenReturn(singletonList(step1));
 
         linkMetaBlock1_1 = LinkMetaBlock.builder()
                 .link(Link
@@ -236,6 +227,15 @@ class VerificationContextsProviderTest {
                 layoutSegment,
                 layoutMetaBlock
         );
+    }
+
+    private void setupMocksForNoLinks() {
+        when(step1.getStepName()).thenReturn(STEPNAME1);
+        when(layoutMetaBlock.getLayout().getLayoutSegments())
+                .thenReturn(singletonList(layoutSegment));
+        when(layoutSegment.getSteps())
+                .thenReturn(singletonList(step1));
+        verificationContextsProvider = new VerificationContextsProvider(emptyList(), layoutSegment, layoutMetaBlock);
     }
 
 }
