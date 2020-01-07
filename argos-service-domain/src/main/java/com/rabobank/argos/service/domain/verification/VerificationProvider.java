@@ -19,7 +19,6 @@ import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
-import com.rabobank.argos.service.domain.VerificationContextsProvider;
 import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +74,7 @@ public class VerificationProvider {
         List<LinkMetaBlock> linkMetaBlocks = linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId);
         VerificationContextsProvider verificationContextsProvider = new VerificationContextsProvider(linkMetaBlocks, segment, layoutMetaBlock);
         List<VerificationContext> possibleVerificationContexts = verificationContextsProvider.calculatePossibleVerificationContexts();
+        log.info("created {} verification contexts", possibleVerificationContexts.size());
         return possibleVerificationContexts
                 .stream()
                 .map(context -> verifications.stream()

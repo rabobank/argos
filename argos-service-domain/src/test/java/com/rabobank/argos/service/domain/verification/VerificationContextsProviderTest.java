@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain;
+package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
-import com.rabobank.argos.service.domain.verification.VerificationContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -30,6 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -76,6 +76,23 @@ class VerificationContextsProviderTest {
         List<VerificationContext> result = verificationContextsProvider.calculatePossibleVerificationContexts();
         assertThat(result, hasSize(2));
 
+    }
+
+    @Test
+    void calculatePossibleVerificationContextsWithNoLinksShouldReturnEmptyList() {
+        setupMocksForNoLinks();
+        List<VerificationContext> result = verificationContextsProvider.calculatePossibleVerificationContexts();
+        assertThat(result, hasSize(0));
+
+    }
+
+    private void setupMocksForNoLinks() {
+        when(step1.getStepName()).thenReturn(STEPNAME1);
+        when(layoutMetaBlock.getLayout().getLayoutSegments())
+                .thenReturn(singletonList(layoutSegment));
+        when(layoutSegment.getSteps())
+                .thenReturn(asList(step1));
+        verificationContextsProvider = new VerificationContextsProvider(emptyList(), layoutSegment, layoutMetaBlock);
     }
 
     @Test

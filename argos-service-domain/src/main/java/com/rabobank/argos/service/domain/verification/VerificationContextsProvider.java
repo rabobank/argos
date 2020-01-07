@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain;
+package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
-import com.rabobank.argos.service.domain.verification.VerificationContext;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -38,6 +37,7 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 
+@Slf4j
 public class VerificationContextsProvider {
 
     private final LayoutMetaBlock layoutMetaBlock;
@@ -59,16 +59,18 @@ public class VerificationContextsProvider {
                 .stream()
                 .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
         for (Step step : segment.getSteps()) {
-            Map<Integer, List<LinkMetaBlock>> linkMetaBlockMap = linksByStepName.get(step.getStepName()).stream()
-                    .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().hashCode()));
+            if (linksByStepName.containsKey(step.getStepName())) {
+                Map<Integer, List<LinkMetaBlock>> linkMetaBlockMap = linksByStepName.get(step.getStepName()).stream()
+                        .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().hashCode()));
 
-            for (List<LinkMetaBlock> links : linkMetaBlockMap.values()) {
-                StepWithEqualLinkSet stepWithEqualLinkSet = StepWithEqualLinkSet
-                        .builder()
-                        .step(step)
-                        .equalLinkMetaBlocks(links)
-                        .build();
-                nodes.add(stepWithEqualLinkSet);
+                for (List<LinkMetaBlock> links : linkMetaBlockMap.values()) {
+                    StepWithEqualLinkSet stepWithEqualLinkSet = StepWithEqualLinkSet
+                            .builder()
+                            .step(step)
+                            .equalLinkMetaBlocks(links)
+                            .build();
+                    nodes.add(stepWithEqualLinkSet);
+                }
             }
         }
         return nodes;
@@ -92,6 +94,7 @@ public class VerificationContextsProvider {
         List<StepWithEqualLinkSet> endNodes = listsToConnect.getLast();
         calculatePossiblePathsBetweenStartEndNodes(linkSetGraph, startNodes, endNodes);
         List<LinkedList<StepWithEqualLinkSet>> possibleCombinations = linkSetGraph.getPossiblePaths();
+
         return createPossibleVerificationContexts(possibleCombinations);
     }
 

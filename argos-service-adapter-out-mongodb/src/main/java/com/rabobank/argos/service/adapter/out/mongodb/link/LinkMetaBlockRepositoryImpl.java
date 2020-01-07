@@ -62,7 +62,7 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
         keys.put(SUPPLY_CHAIN_ID_FIELD, 1);
         keys.put(SEGMENT_NAME_FIELD, 1);
         keys.put(STEP_NAME_FIELD, 1);
-        createIndex(new CompoundIndexDefinition(new Document(keys)).unique().named(SUPPLY_CHAIN_ID_FIELD + "_" + SEGMENT_NAME_FIELD + "_" + STEP_NAME_FIELD));
+        createIndex(new CompoundIndexDefinition(new Document(keys)).named(SUPPLY_CHAIN_ID_FIELD + "_" + SEGMENT_NAME_FIELD + "_" + STEP_NAME_FIELD));
     }
 
     private void createIndex(IndexDefinition indexDefinition) {
