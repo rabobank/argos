@@ -37,14 +37,13 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 
-@Slf4j
-public class VerificationContextsProvider {
 
+class VerificationContextsProvider {
     private final LayoutMetaBlock layoutMetaBlock;
     private final Map<String, List<StepWithEqualLinkSet>> nodesGroupedByStepName;
     private final LayoutSegment segment;
 
-    public VerificationContextsProvider(List<LinkMetaBlock> linkMetaBlocks, LayoutSegment segment, LayoutMetaBlock layoutMetaBlock) {
+    VerificationContextsProvider(List<LinkMetaBlock> linkMetaBlocks, LayoutSegment segment, LayoutMetaBlock layoutMetaBlock) {
         this.layoutMetaBlock = layoutMetaBlock;
         this.segment = segment;
         this.nodesGroupedByStepName = initializeNodesGroupedByStepName(linkMetaBlocks, segment)
@@ -76,7 +75,7 @@ public class VerificationContextsProvider {
         return nodes;
     }
 
-    public List<VerificationContext> calculatePossibleVerificationContexts() {
+    List<VerificationContext> calculatePossibleVerificationContexts() {
         if (nodesGroupedByStepName.values().isEmpty()) {
             return emptyList();
         } else if (segment.getSteps().size() == 1)
