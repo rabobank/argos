@@ -22,6 +22,7 @@ import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class VerificationContext {
 
     @Builder
     public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock, LayoutSegment segment) {
-        this.linkMetaBlocks = linkMetaBlocks;
+        this.linkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.layoutMetaBlock = layoutMetaBlock;
         this.segment = segment;
         segment.getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));

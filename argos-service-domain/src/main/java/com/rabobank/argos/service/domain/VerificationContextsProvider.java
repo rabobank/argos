@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.domain.verification.VerificationContext;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -37,13 +38,13 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 
-public class VerificationContextsCalculator {
+public class VerificationContextsProvider {
 
     private final LayoutMetaBlock layoutMetaBlock;
     private final Map<String, List<StepWithEqualLinkSet>> nodesGroupedByStepName;
     private final LayoutSegment segment;
 
-    public VerificationContextsCalculator(List<LinkMetaBlock> linkMetaBlocks, LayoutSegment segment, LayoutMetaBlock layoutMetaBlock) {
+    public VerificationContextsProvider(List<LinkMetaBlock> linkMetaBlocks, LayoutSegment segment, LayoutMetaBlock layoutMetaBlock) {
         this.layoutMetaBlock = layoutMetaBlock;
         this.segment = segment;
         this.nodesGroupedByStepName = initializeNodesGroupedByStepName(linkMetaBlocks, segment)
@@ -122,7 +123,7 @@ public class VerificationContextsCalculator {
     }
 
     private void calculatePossiblePathsBetweenStartEndNodes(Graph<StepWithEqualLinkSet> linkSetGraph, List<StepWithEqualLinkSet> startNodes, List<StepWithEqualLinkSet> endNodes) {
-        // firstnodes  * lastnodes find
+        // firstnodes  * lastnodes
         startNodes.forEach(current ->
                 endNodes.forEach(next -> {
                     LinkedList<StepWithEqualLinkSet> visited = new LinkedList<>();
@@ -168,7 +169,7 @@ public class VerificationContextsCalculator {
     }
 
     @Slf4j
-    @Getter
+    @Getter(value = AccessLevel.PRIVATE)
     private static class Graph<N> {
         private Map<N, LinkedHashSet<N>> map = new HashMap<>();
         private List<LinkedList<N>> possiblePaths = new ArrayList<>();

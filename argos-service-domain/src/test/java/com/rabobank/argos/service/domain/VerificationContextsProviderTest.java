@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class VerificationContextsCalculatorTest {
+class VerificationContextsProviderTest {
 
     private static final String STEPNAME1 = "STEP_ONE";
     private static final String STEPNAME2 = "STEP_TWO";
@@ -68,12 +68,12 @@ class VerificationContextsCalculatorTest {
     private LinkMetaBlock linkMetaBlock3_1;
     private LinkMetaBlock linkMetaBlock3_2;
 
-    private VerificationContextsCalculator verificationContextsCalculator;
+    private VerificationContextsProvider verificationContextsProvider;
 
     @Test
     void calculatePossibleVerificationContextsWithOneStepAndMultipleSetsShouldResultCorrectCombinations() {
         setupMocksForOneStep();
-        List<VerificationContext> result = verificationContextsCalculator.calculatePossibleVerificationContexts();
+        List<VerificationContext> result = verificationContextsProvider.calculatePossibleVerificationContexts();
         assertThat(result, hasSize(2));
 
     }
@@ -81,7 +81,7 @@ class VerificationContextsCalculatorTest {
     @Test
     void calculatePossibleVerificationContextsWithMultipleStepsAndMultipleSetsShouldReturnCorrectCombinations() {
         setupMocksForMultipleSteps();
-        List<VerificationContext> result = verificationContextsCalculator.calculatePossibleVerificationContexts();
+        List<VerificationContext> result = verificationContextsProvider.calculatePossibleVerificationContexts();
         assertThat(result, hasSize(8));
         assertThat(result.get(0).getLinkMetaBlocks(), hasSize(3));
         assertThat(result.get(0).getLinkMetaBlocks().get(0), is(linkMetaBlock1_2));
@@ -180,7 +180,7 @@ class VerificationContextsCalculatorTest {
                         .build())
                 .build();
 
-        verificationContextsCalculator = new VerificationContextsCalculator(
+        verificationContextsProvider = new VerificationContextsProvider(
                 asList(linkMetaBlock1_1, linkMetaBlock1_2, linkMetaBlock2_1, linkMetaBlock2_2, linkMetaBlock3_1, linkMetaBlock3_2),
                 layoutSegment,
                 layoutMetaBlock
@@ -214,7 +214,7 @@ class VerificationContextsCalculatorTest {
                 .build();
 
 
-        verificationContextsCalculator = new VerificationContextsCalculator(
+        verificationContextsProvider = new VerificationContextsProvider(
                 asList(linkMetaBlock1_1, linkMetaBlock1_2),
                 layoutSegment,
                 layoutMetaBlock
