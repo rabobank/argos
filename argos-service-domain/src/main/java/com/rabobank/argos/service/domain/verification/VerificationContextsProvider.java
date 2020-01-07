@@ -193,10 +193,7 @@ class VerificationContextsProvider {
             LinkedList<N> nodes = adjacentNodes(visited.getLast());
             // examine adjacent nodes
             for (N node : nodes) {
-                if (visited.contains(node)) {
-                    continue;
-                }
-                if (node.equals(endNode)) {
+                if (!visited.contains(node) && node.equals(endNode)) {
                     visited.add(node);
                     //collect possible path
                     possiblePaths.add(new LinkedList<>(visited));
@@ -204,13 +201,14 @@ class VerificationContextsProvider {
                     break;
                 }
             }
+
             for (N node : nodes) {
-                if (visited.contains(node) || node.equals(endNode)) {
-                    continue;
+                if (!visited.contains(node) && !node.equals(endNode)) {
+                    visited.addLast(node);
+                    calculatePossiblePaths(visited, endNode);
+                    visited.removeLast();
                 }
-                visited.addLast(node);
-                calculatePossiblePaths(visited, endNode);
-                visited.removeLast();
+
             }
         }
     }
