@@ -34,18 +34,22 @@ import static java.util.stream.Collectors.toList;
 public class VerificationContext {
 
     private final List<LinkMetaBlock> linkMetaBlocks;
+    private final List<LinkMetaBlock> originalLinkMetaBlocks;
     private final LayoutSegment segment;
     private final LayoutMetaBlock layoutMetaBlock;
     private final Map<String, List<LinkMetaBlock>> linksByStepName;
+    private final Map<String, List<LinkMetaBlock>> originalLinksByStepName;
     private Map<String, Step> stepByStepName = new HashMap<>();
 
     @Builder
     public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock, LayoutSegment segment) {
         this.linkMetaBlocks = linkMetaBlocks;
+        this.originalLinkMetaBlocks = linkMetaBlocks;
         this.layoutMetaBlock = layoutMetaBlock;
         this.segment = segment;
         segment.getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
         linksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
+        originalLinksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
     }
 
     public Step getStepByStepName(String stepName) {
@@ -55,7 +59,12 @@ public class VerificationContext {
         return stepByStepName.get(stepName);
     }
 
+
     public List<LinkMetaBlock> getLinksByStepName(String stepName) {
+        return linksByStepName.getOrDefault(stepName, emptyList());
+    }
+
+    public List<LinkMetaBlock> getOriginalLinksByStepName(String stepName) {
         return linksByStepName.getOrDefault(stepName, emptyList());
     }
 

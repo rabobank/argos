@@ -159,10 +159,8 @@ class MatchRuleVerificationTest {
         when(context.getLink()).thenReturn(link);
         when(link.getMaterials()).thenReturn(List.of(sourceArtifact));
         when(matchRule.getDestinationStepName()).thenReturn(DESTINATION_STEP_NAME);
-        when(verificationContext.getLinksByStepName(DESTINATION_STEP_NAME)).thenReturn(List.of(destinationLinkMetaBlock));
-
+        when(verificationContext.getOriginalLinksByStepName(DESTINATION_STEP_NAME)).thenReturn(List.of(destinationLinkMetaBlock));
         when(context.getVerificationContext()).thenReturn(verificationContext);
-
         RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
         assertThat(ruleVerificationResult.isValid(), is(false));
         assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
@@ -208,7 +206,7 @@ class MatchRuleVerificationTest {
         when(matchRule.getDestinationStepName()).thenReturn(DESTINATION_STEP_NAME);
 
         when(context.getVerificationContext()).thenReturn(verificationContext);
-        when(verificationContext.getLinksByStepName(DESTINATION_STEP_NAME)).thenReturn(List.of(destinationLinkMetaBlock));
+        when(verificationContext.getOriginalLinksByStepName(DESTINATION_STEP_NAME)).thenReturn(List.of(destinationLinkMetaBlock));
         when(destinationLinkMetaBlock.getLink()).thenReturn(destinationLink);
 
 
