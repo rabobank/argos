@@ -47,15 +47,18 @@ public class VerificationProvider {
     public VerificationRunResult verifyRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
         return runIdResolver.getRunIdPerSegment(layoutMetaBlock, productsToVerify)
                 .stream()
-                .map(runIdWithSegment -> verifyRun(runIdWithSegment, layoutMetaBlock))
+                .map(runIdsWithSegment -> verifyRun(runIdsWithSegment, layoutMetaBlock))
                 .filter(verificationRunResult -> !verificationRunResult.isRunIsValid()).findFirst()
                 .orElse(VerificationRunResult.okay());
     }
 
-    private VerificationRunResult verifyRun(RunIdWithSegment runIdWithSegment, LayoutMetaBlock layoutMetaBlock) {
-        return runIdWithSegment.getOptionalRunId()
-                .map(runId -> verifyRun(linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId), runIdWithSegment.getSegment(), layoutMetaBlock))
-                .orElse(VerificationRunResult.valid(false));
+    private VerificationRunResult verifyRun(RunIdsWithSegment runIdsWithSegment, LayoutMetaBlock layoutMetaBlock) {
+        return runIdsWithSegment.getRunIds().stream()
+                .peek(runId -> log.info("verify segment {} with rundId {}", runIdsWithSegment.getSegment().getName(), runId))
+                .map(runId -> verifyRun(linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId), runIdsWithSegment.getSegment(), layoutMetaBlock))
+                .peek(verificationRunResult -> log.info("segment validity: {}", verificationRunResult.isRunIsValid()))
+                .filter(VerificationRunResult::isRunIsValid)
+                .findFirst().orElse(VerificationRunResult.valid(false));
     }
 
     private VerificationRunResult verifyRun(List<LinkMetaBlock> linkMetaBlocks, LayoutSegment segment, LayoutMetaBlock layoutMetaBlock) {
