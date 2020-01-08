@@ -21,11 +21,15 @@
       <c:select />
     </f:entry>
 
-    <f:entry title="${%stepName}" field="stepName">
+    <f:entry title="${%supplyChainName}" field="supplyChainName">
       <f:textbox />
     </f:entry>
 
-    <f:entry title="${%supplyChainName}" field="supplyChainName">
+    <f:entry title="${%layoutSegmentName}" field="layoutSegmentName">
+      <f:textbox />
+    </f:entry>
+
+    <f:entry title="${%stepName}" field="stepName">
       <f:textbox />
     </f:entry>
 

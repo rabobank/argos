@@ -1,62 +1,67 @@
 {
   "layout": {
     "authorizedKeyIds": [
-      "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09",
-      "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
+      "c8df0a497ab0df7136c4f97892f17914e6e5e021fdc039f0ea7c27d5a95c1254"
     ],
     "expectedEndProducts": [
       {
         "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
         "destinationType": "PRODUCTS",
-        "destinationStepName": "test"
+        "destinationStepName": "test",
+        "destinationSegmentName": "segment 1"
       }
     ],
-    "steps": [
+    "layoutSegments": [
       {
-        "name": "build",
-        "authorizedKeyIds": [
-          "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
-        ],
-        "requiredNumberOfLinks": 1,
-        "expectedCommand": [],
-        "expectedMaterials": [
+        "name": "segment 1",
+        "steps": [
           {
-            "ruleType": "ALLOW",
-            "pattern": "**"
-          }
-        ],
-        "expectedProducts": [
+            "name": "build",
+            "authorizedKeyIds": [
+              "56c7d930998b6039a925d5dee95f1349f53fc51e9bcdfcd7d50ecb58a9201a12"
+            ],
+            "requiredNumberOfLinks": 1,
+            "expectedCommand": [],
+            "expectedMaterials": [
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              }
+            ],
+            "expectedProducts": [
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              }
+            ]
+          },
           {
-            "ruleType": "ALLOW",
-            "pattern": "**"
-          }
-        ]
-      },
-      {
-        "name": "test",
-        "authorizedKeyIds": [
-          "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09"
-        ],
-        "requiredNumberOfLinks": 1,
-        "expectedCommand": [],
-        "expectedMaterials": [
-          {
-            "ruleType": "MATCH",
-            "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
-            "destinationType": "PRODUCTS",
-            "destinationStepName": "build",
-            "sourcePathPrefix": "",
-            "destinationPathPrefix": "target/"
-          }
-        ],
-        "expectedProducts": [
-          {
-            "ruleType": "MATCH",
-            "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
-            "destinationType": "MATERIALS",
-            "destinationStepName": "build",
-            "sourcePathPrefix": "source/",
-            "destinationPathPrefix": ""
+            "name": "test",
+            "authorizedKeyIds": [
+              "a97daeaf3afaed859472a367da7a860b4b90eefb97fe51384bd45e9eed020b5b"
+            ],
+            "requiredNumberOfLinks": 1,
+            "expectedCommand": [],
+            "expectedMaterials": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
+                "destinationType": "PRODUCTS",
+                "destinationStepName": "build",
+                "sourcePathPrefix": "",
+                "destinationPathPrefix": "target/"
+              }
+            ],
+            "expectedProducts": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
+                "destinationType": "MATERIALS",
+                "destinationStepName": "build",
+                "sourcePathPrefix": "source/",
+                "destinationPathPrefix": ""
+              }
+            ]
           }
         ]
       }

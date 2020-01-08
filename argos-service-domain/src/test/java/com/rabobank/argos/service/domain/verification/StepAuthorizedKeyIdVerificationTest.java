@@ -70,7 +70,7 @@ class StepAuthorizedKeyIdVerificationTest {
     void verifyWithCorrectKeyIdShouldReturnValidResponse() {
         when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
-        when(context.getLayoutMetaBlock().getLayout().getSteps()).thenReturn(Collections.singletonList(step));
+        when(context.getLayoutMetaBlock().getLayout().getLayoutSegments().get(0).getSteps()).thenReturn(Collections.singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(Collections.singletonList("keyId"));
         when(context.getStepByStepName(eq(STEP_NAME))).thenReturn(step);
         when(context.getLinksByStepName(eq(STEP_NAME))).thenReturn(Collections.singletonList(linkMetaBlock));
@@ -83,7 +83,7 @@ class StepAuthorizedKeyIdVerificationTest {
     @Test
     void verifyWithCorrectIncorrectKeyIdShouldReturnInValidResponse() {
         when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
-        when(context.getLayoutMetaBlock().getLayout().getSteps()).thenReturn(Collections.singletonList(step));
+        when(context.getLayoutMetaBlock().getLayout().getLayoutSegments().get(0).getSteps()).thenReturn(Collections.singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(Collections.singletonList("keyId"));
         when(context.getLinksByStepName(eq(STEP_NAME))).thenReturn(Collections.singletonList(linkMetaBlock));
         when(linkMetaBlock.getSignature().getKeyId()).thenReturn("unTrustedKeyId");

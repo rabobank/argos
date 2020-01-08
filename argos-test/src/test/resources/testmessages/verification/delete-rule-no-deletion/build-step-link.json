@@ -1,14 +1,13 @@
 {
   "link": {
     "runId": "69af2dd",
+    "layoutSegmentName": "segment 1",
     "stepName": "build",
     "materials": [
-
       {
         "uri": "src/test/java/com/rabobank/argos/test/Argos4jIT.java",
         "hash": "ec792b16cd2b2446011acd992f6d8224862367373b0a85b1fc3bea890587f646"
       },
-
       {
         "uri": "target/maven-archiver/pom.properties",
         "hash": "d3a238f87bef515a65b8a99f5d25367282e2be12c62903b9f5d230e0491331f3"

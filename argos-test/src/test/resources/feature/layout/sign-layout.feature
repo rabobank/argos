@@ -19,10 +19,14 @@ Feature: sign layout
 
   Background:
     * url karate.properties['server.integration-test-service.baseurl']
-    * def layoutToBeSigned = __arg
+    * def layoutToBeSigned = __arg.json
+    * def keyNumber = __arg.keyNumber
+    * def keyPair = read('classpath:testmessages/key/keypair'+keyNumber+'.json')
 
   Scenario: sign the layout should return 200
     Given path '/integration-test/signLayoutMetaBlock'
+    And param keyId = keyPair.keyId
+    And param password = 'test'
     And request layoutToBeSigned
     And header Content-Type = 'application/json'
     When method POST

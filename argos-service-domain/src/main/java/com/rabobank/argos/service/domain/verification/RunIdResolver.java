@@ -17,6 +17,7 @@ package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.MatchFilter;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
@@ -30,13 +31,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import static com.rabobank.argos.domain.layout.DestinationType.MATERIALS;
 import static com.rabobank.argos.domain.layout.DestinationType.PRODUCTS;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
 @Component
@@ -56,6 +56,10 @@ public class RunIdResolver {
         @Builder.Default
         private Set<String> runIds = new TreeSet<>();
 
+        String getSegmentName() {
+            return matchFilter.getDestinationSegmentName();
+        }
+
         String getStepName() {
             return matchFilter.getDestinationStepName();
         }
@@ -66,37 +70,44 @@ public class RunIdResolver {
 
     }
 
-    public Optional<String> getRunId(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
+    public List<RunIdsWithSegment> getRunIdPerSegment(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
+        Layout layout = layoutMetaBlock.getLayout();
 
+        return layout.getLayoutSegments().stream().map(segment -> RunIdsWithSegment.builder()
+                .segment(segment)
+                .runIds(getRunIdsForSegment(layoutMetaBlock, segment, productsToVerify)).build())
+                .collect(toList());
+    }
+
+    private Set<String> getRunIdsForSegment(LayoutMetaBlock layoutMetaBlock, LayoutSegment segment, List<Artifact> productsToVerify) {
         Layout layout = layoutMetaBlock.getLayout();
         List<MatchedProductWithRunIds> matchedProductWithRunIds = layout
                 .getExpectedEndProducts()
                 .stream()
+                .filter(expectedEndProduct -> expectedEndProduct.getDestinationSegmentName().equals(segment.getName()))
                 .map(expectedEndProduct -> MatchedProductWithRunIds.builder()
                         .supplyChainId(layoutMetaBlock.getSupplyChainId())
                         .matchFilter(expectedEndProduct)
-                        .matchedProductsToVerify(expectedEndProduct.matches(productsToVerify))
+                        .matchedProductsToVerify(matches(expectedEndProduct, productsToVerify))
                         .build())
                 .peek(this::addRunIds)
-                .peek(p -> log.info("{}", p))
+                .peek(p -> log.info("segment:{} {}", segment.getName(), p))
                 .collect(toList());
 
 
-        Set<String> allRunIds = matchedProductWithRunIds
+        return matchedProductWithRunIds
                 .stream()
                 .map(MatchedProductWithRunIds::getRunIds)
-                .flatMap(Set::stream).collect(Collectors.toCollection(TreeSet::new));
-        return allRunIds.stream().filter(runId -> isInAll(runId, matchedProductWithRunIds)).findFirst();
+                .flatMap(Set::stream).collect(toCollection(TreeSet::new));
     }
 
-    private boolean isInAll(String runId, List<MatchedProductWithRunIds> matchedProductWithRunIdsList) {
-        return matchedProductWithRunIdsList.stream().allMatch(matchedProductWithRunIds -> matchedProductWithRunIds.getRunIds().contains(runId));
+    private List<Artifact> matches(MatchFilter matchFilter, List<Artifact> productsToVerify) {
+        return productsToVerify.stream().filter(artifact -> ArtifactMatcher.matches(artifact.getUri(), matchFilter.getPattern())).collect(toList());
     }
 
     private void addRunIds(MatchedProductWithRunIds matchedProductWithRunIds) {
         if (PRODUCTS == matchedProductWithRunIds.matchFilter.getDestinationType()) {
             searchInProductHashes(matchedProductWithRunIds);
-
         } else if (MATERIALS == matchedProductWithRunIds.matchFilter.getDestinationType()) {
             searchInMaterialsHashes(matchedProductWithRunIds);
         }
@@ -105,8 +116,9 @@ public class RunIdResolver {
     private void searchInMaterialsHashes(MatchedProductWithRunIds matchedProductWithRunIds) {
         matchedProductWithRunIds.getRunIds().addAll(
                 linkMetaBlockRepository
-                        .findBySupplyChainAndStepNameAndMaterialHash(
+                        .findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(
                                 matchedProductWithRunIds.getSupplyChainId(),
+                                matchedProductWithRunIds.getSegmentName(),
                                 matchedProductWithRunIds.getStepName(),
                                 matchedProductWithRunIds.getHashes())
                         .stream()
@@ -117,8 +129,9 @@ public class RunIdResolver {
     private void searchInProductHashes(MatchedProductWithRunIds matchedProductWithRunIds) {
         matchedProductWithRunIds.getRunIds().addAll(
                 linkMetaBlockRepository
-                        .findBySupplyChainAndStepNameAndProductHashes(
+                        .findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(
                                 matchedProductWithRunIds.getSupplyChainId(),
+                                matchedProductWithRunIds.getSegmentName(),
                                 matchedProductWithRunIds.getStepName(),
                                 matchedProductWithRunIds.getHashes())
                         .stream()

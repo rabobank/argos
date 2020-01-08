@@ -16,35 +16,41 @@
 package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 @Getter
 public class VerificationContext {
 
     private final List<LinkMetaBlock> linkMetaBlocks;
+    private final List<LinkMetaBlock> originalLinkMetaBlocks;
+    private final LayoutSegment segment;
     private final LayoutMetaBlock layoutMetaBlock;
     private final Map<String, List<LinkMetaBlock>> linksByStepName;
+    private final Map<String, List<LinkMetaBlock>> originalLinksByStepName;
     private Map<String, Step> stepByStepName = new HashMap<>();
 
     @Builder
-    public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
-        this.linkMetaBlocks = linkMetaBlocks;
+    public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock, LayoutSegment segment) {
+        this.linkMetaBlocks = new ArrayList<>(linkMetaBlocks);
+        this.originalLinkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.layoutMetaBlock = layoutMetaBlock;
-        layoutMetaBlock.getLayout().getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
-        linksByStepName = linkMetaBlocks
-                .stream()
-                .collect(Collectors.groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
+        this.segment = segment;
+        segment.getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
+        linksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
+        originalLinksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
     }
 
     public Step getStepByStepName(String stepName) {
@@ -58,12 +64,16 @@ public class VerificationContext {
         return linksByStepName.getOrDefault(stepName, emptyList());
     }
 
+    public List<LinkMetaBlock> getOriginalLinksByStepName(String stepName) {
+        return linksByStepName.getOrDefault(stepName, emptyList());
+    }
+
     public void removeLinkMetaBlocks(List<LinkMetaBlock> linkMetaBlocksToRemove) {
         linkMetaBlocks.removeAll(linkMetaBlocksToRemove);
         linksByStepName.values().forEach(blocks -> blocks.removeAll(linkMetaBlocksToRemove));
     }
 
     public List<String> getExpectedStepNames() {
-        return layoutMetaBlock.getLayout().getSteps().stream().map(Step::getStepName).collect(toList());
+        return segment.getSteps().stream().map(Step::getStepName).collect(toList());
     }
 }

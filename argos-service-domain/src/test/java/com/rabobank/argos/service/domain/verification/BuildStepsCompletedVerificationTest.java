@@ -17,6 +17,7 @@ package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
@@ -50,6 +51,7 @@ class BuildStepsCompletedVerificationTest {
     void verifyOkay() {
         VerificationContext context = VerificationContext.builder()
                 .layoutMetaBlock(mockLayoutMetaBlock(STEP_1))
+                .segment(mockSegment(STEP_1))
                 .linkMetaBlocks(mockLinks(STEP_1, STEP_1)).build();
         VerificationRunResult result = verification.verify(context);
         assertThat(result.isRunIsValid(), is(true));
@@ -59,6 +61,7 @@ class BuildStepsCompletedVerificationTest {
     void verifyNoLinks() {
         VerificationContext context = VerificationContext.builder()
                 .layoutMetaBlock(mockLayoutMetaBlock(STEP_1))
+                .segment(mockSegment(STEP_1))
                 .linkMetaBlocks(mockLinks()).build();
         VerificationRunResult result = verification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
@@ -68,6 +71,7 @@ class BuildStepsCompletedVerificationTest {
     void verifyToMuchLinks() {
         VerificationContext context = VerificationContext.builder()
                 .layoutMetaBlock(mockLayoutMetaBlock(STEP_1))
+                .segment(mockSegment(STEP_1))
                 .linkMetaBlocks(mockLinks(STEP_1, "unknown")).build();
         VerificationRunResult result = verification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
@@ -77,14 +81,20 @@ class BuildStepsCompletedVerificationTest {
     void verifyWrongLinks() {
         VerificationContext context = VerificationContext.builder()
                 .layoutMetaBlock(mockLayoutMetaBlock(STEP_1))
+                .segment(mockSegment(STEP_1))
                 .linkMetaBlocks(mockLinks("unknown")).build();
         VerificationRunResult result = verification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
     }
 
+    private LayoutSegment mockSegment(String... stepName) {
+        List<Step> steps = Stream.of(stepName).map(step -> Step.builder().stepName(step).build()).collect(toList());
+        return LayoutSegment.builder().steps(steps).build();
+    }
+
     private LayoutMetaBlock mockLayoutMetaBlock(String... stepName) {
         List<Step> steps = Stream.of(stepName).map(step -> Step.builder().stepName(step).build()).collect(toList());
-        return LayoutMetaBlock.builder().layout(Layout.builder().steps(steps).build()).build();
+        return LayoutMetaBlock.builder().layout(Layout.builder().layoutSegments(List.of(LayoutSegment.builder().steps(steps).build())).build()).build();
     }
 
     private List<LinkMetaBlock> mockLinks(String... stepName) {

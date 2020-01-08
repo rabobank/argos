@@ -45,7 +45,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 
-public class LinkMetablockRepositoryITTest {
+public class LinkMetablockRepositoryIT {
 
     private static final String STEP_NAME = "stepName";
     private static final String SUPPLYCHAIN = "supplychain";
@@ -54,6 +54,7 @@ public class LinkMetablockRepositoryITTest {
     private static final String ARGOS_TEST_IML = "argos-test.iml";
     private static final String DOCKER_1_IML = "docker (1).iml";
     public static final String RUN_ID = "runId";
+    private static final String SEGMENT_NAME = "segmentName";
     private MongodExecutable mongodExecutable;
     private LinkMetaBlockRepository linkMetaBlockRepository;
 
@@ -87,21 +88,21 @@ public class LinkMetablockRepositoryITTest {
     @Test
     void findBySupplyChainAndStepNameAndProductHashesShouldRetreive() {
         loadData();
-        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndProductHashes(SUPPLYCHAIN, STEP_NAME, asList(HASH_1));
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1));
         assertThat(links, hasSize(1));
     }
 
     @Test
     void findBySupplyChainAndStepNameAndMultipleProductHashesShouldRetreive() {
         loadData();
-        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndProductHashes(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, HASH_2));
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1, HASH_2));
         assertThat(links, hasSize(1));
     }
 
     @Test
     void findBySupplyChainAndStepNameAndProductHashesShouldNotRetreive() {
         loadData();
-        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndProductHashes(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, "INCORRECT_HASH"));
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1, "INCORRECT_HASH"));
         assertThat(links, hasSize(0));
     }
 
@@ -109,21 +110,21 @@ public class LinkMetablockRepositoryITTest {
     @Test
     void findBySupplyChainAndStepNameAndMaterialsHashesShouldRetreive() {
         loadData();
-        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndMaterialHash(SUPPLYCHAIN, STEP_NAME, asList(HASH_1));
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1));
         assertThat(links, hasSize(1));
     }
 
     @Test
     void findBySupplyChainAndStepNameAndMultipleMaterialsHashesShouldRetreive() {
         loadData();
-        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndMaterialHash(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, HASH_2));
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1, HASH_2));
         assertThat(links, hasSize(1));
     }
 
     @Test
     void findBySupplyChainAndStepNameAndMaterialsHashesShouldNotRetreive() {
         loadData();
-        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndStepNameAndMaterialHash(SUPPLYCHAIN, STEP_NAME, asList(HASH_1, "INCORRECT_HASH"));
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1, "INCORRECT_HASH"));
         assertThat(links, hasSize(0));
     }
 
@@ -149,6 +150,7 @@ public class LinkMetablockRepositoryITTest {
         return Link
                 .builder()
                 .runId(RUN_ID)
+                .layoutSegmentName(SEGMENT_NAME)
                 .stepName(STEP_NAME)
                 .materials(createMaterials())
                 .products(createProducts())

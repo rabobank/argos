@@ -26,6 +26,6 @@ import java.util.List;
 @Builder
 public class Layout {
     private List<String> authorizedKeyIds;
-    private List<Step> steps;
     private List<MatchFilter> expectedEndProducts;
+    private List<LayoutSegment> layoutSegments;
 }

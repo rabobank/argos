@@ -11,7 +11,8 @@
       {
         "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
         "destinationType": "PRODUCTS",
-        "destinationStepName": "build"
+        "destinationStepName": "build",
+        "destinationSegmentName": "segment 1"
       }
     ],
     "layout": {
@@ -19,77 +20,82 @@
         "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09",
         "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
       ],
-      "steps": [
+      "layoutSegments": [
         {
-          "name": "stepName1",
-          "authorizedKeyIds": [
-            "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
-          ],
-          "requiredNumberOfLinks": 3,
-          "expectedCommand": [
-            "expectedCommand 1",
-            "expectedCommand 2"
-          ],
-          "expectedMaterials": [
+          "name": "segment 1",
+          "steps": [
             {
-              "ruleType": "MATCH",
-              "pattern": "MATCHpattern",
-              "sourcePathPrefix": "sourcePathPrefix",
-              "destinationPathPrefix": "destinationPathPrefix",
-              "destinationType": "PRODUCTS",
-              "destinationStepName": "destinationStepName"
+              "name": "build",
+              "authorizedKeyIds": [
+                "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
+              ],
+              "requiredNumberOfLinks": 3,
+              "expectedCommand": [
+                "expectedCommand 1",
+                "expectedCommand 2"
+              ],
+              "expectedMaterials": [
+                {
+                  "ruleType": "MATCH",
+                  "pattern": "MATCHpattern",
+                  "sourcePathPrefix": "sourcePathPrefix",
+                  "destinationPathPrefix": "destinationPathPrefix",
+                  "destinationType": "PRODUCTS",
+                  "destinationStepName": "destinationStepName"
+                },
+                {
+                  "ruleType": "CREATE",
+                  "pattern": "CREATEpattern"
+                },
+                {
+                  "ruleType": "DELETE",
+                  "pattern": "DELETEpattern"
+                },
+                {
+                  "ruleType": "DISALLOW",
+                  "pattern": "DISALLOWpattern"
+                }
+              ],
+              "expectedProducts": [
+                {
+                  "ruleType": "CREATE",
+                  "pattern": "CREATEpattern"
+                }
+              ]
             },
             {
-              "ruleType": "CREATE",
-              "pattern": "CREATEpattern"
-            },
-            {
-              "ruleType": "DELETE",
-              "pattern": "DELETEpattern"
-            },
-            {
-              "ruleType": "DISALLOW",
-              "pattern": "DISALLOWpattern"
-            }
-          ],
-          "expectedProducts": [
-            {
-              "ruleType": "CREATE",
-              "pattern": "CREATEpattern"
-            }
-          ]
-        },
-        {
-          "name": "stepName2",
-          "authorizedKeyIds": [
-            "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09"
-          ],
-          "requiredNumberOfLinks": 45,
-          "expectedCommand": [
-            "stepName2 expectedCommand"
-          ],
-          "expectedMaterials": [
-            {
-              "ruleType": "MATCH",
-              "pattern": "MATCH pattern",
-              "sourcePathPrefix": "sourcePathPrefix",
-              "destinationPathPrefix": "destinationPathPrefix",
-              "destinationType": "MATERIALS",
-              "destinationStepName": "destinationStepName"
-            }
-          ],
-          "expectedProducts": [
-            {
-              "ruleType": "ALLOW",
-              "pattern": "ALLOW pattern"
-            },
-            {
-              "ruleType": "MODIFY",
-              "pattern": "MODIFY pattern"
-            },
-            {
-              "ruleType": "REQUIRE",
-              "pattern": "REQUIRE pattern"
+              "name": "stepName2",
+              "authorizedKeyIds": [
+                "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09"
+              ],
+              "requiredNumberOfLinks": 45,
+              "expectedCommand": [
+                "stepName2 expectedCommand"
+              ],
+              "expectedMaterials": [
+                {
+                  "ruleType": "MATCH",
+                  "pattern": "MATCH pattern",
+                  "sourcePathPrefix": "sourcePathPrefix",
+                  "destinationPathPrefix": "destinationPathPrefix",
+                  "destinationType": "MATERIALS",
+                  "destinationStepName": "destinationStepName"
+                }
+              ],
+              "expectedProducts": [
+                {
+                  "ruleType": "ALLOW",
+                  "pattern": "ALLOW pattern"
+                },
+                {
+                  "ruleType": "MODIFY",
+                  "pattern": "MODIFY pattern"
+                },
+                {
+                  "ruleType": "REQUIRE",
+                  "pattern": "REQUIRE pattern"
+                }
+              ]
             }
           ]
         }

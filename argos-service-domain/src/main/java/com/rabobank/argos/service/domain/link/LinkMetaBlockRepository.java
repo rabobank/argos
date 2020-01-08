@@ -25,8 +25,9 @@ public interface LinkMetaBlockRepository {
     List<LinkMetaBlock> findBySupplyChainAndSha(String supplyChainId, String hash);
     void save(LinkMetaBlock link);
 
-    List<LinkMetaBlock> findBySupplyChainAndStepNameAndProductHashes(String supplyChainId, String stepName, List<String> hashes);
+    List<LinkMetaBlock> findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(String supplyChainId, String segmentName, String stepName, List<String> hashes);
 
-    List<LinkMetaBlock> findBySupplyChainAndStepNameAndMaterialHash(String supplyChainId, String stepName, List<String> hashes);
+    List<LinkMetaBlock> findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(String supplyChainId, String segmentName, String stepName, List<String> hashes);
+
     List<LinkMetaBlock> findByRunId(String supplyChainId, String runId);
 }

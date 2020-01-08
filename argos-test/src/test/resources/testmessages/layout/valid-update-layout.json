@@ -8,46 +8,52 @@
       {
         "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
         "destinationType": "PRODUCTS",
-        "destinationStepName": "build"
+        "destinationStepName": "build",
+        "destinationSegmentName": "segment 1"
       }
     ],
-    "steps": [
+    "layoutSegments": [
       {
-        "name": "stepName1",
-        "authorizedKeyIds": [
-          "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
-        ],
-        "requiredNumberOfLinks": 3,
-        "expectedCommand": [
-          "expectedCommand 1",
-          "expectedCommand 2"
-        ],
-        "expectedMaterials": [
+        "name": "segment 1",
+        "steps": [
           {
-            "ruleType": "MATCH",
-            "pattern": "MATCHpattern",
-            "sourcePathPrefix": "sourcePathPrefix",
-            "destinationPathPrefix": "destinationPathPrefix",
-            "destinationType": "PRODUCTS",
-            "destinationStepName": "destinationStepName"
-          },
-          {
-            "ruleType": "CREATE",
-            "pattern": "CREATEpattern"
-          },
-          {
-            "ruleType": "DELETE",
-            "pattern": "DELETEpattern"
-          },
-          {
-            "ruleType": "DISALLOW",
-            "pattern": "DISALLOWpattern"
-          }
-        ],
-        "expectedProducts": [
-          {
-            "ruleType": "CREATE",
-            "pattern": "CREATEpattern"
+            "name": "build",
+            "authorizedKeyIds": [
+              "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
+            ],
+            "requiredNumberOfLinks": 3,
+            "expectedCommand": [
+              "expectedCommand 1",
+              "expectedCommand 2"
+            ],
+            "expectedMaterials": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "MATCHpattern",
+                "sourcePathPrefix": "sourcePathPrefix",
+                "destinationPathPrefix": "destinationPathPrefix",
+                "destinationType": "PRODUCTS",
+                "destinationStepName": "destinationStepName"
+              },
+              {
+                "ruleType": "CREATE",
+                "pattern": "CREATEpattern"
+              },
+              {
+                "ruleType": "DELETE",
+                "pattern": "DELETEpattern"
+              },
+              {
+                "ruleType": "DISALLOW",
+                "pattern": "DISALLOWpattern"
+              }
+            ],
+            "expectedProducts": [
+              {
+                "ruleType": "CREATE",
+                "pattern": "CREATEpattern"
+              }
+            ]
           }
         ]
       }

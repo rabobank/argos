@@ -18,6 +18,8 @@ package com.rabobank.argos.service.adapter.in.rest.layout;
 import com.rabobank.argos.domain.Signature;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutSegment;
+import com.rabobank.argos.domain.layout.MatchFilter;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.domain.key.KeyPairRepository;
@@ -31,6 +33,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -69,9 +72,16 @@ class LayoutValidatorServiceTest {
     @Mock
     private Step step;
 
+    @Mock
+    private LayoutSegment layoutSegment;
+
+    @Mock
+    private MatchFilter matchFilter;
+
     @BeforeEach
     void setUp() {
         service = new LayoutValidatorService(supplyChainRepository, signatureValidatorService, keyPairRepository);
+        when(layoutMetaBlock.getLayout()).thenReturn(layout);
     }
 
     @Test
@@ -79,10 +89,15 @@ class LayoutValidatorServiceTest {
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
         when(layoutMetaBlock.getSignatures()).thenReturn(singletonList(signature));
-        when(layoutMetaBlock.getLayout()).thenReturn(layout);
 
         when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
-        when(layout.getSteps()).thenReturn(singletonList(step));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(singletonList(step));
+        when(layoutSegment.getName()).thenReturn("segmentName");
+        when(step.getStepName()).thenReturn("stepName");
+        when(layout.getExpectedEndProducts()).thenReturn(singletonList(matchFilter));
+        when(matchFilter.getDestinationSegmentName()).thenReturn("segmentName");
+        when(matchFilter.getDestinationStepName()).thenReturn("stepName");
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
 
         when(keyPairRepository.exists(KEY_ID_1)).thenReturn(true);
@@ -98,18 +113,16 @@ class LayoutValidatorServiceTest {
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
         when(signature.getKeyId()).thenReturn(KEY_ID_1);
         when(layoutMetaBlock.getSignatures()).thenReturn(Arrays.asList(signature, signature));
-        when(layoutMetaBlock.getLayout()).thenReturn(layout);
 
         when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
-        when(layout.getSteps()).thenReturn(singletonList(step));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
 
         when(keyPairRepository.exists(KEY_ID_1)).thenReturn(true);
         when(keyPairRepository.exists(KEY_ID_2)).thenReturn(true);
 
-        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
-            service.validate(layoutMetaBlock);
-        });
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
         assertThat(responseStatusException.getReason(), is("layout can't be signed more than one time with the same keyId"));
     }
@@ -118,10 +131,10 @@ class LayoutValidatorServiceTest {
     void validateKey2NotFound() {
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
-        when(layoutMetaBlock.getLayout()).thenReturn(layout);
 
         when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
-        when(layout.getSteps()).thenReturn(singletonList(step));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
 
         when(keyPairRepository.exists(KEY_ID_1)).thenReturn(true);
@@ -138,7 +151,6 @@ class LayoutValidatorServiceTest {
     void validateKey1NotFound() {
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
-        when(layoutMetaBlock.getLayout()).thenReturn(layout);
 
         when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
         when(keyPairRepository.exists(KEY_ID_1)).thenReturn(false);
@@ -153,10 +165,55 @@ class LayoutValidatorServiceTest {
     @Test
     void validateNoSupplyChain() {
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
-        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
-            service.validate(layoutMetaBlock);
-        });
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
         assertThat(responseStatusException.getReason(), is("supply chain not found : " + SUPPLY_CHAIN_ID));
+    }
+
+    @Test
+    void validateSegmentNamesNotUnique() {
+        when(layoutSegment.getName()).thenReturn("segment 1");
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment, layoutSegment));
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
+        assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
+        assertThat(responseStatusException.getReason(), is("segment names are not unique"));
+    }
+
+    @Test
+    void validateStepNamesNotUnique() {
+        when(layoutSegment.getName()).thenReturn("segment 1");
+        when(step.getStepName()).thenReturn("stepName");
+        when(layoutSegment.getSteps()).thenReturn(List.of(step, step));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
+        assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
+        assertThat(responseStatusException.getReason(), is("step names are not unique"));
+    }
+
+    @Test
+    void validateDestinationStepNameNotFound() {
+        when(layout.getExpectedEndProducts()).thenReturn(singletonList(matchFilter));
+        when(matchFilter.getDestinationSegmentName()).thenReturn("segmentName");
+        when(matchFilter.getDestinationStepName()).thenReturn("otherStepName");
+        when(layoutSegment.getName()).thenReturn("segmentName");
+        when(step.getStepName()).thenReturn("stepName");
+        when(layoutSegment.getSteps()).thenReturn(List.of(step));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
+        assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
+        assertThat(responseStatusException.getReason(), is("expected product destination step name not found"));
+    }
+
+    @Test
+    void validateDestinationSegmentNameNotFound() {
+        when(layout.getExpectedEndProducts()).thenReturn(singletonList(matchFilter));
+        when(matchFilter.getDestinationSegmentName()).thenReturn("otherSegmentName");
+        when(layoutSegment.getName()).thenReturn("segmentName");
+        when(step.getStepName()).thenReturn("stepName");
+        when(layoutSegment.getSteps()).thenReturn(List.of(step));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
+        assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
+        assertThat(responseStatusException.getReason(), is("expected product destination step name not found"));
     }
 }

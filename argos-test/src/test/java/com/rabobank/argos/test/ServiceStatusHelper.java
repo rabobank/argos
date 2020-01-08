@@ -26,6 +26,8 @@ import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 
+import com.rabobank.argos.argos4j.rest.api.client.VerificationApi;
+import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -47,23 +49,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
-public class TestHelper {
+public class ServiceStatusHelper {
 
     private static Properties properties = Properties.getInstance();
-
-    public static void clearDatabase() {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(properties.getIntegrationTestServiceBaseUrl() + "/integration-test/reset-db"))
-                    .method("POST", HttpRequest.BodyPublishers.noBody())
-                    .build();
-            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertThat(send.statusCode(), is(200));
-        } catch (IOException | InterruptedException e) {
-            fail(e.getMessage());
-        }
-    }
 
     public static void waitForArgosServiceToStart() {
         log.info("Waiting for argos service start");
@@ -83,27 +71,8 @@ public class TestHelper {
 
         log.info("argos service started");
     }
-    
-    public static RestLayoutMetaBlock signLayout(String layout) throws JsonMappingException, JsonProcessingException {
-        String response = "";
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(properties.getIntegrationTestServiceBaseUrl() + "/integration-test/signLayoutMetaBlock"))
-                    .method("POST", HttpRequest.BodyPublishers.ofString(layout))
-                    .header("Accept", "application/json")
-                    .header("Content-Type", "application/json")
-                    .build();
-            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertThat(send.statusCode(), is(200));
-            response = send.body();
-        } catch (IOException | InterruptedException e) {
-            fail(e.getMessage());
-        }
-        
-        return new ObjectMapper().readValue(response, RestLayoutMetaBlock.class);
-    }
-    
+
+
     public static String getSnapshotHash() {
         try {
             HttpClient client = HttpClient.newBuilder().followRedirects(Redirect.ALWAYS).build();
@@ -147,45 +116,29 @@ public class TestHelper {
     public static LinkApi getLinkApi() {
         return getApiClient().buildClient(LinkApi.class);
     }
-    
-    public static LayoutApi getLayoutApi() {
-        return getApiClient().buildClient(LayoutApi.class);
-    }
 
     public static SupplychainApi getSupplychainApi() {
         return getApiClient().buildClient(SupplychainApi.class);
     }
 
-    public static KeyApi getKeyApiApi() {
+    public static KeyApi getKeyApi() {
         return getApiClient().buildClient(KeyApi.class);
     }
-    
-    public static boolean isValidEndProduct(String json, String supplyChainId) {
-        String response = "";
-            try {
-                HttpClient client = HttpClient.newHttpClient();
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(properties.getApiBaseUrl() + "/api/supplychain/"+supplyChainId+"/verification"))
-                        .method("POST", HttpRequest.BodyPublishers.ofString(json))
-                        .header("Accept", "application/json")
-                        .header("Content-Type", "application/json")
-                        .build();
-                HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
-                assertThat(send.statusCode(), is(200));
-                response = send.body();
 
-                ObjectNode node = new ObjectMapper().readValue(response, ObjectNode.class);
+    public static boolean isValidEndProduct(String supplyChainId, RestVerifyCommand verifyCommand) {
+        return getVerificationApi().performVerification(supplyChainId, verifyCommand).getRunIsValid();
+    }
 
-                assertTrue(node.has("runIsValid"));
-                return node.get("runIsValid").asBoolean();
-            } catch (IOException | InterruptedException e) {
-                fail(e.getMessage());
-            }
-        
-        return false;
+    public static VerificationApi getVerificationApi() {
+        return getApiClient().buildClient(VerificationApi.class);
+    }
+
+    public static LayoutApi getLayoutApi() {
+        return getApiClient().buildClient(LayoutApi.class);
     }
 
     private static ApiClient getApiClient() {
         return new ApiClient().setBasePath(properties.getApiBaseUrl() + "/api");
     }
+
 }

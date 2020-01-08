@@ -20,8 +20,8 @@ import com.intuit.karate.junit5.Karate;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 
-import static com.rabobank.argos.test.TestHelper.waitForArgosIntegrationTestServiceToStart;
-import static com.rabobank.argos.test.TestHelper.waitForArgosServiceToStart;
+import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosIntegrationTestServiceToStart;
+import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 
 @Slf4j
 @KarateOptions(tags = {"~@ignore"})

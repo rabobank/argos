@@ -409,12 +409,17 @@ components:
       type: object
       required:
         - runId
+        - layoutSegmentName
         - stepName
         - command
         - materials
         - products
       properties:
         runId:
+          type: string
+        stepName:
+          type: string
+        layoutSegmentName:
           type: string
         command:
           type: array
@@ -425,8 +430,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Artifact"
-        stepName:
-          type: string
         products:
           type: array
           items:
@@ -500,7 +503,7 @@ components:
       required:
         - authorizedKeyIds
         - expectedEndProducts
-        - steps
+        - layoutSegments
       properties:
         authorizedKeyIds:
           type: array
@@ -512,6 +515,19 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/MatchRule'
+        layoutSegments:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/LayoutSegment"
+    LayoutSegment:
+      type: object
+      required:
+        - name
+        - steps
+      properties:
+        name:
+          type: string
         steps:
           type: array
           minItems: 1
@@ -519,6 +535,11 @@ components:
             $ref: "#/components/schemas/Step"
     MatchRule:
       type: object
+      required:
+        - pattern
+        - destinationType
+        - destinationSegmentName
+        - destinationStepName
       properties:
         pattern:
           type: string
@@ -527,6 +548,8 @@ components:
           enum:
             - PRODUCTS
             - MATERIALS
+        destinationSegmentName:
+          type: string
         destinationStepName:
           type: string
     Step:

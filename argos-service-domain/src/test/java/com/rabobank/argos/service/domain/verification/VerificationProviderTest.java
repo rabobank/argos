@@ -17,6 +17,7 @@ package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
@@ -32,7 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
@@ -91,6 +92,9 @@ class VerificationProviderTest {
     @Captor
     private ArgumentCaptor<VerificationContext> verificationContextArgumentCaptor;
 
+    @Mock
+    private LayoutSegment segment;
+
     @BeforeEach
     public void setup() {
         verifications = new ArrayList<>();
@@ -111,6 +115,7 @@ class VerificationProviderTest {
         VerificationContext verificationContext = verificationContextArgumentCaptor.getValue();
         assertThat(verificationContext.getLayoutMetaBlock(), sameInstance(layoutMetaBlock));
         assertThat(verificationContext.getLinkMetaBlocks(), hasItem(linkMetaBlock));
+        assertThat(verificationContext.getSegment(), sameInstance(segment));
 
         verify(highPrio).verify(any(VerificationContext.class));
 
@@ -133,13 +138,13 @@ class VerificationProviderTest {
         verificationProvider.init();
 
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLYCHAIN_ID);
-        when(layoutMetaBlock.getLayout()).thenReturn(layout);
-        when(layout.getSteps()).thenReturn(List.of(step));
+
 
         when(linkMetaBlock.getLink()).thenReturn(link);
         when(link.getStepName()).thenReturn(STEPNAME);
 
-        when(runIdResolver.getRunId(layoutMetaBlock, List.of(artifact))).thenReturn(Optional.of(RUN_ID));
+        when(runIdResolver.getRunIdPerSegment(layoutMetaBlock, List.of(artifact)))
+                .thenReturn(List.of(RunIdsWithSegment.builder().segment(segment).runIds(Set.of(RUN_ID)).build()));
         when(linkMetaBlockRepository.findByRunId(SUPPLYCHAIN_ID, RUN_ID)).thenReturn(List.of(linkMetaBlock));
 
         when(lowPrio.verify(any(VerificationContext.class))).thenReturn(verificationRunResultLow);

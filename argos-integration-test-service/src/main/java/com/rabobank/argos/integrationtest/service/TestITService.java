@@ -22,6 +22,7 @@ import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.domain.signing.JsonSigningSerializer;
 import com.rabobank.argos.integrationtest.argos.service.api.handler.IntegrationTestServiceApi;
+import com.rabobank.argos.integrationtest.argos.service.api.model.RestKeyPair;
 import com.rabobank.argos.integrationtest.argos.service.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.integrationtest.argos.service.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.integrationtest.service.layout.LayoutMetaBlockMapper;
@@ -31,16 +32,27 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.crypto.Cipher;
+import javax.crypto.EncryptedPrivateKeyInfo;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
+import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.SecureRandom;
+import java.security.spec.KeySpec;
 import java.util.Collections;
 
 @RequestMapping("/integration-test")
@@ -49,6 +61,7 @@ import java.util.Collections;
 @Slf4j
 public class TestITService implements IntegrationTestServiceApi {
 
+    public static final String PBE_WITH_SHA_1_AND_DE_SEDE = "PBEWithSHA1AndDESede";
     private final RepositoryResetProvider repositoryResetProvider;
 
     private final LayoutMetaBlockMapper layoutMetaBlockMapper;
@@ -65,32 +78,36 @@ public class TestITService implements IntegrationTestServiceApi {
     }
 
     @Override
-    public ResponseEntity<RestLayoutMetaBlock> signLayout(@RequestBody RestLayoutMetaBlock restLayoutMetaBlock) {
-        LayoutMetaBlock layoutMetaBlock = layoutMetaBlockMapper.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
+    public ResponseEntity<RestKeyPair> createKeyPair(String password) {
         KeyPair keyPair = generateKeyPair();
-        String keyId = storePublicKey(keyPair);
+        String keyId = new KeyIdProviderImpl().computeKeyId(keyPair.getPublic());
+        byte[] privateKey = addPassword(keyPair.getPrivate().getEncoded(), password);
+        return ResponseEntity.ok(new RestKeyPair().keyId(keyId).encryptedPrivateKey(privateKey).publicKey(keyPair.getPublic().getEncoded()));
+    }
+
+    @Override
+    public ResponseEntity<RestLayoutMetaBlock> signLayout(String password, String keyId, RestLayoutMetaBlock restLayoutMetaBlock) {
+        LayoutMetaBlock layoutMetaBlock = layoutMetaBlockMapper.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
+
+
         layoutMetaBlock.getLayout().setAuthorizedKeyIds(Collections.singletonList(keyId));
-        String signature = createSignature(keyPair.getPrivate(), new JsonSigningSerializer().serialize(layoutMetaBlock.getLayout()));
+        String signature = createSignature(getPrivateKey(password, keyId), new JsonSigningSerializer().serialize(layoutMetaBlock.getLayout()));
         layoutMetaBlock.setSignatures(Collections.singletonList(Signature.builder().signature(signature).keyId(keyId).build()));
         return ResponseEntity.ok(layoutMetaBlockMapper.convertToRestLayoutMetaBlock(layoutMetaBlock));
     }
 
     @Override
-    public ResponseEntity<RestLinkMetaBlock> signLink(@RequestBody RestLinkMetaBlock restLinkMetaBlock) {
+    public ResponseEntity<RestLinkMetaBlock> signLink(String password, String keyId, RestLinkMetaBlock restLinkMetaBlock) {
         LinkMetaBlock linkMetaBlock = linkMetaBlockMapper.convertFromRestLinkMetaBlock(restLinkMetaBlock);
-        KeyPair keyPair = generateKeyPair();
-        String keyId = storePublicKey(keyPair);
-        String signature = createSignature(keyPair.getPrivate(), new JsonSigningSerializer().serialize(linkMetaBlock.getLink()));
+
+        String signature = createSignature(getPrivateKey(password, keyId), new JsonSigningSerializer().serialize(linkMetaBlock.getLink()));
         linkMetaBlock.setSignature(Signature.builder().signature(signature).keyId(keyId).build());
         return ResponseEntity.ok(linkMetaBlockMapper.convertToRestLinkMetaBlock(linkMetaBlock));
 
     }
 
-    private String storePublicKey(KeyPair keyPair) {
-        String keyId = new KeyIdProviderImpl().computeKeyId(keyPair.getPublic());
-        log.info("storing public key with id {}", keyId);
-        keyPairRepository.save(com.rabobank.argos.domain.key.KeyPair.builder().keyId(keyId).publicKey(keyPair.getPublic()).build());
-        return keyId;
+    private PrivateKey getPrivateKey(String password, String keyId) {
+        return decryptPrivateKey(keyPairRepository.findByKeyId(keyId).orElseThrow().getEncryptedPrivateKey(), password);
     }
 
     private KeyPair generateKeyPair() {
@@ -102,6 +119,61 @@ public class TestITService implements IntegrationTestServiceApi {
             throw new ArgosError(e.getMessage(), e);
         }
     }
+
+    private byte[] addPassword(byte[] encodedprivkey, String password) {
+        // extract the encoded private key, this is an unencrypted PKCS#8 private key
+
+        try {
+            int count = 20;// hash iteration count
+            SecureRandom random = new SecureRandom();
+            byte[] salt = new byte[8];
+            random.nextBytes(salt);
+
+            // Create PBE parameter set
+            PBEParameterSpec pbeParamSpec = new PBEParameterSpec(salt, count);
+            PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray());
+            SecretKeyFactory keyFac = SecretKeyFactory.getInstance(PBE_WITH_SHA_1_AND_DE_SEDE);
+            SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
+
+            Cipher pbeCipher = Cipher.getInstance(PBE_WITH_SHA_1_AND_DE_SEDE);
+
+            // Initialize PBE Cipher with key and parameters
+            pbeCipher.init(Cipher.ENCRYPT_MODE, pbeKey, pbeParamSpec);
+
+            // Encrypt the encoded Private Key with the PBE key
+            byte[] ciphertext = pbeCipher.doFinal(encodedprivkey);
+
+            // Now construct  PKCS #8 EncryptedPrivateKeyInfo object
+            AlgorithmParameters algparms = AlgorithmParameters.getInstance(PBE_WITH_SHA_1_AND_DE_SEDE);
+            algparms.init(pbeParamSpec);
+            EncryptedPrivateKeyInfo encinfo = new EncryptedPrivateKeyInfo(algparms, ciphertext);
+
+
+            // and here we have it! a DER encoded PKCS#8 encrypted key!
+            return encinfo.getEncoded();
+        } catch (GeneralSecurityException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static PrivateKey decryptPrivateKey(byte[] encodedPrivateKey, String secret) {
+        try {
+            EncryptedPrivateKeyInfo encryptPKInfo = new EncryptedPrivateKeyInfo(encodedPrivateKey);
+            Cipher cipher = Cipher.getInstance(PBE_WITH_SHA_1_AND_DE_SEDE);
+            PBEKeySpec pbeKeySpec = new PBEKeySpec(secret.toCharArray());
+            SecretKeyFactory secretFactory = SecretKeyFactory.getInstance(PBE_WITH_SHA_1_AND_DE_SEDE);
+            Key pbeKey = secretFactory.generateSecret(pbeKeySpec);
+            AlgorithmParameters algorithmParameters = encryptPKInfo.getAlgParameters();
+            cipher.init(Cipher.DECRYPT_MODE, pbeKey, algorithmParameters);
+            KeySpec pkcsKeySpec = encryptPKInfo.getKeySpec(cipher);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
+            return keyFactory.generatePrivate(pkcsKeySpec);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new ArgosError(e.getMessage(), e);
+        }
+    }
+
 
     private String createSignature(PrivateKey privateKey, String jsonRepr) {
         try {

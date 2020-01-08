@@ -29,6 +29,7 @@ import java.util.List;
 @EqualsAndHashCode
 public class Link {
     private String runId;
+    private String layoutSegmentName;
     private String stepName;
     @Builder.Default
     private List<String> command = new ArrayList<>();

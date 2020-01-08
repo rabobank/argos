@@ -20,10 +20,14 @@ Feature: sign link
   Background:
     * url karate.properties['server.integration-test-service.baseurl']
     * def linkToBeSigned = __arg.json
+    * def keyNumber = __arg.keyNumber
+    * def keyPair = read('classpath:testmessages/key/keypair'+keyNumber+'.json')
 
   Scenario: sign the layout should return 200
     Given path '/integration-test/signLinkMetaBlock'
     And request linkToBeSigned
+    And param keyId = keyPair.keyId
+    And param password = 'test'
     And header Content-Type = 'application/json'
     When method POST
     Then status 200

@@ -18,81 +18,87 @@
       {
         "pattern": "MATCHpattern",
         "destinationType": "PRODUCTS",
-        "destinationStepName": "destinationStepName"
+        "destinationStepName": "destinationStepName",
+        "destinationSegmentName": "destinationSegmentName"
       }
     ],
-    "steps": [
+    "layoutSegments": [
       {
-        "name": "stepName1",
-        "authorizedKeyIds": [
-          "stepName1 authorizedKeyId 1",
-          "stepName1 authorizedKeyId 2"
-        ],
-        "requiredNumberOfLinks": 3,
-        "expectedCommand": [
-          "expectedCommand 1",
-          "expectedCommand 2"
-        ],
-        "expectedMaterials": [
+        "name": "segment 1",
+        "steps": [
           {
-            "ruleType": "MATCH",
-            "pattern": "MATCHpattern",
-            "sourcePathPrefix": "sourcePathPrefix",
-            "destinationPathPrefix": "destinationPathPrefix",
-            "destinationType": "PRODUCTS",
-            "destinationStepName": "destinationStepName"
+            "name": "stepName1",
+            "authorizedKeyIds": [
+              "stepName1 authorizedKeyId 1",
+              "stepName1 authorizedKeyId 2"
+            ],
+            "requiredNumberOfLinks": 3,
+            "expectedCommand": [
+              "expectedCommand 1",
+              "expectedCommand 2"
+            ],
+            "expectedMaterials": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "MATCHpattern",
+                "sourcePathPrefix": "sourcePathPrefix",
+                "destinationPathPrefix": "destinationPathPrefix",
+                "destinationType": "PRODUCTS",
+                "destinationStepName": "destinationStepName"
+              },
+              {
+                "ruleType": "CREATE",
+                "pattern": "CREATEpattern"
+              },
+              {
+                "ruleType": "DELETE",
+                "pattern": "DELETEpattern"
+              },
+              {
+                "ruleType": "DISALLOW",
+                "pattern": "DISALLOWpattern"
+              }
+            ],
+            "expectedProducts": [
+              {
+                "ruleType": "CREATE",
+                "pattern": "CREATEpattern"
+              }
+            ]
           },
           {
-            "ruleType": "CREATE",
-            "pattern": "CREATEpattern"
-          },
-          {
-            "ruleType": "DELETE",
-            "pattern": "DELETEpattern"
-          },
-          {
-            "ruleType": "DISALLOW",
-            "pattern": "DISALLOWpattern"
-          }
-        ],
-        "expectedProducts": [
-          {
-            "ruleType": "CREATE",
-            "pattern": "CREATEpattern"
-          }
-        ]
-      },
-      {
-        "name": "stepName2",
-        "authorizedKeyIds": [
-          "stepName2 authorizedKeyId"
-        ],
-        "requiredNumberOfLinks": 45,
-        "expectedCommand": [
-          "stepName2 expectedCommand"
-        ],
-        "expectedMaterials": [
-          {
-            "ruleType": "MATCH",
-            "pattern": "MATCH pattern",
-            "sourcePathPrefix": "sourcePathPrefix",
-            "destinationPathPrefix": "destinationPathPrefix",
-            "destinationType": "MATERIALS",
-            "destinationStepName": "destinationStepName"
-          }
-        ],
-        "expectedProducts": [
-          {
-            "ruleType": "ALLOW",
-            "pattern": "ALLOW pattern"
-          },
-          {
-            "ruleType": "MODIFY",
-            "pattern": "MODIFY pattern"
-          },
-          {
-            "ruleType": "REQUIRE",
-            "pattern": "REQUIRE pattern"
+            "name": "stepName2",
+            "authorizedKeyIds": [
+              "stepName2 authorizedKeyId"
+            ],
+            "requiredNumberOfLinks": 45,
+            "expectedCommand": [
+              "stepName2 expectedCommand"
+            ],
+            "expectedMaterials": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "MATCH pattern",
+                "sourcePathPrefix": "sourcePathPrefix",
+                "destinationPathPrefix": "destinationPathPrefix",
+                "destinationType": "MATERIALS",
+                "destinationStepName": "destinationStepName"
+              }
+            ],
+            "expectedProducts": [
+              {
+                "ruleType": "ALLOW",
+                "pattern": "ALLOW pattern"
+              },
+              {
+                "ruleType": "MODIFY",
+                "pattern": "MODIFY pattern"
+              },
+              {
+                "ruleType": "REQUIRE",
+                "pattern": "REQUIRE pattern"
+              }
+            ]
           }
         ]
       }
