@@ -80,13 +80,16 @@ public class RulesVerification implements Verification {
                 .collect(groupingBy(linkMetaBlock -> verifyStep(context, step, linkMetaBlock.getLink()).isRunIsValid()));
 
         context.removeLinkMetaBlocks(resultMap.getOrDefault(false, emptyList()));
-        return VerificationRunResult.valid(!resultMap.getOrDefault(true, emptyList()).isEmpty());
+        return VerificationRunResult.valid(true);
     }
 
     private VerificationRunResult verifyStep(VerificationContext context, Step step, Link link) {
 
-        List<RuleVerificationResult> verificationResults = Stream.concat(verifyExpectedProducts(context, step, link),
-                verifyExpectedMaterials(context, step, link)).collect(toList());
+        List<Artifact> materials = new ArrayList<>(link.getMaterials());
+        List<Artifact> products = new ArrayList<>(link.getProducts());
+
+        List<RuleVerificationResult> verificationResults = Stream.concat(verifyExpectedProducts(context, step, materials, products),
+                verifyExpectedMaterials(context, step, materials)).collect(toList());
 
         Optional<RuleVerificationResult> optionalNotValidRule = verificationResults.stream().filter(result -> !result.isValid()).findFirst();
 
@@ -98,19 +101,36 @@ public class RulesVerification implements Verification {
         return verificationResults.stream().map(RuleVerificationResult::getValidatedArtifacts).flatMap(Set::stream).collect(toSet());
     }
 
-    private Stream<RuleVerificationResult> verifyExpectedMaterials(VerificationContext verificationContext, Step step, Link link) {
-        return step.getExpectedMaterials().stream().map(rule -> verifyRule(rule, link, ruleVerifier -> {
-            log.info("verify expected material {} for step {}", rule.getRuleType(), step.getStepName());
-            return ruleVerifier.verifyExpectedMaterials(RuleVerificationContext.builder().verificationContext(verificationContext).rule(rule).link(link).build());
+    private Stream<RuleVerificationResult> verifyExpectedProducts(VerificationContext verificationContext, Step step, List<Artifact> materials, List<Artifact> products) {
+        return step.getExpectedProducts().stream().map(rule -> verifyRule(rule, ruleVerifier -> {
+            log.info("verify expected product {} for step {}", rule.getRuleType(), step.getStepName());
+            RuleVerificationContext<Rule> context = RuleVerificationContext.builder()
+                    .verificationContext(verificationContext)
+                    .rule(rule)
+                    .materials(materials)
+                    .products(products)
+                    .build();
+            RuleVerificationResult ruleVerificationResult = ruleVerifier.verifyExpectedProducts(context);
+            products.removeAll(ruleVerificationResult.getValidatedArtifacts());
+            return ruleVerificationResult;
         }));
     }
 
-    private Stream<RuleVerificationResult> verifyExpectedProducts(VerificationContext verificationContext, Step step, Link link) {
-        return step.getExpectedProducts().stream().map(rule -> verifyRule(rule, link, ruleVerifier -> {
-            log.info("verify expected product {} for step {}", rule.getRuleType(), step.getStepName());
-            return ruleVerifier.verifyExpectedProducts(RuleVerificationContext.builder().verificationContext(verificationContext).rule(rule).link(link).build());
+    private Stream<RuleVerificationResult> verifyExpectedMaterials(VerificationContext verificationContext, Step step, List<Artifact> materials) {
+        return step.getExpectedMaterials().stream().map(rule -> verifyRule(rule, ruleVerifier -> {
+            log.info("verify expected material {} for step {}", rule.getRuleType(), step.getStepName());
+            RuleVerificationContext<Rule> context = RuleVerificationContext.builder()
+                    .verificationContext(verificationContext)
+                    .rule(rule)
+                    .materials(materials)
+                    .products(emptyList())
+                    .build();
+            RuleVerificationResult ruleVerificationResult = ruleVerifier.verifyExpectedMaterials(context);
+            materials.removeAll(ruleVerificationResult.getValidatedArtifacts());
+            return ruleVerificationResult;
         }));
     }
+
 
     private VerificationRunResult verifyResultAfterAllRulesAreVerified(Step step, Link link, Set<Artifact> validatedArtifacts) {
         boolean valid = validatedArtifacts.containsAll(link.getProducts()) && validatedArtifacts.containsAll(link.getMaterials());
@@ -123,20 +143,19 @@ public class RulesVerification implements Verification {
         return VerificationRunResult.valid(valid);
     }
 
-    private RuleVerificationResult verifyRule(Rule rule, Link link, Function<RuleVerification, RuleVerificationResult> ruleVerifyFunction) {
+    private RuleVerificationResult verifyRule(Rule rule, Function<RuleVerification, RuleVerificationResult> ruleVerifyFunction) {
         return Optional.ofNullable(rulesVerificationMap.get(rule.getRuleType()))
                 .map(ruleVerifyFunction)
-                .map(ruleVerificationResult -> logRuleVerificationResult(rule, link, ruleVerificationResult))
+                .map(ruleVerificationResult -> logRuleVerificationResult(rule, ruleVerificationResult))
                 .orElseGet(() -> {
                     log.error("rule verification {} not implemented", rule.getRuleType());
                     return RuleVerificationResult.notOkay();
                 });
     }
 
-    private RuleVerificationResult logRuleVerificationResult(Rule rule, Link link, RuleVerificationResult ruleVerificationResult) {
+    private RuleVerificationResult logRuleVerificationResult(Rule rule, RuleVerificationResult ruleVerificationResult) {
         log.info("verify result for {} on step {} was valid: {}, number of valid artifacts {}",
                 rule.getRuleType(),
-                link.getStepName(),
                 ruleVerificationResult.isValid(),
                 ruleVerificationResult.getValidatedArtifacts().size());
         return ruleVerificationResult;
