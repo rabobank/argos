@@ -15,12 +15,17 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-public interface Verification {
-    //pretest                                                                              //these steps mutate the context
-    enum Priority {LAYOUT_AUTHORIZED_KEYID, LAYOUT_METABLOCK_SIGNATURE, BUILDSTEPS_COMPLETED, STEP_AUTHORIZED_KEYID, LINK_METABLOCK_SIGNATURE, EXPECTED_COMMAND, RULES, REQUIRED_NUMBER_OF_LINKS}
+import lombok.AllArgsConstructor;
 
-    Priority getPriority();
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
 
-    VerificationRunResult verify(VerificationContext context);
+import static lombok.AccessLevel.PRIVATE;
 
+@AllArgsConstructor(access = PRIVATE)
+public class ArtifactMatcher {
+
+    public static boolean matches(String uri, String pattern) {
+        return FileSystems.getDefault().getPathMatcher("glob:" + pattern).matches(Paths.get(uri));
+    }
 }
