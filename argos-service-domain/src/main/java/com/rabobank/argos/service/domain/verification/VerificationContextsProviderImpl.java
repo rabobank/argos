@@ -67,6 +67,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
     }
 
     private List<VerificationContext> createVerificationContextsForMultipleSteps(Map<String, List<StepWithEqualLinkSet>> nodesGroupedByStepName, LayoutSegment segment, LayoutMetaBlock layoutMetaBlock) {
+
         LinkedList<List<StepWithEqualLinkSet>> listsToConnect = new LinkedList<>(nodesGroupedByStepName.values());
         Graph<StepWithEqualLinkSet> linkSetGraph = configurePossibleCombinations(listsToConnect);
         List<StepWithEqualLinkSet> startNodes = listsToConnect.getFirst();
