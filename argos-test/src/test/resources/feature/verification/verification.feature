@@ -83,6 +83,11 @@ Feature: Verification
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'multiple-run-id-happy-flow',steps:#(steps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":true}
 
+  Scenario: multiple-link-files-per-step-one-invalid
+    * def steps = [{link:'build-step-link1.json', signingKey:2},{link:'build-step-link2.json', signingKey:2},{link:'test-step-link1.json', signingKey:2},{link:'test-step-link2.json',signingKey:2}]
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'multiple-link-files-per-step-one-invalid',steps:#(steps),layoutSigningKey:1}
+    And match resp.response == {"runIsValid":true}
+
   Scenario: multiple-verification-contexts-happy-flow
     * def steps = [{link:'build-step-link-valid.json', signingKey:2},{link:'build-step-link-invalid.json', signingKey:3},{link:'test-step-link-invalid.json', signingKey:2},{link:'test-step-link-valid.json',signingKey:3}]
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'multiple-verification-contexts',steps:#(steps),layoutSigningKey:1}
