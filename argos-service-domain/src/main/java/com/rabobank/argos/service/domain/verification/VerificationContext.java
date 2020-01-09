@@ -45,7 +45,6 @@ public class VerificationContext {
     @Builder
     public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock, LayoutSegment segment) {
         this.linkMetaBlocks = new ArrayList<>(linkMetaBlocks);
-        this.linkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.originalLinkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.layoutMetaBlock = layoutMetaBlock;
         this.segment = segment;
