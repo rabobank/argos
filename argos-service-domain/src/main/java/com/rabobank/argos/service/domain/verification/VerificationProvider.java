@@ -38,7 +38,7 @@ public class VerificationProvider {
     private final LinkMetaBlockRepository linkMetaBlockRepository;
     private final RunIdResolver runIdResolver;
     private final List<Verification> verifications;
-
+    private final VerificationContextsProvider verificationContextsProvider;
     @PostConstruct
     public void init() {
         verifications.sort(Comparator.comparing(Verification::getPriority));
@@ -72,8 +72,7 @@ public class VerificationProvider {
 
     private Stream<VerificationRunResult> verifyRunWithPossibleVerificationContexts(String runId, LayoutSegment segment, LayoutMetaBlock layoutMetaBlock) {
         List<LinkMetaBlock> linkMetaBlocks = linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId);
-        VerificationContextsProvider verificationContextsProvider = new VerificationContextsProvider(linkMetaBlocks, segment, layoutMetaBlock);
-        List<VerificationContext> possibleVerificationContexts = verificationContextsProvider.calculatePossibleVerificationContexts();
+        List<VerificationContext> possibleVerificationContexts = verificationContextsProvider.calculatePossibleVerificationContexts(linkMetaBlocks, segment, layoutMetaBlock);
         log.info("created {} verification contexts", possibleVerificationContexts.size());
         return possibleVerificationContexts
                 .stream()

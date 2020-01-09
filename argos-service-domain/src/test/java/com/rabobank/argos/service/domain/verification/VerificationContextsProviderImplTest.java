@@ -20,6 +20,7 @@ import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -37,7 +38,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class VerificationContextsProviderTest {
+class VerificationContextsProviderImplTest {
 
     private static final String STEPNAME1 = "STEP_ONE";
     private static final String STEPNAME2 = "STEP_TWO";
@@ -68,12 +69,18 @@ class VerificationContextsProviderTest {
     private LinkMetaBlock linkMetaBlock3_1;
     private LinkMetaBlock linkMetaBlock3_2;
 
-    private VerificationContextsProvider verificationContextsProvider;
+    private VerificationContextsProviderImpl verificationContextsProviderImpl;
 
+    @BeforeEach
+    void setup() {
+        verificationContextsProviderImpl = new VerificationContextsProviderImpl();
+    }
     @Test
     void calculatePossibleVerificationContextsWithOneStepAndMultipleSetsShouldResultCorrectCombinations() {
         setupMocksForOneStep();
-        List<VerificationContext> result = verificationContextsProvider.calculatePossibleVerificationContexts();
+        List<VerificationContext> result = verificationContextsProviderImpl.calculatePossibleVerificationContexts(asList(linkMetaBlock1_1, linkMetaBlock1_2),
+                layoutSegment,
+                layoutMetaBlock);
         assertThat(result, hasSize(2));
 
     }
@@ -81,7 +88,7 @@ class VerificationContextsProviderTest {
     @Test
     void calculatePossibleVerificationContextsWithNoLinksShouldReturnEmptyList() {
         setupMocksForNoLinks();
-        List<VerificationContext> result = verificationContextsProvider.calculatePossibleVerificationContexts();
+        List<VerificationContext> result = verificationContextsProviderImpl.calculatePossibleVerificationContexts(emptyList(), layoutSegment, layoutMetaBlock);
         assertThat(result, hasSize(0));
 
     }
@@ -89,7 +96,9 @@ class VerificationContextsProviderTest {
     @Test
     void calculatePossibleVerificationContextsWithMultipleStepsAndMultipleSetsShouldReturnCorrectCombinations() {
         setupMocksForMultipleSteps();
-        List<VerificationContext> result = verificationContextsProvider.calculatePossibleVerificationContexts();
+        List<VerificationContext> result = verificationContextsProviderImpl.calculatePossibleVerificationContexts(asList(linkMetaBlock1_1, linkMetaBlock1_2, linkMetaBlock2_1, linkMetaBlock2_2, linkMetaBlock3_1, linkMetaBlock3_2),
+                layoutSegment,
+                layoutMetaBlock);
         assertThat(result, hasSize(8));
         assertThat(result.get(0).getLinkMetaBlocks(), hasSize(3));
         assertThat(result.get(0).getLinkMetaBlocks().get(0), is(linkMetaBlock1_2));
@@ -188,11 +197,7 @@ class VerificationContextsProviderTest {
                         .build())
                 .build();
 
-        verificationContextsProvider = new VerificationContextsProvider(
-                asList(linkMetaBlock1_1, linkMetaBlock1_2, linkMetaBlock2_1, linkMetaBlock2_2, linkMetaBlock3_1, linkMetaBlock3_2),
-                layoutSegment,
-                layoutMetaBlock
-        );
+
     }
 
     private void setupMocksForOneStep() {
@@ -221,12 +226,6 @@ class VerificationContextsProviderTest {
                         .build())
                 .build();
 
-
-        verificationContextsProvider = new VerificationContextsProvider(
-                asList(linkMetaBlock1_1, linkMetaBlock1_2),
-                layoutSegment,
-                layoutMetaBlock
-        );
     }
 
     private void setupMocksForNoLinks() {
@@ -235,7 +234,6 @@ class VerificationContextsProviderTest {
                 .thenReturn(singletonList(layoutSegment));
         when(layoutSegment.getSteps())
                 .thenReturn(singletonList(step1));
-        verificationContextsProvider = new VerificationContextsProvider(emptyList(), layoutSegment, layoutMetaBlock);
     }
 
 }
