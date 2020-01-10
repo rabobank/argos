@@ -106,10 +106,12 @@ public class RunIdResolver {
     }
 
     private void addRunIds(MatchedProductWithRunIds matchedProductWithRunIds) {
-        if (PRODUCTS == matchedProductWithRunIds.matchFilter.getDestinationType()) {
-            searchInProductHashes(matchedProductWithRunIds);
-        } else if (MATERIALS == matchedProductWithRunIds.matchFilter.getDestinationType()) {
-            searchInMaterialsHashes(matchedProductWithRunIds);
+        if (!matchedProductWithRunIds.getHashes().isEmpty()) {
+            if (PRODUCTS == matchedProductWithRunIds.matchFilter.getDestinationType()) {
+                searchInProductHashes(matchedProductWithRunIds);
+            } else if (MATERIALS == matchedProductWithRunIds.matchFilter.getDestinationType()) {
+                searchInMaterialsHashes(matchedProductWithRunIds);
+            }
         }
     }
 

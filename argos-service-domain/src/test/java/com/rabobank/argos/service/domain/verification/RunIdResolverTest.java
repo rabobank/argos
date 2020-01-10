@@ -108,6 +108,13 @@ class RunIdResolverTest {
     }
 
     @Test
+    void getRunIdWithInValidProductsShouldReturnNoResult() {
+        List<RunIdsWithSegment> runIdsWithSegments = resolver.getRunIdPerSegment(layoutMetaBlock, singletonList(Artifact.builder().hash(HASH).uri("wrong").build()));
+        assertThat(runIdsWithSegments.get(0).getRunIds(), empty());
+        assertThat(runIdsWithSegments.get(0).getSegment(), sameInstance(layoutSegment));
+    }
+
+    @Test
     void getRunIdWithValidMaterialsShouldReturnResult() {
         withLayout(DestinationType.MATERIALS);
         when(linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(SUPPLY_CHAIN_ID, SEGMENT_NAME, STEP_NAME, List.of(HASH)))
