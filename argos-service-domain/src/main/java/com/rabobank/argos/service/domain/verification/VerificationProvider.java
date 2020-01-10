@@ -27,6 +27,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -36,7 +38,7 @@ public class VerificationProvider {
     private final LinkMetaBlockRepository linkMetaBlockRepository;
     private final RunIdResolver runIdResolver;
     private final List<Verification> verifications;
-
+    private final VerificationContextsProvider verificationContextsProvider;
     @PostConstruct
     public void init() {
         verifications.sort(Comparator.comparing(Verification::getPriority));
@@ -53,24 +55,33 @@ public class VerificationProvider {
     }
 
     private VerificationRunResult verifyRun(RunIdsWithSegment runIdsWithSegment, LayoutMetaBlock layoutMetaBlock) {
-        return runIdsWithSegment.getRunIds().stream()
+
+        List<VerificationRunResult> verificationRunResults = runIdsWithSegment.getRunIds()
+                .stream()
                 .peek(runId -> log.info("verify segment {} with rundId {}", runIdsWithSegment.getSegment().getName(), runId))
-                .map(runId -> verifyRun(linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId), runIdsWithSegment.getSegment(), layoutMetaBlock))
+                .flatMap(runId -> verifyRunWithPossibleVerificationContexts(runId, runIdsWithSegment.getSegment(), layoutMetaBlock))
+                .collect(Collectors.toList());
+
+        return verificationRunResults
+                .stream()
                 .peek(verificationRunResult -> log.info("segment validity: {}", verificationRunResult.isRunIsValid()))
                 .filter(VerificationRunResult::isRunIsValid)
                 .findFirst().orElse(VerificationRunResult.valid(false));
+
     }
 
-    private VerificationRunResult verifyRun(List<LinkMetaBlock> linkMetaBlocks, LayoutSegment segment, LayoutMetaBlock layoutMetaBlock) {
-        VerificationContext context = VerificationContext.builder()
-                .linkMetaBlocks(linkMetaBlocks)
-                .layoutMetaBlock(layoutMetaBlock)
-                .segment(segment)
-                .build();
-        return verifications.stream()
-                .map(verification -> verification.verify(context))
-                .filter(result -> !result.isRunIsValid())
-                .findFirst().orElse(VerificationRunResult.okay());
+    private Stream<VerificationRunResult> verifyRunWithPossibleVerificationContexts(String runId, LayoutSegment segment, LayoutMetaBlock layoutMetaBlock) {
+        List<LinkMetaBlock> linkMetaBlocks = linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId);
+        List<VerificationContext> possibleVerificationContexts = verificationContextsProvider.calculatePossibleVerificationContexts(linkMetaBlocks, segment, layoutMetaBlock);
+        log.info("created {} verification contexts", possibleVerificationContexts.size());
+        return possibleVerificationContexts
+                .stream()
+                .map(context -> verifications.stream()
+                        .map(verification -> verification.verify(context))
+                        .filter(result -> !result.isRunIsValid())
+                        .findFirst().orElse(VerificationRunResult.okay())
+                );
+
     }
 
 }
