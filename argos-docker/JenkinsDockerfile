@@ -19,9 +19,6 @@ FROM rabobanknl/argos-jenkins-base:latest
 # groovy files
 COPY jenkins_config/*.groovy* /usr/share/jenkins/ref/init.groovy.d/
 
-# copy private key bob
-COPY jenkins_config/bob /var/jenkins_home/bob
-
 COPY target/lib/argos.hpi /var/jenkins_home/argos.hpi
 COPY jenkins_config/list-of-plugins.txt /var/jenkins_home/list-of-plugins.txt
 

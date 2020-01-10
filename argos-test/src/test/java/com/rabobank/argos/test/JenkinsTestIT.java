@@ -25,70 +25,46 @@ import com.offbytwo.jenkins.model.Job;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
-import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
 import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChainItem;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
-import com.rabobank.argos.domain.key.KeyIdProviderImpl;
-
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.openssl.PEMKeyPair;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.crypto.Cipher;
-import javax.crypto.EncryptedPrivateKeyInfo;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
-
-import static com.rabobank.argos.test.ServiceStatusHelper.getSnapshotHash;
-import static com.rabobank.argos.test.ServiceStatusHelper.isValidEndProduct;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.security.AlgorithmParameters;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getSnapshotHash;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.isValidEndProduct;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
-import static com.rabobank.argos.test.TestServiceHelper.*;
+import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
+import static com.rabobank.argos.test.TestServiceHelper.signAndStoreLayout;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 public class JenkinsTestIT {
 
-    public static final String PBE_WITH_SHA_1_AND_DE_SEDE = "PBEWithSHA1AndDESede";
 
-    public static final String TEST_APP_BRANCH = "segment";
+    public static final String TEST_APP_BRANCH = "master";
     private static final String KEY_PASSWORD = "test";
     private static Properties properties = Properties.getInstance();
     private static final String SERVER_BASEURL = "server.baseurl";
@@ -105,14 +81,15 @@ public class JenkinsTestIT {
     }
 
     @BeforeEach
-    void setUp() throws URISyntaxException {
+    void setUp() throws URISyntaxException, IOException {
         clearDatabase();
         RestSupplyChainItem restSupplyChainItem = getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
         this.supplyChainId = restSupplyChainItem.getId();
-        KeyPair pemKeyPair = getPemKeyPair(getClass().getResourceAsStream("/bob"));
-        PublicKey publicKey = pemKeyPair.getPublic();
-        keyId = new KeyIdProviderImpl().computeKeyId(publicKey);
-        getKeyApi().storeKey(new RestKeyPair().encryptedPrivateKey(addPassword(pemKeyPair.getPrivate().getEncoded(),KEY_PASSWORD)).publicKey(publicKey.getEncoded()).keyId(keyId));
+
+
+        RestKeyPair restKeyPair = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair1.json"), RestKeyPair.class);
+        keyId = restKeyPair.getKeyId();
+        getKeyApi().storeKey(restKeyPair);
         createLayout();
         jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
     }
@@ -208,59 +185,5 @@ public class JenkinsTestIT {
                 folderJob.get().getJob(TEST_APP_BRANCH) != null;
     }
 
-
-    private static KeyPair getPemKeyPair(InputStream signingKey) {
-        try (Reader reader = new InputStreamReader(signingKey, StandardCharsets.UTF_8);
-             PEMParser pemReader = new PEMParser(reader)) {
-            Object pem = pemReader.readObject();
-            PEMKeyPair kpr;
-            if (pem instanceof PEMKeyPair) {
-                kpr = (PEMKeyPair) pem;
-            } else if (pem instanceof SubjectPublicKeyInfo) {
-                kpr = new PEMKeyPair((SubjectPublicKeyInfo) pem, null);
-            } else {
-                throw new Argos4jError("Couldn't parse PEM object: " + pem.toString());
-            }
-            return new JcaPEMKeyConverter().getKeyPair(kpr);
-        } catch (IOException e) {
-            throw new Argos4jError(e.toString(), e);
-        }
-    }
-
-    private byte[] addPassword(byte[] encodedprivkey, String password) {
-        // extract the encoded private key, this is an unencrypted PKCS#8 private key
-
-        try {
-            int count = 20;// hash iteration count
-            SecureRandom random = new SecureRandom();
-            byte[] salt = new byte[8];
-            random.nextBytes(salt);
-
-            // Create PBE parameter set
-            PBEParameterSpec pbeParamSpec = new PBEParameterSpec(salt, count);
-            PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray());
-            SecretKeyFactory keyFac = SecretKeyFactory.getInstance(PBE_WITH_SHA_1_AND_DE_SEDE);
-            SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
-
-            Cipher pbeCipher = Cipher.getInstance(PBE_WITH_SHA_1_AND_DE_SEDE);
-
-            // Initialize PBE Cipher with key and parameters
-            pbeCipher.init(Cipher.ENCRYPT_MODE, pbeKey, pbeParamSpec);
-
-            // Encrypt the encoded Private Key with the PBE key
-            byte[] ciphertext = pbeCipher.doFinal(encodedprivkey);
-
-            // Now construct  PKCS #8 EncryptedPrivateKeyInfo object
-            AlgorithmParameters algparms = AlgorithmParameters.getInstance(PBE_WITH_SHA_1_AND_DE_SEDE);
-            algparms.init(pbeParamSpec);
-            EncryptedPrivateKeyInfo encinfo = new EncryptedPrivateKeyInfo(algparms, ciphertext);
-
-
-            // and here we have it! a DER encoded PKCS#8 encrypted key!
-            return encinfo.getEncoded();
-        } catch (GeneralSecurityException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 }
