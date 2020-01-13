@@ -1,0 +1,35 @@
+{
+  "link": {
+    "runId": "69af2dd",
+    "layoutSegmentName": "segment 1",
+    "stepName": "build",
+    "materials": [
+      {
+        "uri": "pom.xml",
+        "hash": "df272f57191b2d45b55e04c8602194d724e485aefc77827ceba798352cb2bd77"
+      },
+      {
+        "uri": "src/test/java/com/rabobank/argos/test/Argos4jIT.java",
+        "hash": "ec792b16cd2b2446011acd992f6d8224862367373b0a85b1fc3bea890587f646"
+      },
+      {
+        "uri": "target/maven-archiver/pom.properties",
+        "hash": "d3a238f87bef515a65b8a99f5d25367282e2be12c62903b9f5d230e0491331f3"
+      }
+    ],
+    "products": [
+      {
+        "uri": "target/argos-test-0.0.1-SNAPSHOT.jar",
+        "hash": "49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162"
+      },
+      {
+        "uri": "target/maven-archiver/pom.properties",
+        "hash": "d3a238f87bef515a65b8a99f5d25367282e2be12c62903b9f5d230e0491331f2"
+      }
+    ],
+    "command": [
+      "expectedCommand 1",
+      "expectedCommand 2"
+    ]
+  }
+}

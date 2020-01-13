@@ -171,7 +171,7 @@ public class JenkinsTestIT {
 
     public void verifyEndProducts() {
         String hash = getSnapshotHash();
-        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash))));
+        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("target/argos-test-app.war").hash(hash))));
     }
 
     private JobWithDetails getJob(String name) throws IOException {
