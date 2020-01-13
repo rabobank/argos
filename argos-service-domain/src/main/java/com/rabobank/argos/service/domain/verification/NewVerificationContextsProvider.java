@@ -37,22 +37,31 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.groupingBy;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class NewVerificationContextsPovider {
+public class NewVerificationContextsProvider {
 
     private final LinkMetaBlockRepository linkMetaBlockRepository;
 
     public List<VerificationContext> createPossibleVerificationContexts(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
 
         ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets = processMatchFilters(layoutMetaBlock.getLayout().getExpectedEndProducts(), productsToVerify);
+        //processMatchRules(resolvedSegmentsWithLinkSets);
 
-        return emptyList();
+        return resolvedSegmentsWithLinkSets
+                .getLinkSets()
+                .stream()
+                .map(linkSet -> VerificationContext
+                        .builder()
+                        .layoutMetaBlock(layoutMetaBlock)
+                        .linkMetaBlocks(new ArrayList<>(linkSet)).build())
+                .collect(Collectors.toList());
+
     }
 
     private ResolvedSegmentsWithLinkSets processMatchFilters(List<MatchFilter> matchFilters, List<Artifact> endProducts) {
@@ -73,24 +82,24 @@ public class NewVerificationContextsPovider {
     private ResolvedSegmentsWithLinkSets getLinks(GetLinkParameters getLinkParameters) {
 
         List<String> resolvedSteps = new ArrayList<>();
+        Set<LinkMetaBlock> links = new HashSet<>();
         getLinkParameters.getFilteredArtifacts()
-                .entrySet()
-                .forEach(step -> {
-                    getLinkParameters.getLinkSets().add(queryByArtifacts(getLinkParameters.getDestinationSegmentName(), step.getKey(), step.getValue()));
-                    resolvedSteps.add(step.getKey());
+                .forEach((key, value) -> {
+                    links.addAll(queryByArtifacts(getLinkParameters.getDestinationSegmentName(), key, value));
+                    resolvedSteps.add(key);
                 });
 
         getLinkParameters.getResolvedSegments().add(getLinkParameters.getDestinationSegmentName());
         Set<Set<LinkMetaBlock>> resolvedLinkSets = new HashSet<>(getLinkParameters.getLinkSets());
-
-        Set<Set<LinkMetaBlock>> newLinkSetsByRunId = new HashSet<>(getLinkParameters.getLinkSets());
-        Set<String> runIds = findRunIds(getLinkParameters.getLinkSets());
+        Set<LinkMetaBlock> newLinkSetByRunId = new HashSet<>(links);
+        Set<String> runIds = findRunIds(links);
         runIds.forEach(runId ->
-                newLinkSetsByRunId.add(queryByRunId(runId,
+                newLinkSetByRunId.addAll(queryByRunId(runId,
                         getLinkParameters.getDestinationSegmentName(),
                         resolvedSteps))
         );
-        resolvedLinkSets = permutate(newLinkSetsByRunId, resolvedLinkSets);
+        resolvedLinkSets = permutate(newLinkSetByRunId, resolvedLinkSets);
+
         return ResolvedSegmentsWithLinkSets
                 .builder()
                 .linkSets(resolvedLinkSets)
@@ -98,16 +107,25 @@ public class NewVerificationContextsPovider {
                 .build();
     }
 
-    private Set<Set<LinkMetaBlock>> permutate(Set<Set<LinkMetaBlock>> newLinkSetsByRunId, Set<Set<LinkMetaBlock>> resolvedLinkSets) {
-        return emptySet();
+    private Set<Set<LinkMetaBlock>> permutate(Set<LinkMetaBlock> newLinkSet, Set<Set<LinkMetaBlock>> resolvedLinkSets) {
+        Set<Set<LinkMetaBlock>> temporaryLinkSet = new HashSet<>();
+        Map<Integer, List<LinkMetaBlock>> tempEqualLinkSets = newLinkSet.stream()
+                .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().hashCode()));
+
+        resolvedLinkSets.forEach(linkSet ->
+                tempEqualLinkSets.forEach((key, value) -> {
+                    Set<Set<LinkMetaBlock>> clonedResolvedLinkSets = new HashSet<>(resolvedLinkSets);
+                    clonedResolvedLinkSets.add(new HashSet<>(value));
+                    temporaryLinkSet.addAll(clonedResolvedLinkSets);
+                }));
+
+        return temporaryLinkSet;
     }
 
-    private Set<String> findRunIds(Set<Set<LinkMetaBlock>> linkSets) {
+    private Set<String> findRunIds(Set<LinkMetaBlock> linkSets) {
         return linkSets
                 .stream()
-                .flatMap(linkSet -> linkSet
-                        .stream()
-                        .map(linkMetaBlock -> linkMetaBlock.getLink().getRunId()))
+                .map(linkSet -> linkSet.getLink().getRunId())
                 .collect(Collectors.toSet());
     }
 
@@ -119,7 +137,6 @@ public class NewVerificationContextsPovider {
 
     private Set<LinkMetaBlock> queryByRunId(String runId, String destinationSegmentName, List<String> resolvedSteps) {
 
-        // query db here based on DestinationType linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndProductHashes()
         return emptySet();
     }
     private Map<String, EnumMap<DestinationType, List<Artifact>>> filter(List<MatchFilter> matchFilters, List<Artifact> endProducts) {
@@ -131,7 +148,6 @@ public class NewVerificationContextsPovider {
     private static class ResolvedSegmentsWithLinkSets {
         @Singular
         private List<String> resolvedSegments;
-
         private Set<Set<LinkMetaBlock>> linkSets;
     }
 
@@ -142,13 +158,5 @@ public class NewVerificationContextsPovider {
         private final Map<String, EnumMap<DestinationType, List<Artifact>>> filteredArtifacts;
         private final List<String> resolvedSegments;
         private final Set<Set<LinkMetaBlock>> linkSets;
-
-        private GetLinkParameters(String destinationSegmentName, Map<String, EnumMap<DestinationType, List<Artifact>>> filteredArtifacts, List<String> resolvedSegments, Set<Set<LinkMetaBlock>> linkSets) {
-            this.destinationSegmentName = destinationSegmentName;
-            this.filteredArtifacts = filteredArtifacts;
-            this.resolvedSegments = resolvedSegments;
-            this.linkSets = linkSets;
-        }
-
     }
 }

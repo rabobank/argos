@@ -31,7 +31,7 @@ import java.util.List;
 public class NewVerificationProvider {
 
     private final List<Verification> verifications;
-    private final NewVerificationContextsPovider verificationContextsProvider;
+    private final NewVerificationContextsProvider verificationContextsProvider;
 
     @PostConstruct
     public void init() {
