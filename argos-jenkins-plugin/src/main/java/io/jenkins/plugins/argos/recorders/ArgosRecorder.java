@@ -17,6 +17,7 @@ package io.jenkins.plugins.argos.recorders;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jError;
 import hudson.EnvVars;
@@ -36,7 +37,6 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.plaincredentials.FileCredentials;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -154,7 +154,7 @@ public class ArgosRecorder extends Recorder {
         listener.getLogger().println("[argos] Dumping metadata to: " + argos4j.getSettings().getArgosServerBaseUrl());
 
 
-        argos4j.store();
+        argos4j.store(ArgosJenkinsHelper.getPrivateKeyPassword(privateKeyCredentialId));
         return true;
     }
 
@@ -201,7 +201,7 @@ public class ArgosRecorder extends Recorder {
                     .includeEmptyValue()
                     .includeAs(ACL.SYSTEM,
                             Jenkins.get(),
-                            FileCredentials.class)
+                            StandardUsernamePasswordCredentials.class)
                     .includeCurrentValue(privateKeyCredentialId);
         }
 
