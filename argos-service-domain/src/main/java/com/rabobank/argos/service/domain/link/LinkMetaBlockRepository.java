@@ -30,4 +30,6 @@ public interface LinkMetaBlockRepository {
     List<LinkMetaBlock> findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(String supplyChainId, String segmentName, String stepName, List<String> hashes);
 
     List<LinkMetaBlock> findByRunId(String supplyChainId, String runId);
+
+    List<LinkMetaBlock> findByRunId(String supplyChainId, String segmentName, String runId, List<String> resolvedSteps);
 }

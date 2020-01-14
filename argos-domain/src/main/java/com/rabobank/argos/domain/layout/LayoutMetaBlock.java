@@ -36,4 +36,8 @@ public class LayoutMetaBlock {
     private List<Signature> signatures;
 
     private Layout layout;
+
+    public List<MatchFilter> expectedEndProducts() {
+        return layout.getExpectedEndProducts();
+    }
 }

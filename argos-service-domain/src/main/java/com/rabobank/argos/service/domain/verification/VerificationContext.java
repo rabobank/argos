@@ -74,6 +74,18 @@ public class VerificationContext {
     }
 
     public List<String> getExpectedStepNames() {
+
+        //todo remove this code after multiple segments support is completed
+        if (segment == null) {
+            return layoutMetaBlock
+                    .getLayout()
+                    .getLayoutSegments()
+                    .iterator()
+                    .next()
+                    .getSteps().stream().map(Step::getStepName)
+                    .collect(toList());
+        }
+
         return segment.getSteps().stream().map(Step::getStepName).collect(toList());
     }
 }

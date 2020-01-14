@@ -31,13 +31,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyMap;
+import static com.rabobank.argos.service.domain.verification.ArtifactMatcher.matches;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -50,8 +51,9 @@ public class NewVerificationContextsProvider {
 
     public List<VerificationContext> createPossibleVerificationContexts(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
 
-        ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets = processMatchFilters(layoutMetaBlock.getLayout().getExpectedEndProducts(), productsToVerify);
-        //processMatchRules(resolvedSegmentsWithLinkSets);
+        ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets = processMatchFilters(layoutMetaBlock, productsToVerify);
+        log.info("processMatchFilters resulted in: {} possible verificationContexts", resolvedSegmentsWithLinkSets.linkSets.size());
+        //processMatchRules(layoutMetaBlock,resolvedSegmentsWithLinkSets);
 
         return resolvedSegmentsWithLinkSets
                 .getLinkSets()
@@ -61,16 +63,15 @@ public class NewVerificationContextsProvider {
                         .layoutMetaBlock(layoutMetaBlock)
                         .linkMetaBlocks(new ArrayList<>(linkSet)).build())
                 .collect(Collectors.toList());
-
     }
 
-    private ResolvedSegmentsWithLinkSets processMatchFilters(List<MatchFilter> matchFilters, List<Artifact> endProducts) {
+    private ResolvedSegmentsWithLinkSets processMatchFilters(LayoutMetaBlock layoutMetaBlock, List<Artifact> endProducts) {
 
-        Map<String, EnumMap<DestinationType, List<Artifact>>> filteredArtifacts = filter(matchFilters, endProducts);
+        FilteredArtifacts filteredArtifacts = filter(layoutMetaBlock.expectedEndProducts(), endProducts);
 
         GetLinkParameters getLinkParameters = GetLinkParameters
                 .builder()
-                .destinationSegmentName(matchFilters.iterator().next().getDestinationSegmentName())
+                .layoutMetaBlock(layoutMetaBlock)
                 .linkSets(new HashSet<>())
                 .filteredArtifacts(filteredArtifacts)
                 .resolvedSegments(new ArrayList<>())
@@ -84,18 +85,26 @@ public class NewVerificationContextsProvider {
         List<String> resolvedSteps = new ArrayList<>();
         Set<LinkMetaBlock> links = new HashSet<>();
         getLinkParameters.getFilteredArtifacts()
-                .forEach((key, value) -> {
-                    links.addAll(queryByArtifacts(getLinkParameters.getDestinationSegmentName(), key, value));
-                    resolvedSteps.add(key);
+                .getFilteredArtifactsByStepNameByDestinationType()
+                .forEach((stepName, destinationTypes) -> {
+                    destinationTypes.forEach((destinationType, artifacts) ->
+                            links.addAll(queryByArtifacts(getLinkParameters.supplyChainId(),
+                                    getLinkParameters.destinationSegmentName(),
+                                    stepName,
+                                    destinationType,
+                                    artifacts)));
+
+                    resolvedSteps.add(stepName);
                 });
 
-        getLinkParameters.getResolvedSegments().add(getLinkParameters.getDestinationSegmentName());
+
+        getLinkParameters.getResolvedSegments().add(getLinkParameters.destinationSegmentName());
         Set<Set<LinkMetaBlock>> resolvedLinkSets = new HashSet<>(getLinkParameters.getLinkSets());
         Set<LinkMetaBlock> newLinkSetByRunId = new HashSet<>(links);
         Set<String> runIds = findRunIds(links);
         runIds.forEach(runId ->
-                newLinkSetByRunId.addAll(queryByRunId(runId,
-                        getLinkParameters.getDestinationSegmentName(),
+                newLinkSetByRunId.addAll(queryByRunId(getLinkParameters.supplyChainId(), runId,
+                        getLinkParameters.destinationSegmentName(),
                         resolvedSteps))
         );
         resolvedLinkSets = permutate(newLinkSetByRunId, resolvedLinkSets);
@@ -129,18 +138,68 @@ public class NewVerificationContextsProvider {
                 .collect(Collectors.toSet());
     }
 
-    private Set<LinkMetaBlock> queryByArtifacts(String destinationSegmentName, String destinationStepName, EnumMap<DestinationType, List<Artifact>> filteredArtifacts) {
-
-        // query db here based on DestinationType linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndProductHashes()
+    private Set<LinkMetaBlock> queryByArtifacts(String supplyChainId,
+                                                String destinationSegmentName,
+                                                String stepName, DestinationType destinationType,
+                                                List<Artifact> filteredArtifacts) {
+        if (DestinationType.PRODUCTS == destinationType) {
+            return new HashSet<>(linkMetaBlockRepository
+                    .findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(
+                            supplyChainId,
+                            destinationSegmentName,
+                            stepName,
+                            filteredArtifacts
+                                    .stream()
+                                    .map(Artifact::getHash)
+                                    .collect(Collectors.toList()))
+            );
+        } else if (DestinationType.MATERIALS == destinationType) {
+            new HashSet<>(linkMetaBlockRepository
+                    .findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(
+                            supplyChainId,
+                            destinationSegmentName,
+                            stepName,
+                            filteredArtifacts
+                                    .stream()
+                                    .map(Artifact::getHash)
+                                    .collect(Collectors.toList()))
+            );
+        }
         return emptySet();
     }
 
-    private Set<LinkMetaBlock> queryByRunId(String runId, String destinationSegmentName, List<String> resolvedSteps) {
-
-        return emptySet();
+    private Set<LinkMetaBlock> queryByRunId(String supplyChainId, String runId, String destinationSegmentName, List<String> resolvedSteps) {
+        return new HashSet<>(linkMetaBlockRepository.findByRunId(supplyChainId, destinationSegmentName, runId, resolvedSteps));
     }
-    private Map<String, EnumMap<DestinationType, List<Artifact>>> filter(List<MatchFilter> matchFilters, List<Artifact> endProducts) {
-        return emptyMap();
+
+    private FilteredArtifacts filter(List<MatchFilter> matchFilters, List<Artifact> endProducts) {
+
+        Map<String, Map<DestinationType, List<Artifact>>> filteredArtifactsByStepNameByDestinationType = new HashMap<>();
+        Map<String, Map<DestinationType, List<MatchFilter>>> matchFiltersByStepNameByDestinationType = matchFilters
+                .stream()
+                .collect(groupingBy(MatchFilter::getDestinationStepName, groupingBy(MatchFilter::getDestinationType)));
+
+        matchFiltersByStepNameByDestinationType.forEach((stepName, destinationType) -> {
+                    filteredArtifactsByStepNameByDestinationType.put(stepName, new EnumMap(DestinationType.class));
+                    destinationType.forEach((destination, filters) -> {
+
+                                filteredArtifactsByStepNameByDestinationType
+                                        .get(stepName)
+                                        .put(destination, new ArrayList<>());
+
+                                filters.forEach(filter -> filteredArtifactsByStepNameByDestinationType
+                                        .get(stepName).get(destination)
+                                        .addAll(endProducts.stream()
+                                                .filter(endProduct -> matches(endProduct.getUri(), filter.getPattern()))
+                                                .collect(Collectors.toList())));
+                            }
+                    );
+                }
+        );
+
+        return FilteredArtifacts.builder()
+                .filteredArtifactsByStepNameByDestinationType(filteredArtifactsByStepNameByDestinationType)
+                .build();
     }
 
     @Data
@@ -153,10 +212,24 @@ public class NewVerificationContextsProvider {
 
     @Builder
     @Getter
+    private static class FilteredArtifacts {
+        private final Map<String, Map<DestinationType, List<Artifact>>> filteredArtifactsByStepNameByDestinationType;
+    }
+
+    @Builder
+    @Getter
     private static class GetLinkParameters {
-        private final String destinationSegmentName;
-        private final Map<String, EnumMap<DestinationType, List<Artifact>>> filteredArtifacts;
+        private final LayoutMetaBlock layoutMetaBlock;
+        private final FilteredArtifacts filteredArtifacts;
         private final List<String> resolvedSegments;
         private final Set<Set<LinkMetaBlock>> linkSets;
+
+        String destinationSegmentName() {
+            return layoutMetaBlock.expectedEndProducts().iterator().next().getDestinationSegmentName();
+        }
+
+        String supplyChainId() {
+            return layoutMetaBlock.getSupplyChainId();
+        }
     }
 }
