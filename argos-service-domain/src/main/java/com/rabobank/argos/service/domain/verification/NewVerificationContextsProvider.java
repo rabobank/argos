@@ -84,7 +84,8 @@ public class NewVerificationContextsProvider {
 
         List<String> resolvedSteps = new ArrayList<>();
         Set<LinkMetaBlock> links = new HashSet<>();
-        getLinkParameters.getFilteredArtifacts()
+        getLinkParameters
+                .getFilteredArtifacts()
                 .getFilteredArtifactsByStepNameByDestinationType()
                 .forEach((stepName, destinationTypes) -> {
                     destinationTypes.forEach((destinationType, artifacts) ->
@@ -100,6 +101,7 @@ public class NewVerificationContextsProvider {
 
         getLinkParameters.getResolvedSegments().add(getLinkParameters.destinationSegmentName());
         Set<Set<LinkMetaBlock>> resolvedLinkSets = new HashSet<>(getLinkParameters.getLinkSets());
+
         Set<LinkMetaBlock> newLinkSetByRunId = new HashSet<>(links);
         Set<String> runIds = findRunIds(links);
         runIds.forEach(runId ->
@@ -120,13 +122,21 @@ public class NewVerificationContextsProvider {
         Set<Set<LinkMetaBlock>> temporaryLinkSet = new HashSet<>();
         Map<Integer, List<LinkMetaBlock>> tempEqualLinkSets = newLinkSet.stream()
                 .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().hashCode()));
+        if (!resolvedLinkSets.isEmpty()) {
+            resolvedLinkSets.forEach(linkSet ->
+                    tempEqualLinkSets.forEach((key, value) -> {
+                        Set<Set<LinkMetaBlock>> clonedResolvedLinkSets = new HashSet<>(resolvedLinkSets);
+                        clonedResolvedLinkSets.add(new HashSet<>(value));
+                        temporaryLinkSet.addAll(clonedResolvedLinkSets);
+                    }));
+        } else {
+            tempEqualLinkSets.forEach((key, value) -> {
+                Set<Set<LinkMetaBlock>> clonedResolvedLinkSets = new HashSet<>(resolvedLinkSets);
+                clonedResolvedLinkSets.add(new HashSet<>(value));
+                temporaryLinkSet.addAll(clonedResolvedLinkSets);
+            });
+        }
 
-        resolvedLinkSets.forEach(linkSet ->
-                tempEqualLinkSets.forEach((key, value) -> {
-                    Set<Set<LinkMetaBlock>> clonedResolvedLinkSets = new HashSet<>(resolvedLinkSets);
-                    clonedResolvedLinkSets.add(new HashSet<>(value));
-                    temporaryLinkSet.addAll(clonedResolvedLinkSets);
-                }));
 
         return temporaryLinkSet;
     }

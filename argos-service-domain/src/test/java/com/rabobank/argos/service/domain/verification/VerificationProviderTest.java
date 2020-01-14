@@ -15,12 +15,9 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
-import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Artifact;
-import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +46,6 @@ class VerificationProviderTest {
 
     private static final String RUN_ID = "runId";
     private static final String SUPPLYCHAIN_ID = "supplyChainId";
-    private static final String STEPNAME = "stepName";
     private VerificationProvider verificationProvider;
 
     @Mock
@@ -75,14 +71,6 @@ class VerificationProviderTest {
     @Mock
     private LinkMetaBlock linkMetaBlock;
 
-    @Mock
-    private Layout layout;
-
-    @Mock
-    private Step step;
-
-    @Mock
-    private Link link;
 
     @Mock
     private VerificationRunResult verificationRunResultLow;
@@ -103,7 +91,7 @@ class VerificationProviderTest {
     private LayoutSegment segment;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         verifications = new ArrayList<>();
         verificationProvider = new VerificationProvider(linkMetaBlockRepository, runIdResolver, verifications, verificationContextsProvider);
     }

@@ -48,9 +48,21 @@ public class VerificationContext {
         this.originalLinkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.layoutMetaBlock = layoutMetaBlock;
         this.segment = segment;
-        segment.getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
+        segment().getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
         linksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
         originalLinksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
+    }
+
+    private LayoutSegment segment() {
+        if (segment == null) {
+            return layoutMetaBlock
+                    .getLayout()
+                    .getLayoutSegments()
+                    .iterator()
+                    .next();
+        } else {
+            return segment;
+        }
     }
 
     public Step getStepByStepName(String stepName) {

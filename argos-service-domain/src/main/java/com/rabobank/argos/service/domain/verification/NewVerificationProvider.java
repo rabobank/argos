@@ -43,14 +43,13 @@ public class NewVerificationProvider {
     public VerificationRunResult verifyRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
         List<VerificationContext> possibleVerificationContexts = verificationContextsProvider
                 .createPossibleVerificationContexts(layoutMetaBlock, productsToVerify);
-        possibleVerificationContexts
+        return possibleVerificationContexts
                 .stream()
-                .map(context -> verifications.stream()
+                .map(context -> verifications
+                        .stream()
                         .map(verification -> verification.verify(context))
                         .filter(result -> !result.isRunIsValid())
                         .findFirst().orElse(VerificationRunResult.okay())
-                );
-
-        return VerificationRunResult.okay();
+                ).findFirst().orElse(VerificationRunResult.valid(false));
     }
 }
