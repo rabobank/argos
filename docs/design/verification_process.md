@@ -107,11 +107,14 @@ Some helper functions
             return newLinkSets
             
     permutate(links, linkSets)
-        temp []
-        tempLinkSets = group links by links.hashCode and step
+        temp = []
+        stepSets = group links by step and links.hashCode
+        if linkSets is empty
+            linkSets = [[]]
         for linkSet in linkSets
-            for tempLinkSet in tempLinkSets
-                temp.add(linkSet.add(tempLinkSet))
+            for step in stepSets
+                for stepLinkSet in step
+                    temp.add(linkSet.add(stepLinkSet))
         return temp
                     
     query(segment, step)
