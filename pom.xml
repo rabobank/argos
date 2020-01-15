@@ -164,7 +164,7 @@
 						<ServiceDockerfile>SCRIPT_STYLE</ServiceDockerfile>
 						<JenkinsDockerfile>SCRIPT_STYLE</JenkinsDockerfile>
 						<IntegrationTestServiceDockerfile>SCRIPT_STYLE</IntegrationTestServiceDockerfile>
-						<argos.plantuml>APOSTROPHE_STYLE</argos.plantuml>
+						<plantuml>APOSTROPHE_STYLE</plantuml>
 					</mapping>
 				</configuration>
 				<executions>
