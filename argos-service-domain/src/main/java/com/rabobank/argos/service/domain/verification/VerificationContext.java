@@ -41,6 +41,9 @@ public class VerificationContext {
     private final Map<String, List<LinkMetaBlock>> originalLinksByStepName;
     private Map<String, Step> stepByStepName = new HashMap<>();
 
+    private Map<String, Map<String, Step>> stepBySegmentNameAndStepName = new HashMap<>();
+    private Map<String, Map<String, List<LinkMetaBlock>>> linksBySegmentNameAndStepName = new HashMap<>();
+    private Map<String, Map<String, List<LinkMetaBlock>>> originallinksBySegmentNameAndStepName = new HashMap<>();
     @Builder
     public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
         this.linkMetaBlocks = new ArrayList<>(linkMetaBlocks);
@@ -49,6 +52,27 @@ public class VerificationContext {
         segment().getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
         linksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
         originalLinksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
+
+        layoutMetaBlock
+                .getLayout()
+                .getLayoutSegments().forEach(segment -> {
+            stepBySegmentNameAndStepName
+                    .put(segment.getName(), new HashMap<>());
+            segment.getSteps()
+                    .forEach(step -> stepBySegmentNameAndStepName
+                            .get(segment.getName())
+                            .put(step.getStepName(), step));
+
+        });
+
+        linksBySegmentNameAndStepName = this.linkMetaBlocks.stream()
+                .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getLayoutSegmentName(),
+                        groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName())));
+
+        originallinksBySegmentNameAndStepName = this.originalLinkMetaBlocks.stream()
+                .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getLayoutSegmentName(),
+                        groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName())));
+
     }
 
     private LayoutSegment segment() {
