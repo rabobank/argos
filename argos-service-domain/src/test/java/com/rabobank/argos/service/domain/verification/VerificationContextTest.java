@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
+import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -49,18 +51,21 @@ class VerificationContextTest {
     private LayoutMetaBlock layoutMetaBlock;
 
     @Mock
-    private LayoutSegment segment;
+    private Layout layout;
+
+    @Mock
+    private LayoutSegment layoutSegment;
 
     @BeforeEach
     void setup() {
-        when(segment.getSteps()).thenReturn(List.of(STEP));
 
         linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
                 .builder().link(Link.builder().stepName(STEP_NAME).build()).build()));
-
+        when(layoutMetaBlock.getLayout()).thenReturn(layout);
+        when(layout.getLayoutSegments()).thenReturn(Collections.singletonList(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(Collections.singletonList(STEP));
         verificationContext = VerificationContext
                 .builder()
-                .segment(segment)
                 .layoutMetaBlock(layoutMetaBlock)
                 .linkMetaBlocks(linkMetaBlocks)
                 .build();

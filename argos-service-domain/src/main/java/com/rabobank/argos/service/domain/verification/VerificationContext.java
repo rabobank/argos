@@ -36,33 +36,29 @@ public class VerificationContext {
 
     private final List<LinkMetaBlock> linkMetaBlocks;
     private final List<LinkMetaBlock> originalLinkMetaBlocks;
-    private final LayoutSegment segment;
     private final LayoutMetaBlock layoutMetaBlock;
     private final Map<String, List<LinkMetaBlock>> linksByStepName;
     private final Map<String, List<LinkMetaBlock>> originalLinksByStepName;
     private Map<String, Step> stepByStepName = new HashMap<>();
 
     @Builder
-    public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock, LayoutSegment segment) {
+    public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
         this.linkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.originalLinkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.layoutMetaBlock = layoutMetaBlock;
-        this.segment = segment;
         segment().getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
         linksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
         originalLinksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
     }
 
     private LayoutSegment segment() {
-        if (segment == null) {
+
             return layoutMetaBlock
                     .getLayout()
                     .getLayoutSegments()
                     .iterator()
                     .next();
-        } else {
-            return segment;
-        }
+
     }
 
     public Step getStepByStepName(String stepName) {
@@ -88,8 +84,7 @@ public class VerificationContext {
     public List<String> getExpectedStepNames() {
 
         //todo remove this code after multiple segments support is completed
-        if (segment == null) {
-            return layoutMetaBlock
+        return layoutMetaBlock
                     .getLayout()
                     .getLayoutSegments()
                     .iterator()
@@ -97,7 +92,4 @@ public class VerificationContext {
                     .getSteps().stream().map(Step::getStepName)
                     .collect(toList());
         }
-
-        return segment.getSteps().stream().map(Step::getStepName).collect(toList());
-    }
 }
