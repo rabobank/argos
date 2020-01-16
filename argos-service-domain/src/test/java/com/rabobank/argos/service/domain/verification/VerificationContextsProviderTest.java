@@ -40,9 +40,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class NewVerificationContextsProviderTest {
+class VerificationContextsProviderTest {
 
     private static final String STEP_NAME = "stepName";
+    private static final String OTHER_STEP_NAME = "otherStepName";
     private static final String SUPPLY_CHAIN_ID = "supplyChainId";
     private static final String SEGMENT_NAME = "segmentName";
     private static final String RUN_ID = "runId";
@@ -72,12 +73,14 @@ class NewVerificationContextsProviderTest {
 
     private LinkMetaBlock linkMetaBlockFromRunId2;
 
-    private NewVerificationContextsProvider verificationContextsProvider;
+    private VerificationContextsProvider verificationContextsProvider;
+    private LinkMetaBlock linkMetaBlockFromInput2;
 
     @BeforeEach
     void setup() {
         createMatchFilters();
         createArtifacts();
+
         linkMetaBlockFromInput = LinkMetaBlock
                 .builder()
                 .supplyChainId(SUPPLY_CHAIN_ID)
@@ -86,9 +89,49 @@ class NewVerificationContextsProviderTest {
                         .stepName(STEP_NAME)
                         .runId(RUN_ID)
                         .materials(artifacts)
-                        .products(artifacts).build()
+                        .products(artifacts)
+                        .build()
                 ).build();
-        verificationContextsProvider = new NewVerificationContextsProvider(linkMetaBlockRepository);
+
+        linkMetaBlockFromInput2 = LinkMetaBlock
+                .builder()
+                .supplyChainId(SUPPLY_CHAIN_ID)
+                .link(Link.builder()
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .stepName(STEP_NAME)
+                        .runId(RUN_ID)
+                        .materials(artifacts)
+                        .products(artifacts)
+                        .command(singletonList("cmd"))
+                        .build()
+                ).build();
+
+        linkMetaBlockFromRunId1 = LinkMetaBlock
+                .builder()
+                .supplyChainId(SUPPLY_CHAIN_ID)
+                .link(Link.builder()
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .stepName(OTHER_STEP_NAME)
+                        .runId(RUN_ID)
+                        .materials(artifacts)
+                        .products(artifacts)
+                        .build()
+                ).build();
+
+        linkMetaBlockFromRunId2 = LinkMetaBlock
+                .builder()
+                .supplyChainId(SUPPLY_CHAIN_ID)
+                .link(Link.builder()
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .stepName(OTHER_STEP_NAME)
+                        .runId(RUN_ID)
+                        .materials(artifacts)
+                        .command(singletonList("cmd"))
+                        .products(artifacts)
+                        .build()
+                ).build();
+
+        verificationContextsProvider = new VerificationContextsProviderImpl(linkMetaBlockRepository);
     }
 
     private void createArtifacts() {
@@ -119,14 +162,32 @@ class NewVerificationContextsProviderTest {
     }
 
     @Test
-    void createPossibleVerificationContexts() {
-        setupMocks();
+    void createPossibleVerificationContextsWithMultipleStepsAndMultipleEqualLinkSets() {
+        setupMocksForMultipleSteps();
         List<VerificationContext> verificationContexts = verificationContextsProvider.createPossibleVerificationContexts(layoutMetaBlock, artifacts);
-        assertThat(verificationContexts, hasSize(1));
+        assertThat(verificationContexts, hasSize(2));
     }
 
+    @Test
+    void createPossibleVerificationContextsSingleStepAndMultipleEqualLinkSets() {
+        setupMocksForSingleStep();
+        List<VerificationContext> verificationContexts = verificationContextsProvider.createPossibleVerificationContexts(layoutMetaBlock, artifacts);
+        assertThat(verificationContexts, hasSize(2));
+    }
 
-    void setupMocks() {
+    private void setupMocksForSingleStep() {
+        when(layoutMetaBlock.getLayout()).thenReturn(layout);
+        when(layout.getLayoutSegments()).thenReturn(singletonList(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(singletonList(step));
+        when(step.getStepName()).thenReturn(STEP_NAME);
+        when(layoutMetaBlock.expectedEndProducts()).thenReturn(matchFilters);
+        when(linkMetaBlockRepository
+                .findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(any(), any(), any(), any()))
+                .thenReturn(List.of(linkMetaBlockFromInput, linkMetaBlockFromInput2));
+
+    }
+
+    void setupMocksForMultipleSteps() {
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
         when(layout.getLayoutSegments()).thenReturn(singletonList(layoutSegment));
@@ -136,8 +197,12 @@ class NewVerificationContextsProviderTest {
         when(linkMetaBlockRepository
                 .findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(any(), any(), any(), any()))
                 .thenReturn(List.of(linkMetaBlockFromInput));
+
         when(linkMetaBlockRepository
                 .findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(any(), any(), any(), any()))
                 .thenReturn(List.of(linkMetaBlockFromInput));
+
+        when(linkMetaBlockRepository.findByRunId(any(), any(), any(), any()))
+                .thenReturn(List.of(linkMetaBlockFromRunId1, linkMetaBlockFromRunId2));
     }
 }
