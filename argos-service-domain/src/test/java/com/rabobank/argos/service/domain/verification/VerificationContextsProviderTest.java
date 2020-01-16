@@ -161,6 +161,19 @@ class VerificationContextsProviderTest {
         matchFilters = List.of(matchFilterProduct, matchFilterMaterials);
     }
 
+    private void createMatchFilterMaterials() {
+
+
+        MatchFilter matchFilterMaterials = MatchFilter.builder()
+                .destinationType(DestinationType.MATERIALS)
+                .destinationStepName(STEP_NAME)
+                .destinationSegmentName(SEGMENT_NAME)
+                .pattern("**/*.jar")
+                .build();
+
+        matchFilters = List.of(matchFilterMaterials);
+    }
+
     @Test
     void createPossibleVerificationContextsWithMultipleStepsAndMultipleEqualLinkSets() {
         setupMocksForMultipleSteps();
@@ -181,6 +194,14 @@ class VerificationContextsProviderTest {
         Artifact wrongArtifact = Artifact.builder().uri("/wrong.exe").hash("hash").build();
         List<VerificationContext> verificationContexts = verificationContextsProvider.createPossibleVerificationContexts(layoutMetaBlock, singletonList(wrongArtifact));
         assertThat(verificationContexts, hasSize(0));
+    }
+
+    @Test
+    void createPossibleVerificationContextsWithMatchinMaterialArtifacts() {
+        setupMocksForMultipleSteps();
+        createMatchFilterMaterials();
+        List<VerificationContext> verificationContexts = verificationContextsProvider.createPossibleVerificationContexts(layoutMetaBlock, artifacts);
+        assertThat(verificationContexts, hasSize(2));
     }
 
     private void setupMocksForSingleStep() {
