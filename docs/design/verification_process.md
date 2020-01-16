@@ -46,7 +46,7 @@ The clients should set a runId which is as unique as possible. This runId is use
     processMatchFilters(matchFilters, artifacts)
         map = {}
         map = filter(matchFilters, artifacts)
-        return getLinks(destSegment, map, [], [])
+        return getLinks(destSegment, map, [[]])
                 
     filter(matchFilters, artifacts)
         map = {}
@@ -107,11 +107,12 @@ Some helper functions
             return newLinkSets
             
     permutate(links, linkSets)
-        temp []
-        tempLinkSets = group links by links.hashCode and step
+        temp = []
+        stepSets = group links by step and links.hashCode
         for linkSet in linkSets
-            for tempLinkSet in tempLinkSets
-                temp.add(linkSet.add(tempLinkSet))
+            for step in stepSets
+                for stepLinkSet in step
+                    temp.add(linkSet.add(stepLinkSet))
         return temp
                     
     query(segment, step)
