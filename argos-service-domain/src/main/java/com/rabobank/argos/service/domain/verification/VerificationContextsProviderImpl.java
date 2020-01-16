@@ -247,7 +247,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                                         .collect(Collectors.toList()))
                 );
             } else if (DestinationType.MATERIALS == destinationType) {
-                new HashSet<>(linkMetaBlockRepository
+                return new HashSet<>(linkMetaBlockRepository
                         .findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(
                                 supplyChainId,
                                 destinationSegmentName,

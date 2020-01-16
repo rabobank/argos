@@ -175,6 +175,14 @@ class VerificationContextsProviderTest {
         assertThat(verificationContexts, hasSize(2));
     }
 
+    @Test
+    void createPossibleVerificationContextsWithNonMatchingArtifacts() {
+        when(layoutMetaBlock.expectedEndProducts()).thenReturn(matchFilters);
+        Artifact wrongArtifact = Artifact.builder().uri("/wrong.exe").hash("hash").build();
+        List<VerificationContext> verificationContexts = verificationContextsProvider.createPossibleVerificationContexts(layoutMetaBlock, singletonList(wrongArtifact));
+        assertThat(verificationContexts, hasSize(0));
+    }
+
     private void setupMocksForSingleStep() {
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
         when(layout.getLayoutSegments()).thenReturn(singletonList(layoutSegment));
