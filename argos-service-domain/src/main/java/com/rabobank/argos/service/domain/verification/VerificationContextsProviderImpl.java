@@ -103,10 +103,8 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                     resolvedSteps.add(stepName);
                 });
 
-
         getLinkParameters.getResolvedSegments().add(getLinkParameters.destinationSegmentName());
         Set<Set<LinkMetaBlock>> resolvedLinkSets = new HashSet<>(getLinkParameters.getLinkSets());
-
         Set<LinkMetaBlock> newLinkSetByRunId = new HashSet<>(links);
         Set<String> runIds = findRunIds(links);
         runIds.forEach(runId ->
@@ -115,7 +113,6 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                         resolvedSteps))
         );
         resolvedLinkSets = permutate(newLinkSetByRunId, resolvedLinkSets);
-
         return ResolvedSegmentsWithLinkSets
                 .builder()
                 .linkSets(resolvedLinkSets)
@@ -237,28 +234,30 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                                                 String destinationSegmentName,
                                                 String stepName, DestinationType destinationType,
                                                 List<Artifact> filteredArtifacts) {
-        if (DestinationType.PRODUCTS == destinationType) {
-            return new HashSet<>(linkMetaBlockRepository
-                    .findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(
-                            supplyChainId,
-                            destinationSegmentName,
-                            stepName,
-                            filteredArtifacts
-                                    .stream()
-                                    .map(Artifact::getHash)
-                                    .collect(Collectors.toList()))
-            );
-        } else if (DestinationType.MATERIALS == destinationType) {
-            new HashSet<>(linkMetaBlockRepository
-                    .findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(
-                            supplyChainId,
-                            destinationSegmentName,
-                            stepName,
-                            filteredArtifacts
-                                    .stream()
-                                    .map(Artifact::getHash)
-                                    .collect(Collectors.toList()))
-            );
+        if (!filteredArtifacts.isEmpty()) {
+            if (DestinationType.PRODUCTS == destinationType) {
+                return new HashSet<>(linkMetaBlockRepository
+                        .findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(
+                                supplyChainId,
+                                destinationSegmentName,
+                                stepName,
+                                filteredArtifacts
+                                        .stream()
+                                        .map(Artifact::getHash)
+                                        .collect(Collectors.toList()))
+                );
+            } else if (DestinationType.MATERIALS == destinationType) {
+                new HashSet<>(linkMetaBlockRepository
+                        .findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(
+                                supplyChainId,
+                                destinationSegmentName,
+                                stepName,
+                                filteredArtifacts
+                                        .stream()
+                                        .map(Artifact::getHash)
+                                        .collect(Collectors.toList()))
+                );
+            }
         }
         return emptySet();
     }
