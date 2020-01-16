@@ -17,7 +17,6 @@ package com.rabobank.argos.test;
 
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jSettings;
-import com.rabobank.argos.argos4j.SigningKey;
 import com.rabobank.argos.argos4j.rest.api.client.KeyApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
 import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
@@ -37,9 +36,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
 import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
@@ -54,7 +53,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class Argos4jIT {
 
     private static Properties properties = Properties.getInstance();
-    private KeyPair keyPair;
+    private RestKeyPair restKeyPair;
 
     @BeforeAll
     static void setUp() {
@@ -62,15 +61,16 @@ public class Argos4jIT {
     }
 
     @BeforeEach
-    void reset() throws NoSuchAlgorithmException {
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        generator.initialize(2048);
-        keyPair = generator.generateKeyPair();
+    void reset() {
         clearDatabase();
     }
 
     @Test
-    void postLinkMetaBlockWithSignatureValidationAndVerify() {
+    void postLinkMetaBlockWithSignatureValidationAndVerify() throws GeneralSecurityException {
+
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048);
+        KeyPair keyPair = generator.generateKeyPair();
 
         PublicKey publicKey = keyPair.getPublic();
         String keyId = new KeyIdProviderImpl().computeKeyId(publicKey);
@@ -79,10 +79,10 @@ public class Argos4jIT {
         keyApiApi.storeKey(new RestKeyPair().keyId(keyId).publicKey(publicKey.getEncoded()));
         String supplyChainId = getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("test-supply-chain")).getId();
 
-        RestKeyPair layoutKeyPair = createAndStoreKeyPair("test");
+        restKeyPair = createAndStoreKeyPair("test");
 
-        RestLayoutMetaBlock layout = new RestLayoutMetaBlock().layout(createLayout(layoutKeyPair.getKeyId(), keyId));
-        signAndStoreLayout(supplyChainId, layout, layoutKeyPair.getKeyId(), "test");
+        RestLayoutMetaBlock layout = new RestLayoutMetaBlock().layout(createLayout(restKeyPair.getKeyId(), keyId));
+        signAndStoreLayout(supplyChainId, layout, restKeyPair.getKeyId(), "test");
 
 
         Argos4jSettings settings = Argos4jSettings.builder()
@@ -91,13 +91,12 @@ public class Argos4jIT {
                 .stepName("build")
                 .runId("runId")
                 .supplyChainName("test-supply-chain")
-                .signingKey(SigningKey.builder()
-                        .keyPair(this.keyPair).build())
+                .signingKeyId(restKeyPair.getKeyId())
                 .build();
         Argos4j argos4j = new Argos4j(settings);
         argos4j.collectProducts(new File("."));
         argos4j.collectMaterials(new File("."));
-        argos4j.store();
+        argos4j.store("test".toCharArray());
 
         RestVerificationResult verificationResult = getVerificationApi().performVerification(supplyChainId, new RestVerifyCommand()
                 .addExpectedProductsItem(new RestArtifact().uri("src/test/resources/karate-config.js").hash("9b33afe5598c5ea4cc702b231b2a98a906bc2fdcd10ebab103bbb20596db07a2")));
@@ -113,6 +112,7 @@ public class Argos4jIT {
                         .pattern("**/karate-config.js"))
                 .addLayoutSegmentsItem(new RestLayoutSegment().name("layoutSegmentName")
                         .addStepsItem(new RestStep().requiredNumberOfLinks(1)
+                                .addAuthorizedKeyIdsItem(restKeyPair.getKeyId())
                                 .addExpectedProductsItem(new RestRule().ruleType(RestRule.RuleTypeEnum.ALLOW).pattern("**"))
                                 .addExpectedMaterialsItem(new RestRule().ruleType(RestRule.RuleTypeEnum.ALLOW).pattern("**"))
                                 .addAuthorizedKeyIdsItem(linkKeyId).name("build")));

@@ -144,7 +144,7 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
                              TaskListener listener) {
             argos4j.collectProducts(new File(workspace.getRemote()));
             listener.getLogger().println("[argos] uploading metadata to: " + argos4j.getSettings().getArgosServerBaseUrl());
-            argos4j.store();
+            argos4j.store(ArgosJenkinsHelper.getPrivateKeyPassword(privateKeyCredentialId));
         }
     }
 }

@@ -21,10 +21,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
+import java.security.GeneralSecurityException;
 import java.util.Base64;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -36,14 +36,14 @@ class PublicKeyToByteArrayWriteConverterTest {
 
     @BeforeEach
     void setup() throws IOException {
-        base64EncodedPublicKey = IOUtils.toString(ByteArrayToPublicKeyToReadConverterTest.class.getResourceAsStream("/testkey.pub"), "UTF-8");
+        base64EncodedPublicKey = IOUtils.toString(getClass().getResourceAsStream("/testkey.pub"), UTF_8);
         bytePublicKey = Base64.getDecoder().decode(base64EncodedPublicKey);
         publicKeyToByteArrayWriteConverter = new PublicKeyToByteArrayWriteConverter();
     }
 
     @Test
-    void convert() throws InvalidKeySpecException, NoSuchAlgorithmException {
-        byte[] byteConverted=  publicKeyToByteArrayWriteConverter.convert( RSAPublicKeyFactory.instance(bytePublicKey));
-        assertThat(byteConverted,is(bytePublicKey));
+    void convert() throws GeneralSecurityException {
+        byte[] byteConverted = publicKeyToByteArrayWriteConverter.convert(RSAPublicKeyFactory.instance(bytePublicKey));
+        assertThat(byteConverted, is(bytePublicKey));
     }
 }
