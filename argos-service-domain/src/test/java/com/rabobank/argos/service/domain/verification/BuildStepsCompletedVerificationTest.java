@@ -35,6 +35,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 class BuildStepsCompletedVerificationTest {
 
     private static final String STEP_1 = "step1";
+    private static final String SEGMENT_1 = "segment1";
+
     private BuildStepsCompletedVerification verification;
 
     @BeforeEach
@@ -50,9 +52,9 @@ class BuildStepsCompletedVerificationTest {
     @Test
     void verifyOkay() {
         VerificationContext context = VerificationContext.builder()
-                .layoutMetaBlock(mockLayoutMetaBlock(STEP_1))
+                .layoutMetaBlock(mockLayoutMetaBlock(SEGMENT_1, STEP_1))
 
-                .linkMetaBlocks(mockLinks(STEP_1, STEP_1)).build();
+                .linkMetaBlocks(mockLinks(SEGMENT_1, STEP_1, STEP_1)).build();
         VerificationRunResult result = verification.verify(context);
         assertThat(result.isRunIsValid(), is(true));
     }
@@ -60,8 +62,8 @@ class BuildStepsCompletedVerificationTest {
     @Test
     void verifyNoLinks() {
         VerificationContext context = VerificationContext.builder()
-                .layoutMetaBlock(mockLayoutMetaBlock(STEP_1))
-                .linkMetaBlocks(mockLinks()).build();
+                .layoutMetaBlock(mockLayoutMetaBlock(SEGMENT_1, STEP_1))
+                .linkMetaBlocks(mockLinks(SEGMENT_1)).build();
         VerificationRunResult result = verification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
     }
@@ -69,8 +71,8 @@ class BuildStepsCompletedVerificationTest {
     @Test
     void verifyToMuchLinks() {
         VerificationContext context = VerificationContext.builder()
-                .layoutMetaBlock(mockLayoutMetaBlock(STEP_1))
-                .linkMetaBlocks(mockLinks(STEP_1, "unknown")).build();
+                .layoutMetaBlock(mockLayoutMetaBlock(SEGMENT_1, STEP_1))
+                .linkMetaBlocks(mockLinks(SEGMENT_1, STEP_1, "unknown")).build();
         VerificationRunResult result = verification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
     }
@@ -78,19 +80,26 @@ class BuildStepsCompletedVerificationTest {
     @Test
     void verifyWrongLinks() {
         VerificationContext context = VerificationContext.builder()
-                .layoutMetaBlock(mockLayoutMetaBlock(STEP_1))
+                .layoutMetaBlock(mockLayoutMetaBlock(SEGMENT_1, STEP_1))
                 .linkMetaBlocks(mockLinks("unknown")).build();
         VerificationRunResult result = verification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
     }
 
-    private LayoutMetaBlock mockLayoutMetaBlock(String... stepName) {
-        List<Step> steps = Stream.of(stepName).map(step -> Step.builder().stepName(step).build()).collect(toList());
-        return LayoutMetaBlock.builder().layout(Layout.builder().layoutSegments(List.of(LayoutSegment.builder().steps(steps).build())).build()).build();
+    private LayoutMetaBlock mockLayoutMetaBlock(String segmentName, String... stepName) {
+        List<Step> steps = Stream.of(stepName).map(step -> Step.builder()
+
+                .stepName(step).build()).collect(toList());
+        return LayoutMetaBlock.builder().layout(Layout.builder()
+                .layoutSegments(List.of(LayoutSegment.builder()
+                        .name(segmentName)
+                        .steps(steps).build())).build()).build();
     }
 
-    private List<LinkMetaBlock> mockLinks(String... stepName) {
+    private List<LinkMetaBlock> mockLinks(String segmentName, String... stepName) {
         return Stream.of(stepName).map(step -> LinkMetaBlock.builder().link(
-                Link.builder().stepName(step).build()).build()).collect(toList());
+                Link.builder()
+                        .layoutSegmentName(segmentName)
+                        .stepName(step).build()).build()).collect(toList());
     }
 }

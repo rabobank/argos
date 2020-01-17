@@ -42,6 +42,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class VerificationContextTest {
     public static final String STEP_NAME = "stepName";
+    public static final String SEGMENT_NAME = "segmentName";
     public static final Step STEP = Step.builder().stepName(STEP_NAME).build();
     private VerificationContext verificationContext;
 
@@ -60,10 +61,13 @@ class VerificationContextTest {
     void setup() {
 
         linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
-                .builder().link(Link.builder().stepName(STEP_NAME).build()).build()));
+                .builder().link(Link.builder()
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .stepName(STEP_NAME).build()).build()));
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
         when(layout.getLayoutSegments()).thenReturn(Collections.singletonList(layoutSegment));
         when(layoutSegment.getSteps()).thenReturn(Collections.singletonList(STEP));
+        when(layoutSegment.getName()).thenReturn(SEGMENT_NAME);
         verificationContext = VerificationContext
                 .builder()
                 .layoutMetaBlock(layoutMetaBlock)
