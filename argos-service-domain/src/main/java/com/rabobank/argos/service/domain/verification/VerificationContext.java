@@ -33,7 +33,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
-@Getter
 public class VerificationContext {
     public static final String COULD_NOT_BE_FOUND = " could not be found";
     @Getter
@@ -45,7 +44,7 @@ public class VerificationContext {
     private final Map<String, List<LinkMetaBlock>> originalLinksByStepName;
     private Map<String, Map<String, Step>> stepBySegmentNameAndStepName = new HashMap<>();
     private Map<String, Map<String, List<LinkMetaBlock>>> linksBySegmentNameAndStepName = new HashMap<>();
-    private Map<String, Map<String, List<LinkMetaBlock>>> originallinksBySegmentNameAndStepName = new HashMap<>();
+    private Map<String, Map<String, List<LinkMetaBlock>>> originalLinksBySegmentNameAndStepName = new HashMap<>();
 
     @Builder
     public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
@@ -70,7 +69,7 @@ public class VerificationContext {
                 .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getLayoutSegmentName(),
                         groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName())));
 
-        originallinksBySegmentNameAndStepName = this.originalLinkMetaBlocks.stream()
+        originalLinksBySegmentNameAndStepName = this.originalLinkMetaBlocks.stream()
                 .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getLayoutSegmentName(),
                         groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName())));
 
