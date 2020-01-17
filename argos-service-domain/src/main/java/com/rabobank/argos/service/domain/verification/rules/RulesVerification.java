@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.RULES;
@@ -66,18 +67,21 @@ public class RulesVerification implements Verification {
 
     @Override
     public VerificationRunResult verify(VerificationContext context) {
-        return context.layoutSegments()
+        List<VerificationRunResult> verificationRunResults = new ArrayList<>();
+        context.layoutSegments().forEach(segment ->
+                verificationRunResults.addAll(verifyForSegment(segment, context))
+        );
+
+        return verificationRunResults
                 .stream()
-                .map(segment -> verifyForSegment(segment, context))
-                .findFirst()
-                .orElse(VerificationRunResult.okay());
+                .filter(VerificationRunResult::isRunIsValid)
+                .findFirst().orElse(VerificationRunResult.valid(false));
     }
 
-    private VerificationRunResult verifyForSegment(LayoutSegment segment, VerificationContext context) {
+    private List<VerificationRunResult> verifyForSegment(LayoutSegment segment, VerificationContext context) {
         return context.getExpectedStepNamesBySegmentName(segment.getName())
                 .stream().map(stepName -> verifyStep(context, segment.getName(), stepName))
-                .filter(result -> !result.isRunIsValid())
-                .findFirst().orElse(VerificationRunResult.okay());
+                .collect(Collectors.toList());
     }
 
     private VerificationRunResult verifyStep(VerificationContext context, String segmentName, String stepName) {
@@ -95,12 +99,23 @@ public class RulesVerification implements Verification {
     private VerificationRunResult verifyStep(VerificationContext context, Step step, Link link) {
         List<Artifact> materials = new ArrayList<>(link.getMaterials());
         List<Artifact> products = new ArrayList<>(link.getProducts());
+
         List<RuleVerificationResult> verificationResults = Stream.concat(verifyExpectedProducts(context, step, materials, products),
-                verifyExpectedMaterials(context, step, materials)).collect(toList());
-        Optional<RuleVerificationResult> optionalNotValidRule = verificationResults.stream().filter(result -> !result.isValid()).findFirst();
-        return optionalNotValidRule.map(result -> VerificationRunResult.valid(result.isValid()))
-                .orElseGet(() -> verifyResultAfterAllRulesAreVerified(step, link, collectValidatedArtifacts(verificationResults)));
+                verifyExpectedMaterials(context, step, materials)
+        ).collect(toList());
+
+        Optional<RuleVerificationResult> optionalNotValidRule = verificationResults.stream()
+                .filter(result -> !result.isValid())
+                .findFirst();
+
+        return optionalNotValidRule.map(result -> VerificationRunResult
+                .valid(result.isValid()))
+                .orElseGet(() -> verifyResultAfterAllRulesAreVerified(step,
+                        link,
+                        collectValidatedArtifacts(verificationResults))
+                );
     }
+
 
     private Set<Artifact> collectValidatedArtifacts(List<RuleVerificationResult> verificationResults) {
         return verificationResults.stream().map(RuleVerificationResult::getValidatedArtifacts).flatMap(Set::stream).collect(toSet());

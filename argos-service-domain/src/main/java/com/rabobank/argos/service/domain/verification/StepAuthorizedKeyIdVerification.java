@@ -55,7 +55,10 @@ public class StepAuthorizedKeyIdVerification implements Verification {
 
     private static boolean linkIsNotSignedByAuthorizedFunctionary(VerificationContext context, LinkMetaBlock linkMetaBlock) {
         return !context
-                .getStepByStepName(linkMetaBlock.getLink().getStepName())
+                .getStepBySegmentNameAndStepName(
+                        linkMetaBlock.getLink().getLayoutSegmentName(),
+                        linkMetaBlock.getLink().getStepName()
+                )
                 .getAuthorizedKeyIds()
                 .contains(linkMetaBlock.getSignature().getKeyId());
     }

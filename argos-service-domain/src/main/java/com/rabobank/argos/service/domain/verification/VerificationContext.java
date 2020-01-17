@@ -44,8 +44,6 @@ public class VerificationContext {
     private final LayoutMetaBlock layoutMetaBlock;
     private final Map<String, List<LinkMetaBlock>> linksByStepName;
     private final Map<String, List<LinkMetaBlock>> originalLinksByStepName;
-    private Map<String, Step> stepByStepName = new HashMap<>();
-
     private Map<String, Map<String, Step>> stepBySegmentNameAndStepName = new HashMap<>();
     private Map<String, Map<String, List<LinkMetaBlock>>> linksBySegmentNameAndStepName = new HashMap<>();
     private Map<String, Map<String, List<LinkMetaBlock>>> originallinksBySegmentNameAndStepName = new HashMap<>();
@@ -55,7 +53,6 @@ public class VerificationContext {
         this.linkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.originalLinkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.layoutMetaBlock = layoutMetaBlock;
-        segment().getSteps().forEach(step -> stepByStepName.put(step.getStepName(), step));
         linksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
         originalLinksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
 
@@ -88,23 +85,6 @@ public class VerificationContext {
                 .getLayoutSegments();
     }
 
-    private LayoutSegment segment() {
-
-        return layoutMetaBlock
-                .getLayout()
-                .getLayoutSegments()
-                .iterator()
-                .next();
-
-    }
-
-    public Step getStepByStepName(String stepName) {
-        if (!stepByStepName.containsKey(stepName)) {
-            throw new VerificationError("step with name: " + stepName + COULD_NOT_BE_FOUND);
-        }
-        return stepByStepName.get(stepName);
-    }
-
     public List<LinkMetaBlock> getLinksByStepName(String stepName) {
         return linksByStepName.getOrDefault(stepName, emptyList());
     }
@@ -116,6 +96,10 @@ public class VerificationContext {
     public void removeLinkMetaBlocks(List<LinkMetaBlock> linkMetaBlocksToRemove) {
         linkMetaBlocks.removeAll(linkMetaBlocksToRemove);
         linksByStepName.values().forEach(blocks -> blocks.removeAll(linkMetaBlocksToRemove));
+        linksBySegmentNameAndStepName.entrySet()
+                .forEach(stringMapEntry -> stringMapEntry.getValue()
+                        .entrySet().forEach(stringListEntry -> stringListEntry
+                                .getValue().removeAll(linkMetaBlocksToRemove)));
     }
 
     public List<String> getExpectedStepNamesBySegmentName(String segmentName) {

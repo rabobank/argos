@@ -82,13 +82,13 @@ class VerificationContextTest {
 
     @Test
     void getStepByStepNameWithValidStepReturnsResult() {
-        Step step = verificationContext.getStepByStepName(STEP_NAME);
+        Step step = verificationContext.getStepBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME);
         assertThat(step.getStepName(), is(STEP_NAME));
     }
 
     @Test
     void getLinksByStepNameWithInValidStepReturnsException() {
-        VerificationError error = assertThrows(VerificationError.class, () -> verificationContext.getStepByStepName("incorrect"));
+        VerificationError error = assertThrows(VerificationError.class, () -> verificationContext.getStepBySegmentNameAndStepName(SEGMENT_NAME, "incorrect"));
         assertThat(error.getMessage(), Is.is("step with name: incorrect could not be found"));
     }
 
@@ -104,7 +104,7 @@ class VerificationContextTest {
 
     @Test
     void getStepByStepName() {
-        assertThat(verificationContext.getStepByStepName(STEP_NAME), sameInstance(STEP));
+        assertThat(verificationContext.getStepBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME), sameInstance(STEP));
     }
 
     @Test
