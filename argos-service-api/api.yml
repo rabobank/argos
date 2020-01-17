@@ -614,6 +614,8 @@ components:
           type: string
         destinationPathPrefix:
           type: string
+        destinationSegmentName:
+          type: string
         destinationType:
           type: string
           enum:

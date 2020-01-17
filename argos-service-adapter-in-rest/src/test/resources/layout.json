@@ -44,6 +44,7 @@
                 "sourcePathPrefix": "sourcePathPrefix",
                 "destinationPathPrefix": "destinationPathPrefix",
                 "destinationType": "PRODUCTS",
+                "destinationSegmentName": "destinationSegmentName",
                 "destinationStepName": "destinationStepName"
               },
               {
