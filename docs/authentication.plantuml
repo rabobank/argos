@@ -25,7 +25,7 @@ participant "external authorization service" as auth
 participant "user profile service (external resource server)" as up
 database "database"
 
-user -> browser: signup
+user -> browser: signup / signin
 
 browser -> argos: get oauth2/authorize/azure
 argos --> browser: redirect to authorization service
@@ -47,7 +47,7 @@ argos -> auth: post /oauth2/v2.0/token
 auth --> argos: returns token
 argos -> up: get userprofile
 up --> argos: returns userprofile
-argos -> database: store user profile
+argos -> database: store / update user profile
 argos --> browser: redirect to argos frontend
 browser --> user: show argos frontend
 @enduml

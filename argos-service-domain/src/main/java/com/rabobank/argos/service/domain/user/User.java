@@ -13,14 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain;
+package com.rabobank.argos.service.domain.user;
 
-public class ArgosError extends RuntimeException {
-    public ArgosError(String message, Throwable e) {
-        super(message, e);
-    }
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-    public ArgosError(String message) {
-        super(message);
-    }
+import static java.util.UUID.randomUUID;
+
+@Getter
+@Setter
+@Builder
+public class User {
+
+    @Builder.Default
+    private String userId = randomUUID().toString();
+    private String name;
+    private String email;
+    private AuthenticationProvider provider;
+    private String providerId;
 }

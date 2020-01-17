@@ -24,8 +24,21 @@ services:
       dockerfile: ServiceDockerfile
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
+      spring.security.oauth2.client.registration.azure.clientId: client-id
+      spring.security.oauth2.client.registration.azure.clientSecret: client-secret
+      spring.security.oauth2.client.provider.azure.authorizationUri: http://localhost:8087/oauth2/v2.0/authorize
+      spring.security.oauth2.client.provider.azure.tokenUri: http://oauth-stub:8080/oauth2/v2.0/token
+      spring.security.oauth2.client.provider.azure.userInfoUri: http://oauth-stub:8080/v1.0/me
+      jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
     ports:
       - 8080:8080
+
+  oauth-stub:
+    build:
+      context: oauth-stub
+    command: --global-response-templating
+    ports:
+      - 8087:8080
 
   argos-integration-test-service:
     build:

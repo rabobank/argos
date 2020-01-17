@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain;
+package com.rabobank.argos.service.domain.user;
 
-public class ArgosError extends RuntimeException {
-    public ArgosError(String message, Throwable e) {
-        super(message, e);
-    }
+import java.util.Optional;
 
-    public ArgosError(String message) {
-        super(message);
-    }
+
+public interface UserRepository {
+
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByUserId(String userId);
+
+    User save(User user);
+
+    User update(User existingUser);
 }
