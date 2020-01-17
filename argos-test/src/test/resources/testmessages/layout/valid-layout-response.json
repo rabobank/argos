@@ -80,8 +80,9 @@
                   "sourcePathPrefix": "sourcePathPrefix",
                   "destinationPathPrefix": "destinationPathPrefix",
                   "destinationType": "MATERIALS",
-                  "destinationStepName": "destinationStepName",
-                  "destinationSegmentName": "segment 1"
+                  "destinationSegmentName": "segment 1",
+                  "destinationStepName": "destinationStepName"
+
                 }
               ],
               "expectedProducts": [
