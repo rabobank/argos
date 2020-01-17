@@ -340,18 +340,21 @@
                 <configuration>
                     <quiet>true</quiet>
                     <failIfMissing>true</failIfMissing>
-                    <strictCheck>true</strictCheck>
-                    <aggregate>false</aggregate>
-                    <excludes>
-                        <exclude>target/**</exclude>
-                    </excludes>
-                    <header>https://raw.github.com/rabobank/argos/develop/docs/header.txt</header>
-                    <useDefaultExcludes>true</useDefaultExcludes>
-                    <properties>
-                        <lic.year>2020</lic.year>
-                    </properties>
-                    <encoding>UTF-8</encoding>
-                </configuration>
+					<strictCheck>true</strictCheck>
+					<aggregate>false</aggregate>
+					<excludes>
+						<exclude>target/**</exclude>
+					</excludes>
+					<header>https://raw.github.com/rabobank/argos/develop/docs/header.txt</header>
+					<useDefaultExcludes>true</useDefaultExcludes>
+					<properties>
+						<lic.year>2020</lic.year>
+					</properties>
+					<mapping>
+						<java>SLASHSTAR_STYLE</java>
+					</mapping>
+					<encoding>UTF-8</encoding>
+				</configuration>
                 <executions>
                     <execution>
                         <goals>
