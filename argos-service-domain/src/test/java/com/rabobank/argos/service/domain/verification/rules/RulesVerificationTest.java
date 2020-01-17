@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.domain.verification.rules;
 
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.RULES;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
@@ -47,6 +49,7 @@ import static org.mockito.Mockito.when;
 class RulesVerificationTest {
 
     private static final String STEP_NAME = "stepName";
+    private static final String SEGMENT_NAME = "segmentName";
     @Mock
     private RuleVerification ruleVerification;
 
@@ -61,6 +64,9 @@ class RulesVerificationTest {
 
     @Mock
     private LinkMetaBlock linkMetaBlock;
+
+    @Mock
+    private LayoutSegment layoutSegment;
 
     @Mock
     private Rule expectedMaterialRule;
@@ -210,11 +216,12 @@ class RulesVerificationTest {
     private void setupMocks() {
         when(ruleVerification.getRuleType()).thenReturn(RuleType.ALLOW);
         verification.init();
-        when(verificationContext.getExpectedStepNames()).thenReturn(List.of(STEP_NAME));
-        when(verificationContext.getStepByStepName(STEP_NAME)).thenReturn(step);
+        when(verificationContext.layoutSegments()).thenReturn(singletonList(layoutSegment));
+        when(layoutSegment.getName()).thenReturn(SEGMENT_NAME);
+        when(verificationContext.getExpectedStepNamesBySegmentName(SEGMENT_NAME)).thenReturn(singletonList(STEP_NAME));
+        when(verificationContext.getStepBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(step);
         when(linkMetaBlock.getLink()).thenReturn(link);
-        when(verificationContext.getLinksByStepName(STEP_NAME)).thenReturn(List.of(linkMetaBlock));
-
+        when(verificationContext.getLinksBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(List.of(linkMetaBlock));
         when(step.getStepName()).thenReturn(STEP_NAME);
         when(expectedMaterialRule.getRuleType()).thenReturn(RuleType.ALLOW);
         when(step.getExpectedMaterials()).thenReturn(List.of(expectedMaterialRule));
