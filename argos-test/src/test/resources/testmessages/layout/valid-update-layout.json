@@ -33,8 +33,8 @@
                 "sourcePathPrefix": "sourcePathPrefix",
                 "destinationPathPrefix": "destinationPathPrefix",
                 "destinationType": "PRODUCTS",
-                "destinationStepName": "destinationStepName",
-                "destinationSegmentName": "segment 1"
+                "destinationSegmentName": "segment 1",
+                "destinationStepName": "destinationStepName"
               },
               {
                 "ruleType": "CREATE",
