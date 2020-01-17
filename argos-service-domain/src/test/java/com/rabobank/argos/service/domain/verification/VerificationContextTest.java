@@ -92,15 +92,6 @@ class VerificationContextTest {
         assertThat(error.getMessage(), Is.is("step with name: incorrect could not be found"));
     }
 
-    @Test
-    void getStepByStepNameWithInValidStepReturnsException() {
-        assertThat(verificationContext.getLinksByStepName("incorrect"), empty());
-    }
-
-    @Test
-    void getLinksByStepName() {
-        assertThat(verificationContext.getLinksByStepName(STEP_NAME).get(0), sameInstance(linkMetaBlocks.get(0)));
-    }
 
     @Test
     void getStepByStepName() {
@@ -111,6 +102,5 @@ class VerificationContextTest {
     void removeLinkMetaBlocks() {
         verificationContext.removeLinkMetaBlocks(List.of(linkMetaBlocks.get(0)));
         assertThat(verificationContext.getLinkMetaBlocks(), empty());
-        assertThat(verificationContext.getLinksByStepName(STEP_NAME), empty());
     }
 }

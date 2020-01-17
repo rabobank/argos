@@ -42,7 +42,6 @@ public class VerificationContext {
     private final List<LinkMetaBlock> originalLinkMetaBlocks;
     @Getter
     private final LayoutMetaBlock layoutMetaBlock;
-    private final Map<String, List<LinkMetaBlock>> linksByStepName;
     private final Map<String, List<LinkMetaBlock>> originalLinksByStepName;
     private Map<String, Map<String, Step>> stepBySegmentNameAndStepName = new HashMap<>();
     private Map<String, Map<String, List<LinkMetaBlock>>> linksBySegmentNameAndStepName = new HashMap<>();
@@ -53,7 +52,6 @@ public class VerificationContext {
         this.linkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.originalLinkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.layoutMetaBlock = layoutMetaBlock;
-        linksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
         originalLinksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
 
         layoutMetaBlock
@@ -78,24 +76,18 @@ public class VerificationContext {
 
     }
 
-
     public List<LayoutSegment> layoutSegments() {
         return layoutMetaBlock
                 .getLayout()
                 .getLayoutSegments();
     }
 
-    public List<LinkMetaBlock> getLinksByStepName(String stepName) {
-        return linksByStepName.getOrDefault(stepName, emptyList());
-    }
-
     public List<LinkMetaBlock> getOriginalLinksByStepName(String stepName) {
-        return linksByStepName.getOrDefault(stepName, emptyList());
+        return originalLinksByStepName.getOrDefault(stepName, emptyList());
     }
 
     public void removeLinkMetaBlocks(List<LinkMetaBlock> linkMetaBlocksToRemove) {
         linkMetaBlocks.removeAll(linkMetaBlocksToRemove);
-        linksByStepName.values().forEach(blocks -> blocks.removeAll(linkMetaBlocksToRemove));
         linksBySegmentNameAndStepName.entrySet()
                 .forEach(stringMapEntry -> stringMapEntry.getValue()
                         .entrySet().forEach(stringListEntry -> stringListEntry
