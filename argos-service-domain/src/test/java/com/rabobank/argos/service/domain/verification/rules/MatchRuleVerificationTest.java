@@ -156,6 +156,7 @@ class MatchRuleVerificationTest {
 
         when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
         when(matchRule.getDestinationStepName()).thenReturn(DESTINATION_STEP_NAME);
+        when(matchRule.getDestinationSegmentName()).thenReturn(DESTINATION_SEGMENTNAME);
         when(verificationContext.getOriginalLinksBySegmentNameAndStepName(DESTINATION_SEGMENTNAME, DESTINATION_STEP_NAME))
                 .thenReturn(List.of(destinationLinkMetaBlock));
         when(context.getVerificationContext()).thenReturn(verificationContext);
