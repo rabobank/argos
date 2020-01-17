@@ -49,7 +49,8 @@
                 "ruleType": "MATCH",
                 "pattern": "target/argos-test-app.war",
                 "destinationType": "PRODUCTS",
-                "destinationStepName": "build"
+                "destinationStepName": "build",
+                "destinationSegmentName": "segment 1"
               },
               {
                 "ruleType": "ALLOW",

@@ -52,17 +52,14 @@ public class VerificationContext {
         this.originalLinkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.layoutMetaBlock = layoutMetaBlock;
         originalLinksByStepName = linkMetaBlocks.stream().collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName()));
-
         layoutMetaBlock
                 .getLayout()
-                .getLayoutSegments().forEach(segment -> {
-            stepBySegmentNameAndStepName
-                    .put(segment.getName(), new HashMap<>());
-            segment.getSteps()
-                    .forEach(step -> stepBySegmentNameAndStepName
+                .getLayoutSegments()
+                .forEach(segment -> {
+                    stepBySegmentNameAndStepName.put(segment.getName(), new HashMap<>());
+                    segment.getSteps().forEach(step -> stepBySegmentNameAndStepName
                             .get(segment.getName())
                             .put(step.getStepName(), step));
-
         });
 
         linksBySegmentNameAndStepName = this.linkMetaBlocks.stream()

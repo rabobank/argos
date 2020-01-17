@@ -49,7 +49,8 @@
                 "destinationType": "PRODUCTS",
                 "destinationStepName": "build",
                 "sourcePathPrefix": "",
-                "destinationPathPrefix": "target/"
+                "destinationPathPrefix": "target/",
+                "destinationSegmentName": "segment 1"
               }
             ],
             "expectedProducts": [
@@ -59,7 +60,8 @@
                 "destinationType": "MATERIALS",
                 "destinationStepName": "build",
                 "sourcePathPrefix": "source/",
-                "destinationPathPrefix": ""
+                "destinationPathPrefix": "",
+                "destinationSegmentName": "segment 1"
               }
             ]
           }

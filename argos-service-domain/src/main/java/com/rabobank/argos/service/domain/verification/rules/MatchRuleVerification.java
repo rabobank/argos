@@ -53,6 +53,7 @@ public class MatchRuleVerification implements RuleVerification {
 
     private RuleVerificationResult verify(RuleVerificationContext<? extends Rule> context, Stream<Artifact> filteredSourceArtifacts) {
         MatchRule rule = context.getRule();
+        //context.
         List<LinkMetaBlock> linksByStepName = context.getVerificationContext().getOriginalLinksByStepName(rule.getDestinationStepName());
         if (!linksByStepName.isEmpty()) {
             if (rule.getDestinationType() == PRODUCTS) {
