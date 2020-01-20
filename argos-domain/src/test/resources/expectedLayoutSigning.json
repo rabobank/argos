@@ -32,6 +32,7 @@
             },
             {
               "destinationPathPrefix": "destinationPathPrefix",
+              "destinationSegmentName": "segment 1",
               "destinationStepName": "destinationStepName",
               "destinationType": "MATERIALS",
               "pattern": "MatchRule",

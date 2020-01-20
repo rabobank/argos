@@ -59,7 +59,6 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets = processMatchFilters(layoutMetaBlock, productsToVerify);
         log.info("processMatchFilters resulted in: {} possible verificationContexts", resolvedSegmentsWithLinkSets.linkSets.size());
         //processMatchRules(layoutMetaBlock,resolvedSegmentsWithLinkSets);
-
         return resolvedSegmentsWithLinkSets
                 .getLinkSets()
                 .stream()

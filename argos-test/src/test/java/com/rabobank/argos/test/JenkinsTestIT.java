@@ -85,8 +85,6 @@ public class JenkinsTestIT {
         clearDatabase();
         RestSupplyChainItem restSupplyChainItem = getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
         this.supplyChainId = restSupplyChainItem.getId();
-
-
         RestKeyPair restKeyPair = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair1.json"), RestKeyPair.class);
         keyId = restKeyPair.getKeyId();
         getKeyApi().storeKey(restKeyPair);

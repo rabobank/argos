@@ -76,7 +76,8 @@
                 "sourcePathPrefix": "sourcePathPrefix",
                 "destinationPathPrefix": "destinationPathPrefix",
                 "destinationType": "MATERIALS",
-                "destinationStepName": "build segment 1"
+                "destinationStepName": "build segment 1",
+                "destinationSegmentName": "segment 1"
               },
               {
                 "ruleType": "DISALLOW",
@@ -94,7 +95,8 @@
                 "sourcePathPrefix": "",
                 "destinationPathPrefix": "target/",
                 "destinationType": "PRODUCTS",
-                "destinationStepName": "build segment 1"
+                "destinationStepName": "build segment 1",
+                "destinationSegmentName": "segment 1"
               },
               {
                 "ruleType": "REQUIRE",
@@ -170,7 +172,8 @@
                 "sourcePathPrefix": "sourcePathPrefix",
                 "destinationPathPrefix": "destinationPathPrefix",
                 "destinationType": "MATERIALS",
-                "destinationStepName": "build segment 2"
+                "destinationStepName": "build segment 2",
+                "destinationSegmentName": "segment 2"
               },
               {
                 "ruleType": "DISALLOW",
@@ -188,7 +191,8 @@
                 "sourcePathPrefix": "",
                 "destinationPathPrefix": "target/",
                 "destinationType": "PRODUCTS",
-                "destinationStepName": "build segment 2"
+                "destinationStepName": "build segment 2",
+                "destinationSegmentName": "segment 2"
               },
               {
                 "ruleType": "REQUIRE",

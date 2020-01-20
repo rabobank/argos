@@ -41,7 +41,8 @@
                   "sourcePathPrefix": "sourcePathPrefix",
                   "destinationPathPrefix": "destinationPathPrefix",
                   "destinationType": "PRODUCTS",
-                  "destinationStepName": "destinationStepName"
+                  "destinationStepName": "destinationStepName",
+                  "destinationSegmentName": "segment 1"
                 },
                 {
                   "ruleType": "CREATE",
@@ -79,7 +80,9 @@
                   "sourcePathPrefix": "sourcePathPrefix",
                   "destinationPathPrefix": "destinationPathPrefix",
                   "destinationType": "MATERIALS",
+                  "destinationSegmentName": "segment 1",
                   "destinationStepName": "destinationStepName"
+
                 }
               ],
               "expectedProducts": [

@@ -74,7 +74,8 @@
                 "sourcePathPrefix": "sourcePathPrefix",
                 "destinationPathPrefix": "destinationPathPrefix",
                 "destinationType": "MATERIALS",
-                "destinationStepName": "build"
+                "destinationStepName": "build",
+                "destinationSegmentName": "segment 1"
               },
               {
                 "ruleType": "DISALLOW",
@@ -92,7 +93,8 @@
                 "sourcePathPrefix": "",
                 "destinationPathPrefix": "target/",
                 "destinationType": "PRODUCTS",
-                "destinationStepName": "build"
+                "destinationStepName": "build",
+                "destinationSegmentName": "segment 1"
               },
               {
                 "ruleType": "REQUIRE",

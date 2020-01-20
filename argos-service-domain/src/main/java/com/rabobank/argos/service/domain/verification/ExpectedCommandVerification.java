@@ -70,7 +70,10 @@ public class ExpectedCommandVerification implements Verification {
 
     private static List<String> getExpectedCommand(VerificationContext context, LinkMetaBlock linkMetaBlock) {
         return context
-                .getStepByStepName(linkMetaBlock.getLink().getStepName())
+                .getStepBySegmentNameAndStepName(
+                        linkMetaBlock.getLink().getLayoutSegmentName(),
+                        linkMetaBlock.getLink().getStepName()
+                )
                 .getExpectedCommand();
     }
 }
