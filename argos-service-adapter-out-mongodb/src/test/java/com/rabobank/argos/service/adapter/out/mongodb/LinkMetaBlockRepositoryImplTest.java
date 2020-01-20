@@ -119,6 +119,17 @@ class LinkMetaBlockRepositoryImplTest {
     }
 
     @Test
+    void findByRunId() {
+        when(template.find(any(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME))).thenReturn(singletonList(linkMetaBlock));
+        List<LinkMetaBlock> blocks = repository.findByRunId(SUPPLY_CHAIN_ID, "layoutSegmentName", "runId", singletonList("resolvedStep"));
+        assertThat(blocks, hasSize(1));
+        assertThat(blocks.get(0), sameInstance(linkMetaBlock));
+        verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION_NAME));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"link.runId\" : \"runId\", \"link.layoutSegmentName\" : \"layoutSegmentName\", \"link.stepName\" : { \"$nin\" : [\"resolvedStep\"]}}, Fields: {}, Sort: {}"));
+    }
+
+
+    @Test
     void save() {
         repository.save(link);
         verify(template).save(link, COLLECTION_NAME);

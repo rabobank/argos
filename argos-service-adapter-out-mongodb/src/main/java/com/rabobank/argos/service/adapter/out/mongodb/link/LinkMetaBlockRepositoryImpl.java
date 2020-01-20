@@ -125,4 +125,15 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
                 .andOperator(new Criteria(RUN_ID_FIELD).is(runId)));
         return template.find(query, LinkMetaBlock.class, COLLECTION);
     }
+
+    @Override
+    public List<LinkMetaBlock> findByRunId(String supplyChainId, String segmentName, String runId, List<String> resolvedSteps) {
+        Query query = new Query(new Criteria(SUPPLY_CHAIN_ID_FIELD)
+                .is(supplyChainId)
+                .and(RUN_ID_FIELD).is(runId)
+                .and(SEGMENT_NAME_FIELD).is(segmentName)
+                .and(STEP_NAME_FIELD).nin(resolvedSteps)
+        );
+        return template.find(query, LinkMetaBlock.class, COLLECTION);
+    }
 }

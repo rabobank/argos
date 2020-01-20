@@ -7,6 +7,8 @@
     1. The Layouts have only 1 segment
 3. A verification request is done with a set of Artifacts
 4. The Layouts have a list of expectedEndProducts.
+5. The expectedEndProducts are from 1 segment
+6. There is a directed graph from the segment with the steps with the expected end products.
 
 ### Verify the Artifacts on the request
 
@@ -22,99 +24,113 @@ An example of a use case of a `Layout` with several `Segments`
 Every Layout is processed until one of them has a valid result.
 
 ```
-    def processLayouts
+    processLayouts
         artifacts = request.artifacts
         for every Layout
-            result = verifyWithLayout
-            if result is valid
-                return valid
+            matchFilters = layout.matchFilters
+            resolvedSegments, linkSets = processMatchFilters(matchFilters, endProducts)
+            resolvedSegments, linkSets = processMatchRules(resolvedSegments, linkSets)
+            verificationContexts = createVerificationContexts(layout, linkSets)
+            for context in verificationContexts
+                result = processVerification(context)
+                if result is valid
+                    return valid
         return invalid
 ```
 ---
-The goal of the next phase is to get sets of Link objects of the layout segments which have matched artifacts based on the expected end product match filters and the artifacts in the verification request. The validation will proof which of these different sets has delivered a valid end product.
+The goal of `processMatchFilters` is to get sets of Link objects of the layout segments which have matched artifacts based on the `matchFilters` in the expected end products and the `artifacts` in the verification request. The validation will proof which of these different sets has delivered a valid end product.
 
-The clients should set a runId which is as unique as possible. This runId is used to get all Link objects made during a run and is a performance optimization but also necessary to get Link objects on steps or group of steps which don't have any reference to other steps.
+The clients should set a runId which is as unique as possible. This runId is used to get all Link objects for steps which aren't a destination of a match filter or rule made during a run.
 
 ```
-    def verifyWithLayout
-        for every segment with matched artifacts in filters on expectedEndProducts
-            runIds = getRunIds
-            if runIds empty
-                continue (with next expectedEndProducts)
-            for every runId in runIds (1)
-                links = getLinksWithRunId
-                linkSegmentSets = getSegmentLinkSets
-        for every set in linkSegmentSets
-            result = processRestOfVerification
-            if result is valid
-                return result
-        return invalid
+    processMatchFilters(matchFilters, artifacts)
+        map = {}
+        map = filter(matchFilters, artifacts)
+        return getLinks(destSegment, map, [[]])
+                
+    filter(matchFilters, artifacts)
+        map = {}
+        for filter in matchFilters
+            map[filter.destStep] = { "destType": filter.destType, artifacts: match(filter.pattern, artifacts)}
+        return map
 ```
 1. It is possible that the same end products are available in more than 1 different run of the supply chain with different runId's. For example if the run is only different in a disjunct part of all end products or if runs are not complete. Every runId with it's run should be checked on validity.
 
 ![several rule id's](images/several_ruleids.png)
 
 ---
-The next phase `getRunIds` has the following possible outcomes:
-1. `|runIds| = 0` -> result is invalid
-2. `|runIds| >= 1` -> every runId should be verified
+The next phase `processMatchRules` gets the not resolved upstream segments based on the `matchRules`
 
 ```
-    def getRunIds
-        runIds = []
-        notMatchedArtifacts = artifacts
-        stepsWithmatched = {}
-        for every matchrule in expectedEndproduct
-            matchedArtifacts, notMatchedArtifacts = matchrule.verify(notMatchedArtifacts)
-            stepsWithmatched[matchrule.step] = matchedArtifacts
-        if notMatchedArtifacts not empty
-            return runIds (1)
-        runIds = []
-        for every step in stepsWithmatched
-            runIds.append(runIds in  Links based on artifacts in step)
-        return ggd(runIds)
+    processMatchRules(resolvedSegments, linkSets)
+        map = {} // map with srcSegment, srcStep, matchRules
+        destSegment, map = getSegmentStepsWithMatchRules(resolvedSegments)
+        resolvedSegments.add(destSegment)
+        if no matchRules
+            return resolvedSegments, linkSets
+        for linkSet in linkSets
+            stepMap = filter(map, linkSet)
+            linkSets = getLinks(segment, map, linkSets)
+        return processMatchRules(resolvedSegments, linkSets)
+                
+    filter(map, linkSet)
+        stepMap = {}
+        for segment in map
+            for step in segment
+                for rule in matchRules
+                    stepMap[filter.destStep] = { "destType": rule.destType, artifacts: match(rule.pattern, linkSet.segment.step.type.artifacts)}
+        return stepMap
+            
+    getSegmentStepsWithMatchRules(resolvedSegments)
+        map = group matchRules in resolvedSegments by destination segment not resolved, destination step and destType
+        return first segment and map with destSteps, destTypes and matchrules entries
 ```
-1. If after processing all matchrules, there are still not-matched artifacts it means the current set of end products is not valid so continue with the next set
+---
+Some helper functions 
+
+```
+    getLinks(segment, map, linkSets)
+        resolvedSteps = []
+        // get links of dest steps in segment
+        links = []
+        for step in map
+            links.add(query(segment, step))
+            resolvedSteps.add(step)
+                
+            // get the other steps with the runIds
+            runIds = findRunIds(links)
+            newLinkSets = linkSets
+            for runId in runIds
+                runIdLinks = links
+                runIdLinks.add(query(runId, segment, resolvedSteps))
+                newLinkSets = permutate(runIdLinks, newLinkSets)
+            return newLinkSets
+            
+    permutate(links, linkSets)
+        temp = []
+        stepSets = group links by step and links.hashCode
+        for linkSet in linkSets
+            for step in stepSets
+                for stepLinkSet in step
+                    temp.add(linkSet.add(stepLinkSet))
+        return temp
+                    
+    query(segment, step)
+        return query in database links with segment and step and step.artifacts
+              
+    query(runId, segment, resolvedSteps)
+        return query in database links with runId and segment and not in resolvedSteps
+```
+
+
 
 ---
-The function `getSegmentLinkSets` will group all links per step in equal links and next a permutation will be made over the groups per step this will result in a set of set of links. If links, generated for the same step, are different, even if all have the same runId, they belong to different concrete runs and should be verified independently.
 
-![segment sets](images/segment_sets.png)
-
-This results in the following sets of link objects to verify
-
-| Segment Set | Link Sets |           |           |
-| ----------- | --------- | --------- | --------- | 
-| segmentSet1 | linkSetA1 | linkSetB1 | linkSetC1 | 
-| segmentSet2 | linkSetA1 | linkSetB1 | linkSetC2 |
-| segmentSet3 | linkSetA1 | linkSetB2 | linkSetC1 |
-| segmentSet4 | linkSetA1 | linkSetB2 | linkSetC2 |
-| segmentSet5 | linkSetA1 | linkSetB3 | linkSetC1 |
-| segmentSet6 | linkSetA1 | linkSetB3 | linkSetC2 |
+After all posible sets of links are created these are used to create verification contexts which are used to do the rest of the verification.
 
 
 ```
-    def getSegmentLinkSets
-        segmentLinkSets = []
-        for every step
-            stepLinkSets[step] = group all links on equal links
-        tempSegmentSet = []
-        for every step in stepLinkSets
-            tempSegmentSet = []
-            for every linkSet in stepLinkSets[step]
-                if segmentLinkSets is empty
-                    tempSegmentSet.append(linkSet)
-                else
-                    for set in segmentLinkSets
-                        tempSegmentSet.append(set+linkSet)
-            segmentLinkSets = tempSegmentSet
-```
-
-
-
----
-```
-    def processRestOfVerification
+    processVerification(verificationContext)
         LAYOUT_AUTHORIZED_KEYID
             verifies if the layout is signed with authorized keys 
         LAYOUT_METABLOCK_SIGNATURE

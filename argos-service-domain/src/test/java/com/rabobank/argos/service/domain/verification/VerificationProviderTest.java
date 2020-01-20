@@ -15,14 +15,8 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
-import com.rabobank.argos.domain.layout.LayoutSegment;
-import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Artifact;
-import com.rabobank.argos.domain.link.Link;
-import com.rabobank.argos.domain.link.LinkMetaBlock;
-import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,12 +27,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -47,18 +38,11 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class VerificationProviderTest {
 
-    private static final String RUN_ID = "runId";
-    private static final String SUPPLYCHAIN_ID = "supplyChainId";
-    private static final String STEPNAME = "stepName";
-    private VerificationProvider verificationProvider;
+    @Mock
+    private LayoutMetaBlock layoutMetaBlock;
 
     @Mock
-    private LinkMetaBlockRepository linkMetaBlockRepository;
-
-    @Mock
-    private RunIdResolver runIdResolver;
-
-    private List<Verification> verifications;
+    private Artifact artifact;
 
     @Mock(name = "high")
     private Verification highPrio;
@@ -67,22 +51,9 @@ class VerificationProviderTest {
     private Verification lowPrio;
 
     @Mock
-    private LayoutMetaBlock layoutMetaBlock;
+    private VerificationContext verificationContext;
 
-    @Mock
-    private Artifact artifact;
-
-    @Mock
-    private LinkMetaBlock linkMetaBlock;
-
-    @Mock
-    private Layout layout;
-
-    @Mock
-    private Step step;
-
-    @Mock
-    private Link link;
+    private List<Verification> verifications;
 
     @Mock
     private VerificationRunResult verificationRunResultLow;
@@ -90,49 +61,35 @@ class VerificationProviderTest {
     @Mock
     private VerificationRunResult verificationRunResultHigh;
 
-    @Mock
-    private VerificationContext verificationContext;
-
-    @Mock
-    private VerificationContextsProviderImpl verificationContextsProvider;
-
     @Captor
     private ArgumentCaptor<VerificationContext> verificationContextArgumentCaptor;
 
     @Mock
-    private LayoutSegment segment;
+    private VerificationContextsProvider verificationContextsProvider;
+
+    private VerificationProvider verificationProvider;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         verifications = new ArrayList<>();
-        verificationProvider = new VerificationProvider(linkMetaBlockRepository, runIdResolver, verifications, verificationContextsProvider);
+        verificationProvider = new VerificationProvider(verifications, verificationContextsProvider);
     }
 
     @Test
     void verifyShouldProduceVerificationRunResult() {
         setupMocking();
-
         when(lowPrio.verify(any(VerificationContext.class))).thenReturn(verificationRunResultLow);
         when(highPrio.verify(any(VerificationContext.class))).thenReturn(verificationRunResultHigh);
         when(verificationRunResultLow.isRunIsValid()).thenReturn(true);
         when(verificationRunResultHigh.isRunIsValid()).thenReturn(true);
-        when(verificationContext.getLayoutMetaBlock()).thenReturn(layoutMetaBlock);
-        when(verificationContext.getSegment()).thenReturn(segment);
-        when(verificationContext.getLinkMetaBlocks()).thenReturn(singletonList(linkMetaBlock));
         assertThat(verificationProvider.verifyRun(layoutMetaBlock, List.of(artifact)).isRunIsValid(), is(true));
         verify(lowPrio).verify(verificationContextArgumentCaptor.capture());
-        VerificationContext verificationContext = verificationContextArgumentCaptor.getValue();
-        assertThat(verificationContext.getLayoutMetaBlock(), sameInstance(layoutMetaBlock));
-        assertThat(verificationContext.getLinkMetaBlocks(), hasItem(linkMetaBlock));
-        assertThat(verificationContext.getSegment(), sameInstance(segment));
-
-        verify(highPrio).verify(any(VerificationContext.class));
-
     }
 
     @Test
     void verifyShouldProduceFalseVerificationRunResult() {
         setupMocking();
+        when(verificationRunResultHigh.isRunIsValid()).thenReturn(false);
         when(highPrio.verify(any(VerificationContext.class))).thenReturn(verificationRunResultHigh);
         assertThat(verificationProvider.verifyRun(layoutMetaBlock, List.of(artifact)).isRunIsValid(), is(false));
     }
@@ -140,13 +97,7 @@ class VerificationProviderTest {
     private void setupMocking() {
         when(lowPrio.getPriority()).thenReturn(Verification.Priority.BUILDSTEPS_COMPLETED);
         when(highPrio.getPriority()).thenReturn(Verification.Priority.LAYOUT_METABLOCK_SIGNATURE);
-        when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLYCHAIN_ID);
-        when(runIdResolver.getRunIdPerSegment(layoutMetaBlock, List.of(artifact)))
-                .thenReturn(List.of(RunIdsWithSegment.builder().segment(segment).runIds(Set.of(RUN_ID)).build()));
-        when(linkMetaBlockRepository.findByRunId(SUPPLYCHAIN_ID, RUN_ID)).thenReturn(List.of(linkMetaBlock));
-        when(verificationContextsProvider.calculatePossibleVerificationContexts(any(), any(), any())).thenReturn(singletonList(verificationContext));
-
-
+        when(verificationContextsProvider.createPossibleVerificationContexts(any(), any())).thenReturn(singletonList(verificationContext));
         verifications.add(lowPrio);
         verifications.add(highPrio);
         verificationProvider.init();
