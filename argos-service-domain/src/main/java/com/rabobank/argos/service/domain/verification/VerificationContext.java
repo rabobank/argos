@@ -81,6 +81,7 @@ public class VerificationContext {
                 .getOrDefault(segmentName, emptyMap())
                 .getOrDefault(stepName, emptyList());
     }
+
     public void removeLinkMetaBlocks(List<LinkMetaBlock> linkMetaBlocksToRemove) {
         linkMetaBlocks.removeAll(linkMetaBlocksToRemove);
         linksBySegmentNameAndStepName.forEach((segmentName, stepNames) -> stepNames
