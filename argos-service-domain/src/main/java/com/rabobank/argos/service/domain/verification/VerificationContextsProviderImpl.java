@@ -71,7 +71,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
 
     private ResolvedSegmentsWithLinkSets processMatchFilters(LayoutMetaBlock layoutMetaBlock, List<Artifact> endProducts) {
 
-        FilteredArtifacts filteredArtifacts = filter(layoutMetaBlock.expectedEndProducts(), endProducts);
+        Map<String, Map<DestinationType, List<Artifact>>> filteredArtifacts = filterEndproductsByStepAndDestinationType(layoutMetaBlock.expectedEndProducts(), endProducts);
 
         GetLinkParameters getLinkParameters = GetLinkParameters
                 .builder()
@@ -90,7 +90,6 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         Set<LinkMetaBlock> links = new HashSet<>();
         getLinkParameters
                 .getFilteredArtifacts()
-                .getFilteredArtifactsByStepNameByDestinationType()
                 .forEach((stepName, destinationTypes) -> {
                     destinationTypes.forEach((destinationType, artifacts) ->
                             links.addAll(queryByArtifacts(getLinkParameters.supplyChainId(),
@@ -102,8 +101,20 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                     resolvedSteps.add(stepName);
                 });
 
-        getLinkParameters.getResolvedSegments().add(getLinkParameters.destinationSegmentName());
         Set<Set<LinkMetaBlock>> resolvedLinkSets = new HashSet<>(getLinkParameters.getLinkSets());
+
+        Set<LinkMetaBlock> newLinkSetByRunId = getLinksForRemainingStepsByRunId(getLinkParameters, resolvedSteps, links);
+
+        resolvedLinkSets = permutate(newLinkSetByRunId, resolvedLinkSets);
+
+        return ResolvedSegmentsWithLinkSets
+                .builder()
+                .linkSets(resolvedLinkSets)
+                .resolvedSegments(List.of(getLinkParameters.destinationSegmentName()))
+                .build();
+    }
+
+    private Set<LinkMetaBlock> getLinksForRemainingStepsByRunId(GetLinkParameters getLinkParameters, List<String> resolvedSteps, Set<LinkMetaBlock> links) {
         Set<LinkMetaBlock> newLinkSetByRunId = new HashSet<>(links);
         Set<String> runIds = findRunIds(links);
         runIds.forEach(runId ->
@@ -111,12 +122,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                         getLinkParameters.destinationSegmentName(),
                         resolvedSteps))
         );
-        resolvedLinkSets = permutate(newLinkSetByRunId, resolvedLinkSets);
-        return ResolvedSegmentsWithLinkSets
-                .builder()
-                .linkSets(resolvedLinkSets)
-                .resolvedSegments(getLinkParameters.getResolvedSegments())
-                .build();
+        return newLinkSetByRunId;
     }
 
     private Set<Set<LinkMetaBlock>> permutate(Set<LinkMetaBlock> newLinkSet, Set<Set<LinkMetaBlock>> resolvedLinkSets) {
@@ -265,7 +271,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         return new HashSet<>(linkMetaBlockRepository.findByRunId(supplyChainId, destinationSegmentName, runId, resolvedSteps));
     }
 
-    private FilteredArtifacts filter(List<MatchFilter> matchFilters, List<Artifact> endProducts) {
+    private Map<String, Map<DestinationType, List<Artifact>>> filterEndproductsByStepAndDestinationType(List<MatchFilter> matchFilters, List<Artifact> endProducts) {
 
         Map<String, Map<DestinationType, List<Artifact>>> filteredArtifactsByStepNameByDestinationType = new HashMap<>();
         Map<String, Map<DestinationType, List<MatchFilter>>> matchFiltersByStepNameByDestinationType = matchFilters
@@ -289,13 +295,8 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                     );
                 }
         );
-
-        return FilteredArtifacts.builder()
-                .filteredArtifactsByStepNameByDestinationType(filteredArtifactsByStepNameByDestinationType)
-                .build();
+        return filteredArtifactsByStepNameByDestinationType;
     }
-
-
     @Data
     @Builder
     private static class ResolvedSegmentsWithLinkSets {
@@ -304,17 +305,12 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         private Set<Set<LinkMetaBlock>> linkSets;
     }
 
-    @Builder
-    @Getter
-    private static class FilteredArtifacts {
-        private final Map<String, Map<DestinationType, List<Artifact>>> filteredArtifactsByStepNameByDestinationType;
-    }
 
     @Builder
     @Getter
     private static class GetLinkParameters {
         private final LayoutMetaBlock layoutMetaBlock;
-        private final FilteredArtifacts filteredArtifacts;
+        private final Map<String, Map<DestinationType, List<Artifact>>> filteredArtifacts;
         private final List<String> resolvedSegments;
         private final Set<Set<LinkMetaBlock>> linkSets;
 
