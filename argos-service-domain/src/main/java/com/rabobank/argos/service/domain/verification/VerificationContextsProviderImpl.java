@@ -18,6 +18,7 @@ package com.rabobank.argos.service.domain.verification;
 import com.rabobank.argos.domain.layout.DestinationType;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.MatchFilter;
+import com.rabobank.argos.domain.layout.rule.MatchRule;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
@@ -43,7 +44,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.rabobank.argos.domain.layout.DestinationType.PRODUCTS;
 import static com.rabobank.argos.service.domain.verification.ArtifactMatcher.matches;
+import static com.rabobank.argos.service.domain.verification.rules.RuleVerificationContext.filterArtifacts;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -58,7 +61,9 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
 
         ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets = processMatchFilters(layoutMetaBlock, productsToVerify);
         log.info("processMatchFilters resulted in: {} possible verificationContexts", resolvedSegmentsWithLinkSets.linkSets.size());
-        //processMatchRules(layoutMetaBlock,resolvedSegmentsWithLinkSets);
+        if (!layoutMetaBlock.allLayoutSegmentsAreResolved(resolvedSegmentsWithLinkSets.getResolvedSegments())) {
+            processMatchRules(layoutMetaBlock, resolvedSegmentsWithLinkSets);
+        }
         return resolvedSegmentsWithLinkSets
                 .getLinkSets()
                 .stream()
@@ -66,6 +71,121 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                         .builder()
                         .layoutMetaBlock(layoutMetaBlock)
                         .linkMetaBlocks(new ArrayList<>(linkSet)).build())
+                .collect(Collectors.toList());
+    }
+
+    private ResolvedSegmentsWithLinkSets processMatchRules(LayoutMetaBlock layoutMetaBlock, ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets) {
+        Map<String, Map<String, Map<DestinationType, List<MatchRuleWithSourceType>>>> matchRulesGrouped =
+                createMatchRulesBySegmentNameStepNameAndDestinationType(layoutMetaBlock, resolvedSegmentsWithLinkSets);
+
+        if (!matchRulesGrouped.isEmpty()) {
+            for (Set<LinkMetaBlock> linkSet : resolvedSegmentsWithLinkSets
+                    .getLinkSets()) {
+                matchRulesGrouped
+                        .forEach((segmentName, byStepName) -> byStepName
+                                .forEach((stepName, byDestinationType) -> byDestinationType
+                                        .forEach((destinationType, matchRuleWithSourceTypes) -> matchRuleWithSourceTypes
+                                                //add SOURCE artifacts to MatchRuleWithSourceType for each linkSet
+                                                .forEach(matchRuleWithSourceType ->
+                                                        matchRuleWithSourceType.resolveArtifacts(linkSet)
+                                                ))));
+
+                //now search for link files with the SOURCE artifacts in the  destination segment for the first unresolved destination segment
+                Map<String, Map<DestinationType, List<MatchRuleWithSourceType>>> firstMatchRule = matchRulesGrouped.values().iterator().next();
+                ResolvedSegmentsWithLinkSets updatedSegmentsWithLinkSets = getLinksForMatchRules(layoutMetaBlock, resolvedSegmentsWithLinkSets, firstMatchRule);
+                processMatchRules(layoutMetaBlock, updatedSegmentsWithLinkSets);
+            }
+        }
+        return resolvedSegmentsWithLinkSets;
+    }
+
+    private ResolvedSegmentsWithLinkSets getLinksForMatchRules(LayoutMetaBlock layoutMetaBlock, ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets, Map<String, Map<DestinationType, List<MatchRuleWithSourceType>>> firstMatchRule) {
+        Map<String, Map<DestinationType, List<Artifact>>> filteredArtifacts = new HashMap<>();
+        firstMatchRule.forEach((stepName, destinationTypeMap) -> {
+            filteredArtifacts.put(stepName, new HashMap<>());
+            destinationTypeMap
+                    .forEach((destinationType, matchRuleWithSourceTypes) -> {
+                        List<Artifact> artifacts = matchRuleWithSourceTypes.stream()
+                                .flatMap(matchRuleWithSourceType -> matchRuleWithSourceType.getResolvedArtifacts().stream())
+                                .collect(Collectors.toList());
+                        filteredArtifacts.get(stepName).put(destinationType, artifacts);
+                    });
+        });
+
+        GetLinkParameters getLinkParameters = GetLinkParameters
+                .builder()
+                .layoutMetaBlock(layoutMetaBlock)
+                .linkSets(resolvedSegmentsWithLinkSets.getLinkSets())
+                .filteredArtifacts(filteredArtifacts)
+                .resolvedSegments(resolvedSegmentsWithLinkSets.getResolvedSegments())
+                .build();
+
+        return getLinks(getLinkParameters);
+    }
+
+    private Map<String, Map<String, Map<DestinationType, List<MatchRuleWithSourceType>>>> createMatchRulesBySegmentNameStepNameAndDestinationType(LayoutMetaBlock layoutMetaBlock, ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets) {
+        List<MatchRuleWithSourceType> matchRules = productMatchRulesForUnResolvedSegments(layoutMetaBlock, resolvedSegmentsWithLinkSets.getResolvedSegments());
+        List<MatchRuleWithSourceType> matchRulesForMaterials = materialMatchRulesForUnResolvedSegments(layoutMetaBlock, resolvedSegmentsWithLinkSets.getResolvedSegments());
+        matchRules.addAll(matchRulesForMaterials);
+        return matchRules.stream()
+                .collect(groupingBy(m -> m.getMatchRule().getDestinationSegmentName(),
+                        groupingBy(m -> m.getMatchRule().getDestinationStepName(),
+                                groupingBy(m -> m.getMatchRule().getDestinationType()))));
+    }
+
+    private List<MatchRuleWithSourceType> productMatchRulesForUnResolvedSegments(LayoutMetaBlock layoutMetaBlock, List<String> resolvedSegments) {
+        List<MatchRuleWithSourceType> rules4Products = new ArrayList<>();
+        layoutMetaBlock.getLayout().getLayoutSegments()
+                .stream()
+                .filter(layoutSegment -> resolvedSegments.contains(layoutSegment.getName()))
+                .forEach(
+                        segment -> segment.getSteps()
+                                .forEach(step -> rules4Products.addAll(
+                                        step
+                                                .getExpectedProducts()
+                                                .stream()
+                                                .filter(rule -> rule instanceof MatchRule)
+                                                .map(rule -> ((MatchRule) rule))
+                                                .map(rule -> MatchRuleWithSourceType.builder()
+                                                        .matchRule(rule)
+                                                        .sourceType(PRODUCTS)
+                                                        .sourceSegmentName(segment.getName())
+                                                        .sourceStepName(step.getStepName())
+                                                        .build())
+                                                .collect(Collectors.toList()))
+                                )
+                );
+        //resolvedSegments filtered by destination segment not resolved
+        return rules4Products.stream()
+                .filter(m -> !resolvedSegments.contains(m.getMatchRule().getDestinationSegmentName()))
+                .collect(Collectors.toList());
+    }
+
+    private List<MatchRuleWithSourceType> materialMatchRulesForUnResolvedSegments(LayoutMetaBlock layoutMetaBlock, List<String> resolvedSegments) {
+        List<MatchRuleWithSourceType> rules4Materials = new ArrayList<>();
+        layoutMetaBlock.getLayout().getLayoutSegments()
+                .stream()
+                .filter(layoutSegment -> resolvedSegments.contains(layoutSegment.getName()))
+                .forEach(
+                        segment -> segment.getSteps()
+                                .forEach(step -> rules4Materials.addAll(
+                                        step
+                                                .getExpectedMaterials()
+                                                .stream()
+                                                .filter(rule -> rule instanceof MatchRule)
+                                                .map(rule -> ((MatchRule) rule))
+                                                .map(rule -> MatchRuleWithSourceType.builder()
+                                                        .matchRule(rule)
+                                                        .sourceType(PRODUCTS)
+                                                        .sourceSegmentName(segment.getName())
+                                                        .sourceStepName(step.getStepName())
+                                                        .build())
+                                                .collect(Collectors.toList()))
+                                )
+                );
+        //resolvedSegments filtered by destination segment not resolved
+        return rules4Materials.stream()
+                .filter(m -> !resolvedSegments.contains(m.getMatchRule().getDestinationSegmentName()))
                 .collect(Collectors.toList());
     }
 
@@ -105,12 +225,14 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
 
         Set<LinkMetaBlock> newLinkSetByRunId = getLinksForRemainingStepsByRunId(getLinkParameters, resolvedSteps, links);
 
-        resolvedLinkSets = permutate(newLinkSetByRunId, resolvedLinkSets);
+        Set<Set<LinkMetaBlock>> updatedResolvedLinkSets = permutate(newLinkSetByRunId, resolvedLinkSets);
 
         return ResolvedSegmentsWithLinkSets
                 .builder()
-                .linkSets(resolvedLinkSets)
-                .resolvedSegments(List.of(getLinkParameters.destinationSegmentName()))
+                .linkSets(updatedResolvedLinkSets)
+                .resolvedSegments(getLinkParameters.getResolvedSegments())
+                //this adds the newly resolved segment to the list
+                .resolvedSegment(getLinkParameters.destinationSegmentName())
                 .build();
     }
 
@@ -126,16 +248,11 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
     }
 
     private Set<Set<LinkMetaBlock>> permutate(Set<LinkMetaBlock> newLinkSet, Set<Set<LinkMetaBlock>> resolvedLinkSets) {
-        Set<Set<LinkMetaBlock>> temporaryLinkSet = new HashSet<>();
         Set<Set<LinkMetaBlock>> possibleNewLinkSets = permutateNewLinkSet(newLinkSet);
         if (!resolvedLinkSets.isEmpty()) {
             resolvedLinkSets.forEach(linkSet ->
-                    possibleNewLinkSets.forEach(l -> {
-                        Set<Set<LinkMetaBlock>> clonedResolvedLinkSets = new HashSet<>(resolvedLinkSets);
-                        clonedResolvedLinkSets.add(l);
-                        temporaryLinkSet.addAll(clonedResolvedLinkSets);
-                    }));
-            return temporaryLinkSet;
+                    possibleNewLinkSets.forEach(linkSet::addAll));
+            return new HashSet<>(resolvedLinkSets);
         } else {
             return possibleNewLinkSets;
         }
@@ -240,7 +357,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                                                 String stepName, DestinationType destinationType,
                                                 List<Artifact> filteredArtifacts) {
         if (!filteredArtifacts.isEmpty()) {
-            if (DestinationType.PRODUCTS == destinationType) {
+            if (PRODUCTS == destinationType) {
                 return new HashSet<>(linkMetaBlockRepository
                         .findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(
                                 supplyChainId,
@@ -297,14 +414,46 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         );
         return filteredArtifactsByStepNameByDestinationType;
     }
+
     @Data
     @Builder
     private static class ResolvedSegmentsWithLinkSets {
         @Singular
         private List<String> resolvedSegments;
         private Set<Set<LinkMetaBlock>> linkSets;
+
     }
 
+    @Data
+    @Builder
+    private static class MatchRuleWithSourceType {
+        private String sourceStepName;
+        private String sourceSegmentName;
+        private MatchRule matchRule;
+        private DestinationType sourceType;
+        private Set<Artifact> resolvedArtifacts;
+
+        void resolveArtifacts(Set<LinkMetaBlock> linkMetaBlocks) {
+
+            List<LinkMetaBlock> sourceLinks = linkMetaBlocks
+                    .stream()
+                    .filter(linkMetaBlock -> linkMetaBlock.getLink().getLayoutSegmentName().equals(sourceSegmentName)
+                            &&
+                            linkMetaBlock.getLink().getStepName().equals(sourceStepName))
+                    .collect(Collectors.toList());
+            sourceLinks.forEach(linkMetaBlock -> {
+                List<Artifact> artifacts;
+                if (PRODUCTS == sourceType) {
+                    artifacts = linkMetaBlock.getLink().getProducts();
+                } else {
+                    artifacts = linkMetaBlock.getLink().getMaterials();
+                }
+                resolvedArtifacts = filterArtifacts(artifacts,
+                        matchRule.getPattern(),
+                        matchRule.getSourcePathPrefix()).collect(Collectors.toSet());
+            });
+        }
+    }
 
     @Builder
     @Getter
