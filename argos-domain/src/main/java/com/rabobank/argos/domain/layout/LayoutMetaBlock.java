@@ -16,11 +16,13 @@
 package com.rabobank.argos.domain.layout;
 
 import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.layout.rule.MatchRule;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.UUID.randomUUID;
 
@@ -37,7 +39,25 @@ public class LayoutMetaBlock {
 
     private Layout layout;
 
+    public Boolean allLayoutSegmentsAreResolved(List<String> resolvedSegmentNames) {
+        return layout.getLayoutSegments().size() == resolvedSegmentNames.size();
+    }
+
     public List<MatchFilter> expectedEndProducts() {
         return layout.getExpectedEndProducts();
+    }
+
+
+    public List<MatchRule> productMatchRulesForResolvedSegments(List<String> resolvedSegments) {
+        return layout.getLayoutSegments()
+                .stream()
+                .filter(layoutSegment -> resolvedSegments.contains(layoutSegment.getName()))
+                .flatMap(layoutSegment -> layoutSegment.getSteps()
+                        .stream()
+                        .map(step -> step.getExpectedProducts()
+                                .stream()
+                                .filter(rule -> rule instanceof MatchRule))
+                        .map(rule -> ((MatchRule) rule))
+                ).collect(Collectors.toList());
     }
 }
