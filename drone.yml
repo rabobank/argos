@@ -158,7 +158,8 @@ steps:
 
   - name: argos-integration-test-stub
     image: rabobanknl/argos-integration-test-stub:${DRONE_BRANCH/\//_}
-    command: --global-response-templating
+    commands:
+      - java $JAVA_OPTS -cp /var/wiremock/lib/*:/var/wiremock/extensions/* com.github.tomakehurst.wiremock.standalone.WireMockServerRunner --global-response-templating
     detach: true
     depends_on:
       - build argos integration test stub image
