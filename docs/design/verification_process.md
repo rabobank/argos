@@ -105,13 +105,21 @@ Some helper functions
                 runIdLinks.add(query(runId, segment, resolvedSteps))
                 newLinkSets = permutate(runIdLinks, newLinkSets)
             return newLinkSets
-            
+
     permutate(links, linkSets)
         temp = []
-        stepSets = group links by step and links.hashCode
-        for linkSet in linkSets
-            for step in stepSets
-                for stepLinkSet in step
+        segmentLinkSets = permutateOnSegment(links)
+        for segmentLinkSet in segmentLinkSets
+            for linkSet in linkSets
+                temp.add(linkSet.add(segmentLinkSet))
+        return temp
+            
+    permutateOnSegment(links)
+        temp = [[]]
+        stepSets = group links by step and links
+        for step in stepSets
+            for stepLinkSet in step
+                for linkSet in temp
                     temp.add(linkSet.add(stepLinkSet))
         return temp
                     
