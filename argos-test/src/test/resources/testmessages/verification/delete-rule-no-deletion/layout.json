@@ -18,7 +18,7 @@
           {
             "name": "build",
             "authorizedKeyIds": [
-              "56c7d930998b6039a925d5dee95f1349f53fc51e9bcdfcd7d50ecb58a9201a12"
+              "b91bec49e7aaaeeda162970c03193baef561c10337483a8bc0741d514dc63b9c"
             ],
             "requiredNumberOfLinks": 1,
             "expectedCommand": [

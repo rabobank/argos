@@ -27,6 +27,7 @@
     <properties>
         <swagger-ui.version>3.24.3</swagger-ui.version>
         <sonar.skip>true</sonar.skip>
+        <bouncycastle.version>1.64</bouncycastle.version>
     </properties>
 
     <artifactId>argos-integration-test-service</artifactId>
@@ -69,6 +70,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency>
+        <!-- bcprov: bouncycastle crypto provider -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>${bouncycastle.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openapitools</groupId>
