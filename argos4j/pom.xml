@@ -81,6 +81,7 @@
 		<jackson-datatype.version>2.10.0</jackson-datatype.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>dd-MM-yyyy HH:mm</maven.build.timestamp.format>
+		<bouncycastle.version>1.64</bouncycastle.version>
 	</properties>
 
 	<dependencies>
@@ -168,13 +169,13 @@
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk15on</artifactId>
-			<version>1.63</version>
+			<version>${bouncycastle.version}</version>
 		</dependency>
 		<!-- bcprov: bouncycastle crypto provider -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
-			<version>1.64</version>
+			<version>${bouncycastle.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
