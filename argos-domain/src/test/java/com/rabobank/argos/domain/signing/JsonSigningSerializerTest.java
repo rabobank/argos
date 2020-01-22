@@ -89,6 +89,7 @@ class JsonSigningSerializerTest {
                                                         .destinationPathPrefix("destinationPathPrefix")
                                                         .sourcePathPrefix("sourcePathPrefix")
                                                         .destinationStepName("destinationStepName")
+                                                        .destinationSegmentName("segment 1")
                                                         .destinationType(DestinationType.MATERIALS)
                                                         .build(),
                                                 new Rule(RuleType.DELETE, "DeleteRule")

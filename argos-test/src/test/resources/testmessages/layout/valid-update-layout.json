@@ -33,6 +33,7 @@
                 "sourcePathPrefix": "sourcePathPrefix",
                 "destinationPathPrefix": "destinationPathPrefix",
                 "destinationType": "PRODUCTS",
+                "destinationSegmentName": "segment 1",
                 "destinationStepName": "destinationStepName"
               },
               {

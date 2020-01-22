@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
+import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -40,6 +42,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class VerificationContextTest {
     public static final String STEP_NAME = "stepName";
+    public static final String SEGMENT_NAME = "segmentName";
     public static final Step STEP = Step.builder().stepName(STEP_NAME).build();
     private VerificationContext verificationContext;
 
@@ -49,18 +52,24 @@ class VerificationContextTest {
     private LayoutMetaBlock layoutMetaBlock;
 
     @Mock
-    private LayoutSegment segment;
+    private Layout layout;
+
+    @Mock
+    private LayoutSegment layoutSegment;
 
     @BeforeEach
     void setup() {
-        when(segment.getSteps()).thenReturn(List.of(STEP));
 
         linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
-                .builder().link(Link.builder().stepName(STEP_NAME).build()).build()));
-
+                .builder().link(Link.builder()
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .stepName(STEP_NAME).build()).build()));
+        when(layoutMetaBlock.getLayout()).thenReturn(layout);
+        when(layout.getLayoutSegments()).thenReturn(Collections.singletonList(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(Collections.singletonList(STEP));
+        when(layoutSegment.getName()).thenReturn(SEGMENT_NAME);
         verificationContext = VerificationContext
                 .builder()
-                .segment(segment)
                 .layoutMetaBlock(layoutMetaBlock)
                 .linkMetaBlocks(linkMetaBlocks)
                 .build();
@@ -73,35 +82,25 @@ class VerificationContextTest {
 
     @Test
     void getStepByStepNameWithValidStepReturnsResult() {
-        Step step = verificationContext.getStepByStepName(STEP_NAME);
+        Step step = verificationContext.getStepBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME);
         assertThat(step.getStepName(), is(STEP_NAME));
     }
 
     @Test
     void getLinksByStepNameWithInValidStepReturnsException() {
-        VerificationError error = assertThrows(VerificationError.class, () -> verificationContext.getStepByStepName("incorrect"));
+        VerificationError error = assertThrows(VerificationError.class, () -> verificationContext.getStepBySegmentNameAndStepName(SEGMENT_NAME, "incorrect"));
         assertThat(error.getMessage(), Is.is("step with name: incorrect could not be found"));
     }
 
-    @Test
-    void getStepByStepNameWithInValidStepReturnsException() {
-        assertThat(verificationContext.getLinksByStepName("incorrect"), empty());
-    }
-
-    @Test
-    void getLinksByStepName() {
-        assertThat(verificationContext.getLinksByStepName(STEP_NAME).get(0), sameInstance(linkMetaBlocks.get(0)));
-    }
 
     @Test
     void getStepByStepName() {
-        assertThat(verificationContext.getStepByStepName(STEP_NAME), sameInstance(STEP));
+        assertThat(verificationContext.getStepBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME), sameInstance(STEP));
     }
 
     @Test
     void removeLinkMetaBlocks() {
         verificationContext.removeLinkMetaBlocks(List.of(linkMetaBlocks.get(0)));
         assertThat(verificationContext.getLinkMetaBlocks(), empty());
-        assertThat(verificationContext.getLinksByStepName(STEP_NAME), empty());
     }
 }

@@ -31,10 +31,19 @@ import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
+import org.bouncycastle.operator.InputDecryptorProvider;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
+import org.bouncycastle.pkcs.PKCSException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.Cipher;
 import javax.crypto.EncryptedPrivateKeyInfo;
 import javax.crypto.SecretKey;
@@ -45,14 +54,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
-import java.security.Key;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
-import java.security.spec.KeySpec;
+import java.security.Security;
 import java.util.Collections;
 
 @RequestMapping("/integration-test")
@@ -69,6 +76,11 @@ public class TestITService implements IntegrationTestServiceApi {
     private final LinkMetaBlockMapper linkMetaBlockMapper;
 
     private final KeyPairRepository keyPairRepository;
+
+    @PostConstruct
+    public void init() {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     @Override
     public ResponseEntity<Void> resetDatabase() {
@@ -107,7 +119,7 @@ public class TestITService implements IntegrationTestServiceApi {
     }
 
     private PrivateKey getPrivateKey(String password, String keyId) {
-        return decryptPrivateKey(keyPairRepository.findByKeyId(keyId).orElseThrow().getEncryptedPrivateKey(), password);
+        return decryptPrivateKey(keyPairRepository.findByKeyId(keyId).orElseThrow().getEncryptedPrivateKey(), password.toCharArray());
     }
 
     private KeyPair generateKeyPair() {
@@ -156,24 +168,17 @@ public class TestITService implements IntegrationTestServiceApi {
         }
     }
 
-    private static PrivateKey decryptPrivateKey(byte[] encodedPrivateKey, String secret) {
+    private static PrivateKey decryptPrivateKey(byte[] encodedPrivateKey, char[] keyPassphrase) {
         try {
-            EncryptedPrivateKeyInfo encryptPKInfo = new EncryptedPrivateKeyInfo(encodedPrivateKey);
-            Cipher cipher = Cipher.getInstance(PBE_WITH_SHA_1_AND_DE_SEDE);
-            PBEKeySpec pbeKeySpec = new PBEKeySpec(secret.toCharArray());
-            SecretKeyFactory secretFactory = SecretKeyFactory.getInstance(PBE_WITH_SHA_1_AND_DE_SEDE);
-            Key pbeKey = secretFactory.generateSecret(pbeKeySpec);
-            AlgorithmParameters algorithmParameters = encryptPKInfo.getAlgParameters();
-            cipher.init(Cipher.DECRYPT_MODE, pbeKey, algorithmParameters);
-            KeySpec pkcsKeySpec = encryptPKInfo.getKeySpec(cipher);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-
-            return keyFactory.generatePrivate(pkcsKeySpec);
-        } catch (GeneralSecurityException | IOException e) {
+            PKCS8EncryptedPrivateKeyInfo encPKInfo = new PKCS8EncryptedPrivateKeyInfo(encodedPrivateKey);
+            log.info("EncryptionAlgorithm : {}", encPKInfo.getEncryptionAlgorithm().getAlgorithm());
+            InputDecryptorProvider decProv = new JceOpenSSLPKCS8DecryptorProviderBuilder().setProvider("BC").build(keyPassphrase);
+            PrivateKeyInfo pkInfo = encPKInfo.decryptPrivateKeyInfo(decProv);
+            return new JcaPEMKeyConverter().setProvider("BC").getPrivateKey(pkInfo);
+        } catch (IOException | PKCSException | OperatorCreationException e) {
             throw new ArgosError(e.getMessage(), e);
         }
     }
-
 
     private String createSignature(PrivateKey privateKey, String jsonRepr) {
         try {

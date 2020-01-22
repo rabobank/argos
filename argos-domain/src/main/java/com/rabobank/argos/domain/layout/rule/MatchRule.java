@@ -28,18 +28,19 @@ public class MatchRule extends Rule {
     private String sourcePathPrefix;
     private String destinationPathPrefix;
     private DestinationType destinationType;
+    private String destinationSegmentName;
     private String destinationStepName;
 
     @Builder
     public MatchRule(String pattern, String destinationPathPrefix, String sourcePathPrefix, DestinationType destinationType,
-                     String destinationStepName) {
+                     String destinationSegmentName, String destinationStepName) {
         super(RuleType.MATCH, pattern);
         this.sourcePathPrefix = sourcePathPrefix;
         this.destinationPathPrefix = destinationPathPrefix;
         this.destinationType = destinationType;
+        this.destinationSegmentName = destinationSegmentName;
         this.destinationStepName = destinationStepName;
     }
-
 
 }
 

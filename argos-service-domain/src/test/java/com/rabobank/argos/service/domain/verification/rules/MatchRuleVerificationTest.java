@@ -41,6 +41,7 @@ import static org.mockito.Mockito.when;
 class MatchRuleVerificationTest {
 
     private static final String DESTINATION_STEP_NAME = "destinationStepName";
+    private static final String DESTINATION_SEGMENTNAME = "destinationSegmentName";
     private static final String HASH = "hash";
     private MatchRuleVerification verification;
 
@@ -155,7 +156,9 @@ class MatchRuleVerificationTest {
 
         when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
         when(matchRule.getDestinationStepName()).thenReturn(DESTINATION_STEP_NAME);
-        when(verificationContext.getOriginalLinksByStepName(DESTINATION_STEP_NAME)).thenReturn(List.of(destinationLinkMetaBlock));
+        when(matchRule.getDestinationSegmentName()).thenReturn(DESTINATION_SEGMENTNAME);
+        when(verificationContext.getOriginalLinksBySegmentNameAndStepName(DESTINATION_SEGMENTNAME, DESTINATION_STEP_NAME))
+                .thenReturn(List.of(destinationLinkMetaBlock));
         when(context.getVerificationContext()).thenReturn(verificationContext);
         RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
         assertThat(ruleVerificationResult.isValid(), is(false));
@@ -197,11 +200,12 @@ class MatchRuleVerificationTest {
         when(matchRule.getSourcePathPrefix()).thenReturn("src/");
         when(matchRule.getDestinationPathPrefix()).thenReturn("dest/");
         when(matchRule.getPattern()).thenReturn("cool.jar");
-
+        when(matchRule.getDestinationSegmentName()).thenReturn(DESTINATION_SEGMENTNAME);
         when(matchRule.getDestinationStepName()).thenReturn(DESTINATION_STEP_NAME);
 
         when(context.getVerificationContext()).thenReturn(verificationContext);
-        when(verificationContext.getOriginalLinksByStepName(DESTINATION_STEP_NAME)).thenReturn(List.of(destinationLinkMetaBlock));
+        when(verificationContext.getOriginalLinksBySegmentNameAndStepName(DESTINATION_SEGMENTNAME, DESTINATION_STEP_NAME))
+                .thenReturn(List.of(destinationLinkMetaBlock));
         when(destinationLinkMetaBlock.getLink()).thenReturn(destinationLink);
 
 

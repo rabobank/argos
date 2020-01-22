@@ -19,23 +19,29 @@ import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.Signature;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
+import org.bouncycastle.operator.InputDecryptorProvider;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
+import org.bouncycastle.pkcs.PKCSException;
 
-import javax.crypto.Cipher;
-import javax.crypto.EncryptedPrivateKeyInfo;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
-import java.security.Key;
-import java.security.KeyFactory;
 import java.security.PrivateKey;
-import java.security.spec.KeySpec;
+import java.security.Security;
 
+@Slf4j
 public class Argos4JSigner {
 
+    public Argos4JSigner() {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     public Signature sign(RestKeyPair keyPair, char[] keyPassphrase, String jsonRepresentation) {
         return Signature.builder().keyId(keyPair.getKeyId())
@@ -56,17 +62,12 @@ public class Argos4JSigner {
 
     private static PrivateKey decryptPrivateKey(byte[] encodedPrivateKey, char[] keyPassphrase) {
         try {
-            EncryptedPrivateKeyInfo encryptPKInfo = new EncryptedPrivateKeyInfo(encodedPrivateKey);
-            Cipher cipher = Cipher.getInstance(encryptPKInfo.getAlgName());
-            PBEKeySpec pbeKeySpec = new PBEKeySpec(keyPassphrase);
-            SecretKeyFactory secFac = SecretKeyFactory.getInstance(encryptPKInfo.getAlgName());
-            Key pbeKey = secFac.generateSecret(pbeKeySpec);
-            AlgorithmParameters algParams = encryptPKInfo.getAlgParameters();
-            cipher.init(Cipher.DECRYPT_MODE, pbeKey, algParams);
-            KeySpec pkcs8KeySpec = encryptPKInfo.getKeySpec(cipher);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            return kf.generatePrivate(pkcs8KeySpec);
-        } catch (GeneralSecurityException | IOException e) {
+            PKCS8EncryptedPrivateKeyInfo encPKInfo = new PKCS8EncryptedPrivateKeyInfo(encodedPrivateKey);
+            log.info("EncryptionAlgorithm : {}", encPKInfo.getEncryptionAlgorithm().getAlgorithm());
+            InputDecryptorProvider decProv = new JceOpenSSLPKCS8DecryptorProviderBuilder().setProvider("BC").build(keyPassphrase);
+            PrivateKeyInfo pkInfo = encPKInfo.decryptPrivateKeyInfo(decProv);
+            return new JcaPEMKeyConverter().setProvider("BC").getPrivateKey(pkInfo);
+        } catch (IOException | PKCSException | OperatorCreationException e) {
             throw new ArgosError(e.getMessage(), e);
         }
     }

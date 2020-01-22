@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.domain.verification.rules;
 
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
@@ -36,6 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.RULES;
@@ -65,16 +67,27 @@ public class RulesVerification implements Verification {
 
     @Override
     public VerificationRunResult verify(VerificationContext context) {
-        List<String> stepNames = context.getExpectedStepNames();
-        return stepNames.stream().map(stepName -> verifyStep(context, stepName))
-                .filter(result -> !result.isRunIsValid())
-                .findFirst().orElse(VerificationRunResult.okay());
+        List<VerificationRunResult> verificationRunResults = new ArrayList<>();
+        context.layoutSegments().forEach(segment ->
+                verificationRunResults.addAll(verifyForSegment(segment, context))
+        );
+
+        return verificationRunResults
+                .stream()
+                .filter(VerificationRunResult::isRunIsValid)
+                .findFirst().orElse(VerificationRunResult.valid(false));
     }
 
-    private VerificationRunResult verifyStep(VerificationContext context, String stepName) {
+    private List<VerificationRunResult> verifyForSegment(LayoutSegment segment, VerificationContext context) {
+        return context.getExpectedStepNamesBySegmentName(segment.getName())
+                .stream().map(stepName -> verifyStep(context, segment.getName(), stepName))
+                .collect(Collectors.toList());
+    }
+
+    private VerificationRunResult verifyStep(VerificationContext context, String segmentName, String stepName) {
         log.info("verify rules for step {}", stepName);
-        Step step = context.getStepByStepName(stepName);
-        List<LinkMetaBlock> linkMetaBlocks = context.getLinksByStepName(stepName);
+        Step step = context.getStepBySegmentNameAndStepName(segmentName, stepName);
+        List<LinkMetaBlock> linkMetaBlocks = context.getLinksBySegmentNameAndStepName(segmentName, stepName);
 
         Map<Boolean, List<LinkMetaBlock>> resultMap = linkMetaBlocks.stream()
                 .collect(groupingBy(linkMetaBlock -> verifyStep(context, step, linkMetaBlock.getLink()).isRunIsValid()));
@@ -84,18 +97,25 @@ public class RulesVerification implements Verification {
     }
 
     private VerificationRunResult verifyStep(VerificationContext context, Step step, Link link) {
-
         List<Artifact> materials = new ArrayList<>(link.getMaterials());
         List<Artifact> products = new ArrayList<>(link.getProducts());
 
         List<RuleVerificationResult> verificationResults = Stream.concat(verifyExpectedProducts(context, step, materials, products),
-                verifyExpectedMaterials(context, step, materials)).collect(toList());
+                verifyExpectedMaterials(context, step, materials)
+        ).collect(toList());
 
-        Optional<RuleVerificationResult> optionalNotValidRule = verificationResults.stream().filter(result -> !result.isValid()).findFirst();
+        Optional<RuleVerificationResult> optionalNotValidRule = verificationResults.stream()
+                .filter(result -> !result.isValid())
+                .findFirst();
 
-        return optionalNotValidRule.map(result -> VerificationRunResult.valid(result.isValid()))
-                .orElseGet(() -> verifyResultAfterAllRulesAreVerified(step, link, collectValidatedArtifacts(verificationResults)));
+        return optionalNotValidRule.map(result -> VerificationRunResult
+                .valid(result.isValid()))
+                .orElseGet(() -> verifyResultAfterAllRulesAreVerified(step,
+                        link,
+                        collectValidatedArtifacts(verificationResults))
+                );
     }
+
 
     private Set<Artifact> collectValidatedArtifacts(List<RuleVerificationResult> verificationResults) {
         return verificationResults.stream().map(RuleVerificationResult::getValidatedArtifacts).flatMap(Set::stream).collect(toSet());
@@ -154,7 +174,7 @@ public class RulesVerification implements Verification {
     }
 
     private RuleVerificationResult logRuleVerificationResult(Rule rule, RuleVerificationResult ruleVerificationResult) {
-        log.info("verify result for {} on step {} was valid: {}, number of valid artifacts {}",
+        log.info("verify result for {} was valid: {}, number of valid artifacts {}",
                 rule.getRuleType(),
                 ruleVerificationResult.isValid(),
                 ruleVerificationResult.getValidatedArtifacts().size());

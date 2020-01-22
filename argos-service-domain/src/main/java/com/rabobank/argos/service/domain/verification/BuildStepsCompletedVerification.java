@@ -15,16 +15,13 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-import com.rabobank.argos.domain.link.Link;
-import com.rabobank.argos.domain.link.LinkMetaBlock;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Set;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.BUILDSTEPS_COMPLETED;
-import static java.util.stream.Collectors.toSet;
 
 @Component
 @Slf4j
@@ -37,12 +34,18 @@ public class BuildStepsCompletedVerification implements Verification {
     @Override
     public VerificationRunResult verify(VerificationContext context) {
 
-        Set<String> linkBuildSteps = context.getLinkMetaBlocks().stream().map(LinkMetaBlock::getLink).map(Link::getStepName)
-                .collect(toSet());
-        List<String> expectedSteps = context.getExpectedStepNames();
-        log.info("linkBuildSteps: {} , expectedSteps: {}", linkBuildSteps, expectedSteps);
+        return context.layoutSegments()
+                .stream().map(segment -> verifyForSegment(segment, context))
+                .filter(verificationRunResult -> !verificationRunResult.isRunIsValid())
+                .findFirst()
+                .orElse(VerificationRunResult.okay());
+    }
+
+    private VerificationRunResult verifyForSegment(LayoutSegment segment, VerificationContext context) {
+        List<String> expectedSteps = context.getExpectedStepNamesBySegmentName(segment.getName());
+        List<String> actualStepNamesFromLinks = context.getStepNamesFromLinksBySegmentName(segment.getName());
         return VerificationRunResult.builder().runIsValid(
-                linkBuildSteps.size() == expectedSteps.size() && expectedSteps.containsAll(linkBuildSteps))
+                actualStepNamesFromLinks.size() == expectedSteps.size() && expectedSteps.containsAll(actualStepNamesFromLinks))
                 .build();
     }
 }
