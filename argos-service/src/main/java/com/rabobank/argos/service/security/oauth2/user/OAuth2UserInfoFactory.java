@@ -17,11 +17,14 @@ package com.rabobank.argos.service.security.oauth2.user;
 
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.service.domain.user.AuthenticationProvider;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OAuth2UserInfoFactory {
 
     public static OAuth2UserInfo getOAuth2UserInfo(AuthenticationProvider authenticationProvider, Map<String, Object> attributes) {

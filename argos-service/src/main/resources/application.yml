@@ -35,9 +35,9 @@ spring:
               - https://graph.microsoft.com/User.Read
         provider:
           azure:
-            authorizationUri: <replace>
-            tokenUri: <replace>
-            userInfoUri: https://graph.microsoft.com/v1.0/me
+            authorizationUri: http://localhost:8087/oauth2/v2.0/authorize
+            tokenUri: http://localhost:8087/oauth2/v2.0/token
+            userInfoUri: http://localhost:8087/v1.0/me
             user-name-attribute: displayName
 
 management:
@@ -55,7 +55,8 @@ management:
 jwt:
   token:
     expiration: PT48H
-    secret: <replace with the result of com.rabobank.argos.service.security.TokenProvider.main>
+    # replace with the result of com.rabobank.argos.service.security.TokenProvider.main
+    secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
 
 
   # After successfully authenticating with the OAuth2 Provider,

@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.user;
+package com.rabobank.argos.service.security.oauth2.user;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import com.rabobank.argos.service.domain.user.AuthenticationProvider;
+import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Collections;
 
-import static java.util.UUID.randomUUID;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 
-@Getter
-@Setter
-@Builder
-public class User {
+class OAuth2UserInfoFactoryTest {
 
-    @Builder.Default
-    private String userId = randomUUID().toString();
-    private String name;
-    private String email;
-    private AuthenticationProvider provider;
-    private String providerId;
-    private List<String> keyIds;
+    @Test
+    void getOAuth2UserInfoAzure() {
+        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(AuthenticationProvider.AZURE, Collections.emptyMap());
+        assertThat(userInfo, instanceOf(AzureOAuth2UserInfo.class));
+    }
 }

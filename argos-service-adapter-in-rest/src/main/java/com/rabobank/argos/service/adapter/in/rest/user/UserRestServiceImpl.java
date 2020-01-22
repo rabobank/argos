@@ -19,14 +19,19 @@ package com.rabobank.argos.service.adapter.in.rest.user;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestUserProfile;
 import com.rabobank.argos.service.domain.security.CurrentUser;
 import com.rabobank.argos.service.domain.security.UserPrincipal;
+import com.rabobank.argos.service.domain.user.User;
 import com.rabobank.argos.service.domain.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
@@ -38,8 +43,22 @@ public class UserRestServiceImpl {
     @GetMapping("/user/me")
     @PreAuthorize("hasRole('USER')")
     public RestUserProfile getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
-        return userRepository.findByUserId(userPrincipal.getId()).map(user ->
-                new RestUserProfile().id(user.getUserId()).name(user.getName()).email(user.getEmail()))
+        return userRepository.findByUserId(userPrincipal.getId()).map(this::convert)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "profile not found for : " + userPrincipal.getId()));
     }
+
+    @PutMapping(value = "/user/me")
+    @PreAuthorize("hasRole('USER')")
+    public RestUserProfile updateUserProfile(@CurrentUser UserPrincipal userPrincipal, @Valid @RequestBody RestUserProfile restUserProfile) {
+        return userRepository.findByUserId(userPrincipal.getId()).map(user -> {
+            user.setKeyIds(restUserProfile.getKeyIds());
+            userRepository.update(user);
+            return convert(user);
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+    }
+
+    private RestUserProfile convert(User user) {
+        return new RestUserProfile().id(user.getUserId()).name(user.getName()).email(user.getEmail()).keyIds(user.getKeyIds());
+    }
+
 }

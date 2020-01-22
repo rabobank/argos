@@ -15,8 +15,8 @@
  */
 package com.rabobank.argos.service.security;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,13 +31,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Slf4j
+@RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private TokenProvider tokenProvider;
+    private final TokenProvider tokenProvider;
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

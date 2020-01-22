@@ -17,38 +17,44 @@ package com.rabobank.argos.service.security.oauth2;
 
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.rabobank.argos.service.security.CookieHelper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class HttpCookieOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
-    public static final String OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME = "oauth2_auth_request";
-    public static final String REDIRECT_URI_PARAM_COOKIE_NAME = "redirect_uri";
-    private static final int cookieExpireSeconds = 180;
+    private static final String OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME = "oauth2_auth_request";
+    private static final String REDIRECT_URI_PARAM_COOKIE_NAME = "redirect_uri";
+    private static final int COOKIE_EXPIRE_SECONDS = 180;
+
+    private final CookieHelper cookieHelper;
 
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
-        return CookieHelper.getCookie(request, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME)
-                .map(cookie -> CookieHelper.deserialize(cookie, OAuth2AuthorizationRequest.class))
+        return cookieHelper.getCookie(request, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME)
+                .map(cookie -> cookieHelper.deserialize(cookie, OAuth2AuthorizationRequest.class))
                 .orElse(null);
     }
 
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
         if (authorizationRequest == null) {
-            CookieHelper.deleteCookie(request, response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
-            CookieHelper.deleteCookie(request, response, REDIRECT_URI_PARAM_COOKIE_NAME);
-            return;
-        }
+            cookieHelper.deleteCookie(request, response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
+            cookieHelper.deleteCookie(request, response, REDIRECT_URI_PARAM_COOKIE_NAME);
+        } else {
 
-        CookieHelper.addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, CookieHelper.serialize(authorizationRequest), cookieExpireSeconds);
-        String redirectUriAfterLogin = request.getParameter(REDIRECT_URI_PARAM_COOKIE_NAME);
-        if (StringUtils.isNotBlank(redirectUriAfterLogin)) {
-            CookieHelper.addCookie(response, REDIRECT_URI_PARAM_COOKIE_NAME, redirectUriAfterLogin, cookieExpireSeconds);
+            cookieHelper.addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, cookieHelper.serialize(authorizationRequest), COOKIE_EXPIRE_SECONDS);
+            String redirectUriAfterLogin = request.getParameter(REDIRECT_URI_PARAM_COOKIE_NAME);
+            if (StringUtils.isNotBlank(redirectUriAfterLogin)) {
+                cookieHelper.addCookie(response, REDIRECT_URI_PARAM_COOKIE_NAME, redirectUriAfterLogin, COOKIE_EXPIRE_SECONDS);
+            }
         }
     }
 
@@ -58,7 +64,12 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
     }
 
     public void removeAuthorizationRequestCookies(HttpServletRequest request, HttpServletResponse response) {
-        CookieHelper.deleteCookie(request, response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
-        CookieHelper.deleteCookie(request, response, REDIRECT_URI_PARAM_COOKIE_NAME);
+        cookieHelper.deleteCookie(request, response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
+        cookieHelper.deleteCookie(request, response, REDIRECT_URI_PARAM_COOKIE_NAME);
+    }
+
+    public Optional<String> getRedirectUri(HttpServletRequest request) {
+        return cookieHelper.getCookie(request, REDIRECT_URI_PARAM_COOKIE_NAME)
+                .map(Cookie::getValue);
     }
 }

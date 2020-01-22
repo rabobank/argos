@@ -16,7 +16,6 @@
 package com.rabobank.argos.service.security.oauth2;
 
 import com.rabobank.argos.domain.ArgosError;
-import com.rabobank.argos.service.security.CookieHelper;
 import com.rabobank.argos.service.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +24,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -34,8 +32,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.rabobank.argos.service.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
 
 @Component
 @RequiredArgsConstructor
@@ -67,8 +63,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        Optional<String> redirectUri = CookieHelper.getCookie(request, REDIRECT_URI_PARAM_COOKIE_NAME)
-                .map(Cookie::getValue);
+
+        Optional<String> redirectUri = httpCookieOAuth2AuthorizationRequestRepository.getRedirectUri(request);
 
         if (redirectUri.isPresent() && !isAuthorizedRedirectUri(redirectUri.get())) {
             throw new ArgosError("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication");

@@ -48,12 +48,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
-    private final CustomUserDetailsService customUserDetailsService;
+    private final CookieHelper cookieHelper;
 
+    private final TokenProvider tokenProvider;
+
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter();
+        return new TokenAuthenticationFilter(tokenProvider, customUserDetailsService);
     }
 
     /*
@@ -63,7 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     */
     @Bean
     public HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
-        return new HttpCookieOAuth2AuthorizationRequestRepository();
+        return new HttpCookieOAuth2AuthorizationRequestRepository(cookieHelper);
     }
 
     @Override
