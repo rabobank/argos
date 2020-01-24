@@ -18,7 +18,7 @@ steps:
         from_secret: github_token
       github_user:
         from_secret: github_user
-      new_version: '0.0.1-SNAPSHOT'
+      new_version: ${DRONE_TAG}
     commands:
       - echo "update version to ${new_version}"
       - mvn -q versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
@@ -30,9 +30,8 @@ steps:
     when:
       branch:
         - master
-        - develop
       event:
-        - push
+        - tag
 
   - name: build
     image: rabobanknl/argos-build:latest
@@ -161,11 +160,11 @@ steps:
       - argos-integration-test-service
       - nexus
 
-  - name: build beta argos service image
+  - name: release argos service image
     image: plugins/docker
     settings:
       repo: rabobanknl/argos-service
-      tags: '0.0.1-SNAPSHOT'
+      auto_tag: true
       context: argos-docker
       dockerfile: argos-docker/ServiceDockerfile
       username:
@@ -176,10 +175,9 @@ steps:
       - regression test
     when:
       branch:
-        - develop
         - master
       event:
-        - push
+        - tag
 
   - name: sign artifacts
     image: plugins/gpgsign
@@ -198,11 +196,9 @@ steps:
       - regression test
     when:
       branch:
-        - develop
         - master
-        - build-release
       event:
-        - push
+        - tag
 
   - name: deploy release to sonatype
     image: rabobanknl/argos-build:latest
@@ -225,7 +221,7 @@ steps:
       branch:
         - master
       event:
-        - push
+        - tag
 
   - name: deploy snapshot to sonatype
     image: rabobanknl/argos-build:latest
@@ -256,8 +252,9 @@ steps:
       webhook:
         from_secret: slack_webhook
     depends_on:
-      - regression test
-      - build beta argos service image
+      - release argos service image
+      - deploy release to sonatype
+      - deploy snapshot to sonatype
 
 volumes:
   - name: mvn_cache
@@ -267,6 +264,7 @@ trigger:
   event:
     - push
     - pull_request
+    - tag
 
 ---
 kind: pipeline
