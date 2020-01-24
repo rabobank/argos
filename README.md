@@ -29,7 +29,7 @@ consequence [**link**](docs/terminology/terminology.md#link) files
 provide the required evidence to establish a continuous chain that can
 be [**verified**](docs/terminology/terminology.md#verification) against
 the steps defined in the
-[**layout**](docs/terminology/terminology.md#layout)
+[**layout**](docs/terminology/terminology.md#layout) nog een bla
 
 The [**layout**](docs/terminology/terminology.md#layout), signed by the
 [**project owners**](docs/terminology/terminology.md#productOwner)
