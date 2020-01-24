@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.UUID.randomUUID;
@@ -39,7 +40,7 @@ public class LayoutMetaBlock {
 
     private Layout layout;
 
-    public Boolean allLayoutSegmentsAreResolved(List<String> resolvedSegmentNames) {
+    public Boolean allLayoutSegmentsAreResolved(Set<String> resolvedSegmentNames) {
         return layout.getLayoutSegments().size() == resolvedSegmentNames.size();
     }
 
