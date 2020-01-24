@@ -145,7 +145,6 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                     .forEach((destinationType, matchRuleWithSourceTypes) -> matchRuleWithSourceTypes
                             .forEach(matchRuleWithSourceType -> filteredArtifacts.get(stepName).put(destinationType, matchRuleWithSourceType.getResolvedArtifacts())));
         });
-        log.info("getting linksets from matchRule for destination segment: {}", destinationSegmentName.get());
         List<String> resolvedSteps = new ArrayList<>();
         Set<LinkMetaBlock> links = new HashSet<>();
         filteredArtifacts
@@ -166,7 +165,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         Set<Set<LinkMetaBlock>> resolvedLinkSets = new HashSet<>(resolvedSegmentsWithLinkSets.getLinkSets());
 
         Set<LinkMetaBlock> newLinkSetByRunId = getLinksForRemainingStepsByRunId(layoutMetaBlock.getSupplyChainId(), destinationSegmentName.get(), resolvedSteps, links);
-
+        log.info("getting linksets from matchRule for destination segment: {} resulted in {} new links", destinationSegmentName.get(), newLinkSetByRunId.size());
         Set<Set<LinkMetaBlock>> updatedResolvedLinkSets = permutate(newLinkSetByRunId, resolvedLinkSets, resolvedSegmentsWithLinkSets, destinationSegmentName.get());
 
         resolvedSegmentsWithLinkSets.setLinkSets(updatedResolvedLinkSets);
@@ -296,7 +295,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
     private Set<Set<LinkMetaBlock>> permutate(Set<LinkMetaBlock> newLinkSet, Set<Set<LinkMetaBlock>> resolvedLinkSets, ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets, String destinationSegmentName) {
         Set<Set<LinkMetaBlock>> possibleNewLinkSets = permutateNewLinkSet(newLinkSet);
         resolvedSegmentsWithLinkSets.addResolvedLinkSetsBySegmentName(destinationSegmentName, possibleNewLinkSets);
-        if (!resolvedLinkSets.isEmpty()) {
+        if (!resolvedLinkSets.isEmpty() && !possibleNewLinkSets.isEmpty()) {
             Set<Set<LinkMetaBlock>> tempLinkSet = new HashSet<>();
             possibleNewLinkSets.forEach(nelink ->
                     resolvedLinkSets.forEach(linkSet -> {
@@ -305,9 +304,9 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                                 tempLinkSet.add(tmp);
                             }
                     ));
-
-
             return tempLinkSet;
+        } else if (possibleNewLinkSets.isEmpty()) {
+            return new HashSet<>(resolvedLinkSets);
         } else {
             return possibleNewLinkSets;
         }
