@@ -76,7 +76,13 @@ class LayoutValidatorServiceTest {
     private LayoutSegment layoutSegment;
 
     @Mock
+    private LayoutSegment layoutSegment2;
+
+    @Mock
     private MatchFilter matchFilter;
+
+    @Mock
+    private MatchFilter matchFilter2;
 
     @BeforeEach
     void setUp() {
@@ -215,5 +221,23 @@ class LayoutValidatorServiceTest {
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
         assertThat(responseStatusException.getReason(), is("expected product destination step name not found"));
+    }
+
+    @Test
+    void validateExpectedProductsHaveSameSegmentName() {
+        when(layoutSegment.getSteps()).thenReturn(singletonList(step));
+        when(layoutSegment.getName()).thenReturn("segmentName");
+        when(layoutSegment2.getSteps()).thenReturn(singletonList(step));
+        when(layoutSegment2.getName()).thenReturn("othersegmentName");
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment, layoutSegment2));
+        when(step.getStepName()).thenReturn("stepName");
+        when(layout.getExpectedEndProducts()).thenReturn(List.of(matchFilter, matchFilter2));
+        when(matchFilter.getDestinationSegmentName()).thenReturn("segmentName");
+        when(matchFilter.getDestinationStepName()).thenReturn("stepName");
+        when(matchFilter2.getDestinationSegmentName()).thenReturn("othersegmentName");
+        when(matchFilter2.getDestinationStepName()).thenReturn("stepName");
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
+        assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
+        assertThat(responseStatusException.getReason(), is("segment names for expectedProducts should all be the same"));
     }
 }
