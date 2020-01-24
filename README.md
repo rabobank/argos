@@ -18,7 +18,7 @@ It allows a
 create a layout. A [**layout**](docs/terminology/terminology.md#layout)
 lists the sequence of steps of the software supply chain, and the
 [**functionaries**](docs/terminology/terminology.md#functionary)
-authorized to perform these steps.
+authorized to perform these steps. bla
 
 When a [**functionary**](docs/terminology/terminology.md#functionary)
 performs a [**step**](docs/terminology/terminology.md#step) it gathers
