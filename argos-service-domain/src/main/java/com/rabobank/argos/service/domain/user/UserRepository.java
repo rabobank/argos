@@ -24,7 +24,7 @@ public interface UserRepository {
 
     Optional<User> findByUserId(String userId);
 
-    User save(User user);
+    void save(User user);
 
-    User update(User existingUser);
+    void update(User existingUser);
 }

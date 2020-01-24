@@ -19,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static java.util.UUID.randomUUID;
@@ -26,7 +27,7 @@ import static java.util.UUID.randomUUID;
 @Getter
 @Setter
 @Builder
-public class User {
+public class User implements Serializable {
 
     @Builder.Default
     private String userId = randomUUID().toString();

@@ -30,10 +30,9 @@ public class CustomUserDetailsService {
     private final UserRepository userRepository;
 
     public UserDetails loadUserById(String id) {
-        User user = userRepository.findByUserId(id).orElseThrow(
-                () -> new ArgosError("User with id " + id + " not found")
-        );
-        return UserPrincipal.create(user);
+        User user = userRepository.findByUserId(id)
+                .orElseThrow(() -> new ArgosError("User with id " + id + " not found"));
+        return new UserPrincipal(user);
     }
 
 }

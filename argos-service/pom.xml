@@ -102,26 +102,30 @@
 				<exclusion>
 					<artifactId>jackson-databind</artifactId>
 					<groupId>com.fasterxml.jackson.core</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>0.10.7</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-			<version>0.10.7</version>
-			<scope>runtime</scope>
-		</dependency>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.10.7</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.10.7</version>
+            <scope>runtime</scope>
+        </dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
@@ -461,26 +465,26 @@
 								</goals>
 							</execution>
 						</executions>
-						<configuration>
-							<threads>4</threads>
-							<timeoutConstant>10000</timeoutConstant>
-							<timestampedReports>false</timestampedReports>
-							<mutationThreshold>20</mutationThreshold>
-							<coverageThreshold>20</coverageThreshold>
-							<failWhenNoMutations>true</failWhenNoMutations>
-							<reportsDirectory>${project.build.directory}/pi-report</reportsDirectory>
-							<avoidCallsTo>
-								<avoidCallsTo>org.slf4j</avoidCallsTo>
-							</avoidCallsTo>
-							<excludedClasses></excludedClasses>
-							<targetClasses>
-								<param>com.rabobank.argos.*</param>
-							</targetClasses>
-							<outputFormats>
-								<format>XML</format>
-								<format>HTML</format>
-							</outputFormats>
-						</configuration>
+                        <configuration>
+                            <threads>4</threads>
+                            <timeoutConstant>10000</timeoutConstant>
+                            <timestampedReports>false</timestampedReports>
+                            <mutationThreshold>90</mutationThreshold>
+                            <coverageThreshold>90</coverageThreshold>
+                            <failWhenNoMutations>true</failWhenNoMutations>
+                            <reportsDirectory>${project.build.directory}/pi-report</reportsDirectory>
+                            <avoidCallsTo>
+                                <avoidCallsTo>org.slf4j</avoidCallsTo>
+                            </avoidCallsTo>
+                            <excludedClasses>com.rabobank.argos.service.security.SecurityConfig</excludedClasses>
+                            <targetClasses>
+                                <param>com.rabobank.argos.*</param>
+                            </targetClasses>
+                            <outputFormats>
+                                <format>XML</format>
+                                <format>HTML</format>
+                            </outputFormats>
+                        </configuration>
 						<dependencies>
 							<dependency>
 								<groupId>org.pitest</groupId>

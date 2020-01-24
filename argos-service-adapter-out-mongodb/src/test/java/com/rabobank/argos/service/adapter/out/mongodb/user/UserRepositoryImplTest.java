@@ -106,7 +106,7 @@ class UserRepositoryImplTest {
         when(user.getUserId()).thenReturn("userId");
         when(template.getConverter()).thenReturn(converter);
         when(template.updateFirst(any(Query.class), any(Update.class), eq(User.class), eq(COLLECTION))).thenReturn(updateResult);
-        assertThat(repository.update(user), is(user));
+        repository.update(user);
 
         verify(template).updateFirst(queryArgumentCaptor.capture(), updateArgumentCaptor.capture(), eq(User.class), eq(COLLECTION));
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"userId\" : \"userId\"}, Fields: {}, Sort: {}"));

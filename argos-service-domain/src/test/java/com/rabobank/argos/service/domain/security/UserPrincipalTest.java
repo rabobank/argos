@@ -13,41 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.security.oauth2.user;
+package com.rabobank.argos.service.domain.security;
 
+import com.rabobank.argos.service.domain.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
 
-class AzureOAuth2UserInfoTest {
+@ExtendWith(MockitoExtension.class)
+class UserPrincipalTest {
 
-    private final static String ID = "id";
-    private static final String DISPLAY_NAME = "diplayName";
-    private static final String USER_PRINCIPAL_NAME = "userPrincipalName";
-    private AzureOAuth2UserInfo userInfo;
+    @Mock
+    private User user;
 
     @BeforeEach
     void setUp() {
-        Map<String, Object> attributes = Map.of("id", ID, "displayName", DISPLAY_NAME, "userPrincipalName", USER_PRINCIPAL_NAME);
-        userInfo = new AzureOAuth2UserInfo(attributes);
+        when(user.getName()).thenReturn("name");
     }
 
     @Test
     void getId() {
-        assertThat(userInfo.getId(), is(ID));
+        when(user.getUserId()).thenReturn("id");
+        assertThat(new UserPrincipal(user).getId(), is("id"));
     }
 
     @Test
-    void getName() {
-        assertThat(userInfo.getName(), is(DISPLAY_NAME));
+    void getPassword() {
+        assertThat(new UserPrincipal(user).getPassword(), is(""));
     }
 
     @Test
-    void getEmail() {
-        assertThat(userInfo.getEmail(), is(USER_PRINCIPAL_NAME.toLowerCase()));
+    void getAuthorities() {
+        assertThat(new UserPrincipal(user).getAuthorities(), contains(new SimpleGrantedAuthority("ROLE_USER")));
     }
 }

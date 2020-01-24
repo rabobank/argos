@@ -15,67 +15,21 @@
  */
 package com.rabobank.argos.service.domain.security;
 
+
 import com.rabobank.argos.service.domain.user.User;
-import lombok.Builder;
-import lombok.Getter;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-@Builder
-@Getter
-public class UserPrincipal implements OAuth2User, UserDetails {
-    private final String username;
-    private String id;
-    private Collection<? extends GrantedAuthority> authorities;
-    private Map<String, Object> attributes;
+public class UserPrincipal extends org.springframework.security.core.userdetails.User {
+    private final User user;
 
-    public static UserPrincipal create(User user) {
-        return buildUserPrincipal(user).build();
+    public UserPrincipal(User user) {
+        super(user.getName(), "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        this.user = user;
     }
 
-    private static UserPrincipalBuilder buildUserPrincipal(User user) {
-        return UserPrincipal.builder().id(user.getUserId())
-                .username(user.getName())
-                .authorities(List.of(new SimpleGrantedAuthority("ROLE_USER")));
-    }
-
-    public static UserPrincipal create(User user, Map<String, Object> attributes) {
-        return buildUserPrincipal(user).attributes(attributes).build();
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    @Override
-    public String getName() {
-        return username;
+    public String getId() {
+        return user.getUserId();
     }
 }

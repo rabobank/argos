@@ -15,7 +15,7 @@
  */
 package com.rabobank.argos.service.security;
 
-import com.rabobank.argos.service.domain.security.UserPrincipal;
+import com.rabobank.argos.service.security.oauth2.ArgosOAuth2User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -24,10 +24,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -45,8 +44,6 @@ import java.util.Date;
 @Slf4j
 public class TokenProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
-
     @Value("${jwt.token.secret}")
     private String secret;
 
@@ -58,11 +55,13 @@ public class TokenProvider {
     /**
      * create secret for application.yml
      * jwt:
-     *   token:
-     *     secret: generated secret
+     * token:
+     * secret: generated secret
+     *
+     * @param args not used
      */
     public static void main(String[] args) {
-        logger.info(Base64.getEncoder().encodeToString(Keys.secretKeyFor(SignatureAlgorithm.HS512).getEncoded()));
+        log.info(Base64.getEncoder().encodeToString(Keys.secretKeyFor(SignatureAlgorithm.HS512).getEncoded()));
     }
 
     @PostConstruct
@@ -71,9 +70,9 @@ public class TokenProvider {
     }
 
     public String createToken(Authentication authentication) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        ArgosOAuth2User oAuth2User = (ArgosOAuth2User) authentication.getPrincipal();
         return Jwts.builder()
-                .setSubject(userPrincipal.getId())
+                .setSubject(oAuth2User.getUserId())
                 .setIssuedAt(new Date())
                 .setExpiration(Timestamp.valueOf(LocalDateTime.now().plus(timeout)))
                 .signWith(secretKey)
@@ -92,16 +91,16 @@ public class TokenProvider {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(authToken);
             return true;
-        } catch (SecurityException ex) {
-            logger.error("Invalid JWT signature");
+        } catch (SignatureException ex) {
+            log.error("Invalid JWT signature");
         } catch (MalformedJwtException ex) {
-            logger.error("Invalid JWT token");
+            log.error("Invalid JWT token");
         } catch (ExpiredJwtException ex) {
-            logger.error("Expired JWT token");
+            log.error("Expired JWT token");
         } catch (UnsupportedJwtException ex) {
-            logger.error("Unsupported JWT token");
+            log.error("Unsupported JWT token");
         } catch (IllegalArgumentException ex) {
-            logger.error("JWT claims string is empty.");
+            log.error("JWT claims string is empty.");
         }
         return false;
     }

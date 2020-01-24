@@ -35,7 +35,7 @@ public class AzureOAuth2UserInfo extends OAuth2UserInfo {
 
     @Override
     public String getEmail() {
-        return (String) attributes.get("userPrincipalName");
+        return ((String) attributes.getOrDefault("userPrincipalName", "")).toLowerCase();
     }
 
 }

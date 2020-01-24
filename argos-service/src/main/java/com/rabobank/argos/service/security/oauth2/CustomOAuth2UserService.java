@@ -16,7 +16,6 @@
 package com.rabobank.argos.service.security.oauth2;
 
 import com.rabobank.argos.domain.ArgosError;
-import com.rabobank.argos.service.domain.security.UserPrincipal;
 import com.rabobank.argos.service.domain.user.AuthenticationProvider;
 import com.rabobank.argos.service.domain.user.User;
 import com.rabobank.argos.service.domain.user.UserRepository;
@@ -27,7 +26,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -37,49 +36,55 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UserRepository userRepository;
 
-    @Override
-    public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
+    private DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
 
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) {
         try {
+            OAuth2User oAuth2User = defaultOAuth2UserService.loadUser(oAuth2UserRequest);
             return processOAuth2User(oAuth2UserRequest, oAuth2User);
         } catch (AuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
             // Throwing an instance of AuthenticationException will trigger the OAuth2AuthenticationFailureHandler
-            throw new InternalAuthenticationServiceException(ex.getMessage(), ex.getCause());
+            throw new InternalAuthenticationServiceException(ex.getMessage(), ex);
         }
     }
 
-    private OAuth2User processOAuth2User(OAuth2UserRequest oAuth2UserRequest, OAuth2User oAuth2User) {
-
+    private ArgosOAuth2User processOAuth2User(OAuth2UserRequest oAuth2UserRequest, OAuth2User oAuth2User) {
         AuthenticationProvider authenticationProvider = AuthenticationProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId().toUpperCase());
-
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(authenticationProvider, oAuth2User.getAttributes());
         if (!StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
             Optional<User> userOptional = userRepository.findByEmail(oAuth2UserInfo.getEmail());
-            User user = userOptional.map(existingUser -> updateExistingUser(existingUser, oAuth2UserInfo)).orElseGet(() -> registerNewUser(authenticationProvider, oAuth2UserInfo));
-            return UserPrincipal.create(user, oAuth2User.getAttributes());
+            if (userOptional.isPresent()) {
+                return new ArgosOAuth2User(oAuth2User, updateExistingUser(userOptional.get(), oAuth2UserInfo));
+            } else {
+                return new ArgosOAuth2User(oAuth2User, registerNewUser(authenticationProvider, oAuth2UserInfo));
+            }
         } else {
             throw new ArgosError("email address not provided by oauth profile service");
         }
     }
 
-    private User registerNewUser(AuthenticationProvider authenticationProvider, OAuth2UserInfo oAuth2UserInfo) {
-        return userRepository.save(User.builder().name(oAuth2UserInfo.getName())
+    private String registerNewUser(AuthenticationProvider authenticationProvider, OAuth2UserInfo oAuth2UserInfo) {
+        User user = User.builder()
+                .name(oAuth2UserInfo.getName())
                 .email(oAuth2UserInfo.getEmail())
                 .providerId(oAuth2UserInfo.getId())
                 .provider(authenticationProvider)
-                .build());
+                .build();
+        userRepository.save(user);
+        return user.getUserId();
     }
 
-    private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
+    private String updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
         existingUser.setName(oAuth2UserInfo.getName());
-        return userRepository.update(existingUser);
+        userRepository.update(existingUser);
+        return existingUser.getUserId();
     }
 
 }

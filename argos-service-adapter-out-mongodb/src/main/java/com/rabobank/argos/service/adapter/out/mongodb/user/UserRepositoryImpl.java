@@ -62,18 +62,16 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User save(User user) {
+    public void save(User user) {
         template.save(user, COLLECTION);
-        return user;
     }
 
     @Override
-    public User update(User existingUser) {
+    public void update(User existingUser) {
         Query query = getPrimaryQuery(existingUser.getUserId());
         Document document = new Document();
         template.getConverter().write(existingUser, document);
         template.updateFirst(query, Update.fromDocument(document), User.class, COLLECTION);
-        return existingUser;
     }
 
     private Query getPrimaryQuery(String userId) {

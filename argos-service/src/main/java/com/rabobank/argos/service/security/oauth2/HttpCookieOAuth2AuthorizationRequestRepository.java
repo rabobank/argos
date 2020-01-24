@@ -38,19 +38,16 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
 
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
-        return cookieHelper.getCookie(request, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME)
-                .map(cookie -> cookieHelper.deserialize(cookie, OAuth2AuthorizationRequest.class))
-                .orElse(null);
+        return cookieHelper.getCookieValueAsObject(request, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, OAuth2AuthorizationRequest.class).orElse(null);
     }
 
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
         if (authorizationRequest == null) {
-            cookieHelper.deleteCookie(request, response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
-            cookieHelper.deleteCookie(request, response, REDIRECT_URI_PARAM_COOKIE_NAME);
+            removeAuthorizationRequestCookies(request, response);
         } else {
 
-            cookieHelper.addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, cookieHelper.serialize(authorizationRequest), COOKIE_EXPIRE_SECONDS);
+            cookieHelper.addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, authorizationRequest, COOKIE_EXPIRE_SECONDS);
             String redirectUriAfterLogin = request.getParameter(REDIRECT_URI_PARAM_COOKIE_NAME);
             if (StringUtils.isNotBlank(redirectUriAfterLogin)) {
                 cookieHelper.addCookie(response, REDIRECT_URI_PARAM_COOKIE_NAME, redirectUriAfterLogin, COOKIE_EXPIRE_SECONDS);

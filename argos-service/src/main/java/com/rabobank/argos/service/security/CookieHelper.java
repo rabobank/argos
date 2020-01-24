@@ -23,22 +23,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Component
 public class CookieHelper {
 
     public Optional<Cookie> getCookie(HttpServletRequest request, String name) {
-        Cookie[] cookies = request.getCookies();
+        return Optional.ofNullable(request.getCookies())
+                .flatMap(cookies ->
+                        Stream.of(cookies).filter(cookie -> cookie.getName().equals(name)).findFirst());
+    }
 
-        if (cookies != null && cookies.length > 0) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    return Optional.of(cookie);
-                }
-            }
-        }
-
-        return Optional.empty();
+    public <T> Optional<T> getCookieValueAsObject(HttpServletRequest request, String name, Class<T> cls) {
+        return getCookie(request, name).map(Cookie::getValue).map(value -> deserialize(value, cls));
     }
 
     public void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
@@ -49,29 +46,25 @@ public class CookieHelper {
         response.addCookie(cookie);
     }
 
+    public void addCookie(HttpServletResponse response, String name, Object object, int maxAge) {
+        addCookie(response, name, serialize(object), maxAge);
+    }
+
     public void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null && cookies.length > 0) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
-                }
-            }
-        }
+        getCookie(request, name).ifPresent(cookie -> {
+            cookie.setValue("");
+            cookie.setPath("/");
+            cookie.setMaxAge(0);
+            response.addCookie(cookie);
+        });
     }
 
-    public String serialize(Object object) {
-        return Base64.getUrlEncoder()
-                .encodeToString(SerializationUtils.serialize(object));
+    private String serialize(Object object) {
+        return Base64.getUrlEncoder().encodeToString(SerializationUtils.serialize(object));
     }
 
-    public <T> T deserialize(Cookie cookie, Class<T> cls) {
-        return cls.cast(SerializationUtils.deserialize(
-                Base64.getUrlDecoder().decode(cookie.getValue())));
+    private <T> T deserialize(String objectAsString, Class<T> cls) {
+        return cls.cast(SerializationUtils.deserialize(Base64.getUrlDecoder().decode(objectAsString)));
     }
-
 
 }
