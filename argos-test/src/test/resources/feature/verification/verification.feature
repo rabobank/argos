@@ -41,6 +41,12 @@ Feature: Verification
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(verificationRequest) ,testDir: 'multi-segment-happy-flow-with-three-segment-hop',steps:#(steps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":true}
 
+  Scenario: multi segment with multiple verification context
+    * def steps = [{link:'segment-1-build-step-link.json', signingKey:2},{link:'segment-1-test-step-link.json', signingKey:2},{link:'segment-2-build-step-link.json', signingKey:3},{link:'segment-2-build-step-link-invalid.json', signingKey:3},{link:'segment-2-test-step-link.json',signingKey:3},{link:'segment-2-test-step-link-invalid.json',signingKey:3},{link:'segment-3-build-step-link.json', signingKey:2},{link:'segment-3-test-step-link.json', signingKey:2}]
+    * def verificationRequest = {expectedProducts: [ {uri: 'target/argos-test-0.0.1-SNAPSHOT.jar',hash: '49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162'}] }
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(verificationRequest) ,testDir: 'multi-segment-with-multiple-verification-context',steps:#(steps),layoutSigningKey:1}
+    And match resp.response == {"runIsValid":true}
+
   Scenario: happy flow match-rule-happy-flow
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest) ,testDir: 'match-rule-happy-flow',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":true}
