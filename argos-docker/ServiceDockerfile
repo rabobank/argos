@@ -29,4 +29,4 @@ USER argos
 
 ADD target/lib/argos-service.jar /
 
-ENTRYPOINT ["/run.sh"]
+ENTRYPOINT ["java","-jar","/argos-service.jar"]
