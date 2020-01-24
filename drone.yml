@@ -167,6 +167,8 @@ steps:
       auto_tag: true
       context: argos-docker
       dockerfile: argos-docker/ServiceDockerfile
+      build_args:
+        - VERSION=${DRONE_TAG}
       username:
         from_secret: docker_login_user
       password:
