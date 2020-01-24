@@ -15,6 +15,11 @@
 # limitations under the License.
 #
 
+#
+# default shell doesn't handle dotted environment variables, bash does
+# https://github.com/docker-library/openjdk/issues/135
+#
+
 if [ -z "$@" ]; then
 	exec java -jar /argos-service.jar
 else
