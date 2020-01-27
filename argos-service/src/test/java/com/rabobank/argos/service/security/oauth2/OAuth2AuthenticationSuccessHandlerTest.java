@@ -15,7 +15,6 @@
  */
 package com.rabobank.argos.service.security.oauth2;
 
-import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.service.security.TokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,13 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -65,29 +59,16 @@ class OAuth2AuthenticationSuccessHandlerTest {
     @BeforeEach
     void setUp() {
         successHandler = new OAuth2AuthenticationSuccessHandler(tokenProvider, httpCookieOAuth2AuthorizationRequestRepository);
-        ReflectionTestUtils.setField(successHandler, "authorizedRedirectUris", List.of(URI.create("https://host:89/uri")));
-    }
-
-    @Test
-    void parseUris() {
-        List<URI> uris = OAuth2AuthenticationSuccessHandler.parseUris(new String[]{"https://localhost:534/hiero"});
-        assertThat(uris, contains(URI.create("https://localhost:534/hiero")));
+        ReflectionTestUtils.setField(successHandler, "frontendRedirectBasePath", URI.create("https://host:89"));
     }
 
     @Test
     void onAuthenticationSuccess() throws IOException {
         when(tokenProvider.createToken(authentication)).thenReturn("token");
-        when(httpCookieOAuth2AuthorizationRequestRepository.getRedirectUri(request)).thenReturn(Optional.of("https://host:89/uri"));
+        when(httpCookieOAuth2AuthorizationRequestRepository.getRedirectUri(request)).thenReturn(Optional.of("http://notused/uri?someExtraParam=extra"));
         successHandler.onAuthenticationSuccess(request, response, authentication);
-        verify(response).encodeRedirectURL("https://host:89/uri?token=token");
+        verify(response).encodeRedirectURL("https://host:89/uri?someExtraParam=extra&token=token");
         verify(httpCookieOAuth2AuthorizationRequestRepository).removeAuthorizationRequestCookies(request, response);
-    }
-
-    @Test
-    void onAuthenticationSuccessWrongRedirectUrl() {
-        when(httpCookieOAuth2AuthorizationRequestRepository.getRedirectUri(request)).thenReturn(Optional.of("https://host/uri"));
-        ArgosError argosError = assertThrows(ArgosError.class, () -> successHandler.onAuthenticationSuccess(request, response, authentication));
-        assertThat(argosError.getMessage(), is("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication"));
     }
 
     @Test

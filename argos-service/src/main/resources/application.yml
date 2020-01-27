@@ -28,7 +28,7 @@ spring:
             client-name: azure
             clientId: <replace>
             clientSecret: <replace>
-            redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
+            redirectUri: "{baseUrl}/api/oauth2/callback/{registrationId}"
             client-authentication-method: basic
             authorization-grant-type: authorization_code
             scope:
@@ -64,7 +64,7 @@ jwt:
   # redirectUri mentioned by the client in the /oauth2/authorize request.
   # We're not using cookies because they won't work well in mobile clients.
 auth:
-  authorizedRedirectUris: http://localhost:3000/oauth2/redirect, myandroidapp://oauth2/redirect, myiosapp://oauth2/redirect
+  frontendRedirectBasePath: http://localhost:3000
 
 logging:
   level:

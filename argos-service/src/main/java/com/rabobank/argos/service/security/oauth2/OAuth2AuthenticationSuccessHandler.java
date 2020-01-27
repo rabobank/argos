@@ -15,7 +15,6 @@
  */
 package com.rabobank.argos.service.security.oauth2;
 
-import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.service.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,10 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -39,15 +35,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final TokenProvider tokenProvider;
 
-    @Value("#{T(com.rabobank.argos.service.security.oauth2.OAuth2AuthenticationSuccessHandler).parseUris('${auth.authorizedRedirectUris}')}")
-    private List<URI> authorizedRedirectUris;
-
-    public static List<URI> parseUris(String[] uris) {
-        return Stream.of(uris).map(URI::create).collect(Collectors.toList());
-    }
+    @Value("#{T(java.net.URI).create('${auth.frontendRedirectBasePath}')}")
+    private URI frontendRedirectBasePath;
 
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
-
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -65,16 +56,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 
         Optional<String> redirectUri = httpCookieOAuth2AuthorizationRequestRepository.getRedirectUri(request);
-
-        if (redirectUri.isPresent() && !isAuthorizedRedirectUri(redirectUri.get())) {
-            throw new ArgosError("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication");
-        }
-
-        String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
+        URI targetUrl = redirectUri.map(URI::create).orElse(URI.create(getDefaultTargetUrl()));
 
         String token = tokenProvider.createToken(authentication);
 
-        return UriComponentsBuilder.fromUriString(targetUrl)
+        return UriComponentsBuilder.fromUri(frontendRedirectBasePath).path(targetUrl.getPath())
+                .query(targetUrl.getQuery())
                 .queryParam("token", token)
                 .build().toUriString();
     }
@@ -84,10 +71,4 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
     }
 
-    private boolean isAuthorizedRedirectUri(String uri) {
-        URI clientRedirectUri = URI.create(uri);
-        return authorizedRedirectUris.stream()
-                .anyMatch(authorizedURI -> authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
-                        && authorizedURI.getPort() == clientRedirectUri.getPort());
-    }
 }
