@@ -15,16 +15,22 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb;
 
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import static java.util.Collections.unmodifiableList;
+
 @SuperBuilder
 @Getter
 @Setter
+@EqualsAndHashCode
 public abstract class SupplyChainNode {
 
     private String id;
@@ -32,14 +38,53 @@ public abstract class SupplyChainNode {
     private Integer rght;
     private Integer depth;
     private String name;
-    private List<String> idPathToRoot = new LinkedList<>();
-    private List<String> namePathToRoot = new LinkedList<>();
+    @Builder.Default
+    private LinkedList<String> idPathToRoot = new LinkedList<>();
+    @Builder.Default
+    private LinkedList<String> namePathToRoot = new LinkedList<>();
+
     private SupplyChainNode parentNode;
 
     public abstract Boolean hasChildren();
 
     public abstract boolean accept(HierarchicalNodeVisitor hierarchicalNodeVisitor);
 
+    public abstract int totalNumberOfDescendants();
     public abstract Boolean isRoot();
+
+    public void updateHierarchy(int left, int right, int depth, LinkedList<String> idPathToRoot, LinkedList<String> namePathToRoot) {
+        this.lft = left;
+        this.rght = right;
+        this.depth = depth;
+        this.idPathToRoot = idPathToRoot;
+        this.namePathToRoot = namePathToRoot;
+    }
+
+    @Builder
+    @EqualsAndHashCode
+    @ToString
+    static class SnapShot {
+        private Integer lft;
+        private Integer rght;
+        private Integer depth;
+        private List<String> idPathToRoot;
+        private List<String> namePathToRoot;
+
+        static SnapShot copy(SupplyChainNode supplyChainNode) {
+
+            return SnapShot
+                    .builder()
+                    .depth(supplyChainNode.depth)
+                    .lft(supplyChainNode.getLft())
+                    .rght(supplyChainNode.getRght())
+                    .idPathToRoot(unmodifiableList(
+                            supplyChainNode.getIdPathToRoot()
+                    ))
+                    .namePathToRoot(
+                            unmodifiableList(supplyChainNode.getNamePathToRoot()
+                            ))
+                    .build();
+        }
+    }
 }
 

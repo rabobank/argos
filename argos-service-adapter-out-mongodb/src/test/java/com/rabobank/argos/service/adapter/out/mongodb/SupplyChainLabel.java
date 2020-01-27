@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -25,9 +26,9 @@ import java.util.List;
 @SuperBuilder
 @Getter
 @Setter
-public class Label extends SupplyChainNode {
-
-    private List<SupplyChainNode> children;
+public class SupplyChainLabel extends SupplyChainNode {
+    @Builder.Default
+    private List<SupplyChainNode> children = new ArrayList();
 
     @Override
     public Boolean hasChildren() {
@@ -45,6 +46,16 @@ public class Label extends SupplyChainNode {
             }
         }
         return hierarchicalNodeVisitor.visitExit(this);
+    }
+
+    @Override
+    public int totalNumberOfDescendants() {
+        if (children != null) {
+            return 1 + children.stream().mapToInt(child -> child.totalNumberOfDescendants())
+                    .sum();
+        } else {
+            return 1;
+        }
     }
 
     @Override

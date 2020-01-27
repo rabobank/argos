@@ -1,14 +1,16 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.LinkedList;
 import java.util.List;
 
 @Data
+@Builder
 public class SupplyChainRecord {
 
-    private enum Type {LABEL, SUPPLYCHAIN}
+    enum Type {LABEL, SUPPLYCHAIN}
 
     private String id;
     private String parentId;

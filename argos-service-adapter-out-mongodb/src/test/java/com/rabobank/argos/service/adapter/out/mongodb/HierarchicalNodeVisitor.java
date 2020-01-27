@@ -16,9 +16,9 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
 public interface HierarchicalNodeVisitor<R> {
-    boolean visitEnter(Label label);
+    boolean visitEnter(SupplyChainLabel supplyChainLabel);
 
-    boolean visitExit(Label label);
+    boolean visitExit(SupplyChainLabel supplyChainLabel);
 
     boolean visitLeaf(SupplyChain supplyChain);
 

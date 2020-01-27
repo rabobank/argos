@@ -15,35 +15,72 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb;
 
+import com.rabobank.argos.service.adapter.out.mongodb.SupplyChainNode.SnapShot;
+import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class SupplyChainNodeUpDater implements HierarchicalNodeVisitor<SupplyChainNodeUpDater.UpdateResults> {
-    private UpdateResults updateResults;
-
+    private UpdateResults updateResults = UpdateResults.builder()
+            .created(new ArrayList<>())
+            .removed(new ArrayList<>())
+            .updated(new ArrayList<>())
+            .build();
+    private LinkedList<String> currentIdPathToRoot = new LinkedList<>();
+    private LinkedList<String> currentNamePathToRoot = new LinkedList<>();
+    private int currentDepth = 0;
+    private int currentLeft = 0;
     @Override
-    public boolean visitEnter(Label label) {
-        //storeCurrent(label);
-        //updateLevel(label);
-        // updateLeftRight(label)
-        //
-        log.info("entered node: {} {} {} {} ", label.getName(), label.getLft(), label.getRght(), label.getDepth());
-
+    public boolean visitEnter(SupplyChainLabel supplyChainLabel) {
+        onEnterNode(supplyChainLabel);
         return true;
     }
 
+    private void onEnterNode(SupplyChainNode supplyChainNode) {
+        SnapShot backup = SnapShot.copy(supplyChainNode);
+        log.debug("entered node: {} ", backup);
+
+        currentNamePathToRoot.add(supplyChainNode.getName());
+        currentDepth++;
+        currentLeft++;
+        int right = currentLeft + ((supplyChainNode.totalNumberOfDescendants() + 1) * 2) + 1;
+        supplyChainNode.updateHierarchy(currentLeft, right, currentDepth, currentIdPathToRoot, currentNamePathToRoot);
+        SnapShot newState = SnapShot.copy(supplyChainNode);
+        if (!backup.equals(newState)) {
+            log.debug("updated hierarchy of {} to {} ", supplyChainNode.getName(), newState);
+            addToUpdateResults(supplyChainNode);
+        }
+    }
+
+    private void addToUpdateResults(SupplyChainNode supplyChainNode) {
+        if (supplyChainNode.getId() == null) {
+            updateResults.addCreated(supplyChainNode);
+            supplyChainNode.setId(UUID.randomUUID().toString());
+        } else {
+            updateResults.addUpdated(supplyChainNode);
+        }
+        currentIdPathToRoot.add(supplyChainNode.getId());
+    }
+
     @Override
-    public boolean visitExit(Label label) {
-        log.info("exited node: {} {} {} {} ", label.getName(), label.getLft(), label.getRght(), label.getDepth());
+    public boolean visitExit(SupplyChainLabel supplyChainLabel) {
+        log.debug("exited node: {} {} {} {} ", supplyChainLabel.getName(), supplyChainLabel.getLft(), supplyChainLabel.getRght(), supplyChainLabel.getDepth());
+        currentIdPathToRoot.remove(supplyChainLabel.getId());
+        currentNamePathToRoot.remove(supplyChainLabel.getName());
+        currentDepth--;
         return true;
     }
 
     @Override
     public boolean visitLeaf(SupplyChain supplyChain) {
-        log.info("entered leaf: {}", supplyChain.getName());
+        onEnterNode(supplyChain);
         return true;
     }
 
@@ -53,9 +90,64 @@ public class SupplyChainNodeUpDater implements HierarchicalNodeVisitor<SupplyCha
     }
 
     @Data
+    @Builder
     public static class UpdateResults {
-        List<SupplyChainNode> updated;
-        List<SupplyChainNode> created;
-        List<SupplyChainNode> removed;
+        List<SupplyChainRecord> updated;
+        List<SupplyChainRecord> created;
+        List<SupplyChainRecord> removed;
+
+        void addUpdated(SupplyChainNode supplyChainNode) {
+            SupplyChainRecord record = convertToSupplyChainRecord(supplyChainNode);
+            updated.add(record);
+        }
+
+        void addCreated(SupplyChainNode supplyChainNode) {
+            SupplyChainRecord record = convertToSupplyChainRecord(supplyChainNode);
+            created.add(record);
+        }
+
+        private SupplyChainRecord convertToSupplyChainRecord(SupplyChainNode supplyChainNode) {
+            SupplyChainRecord record;
+            if (supplyChainNode instanceof SupplyChain) {
+                record = createSupplyChainRecordFromSupplyChain((SupplyChain) supplyChainNode);
+            } else {
+                record = createSupplyChainRecordFromSupplyChainLabel((SupplyChainLabel) supplyChainNode);
+            }
+            return record;
+        }
+
+        private SupplyChainRecord createSupplyChainRecordFromSupplyChainLabel(SupplyChainLabel supplyChainNode) {
+
+            return SupplyChainRecord.builder()
+                    .childIds(supplyChainNode.getChildren().stream()
+                            .map(child -> child.getId()).collect(Collectors.toCollection(LinkedList::new))
+                    )
+                    .namePathToRoot(supplyChainNode.getNamePathToRoot())
+                    .idPathToRoot(supplyChainNode.getIdPathToRoot())
+                    .depth(supplyChainNode.getDepth())
+                    .lft(supplyChainNode.getLft())
+                    .rght(supplyChainNode.getRght())
+                    .parentId(supplyChainNode.isRoot() ? null : supplyChainNode.getParentNode().getId())
+                    .type(SupplyChainRecord.Type.LABEL)
+                    .id(supplyChainNode.getId())
+                    .name(supplyChainNode.getName())
+                    .build();
+        }
+
+        private SupplyChainRecord createSupplyChainRecordFromSupplyChain(SupplyChain supplyChainNode) {
+            return SupplyChainRecord.builder()
+                    .namePathToRoot(supplyChainNode.getNamePathToRoot())
+                    .idPathToRoot(supplyChainNode.getIdPathToRoot())
+                    .depth(supplyChainNode.getDepth())
+                    .lft(supplyChainNode.getLft())
+                    .rght(supplyChainNode.getRght())
+                    .parentId(supplyChainNode.getParentNode().getId())
+                    .type(SupplyChainRecord.Type.SUPPLYCHAIN)
+                    .id(supplyChainNode.getId())
+                    .name(supplyChainNode.getName())
+                    .build();
+        }
     }
+
+
 }

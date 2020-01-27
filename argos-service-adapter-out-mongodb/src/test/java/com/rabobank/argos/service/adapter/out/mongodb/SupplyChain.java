@@ -31,6 +31,11 @@ public class SupplyChain extends SupplyChainNode {
     }
 
     @Override
+    public int totalNumberOfDescendants() {
+        return 1;
+    }
+
+    @Override
     public Boolean isRoot() {
         return false;
     }
