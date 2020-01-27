@@ -25,14 +25,14 @@ import java.util.Optional;
 public class SupplyChainNodeInserter implements HierarchicalNodeVisitor<Boolean> {
     private SupplyChainNode nodeToInsert;
     private String parentRef;
-    private Boolean result;
+    @Builder.Default
+    private Boolean result = false;
 
     @Override
     public boolean visitEnter(SupplyChainLabel supplyChainLabel) {
-        log.debug("entered node: {} {} {} {} ", supplyChainLabel.getName(), supplyChainLabel.getLft(), supplyChainLabel.getRght(), supplyChainLabel.getDepth());
-        if (supplyChainLabel.getChildren() != null) {
+        log.debug("entered node: {} ", supplyChainLabel.getName());
 
-            Optional<SupplyChainLabel> parentNode = supplyChainLabel.getChildren()
+        Optional<SupplyChainLabel> parentNode = supplyChainLabel.getChildren()
                     .stream()
                     .filter(lnode -> lnode.hasChildren() && lnode.getId().equals(parentRef))
                     .map(node -> (SupplyChainLabel) node)
@@ -42,17 +42,15 @@ public class SupplyChainNodeInserter implements HierarchicalNodeVisitor<Boolean>
                 foundNode.addChild(nodeToInsert);
                 log.debug("child inserted into {}", foundNode.getName());
             }));
-
-            result = parentNode.isPresent();
-            return parentNode.isEmpty();
+        if (parentNode.isPresent()) {
+            result = true;
         }
-
-        return false;
+        return !result;
     }
 
     @Override
     public boolean visitExit(SupplyChainLabel supplyChainLabel) {
-        log.debug("exited node: {} {} {} {} ", supplyChainLabel.getName(), supplyChainLabel.getLft(), supplyChainLabel.getRght(), supplyChainLabel.getDepth());
+        log.debug("exited node: {} ", supplyChainLabel.getName());
         return true;
     }
 

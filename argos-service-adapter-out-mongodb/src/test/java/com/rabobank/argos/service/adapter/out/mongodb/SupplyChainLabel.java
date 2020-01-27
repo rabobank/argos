@@ -19,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.List;
 @SuperBuilder
 @Getter
 @Setter
+@Slf4j
 public class SupplyChainLabel extends SupplyChainNode {
     @Builder.Default
     private List<SupplyChainNode> children = new ArrayList();
@@ -51,10 +53,14 @@ public class SupplyChainLabel extends SupplyChainNode {
     @Override
     public int totalNumberOfDescendants() {
         if (children != null) {
-            return 1 + children.stream().mapToInt(child -> child.totalNumberOfDescendants())
+            int total = children.size() + children.stream()
+                    .mapToInt(child -> child.totalNumberOfDescendants())
                     .sum();
+            log.debug("total number of descendants of {} is {} ", this.getName(), total);
+            return total;
+
         } else {
-            return 1;
+            return 0;
         }
     }
 

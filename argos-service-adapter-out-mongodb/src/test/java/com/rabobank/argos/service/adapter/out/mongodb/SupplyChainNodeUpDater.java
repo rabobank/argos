@@ -21,8 +21,10 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,9 @@ public class SupplyChainNodeUpDater implements HierarchicalNodeVisitor<SupplyCha
     private LinkedList<String> currentNamePathToRoot = new LinkedList<>();
     private int currentDepth = 0;
     private int currentLeft = 0;
+    private int currentRight = 0;
+    private Map<Integer, Integer> lastVisitedSiblingRight = new HashMap<>();
+
     @Override
     public boolean visitEnter(SupplyChainLabel supplyChainLabel) {
         onEnterNode(supplyChainLabel);
@@ -45,18 +50,18 @@ public class SupplyChainNodeUpDater implements HierarchicalNodeVisitor<SupplyCha
 
     private void onEnterNode(SupplyChainNode supplyChainNode) {
         SnapShot backup = SnapShot.copy(supplyChainNode);
-        log.debug("entered node: {} ", backup);
-
+        log.debug("entered node: {} ", supplyChainNode.getName());
         currentNamePathToRoot.add(supplyChainNode.getName());
         currentDepth++;
-        currentLeft++;
-        int right = currentLeft + ((supplyChainNode.totalNumberOfDescendants() + 1) * 2) + 1;
-        supplyChainNode.updateHierarchy(currentLeft, right, currentDepth, currentIdPathToRoot, currentNamePathToRoot);
+        currentLeft = currentLeft + 1;
+        currentRight = currentLeft + (supplyChainNode.totalNumberOfDescendants() * 2) + 1;
+        supplyChainNode.updateHierarchy(currentLeft, currentRight, currentDepth, currentIdPathToRoot, currentNamePathToRoot);
         SnapShot newState = SnapShot.copy(supplyChainNode);
         if (!backup.equals(newState)) {
-            log.debug("updated hierarchy of {} to {} ", supplyChainNode.getName(), newState);
             addToUpdateResults(supplyChainNode);
         }
+        currentIdPathToRoot.add(supplyChainNode.getId());
+        log.debug("updated hierarchy of {} to {} ", supplyChainNode.getName(), newState);
     }
 
     private void addToUpdateResults(SupplyChainNode supplyChainNode) {
@@ -66,14 +71,15 @@ public class SupplyChainNodeUpDater implements HierarchicalNodeVisitor<SupplyCha
         } else {
             updateResults.addUpdated(supplyChainNode);
         }
-        currentIdPathToRoot.add(supplyChainNode.getId());
+
     }
 
     @Override
     public boolean visitExit(SupplyChainLabel supplyChainLabel) {
-        log.debug("exited node: {} {} {} {} ", supplyChainLabel.getName(), supplyChainLabel.getLft(), supplyChainLabel.getRght(), supplyChainLabel.getDepth());
+        log.debug("exited node: {}  ", supplyChainLabel.getName());
         currentIdPathToRoot.remove(supplyChainLabel.getId());
         currentNamePathToRoot.remove(supplyChainLabel.getName());
+        currentLeft = supplyChainLabel.getRght();
         currentDepth--;
         return true;
     }
@@ -81,6 +87,9 @@ public class SupplyChainNodeUpDater implements HierarchicalNodeVisitor<SupplyCha
     @Override
     public boolean visitLeaf(SupplyChain supplyChain) {
         onEnterNode(supplyChain);
+        currentIdPathToRoot.remove(supplyChain.getId());
+        currentNamePathToRoot.remove(supplyChain.getName());
+        currentDepth--;
         return true;
     }
 

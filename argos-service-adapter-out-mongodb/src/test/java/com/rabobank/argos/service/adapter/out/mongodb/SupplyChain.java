@@ -32,7 +32,7 @@ public class SupplyChain extends SupplyChainNode {
 
     @Override
     public int totalNumberOfDescendants() {
-        return 1;
+        return 0;
     }
 
     @Override

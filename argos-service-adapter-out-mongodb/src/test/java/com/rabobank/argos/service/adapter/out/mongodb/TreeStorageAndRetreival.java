@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -55,17 +53,17 @@ public class TreeStorageAndRetreival {
 
     @Test
     void test() {
-        SupplyChainLabel root = createRoot();
+        SupplyChainLabel root = createHierarchy();
 
         SupplyChainNode supplyChainNode = SupplyChain
                 .builder()
-                .name("supplyChain leaf")
+                .name("supplyChain leaf new")
                 .build();
 
         SupplyChainNodeInserter supplyChainNodeInserter = SupplyChainNodeInserter
                 .builder()
                 .nodeToInsert(supplyChainNode)
-                .parentRef("rootSubSub")
+                .parentRef("branche1_1ID")
                 .build();
 
         SupplyChainNodeUpDater supplyChainNodeUpDater = new SupplyChainNodeUpDater();
@@ -75,52 +73,58 @@ public class TreeStorageAndRetreival {
         assertThat(supplyChainNodeInserter.result(), is(true));
     }
 
-    private SupplyChainLabel createRoot() {
+    private SupplyChainLabel createHierarchy() {
         SupplyChainLabel root = SupplyChainLabel
                 .builder()
-
                 .name("root")
                 .id("rootId")
                 .build();
 
-        SupplyChainLabel rootSubTree1 = SupplyChainLabel
+        SupplyChainLabel branche1 = SupplyChainLabel
                 .builder()
 
-                .name("rootSubTree one")
-                .id("rootSubTree1")
-
+                .name("branche 1")
+                .id("branche1ID")
                 .build();
 
-        SupplyChainLabel rootSubSubTree1 = SupplyChainLabel
+        SupplyChainLabel branche2 = SupplyChainLabel
                 .builder()
 
-                .name("rootSubTree one")
-                .id("rootSubTree1")
+                .name("branche 2")
+                .id("branche2ID")
 
                 .build();
+        root.addChild(branche1);
+        root.addChild(branche2);
 
-        rootSubTree1.addChild(rootSubSubTree1);
-
-        SupplyChainLabel rootSubSubTree2 = SupplyChainLabel
+        SupplyChainLabel branche1_1 = SupplyChainLabel
                 .builder()
-                .idPathToRoot(new LinkedList<>(List.of("rootSubSubTree2")))
-                .namePathToRoot(new LinkedList<>(List.of("rootSubSubTree two")))
-                .name("rootSubSubTree two")
-                .id("rootSubSubTree2")
-
+                .name("branche1_1")
+                .id("branche1_1ID")
                 .build();
-        rootSubTree1.addChild(rootSubSubTree2);
 
-        SupplyChainLabel rootSubTree2 = SupplyChainLabel
+        SupplyChainLabel branche1_2 = SupplyChainLabel
                 .builder()
-
-                .name("rootSubTree one")
-                .id("rootSubTree1")
-
+                .name("branche1_2")
+                .id("branche1_2ID")
                 .build();
 
-        root.addChild(rootSubTree1);
-        root.addChild(rootSubTree2);
+        branche1.addChild(branche1_1);
+        branche1.addChild(branche1_2);
+
+        SupplyChainLabel branche2_1 = SupplyChainLabel
+                .builder()
+                .name("branche2_1")
+                .id("branche2_1ID")
+                .build();
+
+        SupplyChainLabel branche2_2 = SupplyChainLabel
+                .builder()
+                .name("branche2_2")
+                .id("branche2_2ID")
+                .build();
+        branche2.addChild(branche2_1);
+        branche2.addChild(branche2_2);
         return root;
     }
 
