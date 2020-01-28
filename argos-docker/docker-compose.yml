@@ -37,7 +37,6 @@ services:
   oauth-stub:
     build:
       context: oauth-stub
-    command: --global-response-templating
     ports:
       - 8087:8080
 
