@@ -30,6 +30,7 @@ services:
       spring.security.oauth2.client.provider.azure.tokenUri: http://oauth-stub:8080/oauth2/v2.0/token
       spring.security.oauth2.client.provider.azure.userInfoUri: http://oauth-stub:8080/v1.0/me
       jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
+      auth.frontendRedirectBasePath: http://localhost:8087
     ports:
       - 8080:8080
 
