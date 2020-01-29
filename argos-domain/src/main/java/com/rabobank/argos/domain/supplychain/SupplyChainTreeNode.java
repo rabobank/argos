@@ -25,7 +25,7 @@ import java.util.List;
 public class SupplyChainTreeNode {
     public enum TYPE {LABEL, SUPPLYCHAIN}
 
-    private String id;
+    private String referenceId;
     private String name;
     private List<SupplyChainTreeNode> children;
 }

@@ -25,6 +25,10 @@ public interface SupplyChainRepository {
 
     boolean exists(String supplyChainId);
     List<SupplyChain> findByName(String name);
+
+    List<SupplyChain> findByNameParenLabelId(String parentLabelid);
+
+    SupplyChain findByNameAndPathToRoot(String name, List<String> pathToRoot);
     List<SupplyChain> findAll();
     void save(SupplyChain supplyChain);
 }

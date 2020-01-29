@@ -62,6 +62,16 @@ public class SupplyChainRepositoryImpl implements SupplyChainRepository {
     }
 
     @Override
+    public List<SupplyChain> findByNameParenLabelId(String parentLabelid) {
+        return null;
+    }
+
+    @Override
+    public SupplyChain findByNameAndPathToRoot(String name, List<String> pathToRoot) {
+        return null;
+    }
+
+    @Override
     public List<SupplyChain> findAll() {
         return template.findAll(SupplyChain.class, COLLECTION);
     }

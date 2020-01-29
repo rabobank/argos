@@ -17,8 +17,11 @@ package com.rabobank.argos.service.domain.supplychain;
 
 import com.rabobank.argos.domain.supplychain.SupplyChainLabel;
 
+import java.util.List;
+
 public interface SupplyChainLabelRepository {
     void save(SupplyChainLabel supplyChainLabel);
-
     SupplyChainLabel findById(String id);
+
+    SupplyChainLabel findByNameAndPathToRoot(String name, List<String> pathToRoot);
 }
