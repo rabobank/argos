@@ -155,7 +155,7 @@ public class JenkinsTestIT {
 
         log.info("build number {}", buildNumber);
 
-        await().atMost(2, MINUTES).until(() -> !build.details().isBuilding());
+        await().atMost(4, MINUTES).until(() -> !build.details().isBuilding());
         return buildNumber;
     }
 
