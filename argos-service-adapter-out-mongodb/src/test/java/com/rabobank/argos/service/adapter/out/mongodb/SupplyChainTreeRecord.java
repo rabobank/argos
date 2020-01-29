@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.supplychain;
+package com.rabobank.argos.service.adapter.out.mongodb;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-import java.util.LinkedList;
-
-import static java.util.UUID.randomUUID;
-
-@Getter
-@Setter
+@Data
 @Builder
-public class SupplyChain {
-    private String parentLabelId;
-    private LinkedList<String> pathToRoot;
-    @Builder.Default
-    private String supplyChainId = randomUUID().toString();
-    private String name;
+public class SupplyChainTreeRecord {
+
+    enum Type {LABEL, SUPPLYCHAIN}
+
+    private String id;
+    private String parentId;
+    private String objectId;
+    private Type type;
+
 }

@@ -56,8 +56,8 @@ public abstract class SupplyChainNode {
         this.lft = left;
         this.rght = right;
         this.depth = depth;
-        this.idPathToRoot = idPathToRoot;
-        this.namePathToRoot = namePathToRoot;
+        this.idPathToRoot = new LinkedList<>(idPathToRoot);
+        this.namePathToRoot = new LinkedList<>(namePathToRoot);
     }
 
     @Builder

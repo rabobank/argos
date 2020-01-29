@@ -31,7 +31,6 @@ public class SupplyChainNodeInserter implements HierarchicalNodeVisitor<Boolean>
     @Override
     public boolean visitEnter(SupplyChainLabel supplyChainLabel) {
         log.debug("entered node: {} ", supplyChainLabel.getName());
-
         Optional<SupplyChainLabel> parentNode = supplyChainLabel.getChildren()
                     .stream()
                     .filter(lnode -> lnode.hasChildren() && lnode.getId().equals(parentRef))

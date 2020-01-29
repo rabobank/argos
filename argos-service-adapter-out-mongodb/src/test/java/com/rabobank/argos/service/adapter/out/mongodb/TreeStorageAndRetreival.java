@@ -24,7 +24,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 public class TreeStorageAndRetreival {
     private MongodExecutable mongodExecutable;
@@ -52,77 +52,50 @@ public class TreeStorageAndRetreival {
 
 
     @Test
-    void test() {
+    void testPoc() {
         SupplyChainLabel root = createHierarchy();
-
-        SupplyChainNode supplyChainNode = SupplyChain
-                .builder()
-                .name("supplyChain leaf new")
-                .build();
-
-        SupplyChainNodeInserter supplyChainNodeInserter = SupplyChainNodeInserter
-                .builder()
-                .nodeToInsert(supplyChainNode)
-                .parentRef("branche1_1ID")
-                .build();
-
         SupplyChainNodeUpDater supplyChainNodeUpDater = new SupplyChainNodeUpDater();
-
-        root.accept(supplyChainNodeInserter);
         root.accept(supplyChainNodeUpDater);
-        assertThat(supplyChainNodeInserter.result(), is(true));
+        assertThat(supplyChainNodeUpDater.result().getCreated(), hasSize(7));
     }
 
-    private SupplyChainLabel createHierarchy() {
-        SupplyChainLabel root = SupplyChainLabel
+    private SupplyChainNode createBrancheSupplyChain(String name) {
+        return SupplyChain
+                .builder()
+                .name(name)
+                .build();
+    }
+
+    private SupplyChainLabel createBrancheLabel(String name) {
+        return SupplyChainLabel
+                .builder()
+                .name(name)
+                .build();
+    }
+
+    private SupplyChainLabel createRoot() {
+        return SupplyChainLabel
                 .builder()
                 .name("root")
                 .id("rootId")
                 .build();
+    }
 
-        SupplyChainLabel branche1 = SupplyChainLabel
-                .builder()
 
-                .name("branche 1")
-                .id("branche1ID")
-                .build();
-
-        SupplyChainLabel branche2 = SupplyChainLabel
-                .builder()
-
-                .name("branche 2")
-                .id("branche2ID")
-
-                .build();
+    private SupplyChainLabel createHierarchy() {
+        SupplyChainLabel root = createRoot();
+        SupplyChainNode supplyChainNode = createBrancheSupplyChain("supply chain");
+        SupplyChainLabel branche1 = createBrancheLabel("branche 1");
+        SupplyChainLabel branche2 = createBrancheLabel("branche 2");
         root.addChild(branche1);
         root.addChild(branche2);
-
-        SupplyChainLabel branche1_1 = SupplyChainLabel
-                .builder()
-                .name("branche1_1")
-                .id("branche1_1ID")
-                .build();
-
-        SupplyChainLabel branche1_2 = SupplyChainLabel
-                .builder()
-                .name("branche1_2")
-                .id("branche1_2ID")
-                .build();
-
+        SupplyChainLabel branche1_1 = createBrancheLabel("branche 1_1");
+        branche1_1.addChild(supplyChainNode);
+        SupplyChainLabel branche1_2 = createBrancheLabel("branche 1_2");
         branche1.addChild(branche1_1);
         branche1.addChild(branche1_2);
-
-        SupplyChainLabel branche2_1 = SupplyChainLabel
-                .builder()
-                .name("branche2_1")
-                .id("branche2_1ID")
-                .build();
-
-        SupplyChainLabel branche2_2 = SupplyChainLabel
-                .builder()
-                .name("branche2_2")
-                .id("branche2_2ID")
-                .build();
+        SupplyChainLabel branche2_1 = createBrancheLabel("branche 2_1");
+        SupplyChainLabel branche2_2 = createBrancheLabel("branche2_2");
         branche2.addChild(branche2_1);
         branche2.addChild(branche2_2);
         return root;
