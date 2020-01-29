@@ -45,8 +45,8 @@ import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static com.rabobank.argos.test.NexusHelper.getWarSnapshotHash;
 import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
-import static com.rabobank.argos.test.ServiceStatusHelper.getSnapshotHash;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.isValidEndProduct;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
@@ -57,20 +57,19 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 public class JenkinsTestIT {
 
 
-    public static final String TEST_APP_BRANCH = "master";
+    public static final String TEST_APP_BRANCH = "multi-segment";
     private static final String KEY_PASSWORD = "test";
     private static Properties properties = Properties.getInstance();
     private static final String SERVER_BASEURL = "server.baseurl";
     private JenkinsServer jenkins;
     private String supplyChainId;
-    private String keyId;
+    private String keyIdBob;
 
     @BeforeAll
     static void startup() {
@@ -86,8 +85,12 @@ public class JenkinsTestIT {
         RestSupplyChainItem restSupplyChainItem = getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
         this.supplyChainId = restSupplyChainItem.getId();
         RestKeyPair restKeyPair = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair1.json"), RestKeyPair.class);
-        keyId = restKeyPair.getKeyId();
+        keyIdBob = restKeyPair.getKeyId();
         getKeyApi().storeKey(restKeyPair);
+        RestKeyPair restKeyPairExt = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair2.json"), RestKeyPair.class);
+        getKeyApi().storeKey(restKeyPairExt);
+        restKeyPairExt = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair3.json"), RestKeyPair.class);
+        getKeyApi().storeKey(restKeyPairExt);
         createLayout();
         jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
     }
@@ -112,7 +115,7 @@ public class JenkinsTestIT {
 
     private void createLayout()  {
         try {
-            signAndStoreLayout(supplyChainId,new ObjectMapper().readValue(getClass().getResourceAsStream("/to-verify-layout.json"), RestLayoutMetaBlock.class),keyId, KEY_PASSWORD);
+            signAndStoreLayout(supplyChainId,new ObjectMapper().readValue(getClass().getResourceAsStream("/to-verify-layout.json"), RestLayoutMetaBlock.class),keyIdBob, KEY_PASSWORD);
         } catch (IOException e) {
             fail(e);
         }
@@ -137,6 +140,10 @@ public class JenkinsTestIT {
         Map<String, Job> jobs = folderJob.getJobs();
         int buildNumber = runBuild(jobs.get(TEST_APP_BRANCH));
 
+        verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
+        
+        // a number of times to create a lot of link objects
+        verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
         verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
 
         verifyEndProducts();
@@ -168,8 +175,19 @@ public class JenkinsTestIT {
     }
 
     public void verifyEndProducts() {
-        String hash = getSnapshotHash();
-        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("target/argos-test-app.war").hash(hash))));
+        String hash = getWarSnapshotHash();
+        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash))));
+        /*
+         * assertFalse(isValidEndProduct(supplyChainId, new
+         * RestVerifyCommand().addExpectedProductsItem(new
+         * RestArtifact().uri("argos-test-app.war").hash(
+         * "1234567890123456789012345678901234567890123456789012345678901234"))));
+         * RestVerifyCommand verifyCommand = new RestVerifyCommand()
+         * .addExpectedProductsItem(new
+         * RestArtifact().uri("argos-test-app.war").hash(hash))
+         * .addExpectedProductsItem(new RestArtifact().uri("foo").hash(hash));
+         * assertFalse(isValidEndProduct(supplyChainId, verifyCommand));
+         */
     }
 
     private JobWithDetails getJob(String name) throws IOException {
@@ -182,6 +200,4 @@ public class JenkinsTestIT {
         return folderJob.isPresent() &&
                 folderJob.get().getJob(TEST_APP_BRANCH) != null;
     }
-
-
 }

@@ -46,6 +46,10 @@ The clients should set a runId which is as unique as possible. This runId is use
     processMatchFilters(matchFilters, artifacts)
         map = {}
         map = filter(matchFilters, artifacts)
+        // all artifacts should be in map
+        for artifact in artifacts
+            if artifact not in map
+                error
         return getLinks(destSegment, map, [[]])
                 
     filter(matchFilters, artifacts)
@@ -91,20 +95,22 @@ Some helper functions
 ```
     getLinks(segment, map, linkSets)
         resolvedSteps = []
+        resultingLinkSets = []
         // get links of dest steps in segment
         links = []
         for step in map
             links.add(query(segment, step))
             resolvedSteps.add(step)
                 
-            // get the other steps with the runIds
-            runIds = findRunIds(links)
-            newLinkSets = linkSets
-            for runId in runIds
-                runIdLinks = links
-                runIdLinks.add(query(runId, segment, resolvedSteps))
-                newLinkSets = permutate(runIdLinks, newLinkSets)
-            return newLinkSets
+         // get the links of the other steps with the runIds
+         runIds = findRunIds(links)
+         resultingLinkSets = linkSets
+         for runId in runIds
+            // links of already resolved steps
+            runIdLinks = links
+            runIdLinks.add(query(runId, segment, resolvedSteps))
+            resultingLinkSets = permutate(runIdLinks, resultingLinkSets)
+         return resultingLinkSets
 
     permutate(links, linkSets)
         temp = []
@@ -114,6 +120,7 @@ Some helper functions
                 temp.add(linkSet.add(segmentLinkSet))
         return temp
             
+    // permutate link sets on step within segment
     permutateOnSegment(links)
         temp = [[]]
         stepSets = group links by step and links
