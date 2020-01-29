@@ -18,7 +18,7 @@ package com.rabobank.argos.domain.supplychain;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -28,7 +28,7 @@ public class SupplyChainLabel {
     private String id = UUID.randomUUID().toString();
     private String parentLabelId;
     private String name;
-    private LinkedList<String> pathToRoot;
+    private List<String> pathToRoot;
 
     boolean isRoot() {
         return parentLabelId == null;

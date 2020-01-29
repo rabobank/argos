@@ -67,7 +67,7 @@ public class SupplyChainRepositoryImpl implements SupplyChainRepository {
     }
 
     @Override
-    public SupplyChain findByNameAndPathToRoot(String name, List<String> pathToRoot) {
+    public Optional<SupplyChain> findByNameAndPathToRoot(String name, List<String> pathToRoot) {
         return null;
     }
 

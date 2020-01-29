@@ -22,13 +22,11 @@ import java.util.Optional;
 
 public interface SupplyChainRepository {
     Optional<SupplyChain> findBySupplyChainId(String supplyChainId);
-
     boolean exists(String supplyChainId);
     List<SupplyChain> findByName(String name);
-
     List<SupplyChain> findByNameParenLabelId(String parentLabelid);
 
-    SupplyChain findByNameAndPathToRoot(String name, List<String> pathToRoot);
+    Optional<SupplyChain> findByNameAndPathToRoot(String name, List<String> pathToRoot);
     List<SupplyChain> findAll();
     void save(SupplyChain supplyChain);
 }
