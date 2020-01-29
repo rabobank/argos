@@ -73,25 +73,6 @@ public class ServiceStatusHelper {
     }
 
 
-    public static String getSnapshotHash() {
-        try {
-            HttpClient client = HttpClient.newBuilder().followRedirects(Redirect.ALWAYS).build();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(properties.getNexusSnapshotUrl()))
-                    .method("GET", HttpRequest.BodyPublishers.noBody())
-                    .build();
-            HttpResponse<byte[]> send = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-            assertThat(send.statusCode(), is(200));
-            MessageDigest digest = DigestUtils.getSha256Digest();
-            digest.update(send.body(), 0, send.body().length);
-            String hash = Hex.encodeHexString(digest.digest());
-            return hash;
-        } catch (IOException | InterruptedException e) {
-            fail(e.getMessage());
-        }
-        return null;
-    }
-
 
 
     public static void waitForArgosIntegrationTestServiceToStart() {

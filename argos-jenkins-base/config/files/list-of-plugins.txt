@@ -1,3 +1,4 @@
 blueocean
 git
 greenballs
+deployit-plugin

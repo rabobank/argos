@@ -22,4 +22,4 @@ COPY jenkins_config/*.groovy* /usr/share/jenkins/ref/init.groovy.d/
 COPY target/lib/argos.hpi /var/jenkins_home/argos.hpi
 COPY jenkins_config/list-of-plugins.txt /var/jenkins_home/list-of-plugins.txt
 
-RUN /usr/local/bin/install-plugins.sh $(cat //var/jenkins_home/list-of-plugins.txt)
+RUN /usr/local/bin/install-plugins.sh $(cat /var/jenkins_home/list-of-plugins.txt)
