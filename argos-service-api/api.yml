@@ -349,12 +349,12 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
-  /label-tree:
+  /supplychaintree:
     get:
-      summary: get Label Trees
-      operationId: getLabelTrees
+      summary: get supply chain trees
+      operationId: getSupplyChainTrees
       tags:
-        - label
+        - supplychain
       parameters:
         - name: depth
           in: query
@@ -362,26 +362,26 @@ paths:
           schema:
             type: integer
             format: int32
-        - name: parentLabelId
+        - name: parentId
           in: query
           required: false
           schema:
             type: string
-        - name: labelName
-          description: full name or part of the label name
+        - name: name
+          description: full name or part of the label name or supply chain name
           in: query
           required: false
           schema:
             type: string
       responses:
         '200':
-          description: list of label tree nodes
+          description: list of supply chain nodes
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/LabelTreeNode"
+                  $ref: "#/components/schemas/SupplyChainNode"
         '500':
           $ref: '#/components/responses/Error'
 
@@ -754,18 +754,28 @@ components:
           type: string
         parentId:
           type: string
-    LabelTreeNode:
+    SupplyChainNode:
       type: object
       required:
-        - label
+        - name
+        - type
+        - referenceId
         - children
       properties:
-        label:
-          $ref: "#/components/schemas/Label"
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - LABEL
+            - SUPPLY_CHAIN
+        referenceId:
+          type: string
         children:
           type: array
           items:
-            $ref: "#/components/schemas/Label"
+            $ref: "#/components/schemas/SupplyChainNode"
+
     Error:
       type: object
       required:
