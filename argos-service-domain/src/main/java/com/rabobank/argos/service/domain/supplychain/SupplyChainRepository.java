@@ -24,8 +24,6 @@ public interface SupplyChainRepository {
     Optional<SupplyChain> findBySupplyChainId(String supplyChainId);
     boolean exists(String supplyChainId);
     List<SupplyChain> findByName(String name);
-
-    List<SupplyChain> findByParenLabelId(String parentLabelid);
     Optional<SupplyChain> findByNameAndPathToRoot(String name, List<String> pathToRoot);
     List<SupplyChain> findAll();
     void save(SupplyChain supplyChain);

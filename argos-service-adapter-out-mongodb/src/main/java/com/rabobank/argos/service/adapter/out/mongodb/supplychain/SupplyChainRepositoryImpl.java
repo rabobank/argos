@@ -27,7 +27,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,11 +59,6 @@ public class SupplyChainRepositoryImpl implements SupplyChainRepository {
     public List<SupplyChain> findByName(String name) {
         Query query = new Query(Criteria.where(SUPPLY_CHAIN_NAME).is(name));
         return template.find(query, SupplyChain.class, COLLECTION);
-    }
-
-    @Override
-    public List<SupplyChain> findByParenLabelId(String parentLabelid) {
-        return Collections.emptyList();
     }
 
     @Override

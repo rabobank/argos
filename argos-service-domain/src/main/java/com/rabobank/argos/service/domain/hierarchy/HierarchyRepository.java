@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.supplychain;
+package com.rabobank.argos.service.domain.hierarchy;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import com.rabobank.argos.domain.hierarchy.TreeNode;
 
 import java.util.List;
 
-@Builder
-@Getter
-@Setter
-public class SupplyChainTreeNode {
-    public enum Type {LABEL, SUPPLY_CHAIN}
-    private String referenceId;
-    private String name;
-    private List<SupplyChainTreeNode> children;
-    private Type type;
+public interface HierarchyRepository {
+    List<String> getPathToRoot(String parentLabelId);
+
+    List<TreeNode> searchByName(String name, int depth);
+
+    TreeNode getSubTree(String id, int depth);
 }

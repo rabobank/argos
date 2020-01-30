@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.supplychain;
+package com.rabobank.argos.domain.hierarchy;
 
-import com.rabobank.argos.domain.supplychain.SupplyChainLabel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface SupplyChainLabelRepository {
-    boolean exists(String id);
-
-    void save(SupplyChainLabel supplyChainLabel);
-
-    Optional<SupplyChainLabel> findById(String id);
-
-    Optional<SupplyChainLabel> findByNameAndPathToRoot(String name, List<String> pathToRoot);
+@Builder
+@Getter
+@Setter
+public class TreeNode {
+    public enum Type {LABEL, SUPPLY_CHAIN}
+    private String referenceId;
+    private String name;
+    private List<TreeNode> children;
+    private Type type;
 }

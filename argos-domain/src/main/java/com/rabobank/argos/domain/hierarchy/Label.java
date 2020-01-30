@@ -13,14 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.supplychain;
+package com.rabobank.argos.domain.hierarchy;
 
-import com.rabobank.argos.domain.supplychain.SupplyChainTreeNode;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface SupplyChainTreeRepository {
-    List<String> getPathToRoot(String parentLabelId);
-    List<SupplyChainTreeNode> searchByName(String name, int depth);
-    SupplyChainTreeNode getSubTree(String id, int depth);
+@Builder
+@Getter
+@Setter
+public class Label {
+    @Builder.Default
+    private String id = UUID.randomUUID().toString();
+    private String parentLabelId;
+    private String name;
+    private List<String> pathToRoot;
+
+    boolean isRoot() {
+        return parentLabelId == null;
+    }
 }

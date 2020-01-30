@@ -1,7 +1,7 @@
-package com.rabobank.argos.service.adapter.out.mongodb.supplychain;
+package com.rabobank.argos.service.adapter.out.mongodb.hierarchy;
 
-import com.rabobank.argos.domain.supplychain.SupplyChainLabel;
-import com.rabobank.argos.service.domain.supplychain.SupplyChainLabelRepository;
+import com.rabobank.argos.domain.hierarchy.Label;
+import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
-public class SupplyChainLabelRepositoryImpl implements SupplyChainLabelRepository {
+public class LabelRepositoryImpl implements LabelRepository {
 
     private static final String COLLECTION = "supplyChainlabels";
     private static final String SUPPLY_CHAIN_LABEL_ID_FIELD = "id";
@@ -22,29 +22,28 @@ public class SupplyChainLabelRepositoryImpl implements SupplyChainLabelRepositor
 
     @Override
     public boolean exists(String id) {
-        return template.exists(getPrimaryKeyQuery(id), SupplyChainLabel.class, COLLECTION);
+        return template.exists(getPrimaryKeyQuery(id), Label.class, COLLECTION);
     }
 
     @Override
-    public void save(SupplyChainLabel supplyChainLabel) {
-        template.save(supplyChainLabel, COLLECTION);
+    public void save(Label label) {
+        template.save(label, COLLECTION);
     }
 
     @Override
-    public Optional<SupplyChainLabel> findById(String id) {
-        return Optional.ofNullable(template.findOne(getPrimaryKeyQuery(id), SupplyChainLabel.class, COLLECTION));
+    public Optional<Label> findById(String id) {
+        return Optional.ofNullable(template.findOne(getPrimaryKeyQuery(id), Label.class, COLLECTION));
     }
 
     @Override
-    public Optional<SupplyChainLabel> findByNameAndPathToRoot(String name, List<String> pathToRoot) {
+    public Optional<Label> findByNameAndPathToRoot(String name, List<String> pathToRoot) {
 
-        //template.getDb().cre
         Criteria rootCriteria = Criteria.where(SUPPLY_CHAIN_LABEL_NAME)
                 .is(name)
                 .andOperator(Criteria.where("pathToRoot").is(pathToRoot));
         Query query = new Query(rootCriteria);
         return Optional.of(
-                template.findOne(query, SupplyChainLabel.class, COLLECTION));
+                template.findOne(query, Label.class, COLLECTION));
 
     }
 
