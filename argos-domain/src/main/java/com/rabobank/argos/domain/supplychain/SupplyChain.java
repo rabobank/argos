@@ -19,7 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.LinkedList;
+import java.util.List;
 
 import static java.util.UUID.randomUUID;
 
@@ -28,7 +28,7 @@ import static java.util.UUID.randomUUID;
 @Builder
 public class SupplyChain {
     private String parentLabelId;
-    private LinkedList<String> pathToRoot;
+    private List<String> pathToRoot;
     @Builder.Default
     private String supplyChainId = randomUUID().toString();
     private String name;

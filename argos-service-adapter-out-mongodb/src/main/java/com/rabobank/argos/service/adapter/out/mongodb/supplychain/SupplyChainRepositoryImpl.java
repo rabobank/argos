@@ -27,6 +27,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,13 +63,13 @@ public class SupplyChainRepositoryImpl implements SupplyChainRepository {
     }
 
     @Override
-    public List<SupplyChain> findByNameParenLabelId(String parentLabelid) {
-        return null;
+    public List<SupplyChain> findByParenLabelId(String parentLabelid) {
+        return Collections.emptyList();
     }
 
     @Override
     public Optional<SupplyChain> findByNameAndPathToRoot(String name, List<String> pathToRoot) {
-        return null;
+        return Optional.empty();
     }
 
     @Override

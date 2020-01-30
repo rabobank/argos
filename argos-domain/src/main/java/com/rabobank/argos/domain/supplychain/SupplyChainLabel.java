@@ -16,13 +16,15 @@
 package com.rabobank.argos.domain.supplychain;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.UUID;
 
 @Builder
-@Data
+@Getter
+@Setter
 public class SupplyChainLabel {
     @Builder.Default
     private String id = UUID.randomUUID().toString();

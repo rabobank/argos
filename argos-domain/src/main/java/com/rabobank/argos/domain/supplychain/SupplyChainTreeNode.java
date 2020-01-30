@@ -16,16 +16,18 @@
 package com.rabobank.argos.domain.supplychain;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 @Builder
-@Data
+@Getter
+@Setter
 public class SupplyChainTreeNode {
-    public enum TYPE {LABEL, SUPPLYCHAIN}
-
+    public enum Type {LABEL, SUPPLY_CHAIN}
     private String referenceId;
     private String name;
     private List<SupplyChainTreeNode> children;
+    private Type type;
 }

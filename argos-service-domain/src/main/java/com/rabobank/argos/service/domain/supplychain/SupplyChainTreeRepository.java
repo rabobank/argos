@@ -22,6 +22,5 @@ import java.util.List;
 public interface SupplyChainTreeRepository {
     List<String> getPathToRoot(String parentLabelId);
     List<SupplyChainTreeNode> searchByName(String name, int depth);
-
     SupplyChainTreeNode getSubTree(String id, int depth);
 }
