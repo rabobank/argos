@@ -80,6 +80,7 @@
 		<junit-jupiter.version>5.5.2</junit-jupiter.version>
 		<jackson-datatype.version>2.10.0</jackson-datatype.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
+		<pitest.version>1.4.10</pitest.version>
 		<maven.build.timestamp.format>dd-MM-yyyy HH:mm</maven.build.timestamp.format>
 		<bouncycastle.version>1.64</bouncycastle.version>
 	</properties>
@@ -318,7 +319,7 @@
 			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>4.1.3</version>
+				<version>4.2.2</version>
 				<executions>
 					<execution>
 						<id>api</id>
@@ -468,6 +469,56 @@
 	</build>
 
 	<profiles>
+		<profile>
+			<id>pitest</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.pitest</groupId>
+						<artifactId>pitest-maven</artifactId>
+						<version>${pitest.version}</version>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>mutationCoverage</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<threads>4</threads>
+							<timeoutConstant>10000</timeoutConstant>
+							<timestampedReports>false</timestampedReports>
+							<mutationThreshold>80</mutationThreshold>
+							<coverageThreshold>80</coverageThreshold>
+							<failWhenNoMutations>true</failWhenNoMutations>
+							<reportsDirectory>${project.build.directory}/pi-report</reportsDirectory>
+							<avoidCallsTo>
+								<avoidCallsTo>org.slf4j</avoidCallsTo>
+							</avoidCallsTo>
+							<excludedClasses>
+								<excludedClasse>com.rabobank.argos.argos4j.rest.api.*</excludedClasse>
+								<excludedClasse>*MapperImpl</excludedClasse>
+							</excludedClasses>
+							<targetClasses>
+								<param>com.rabobank.argos.*</param>
+							</targetClasses>
+							<outputFormats>
+								<format>XML</format>
+								<format>HTML</format>
+							</outputFormats>
+						</configuration>
+						<dependencies>
+							<dependency>
+								<groupId>org.pitest</groupId>
+								<artifactId>pitest-junit5-plugin</artifactId>
+								<version>0.10</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>sonar</id>
 			<build>

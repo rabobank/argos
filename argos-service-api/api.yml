@@ -22,6 +22,7 @@ info:
     name: Apache License 2.0
 servers:
   - url: /api
+
 paths:
   /supplychain:
     post:
@@ -349,7 +350,172 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
+  /hierarchy:
+    get:
+      summary: get hierarchy trees
+      operationId: getHierarchyTrees
+      tags:
+        - hierarchy
+      parameters:
+        - name: depth
+          in: query
+          required: false
+          description: specifies the maximum number of levels are retured when not specified all levels are returned
+          schema:
+            type: integer
+            format: int32
+        - name: parentLabelId
+          in: query
+          required: false
+          description: this will be the root of the retruned tree
+          schema:
+            type: string
+        - name: name
+          description: full name or part of the label name or supply chain name
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: list of supply chain nodes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TreeNode"
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /label:
+    post:
+      summary: create a new label
+      operationId: createLabel
+      tags:
+        - hierarchy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Label"
+      responses:
+        '200':
+          description: created label
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Label'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+  /label/{labelId}:
+    get:
+      summary: get label by id
+      operationId: getLabelById
+      tags:
+        - hierarchy
+      parameters:
+        - name: labelId
+          in: path
+          description: label id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: label
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Label'
+        '500':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: update label by id
+      operationId: updateLabelById
+      tags:
+        - hierarchy
+      parameters:
+        - name: labelId
+          in: path
+          description: label id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: created label
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Label'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+    delete:
+      summary: delete label by id
+      operationId: deleteLabelById
+      tags:
+        - hierarchy
+      parameters:
+        - name: labelId
+          in: path
+          description: label id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: label deleted
+        '500':
+          $ref: '#/components/responses/Error'
+  /user/me:
+    get:
+      summary: returns the user profile
+      operationId: getUserProfile
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      responses:
+        '200':
+          description: User Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '500':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: updates the user profile
+      operationId: updateUserProfile
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserProfile"
+      responses:
+        '200':
+          description: Updated User Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '500':
+          $ref: '#/components/responses/Error'
 components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   responses:
     ValidationError:
       description: validation error
@@ -623,6 +789,52 @@ components:
             - MATERIALS
         destinationStepName:
           type: string
+    Label:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        parentLabelId:
+          type: string
+    TreeNode:
+      type: object
+      required:
+        - name
+        - type
+        - referenceId
+        - children
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - LABEL
+            - SUPPLY_CHAIN
+        referenceId:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/TreeNode"
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        keyIds:
+          type: array
+          items:
+            type: string
     Error:
       type: object
       required:
@@ -630,3 +842,5 @@ components:
       properties:
         message:
           type: string
+
+
