@@ -1,0 +1,53 @@
+'
+' Copyright (C) 2019 - 2020 Rabobank Nederland
+'
+' Licensed under the Apache License, Version 2.0 (the "License");
+' you may not use this file except in compliance with the License.
+' You may obtain a copy of the License at
+'
+'         http://www.apache.org/licenses/LICENSE-2.0
+'
+' Unless required by applicable law or agreed to in writing, software
+' distributed under the License is distributed on an "AS IS" BASIS,
+' WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+' See the License for the specific language governing permissions and
+' limitations under the License.
+'
+
+@startuml
+
+title Argos Server oauth2 authorization flow for azure
+
+actor user
+participant browser
+participant "argos service" as argos
+participant "external authorization service" as auth
+participant "user profile service (external resource server)" as up
+database "database"
+
+user -> browser: signup / signin
+
+browser -> argos: get oauth2/authorize/azure
+argos --> browser: redirect to authorization service
+
+browser -> auth: get /oauth2/v2.0/authorize
+auth --> browser: login page
+browser --> user: show login page
+
+user -> browser: enter credentials
+browser -> auth: post credentials
+auth --> browser: user consent page
+browser --> user: show user consent page
+
+user -> browser: user agrees
+browser -> auth: post agree
+auth --> browser: redirect to argos service /oauth2/callback/azure
+browser -> argos: get /oauth2/callback/azure
+argos -> auth: post /oauth2/v2.0/token
+auth --> argos: returns token
+argos -> up: get userprofile
+up --> argos: returns userprofile
+argos -> database: store / update user profile
+argos --> browser: redirect to argos frontend
+browser --> user: show argos frontend
+@enduml

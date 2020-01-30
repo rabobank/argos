@@ -22,6 +22,7 @@ info:
     name: Apache License 2.0
 servers:
   - url: /api
+
 paths:
   /supplychain:
     post:
@@ -349,7 +350,50 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
+  /user/me:
+    get:
+      summary: returns the user profile
+      operationId: getUserProfile
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      responses:
+        '200':
+          description: User Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '500':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: updates the user profile
+      operationId: updateUserProfile
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserProfile"
+      responses:
+        '200':
+          description: Updated User Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '500':
+          $ref: '#/components/responses/Error'
 components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   responses:
     ValidationError:
       description: validation error
@@ -623,6 +667,20 @@ components:
             - MATERIALS
         destinationStepName:
           type: string
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        keyIds:
+          type: array
+          items:
+            type: string
     Error:
       type: object
       required:

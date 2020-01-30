@@ -18,10 +18,28 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost/test
-  profiles:
-    active: default,integration-test
   jackson:
     default-property-inclusion: non_null
+  security:
+    oauth2:
+      client:
+        registration:
+          azure:
+            client-name: azure
+            clientId: <replace>
+            clientSecret: <replace>
+            redirectUri: "{baseUrl}/api/oauth2/callback/{registrationId}"
+            client-authentication-method: basic
+            authorization-grant-type: authorization_code
+            scope:
+              - https://graph.microsoft.com/User.Read
+        provider:
+          azure:
+            authorizationUri: http://localhost:8087/oauth2/v2.0/authorize
+            tokenUri: http://localhost:8087/oauth2/v2.0/token
+            userInfoUri: http://localhost:8087/v1.0/me
+            user-name-attribute: displayName
+
 management:
   endpoints:
     enabled-by-default: false
@@ -34,3 +52,20 @@ management:
     health:
       enabled: true
 
+jwt:
+  token:
+    expiration: PT48H
+    # replace with the result of com.rabobank.argos.service.security.TokenProvider.main
+    secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
+
+
+  # After successfully authenticating with the OAuth2 Provider,
+  # we'll be generating an auth token for the user and sending the token to the
+  # redirectUri mentioned by the client in the /oauth2/authorize request.
+  # We're not using cookies because they won't work well in mobile clients.
+auth:
+  frontendRedirectBasePath: http://localhost:3000
+
+logging:
+  level:
+    root: INFO

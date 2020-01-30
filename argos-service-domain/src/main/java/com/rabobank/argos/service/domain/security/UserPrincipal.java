@@ -13,14 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain;
+package com.rabobank.argos.service.domain.security;
 
-public class ArgosError extends RuntimeException {
-    public ArgosError(String message, Throwable e) {
-        super(message, e);
+
+import com.rabobank.argos.service.domain.user.User;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.List;
+
+public class UserPrincipal extends org.springframework.security.core.userdetails.User {
+    private final User user;
+
+    public UserPrincipal(User user) {
+        super(user.getName(), "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        this.user = user;
     }
 
-    public ArgosError(String message) {
-        super(message);
+    public String getId() {
+        return user.getUserId();
     }
 }

@@ -13,14 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain;
+package com.rabobank.argos.service.security.oauth2.user;
 
-public class ArgosError extends RuntimeException {
-    public ArgosError(String message, Throwable e) {
-        super(message, e);
+import java.util.Map;
+
+public class AzureOAuth2UserInfo extends OAuth2UserInfo {
+
+    public AzureOAuth2UserInfo(Map<String, Object> attributes) {
+        super(attributes);
     }
 
-    public ArgosError(String message) {
-        super(message);
+    @Override
+    public String getId() {
+        return (String) attributes.get("id");
     }
+
+    @Override
+    public String getName() {
+        return (String) attributes.get("displayName");
+    }
+
+    @Override
+    public String getEmail() {
+        return ((String) attributes.getOrDefault("userPrincipalName", "")).toLowerCase();
+    }
+
 }

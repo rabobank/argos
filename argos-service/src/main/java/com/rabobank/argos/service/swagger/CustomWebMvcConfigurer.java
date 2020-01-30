@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain;
+package com.rabobank.argos.service.swagger;
 
-public class ArgosError extends RuntimeException {
-    public ArgosError(String message, Throwable e) {
-        super(message, e);
-    }
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-    public ArgosError(String message) {
-        super(message);
+@Configuration
+public class CustomWebMvcConfigurer implements WebMvcConfigurer {
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/swagger").setViewName("redirect:/swagger/");
+        registry.addViewController("/swagger/").setViewName("forward:/swagger/index.html");
     }
 }

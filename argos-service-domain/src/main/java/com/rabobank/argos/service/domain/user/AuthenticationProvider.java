@@ -13,14 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain;
+package com.rabobank.argos.service.domain.user;
 
-public class ArgosError extends RuntimeException {
-    public ArgosError(String message, Throwable e) {
-        super(message, e);
-    }
-
-    public ArgosError(String message) {
-        super(message);
-    }
+public enum AuthenticationProvider {
+    AZURE
 }

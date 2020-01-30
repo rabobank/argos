@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain;
+package com.rabobank.argos.service.security.oauth2.user;
 
-public class ArgosError extends RuntimeException {
-    public ArgosError(String message, Throwable e) {
-        super(message, e);
-    }
+import com.rabobank.argos.service.domain.user.AuthenticationProvider;
+import org.junit.jupiter.api.Test;
 
-    public ArgosError(String message) {
-        super(message);
+import java.util.Collections;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+
+class OAuth2UserInfoFactoryTest {
+
+    @Test
+    void getOAuth2UserInfoAzure() {
+        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(AuthenticationProvider.AZURE, Collections.emptyMap());
+        assertThat(userInfo, instanceOf(AzureOAuth2UserInfo.class));
     }
 }
