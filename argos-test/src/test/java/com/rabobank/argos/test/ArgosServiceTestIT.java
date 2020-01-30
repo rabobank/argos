@@ -64,4 +64,9 @@ public class ArgosServiceTestIT {
     Karate verification() {
         return new Karate().feature("classpath:feature/verification/verification.feature");
     }
+
+    @Karate.Test
+    Karate user() {
+        return new Karate().feature("classpath:feature/user/user.feature");
+    }
 }

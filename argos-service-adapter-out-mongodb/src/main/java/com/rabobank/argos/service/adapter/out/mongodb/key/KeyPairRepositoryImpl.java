@@ -18,14 +18,10 @@ package com.rabobank.argos.service.adapter.out.mongodb.key;
 import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -34,14 +30,9 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @RequiredArgsConstructor
 public class KeyPairRepositoryImpl implements KeyPairRepository {
 
-    private static final String COLLECTION = "keyPairs";
-    private static final String KEY_ID = "keyId";
+    static final String COLLECTION = "keyPairs";
+    static final String KEY_ID = "keyId";
     private final MongoTemplate template;
-
-    @PostConstruct
-    public void postConstruct() {
-        createIndex(new Index(KEY_ID, Sort.Direction.ASC).unique());
-    }
 
     @Override
     public void save(KeyPair keyPair) {
@@ -63,7 +54,4 @@ public class KeyPairRepositoryImpl implements KeyPairRepository {
     }
 
 
-    private void createIndex(IndexDefinition indexDefinition) {
-        template.indexOps(COLLECTION).ensureIndex(indexDefinition);
-    }
 }
