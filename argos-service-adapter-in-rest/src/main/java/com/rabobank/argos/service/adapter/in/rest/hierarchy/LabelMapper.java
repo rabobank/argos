@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.hierarchy;
+package com.rabobank.argos.service.adapter.in.rest.hierarchy;
 
 import com.rabobank.argos.domain.hierarchy.Label;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestLabel;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import java.util.Optional;
+@Mapper(componentModel = "spring")
+public interface LabelMapper {
 
-public interface LabelRepository {
+    Label convertFromRestLabel(RestLabel restLabel);
 
-    void save(Label label);
-
-    Optional<Label> findById(String id);
-
-    boolean deleteById(String id);
-
-    Optional<Label> update(String id, Label label);
+    @Mapping(target = "id", source = "labelId")
+    RestLabel convertToRestLabel(Label label);
 }

@@ -19,7 +19,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -27,10 +26,9 @@ import java.util.UUID;
 @Setter
 public class Label {
     @Builder.Default
-    private String id = UUID.randomUUID().toString();
+    private String labelId = UUID.randomUUID().toString();
     private String parentLabelId;
     private String name;
-    private List<String> pathToRoot;
 
     boolean isRoot() {
         return parentLabelId == null;

@@ -100,7 +100,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/swagger/**",
                         "/api/supplychain", "/api/supplychain/**",
-                        "/api/key", "/api/key/**", "/actuator/**")
+                        "/api/key", "/api/key/**", "/actuator/**",
+                        "/api/label", "/api/label/*", "/api/hierarchy")
                 .permitAll()
                 .antMatchers("/api/auth/**", "/api/oauth2/**")
                 .permitAll()

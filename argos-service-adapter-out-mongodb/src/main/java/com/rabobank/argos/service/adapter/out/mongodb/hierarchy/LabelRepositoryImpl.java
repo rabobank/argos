@@ -15,30 +15,29 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.hierarchy;
 
+import com.mongodb.client.result.UpdateResult;
 import com.rabobank.argos.domain.hierarchy.Label;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
 public class LabelRepositoryImpl implements LabelRepository {
 
-    private static final String COLLECTION = "supplyChainlabels";
-    private static final String SUPPLY_CHAIN_LABEL_ID_FIELD = "id";
-    private static final String SUPPLY_CHAIN_LABEL_NAME = "name";
+    static final String COLLECTION = "labels";
+    static final String LABEL_ID_FIELD = "labelId";
+    static final String LABEL_NAME_FIELD = "name";
+    static final String PARENT_LABEL_ID_FIELD = "parentLabelId";
     private final MongoTemplate template;
 
-    @Override
-    public boolean exists(String id) {
-        return template.exists(getPrimaryKeyQuery(id), Label.class, COLLECTION);
-    }
 
     @Override
     public void save(Label label) {
@@ -51,19 +50,27 @@ public class LabelRepositoryImpl implements LabelRepository {
     }
 
     @Override
-    public Optional<Label> findByNameAndPathToRoot(String name, List<String> pathToRoot) {
-
-        Criteria rootCriteria = Criteria.where(SUPPLY_CHAIN_LABEL_NAME)
-                .is(name)
-                .andOperator(Criteria.where("pathToRoot").is(pathToRoot));
-        Query query = new Query(rootCriteria);
-        return Optional.of(
-                template.findOne(query, Label.class, COLLECTION));
-
+    public boolean deleteById(String id) {
+        // delete also all sub labels
+        return false;
     }
 
-    private Query getPrimaryKeyQuery(String supplyChainId) {
-        return new Query(Criteria.where(SUPPLY_CHAIN_LABEL_ID_FIELD).is(supplyChainId));
+    @Override
+    public Optional<Label> update(String id, Label label) {
+        Query query = getPrimaryKeyQuery(id);
+        Document document = new Document();
+        template.getConverter().write(label, document);
+        UpdateResult updateResult = template.updateFirst(query, Update.fromDocument(document), Label.class, COLLECTION);
+        if (updateResult.getMatchedCount() > 0) {
+            label.setLabelId(id);
+            return Optional.of(label);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Query getPrimaryKeyQuery(String id) {
+        return new Query(Criteria.where(LABEL_ID_FIELD).is(id));
     }
 
 }
