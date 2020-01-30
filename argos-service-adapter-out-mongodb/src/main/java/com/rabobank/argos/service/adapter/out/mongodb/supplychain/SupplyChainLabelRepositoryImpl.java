@@ -37,6 +37,8 @@ public class SupplyChainLabelRepositoryImpl implements SupplyChainLabelRepositor
 
     @Override
     public Optional<SupplyChainLabel> findByNameAndPathToRoot(String name, List<String> pathToRoot) {
+
+        //template.getDb().cre
         Criteria rootCriteria = Criteria.where(SUPPLY_CHAIN_LABEL_NAME)
                 .is(name)
                 .andOperator(Criteria.where("pathToRoot").is(pathToRoot));
