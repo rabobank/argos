@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 class ExpectedCommandVerificationTest {
 
     private static final String STEP_NAME = "stepName";
-
+    private static final String SEGMENT_NAME = "segmentName";
     private ExpectedCommandVerification expectedCommandVerification;
 
     @Mock
@@ -90,9 +90,10 @@ class ExpectedCommandVerificationTest {
         List<String> stepCommands = asList("command1", "command2");
         when(step.getExpectedCommand()).thenReturn(stepCommands);
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
+        when(linkMetaBlock.getLink().getLayoutSegmentName()).thenReturn(SEGMENT_NAME);
         when(linkMetaBlock.getLink().getCommand()).thenReturn(null);
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
-        when(context.getStepByStepName(eq(STEP_NAME))).thenReturn(step);
+        when(context.getStepBySegmentNameAndStepName(eq(SEGMENT_NAME), eq(STEP_NAME))).thenReturn(step);
         when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
     }
 
@@ -103,7 +104,8 @@ class ExpectedCommandVerificationTest {
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
         when(linkMetaBlock.getLink().getCommand()).thenReturn(commands);
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
-        when(context.getStepByStepName(eq(STEP_NAME))).thenReturn(step);
+        when(linkMetaBlock.getLink().getLayoutSegmentName()).thenReturn(SEGMENT_NAME);
+        when(context.getStepBySegmentNameAndStepName(eq(SEGMENT_NAME), eq(STEP_NAME))).thenReturn(step);
         when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
 
     }
@@ -113,9 +115,10 @@ class ExpectedCommandVerificationTest {
         List<String> linkCommands = asList("command1", "command3");
         when(step.getExpectedCommand()).thenReturn(stepCommands);
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
+        when(linkMetaBlock.getLink().getLayoutSegmentName()).thenReturn(SEGMENT_NAME);
         when(linkMetaBlock.getLink().getCommand()).thenReturn(linkCommands);
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
-        when(context.getStepByStepName(eq(STEP_NAME))).thenReturn(step);
+        when(context.getStepBySegmentNameAndStepName(eq(SEGMENT_NAME), eq(STEP_NAME))).thenReturn(step);
         when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
 
     }

@@ -1,0 +1,215 @@
+{
+  "layout": {
+    "authorizedKeyIds": [
+      "c8df0a497ab0df7136c4f97892f17914e6e5e021fdc039f0ea7c27d5a95c1254"
+    ],
+    "expectedEndProducts": [
+      {
+        "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
+        "destinationType": "PRODUCTS",
+        "destinationStepName": "build segment 1",
+        "destinationSegmentName": "segment 1"
+      },
+      {
+        "pattern": "target/argos-frontend.jar",
+        "destinationType": "PRODUCTS",
+        "destinationStepName": "build segment 2",
+        "destinationSegmentName": "segment 2"
+      }
+    ],
+    "layoutSegments": [
+      {
+        "name": "segment 1",
+        "steps": [
+          {
+            "name": "build segment 1",
+            "authorizedKeyIds": [
+              "b91bec49e7aaaeeda162970c03193baef561c10337483a8bc0741d514dc63b9c"
+            ],
+            "requiredNumberOfLinks": 1,
+            "expectedCommand": [
+              "expectedCommand 1",
+              "expectedCommand 2"
+            ],
+            "expectedMaterials": [
+              {
+                "ruleType": "REQUIRE",
+                "pattern": "**Argos4jIT.java"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              }
+            ],
+            "expectedProducts": [
+              {
+                "ruleType": "MODIFY",
+                "pattern": "target/maven-archiver/pom.properties"
+              },
+              {
+                "ruleType": "CREATE",
+                "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              },
+              {
+                "ruleType": "DELETE",
+                "pattern": "**/*.java"
+              }
+            ]
+          },
+          {
+            "name": "test segment 1",
+            "authorizedKeyIds": [
+              "b91bec49e7aaaeeda162970c03193baef561c10337483a8bc0741d514dc63b9c"
+            ],
+            "requiredNumberOfLinks": 1,
+            "expectedCommand": [
+              "stepName2 expectedCommand"
+            ],
+            "expectedMaterials": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "pom.xml",
+                "sourcePathPrefix": "sourcePathPrefix",
+                "destinationPathPrefix": "destinationPathPrefix",
+                "destinationType": "MATERIALS",
+                "destinationStepName": "build segment 1",
+                "destinationSegmentName": "segment 1"
+              },
+              {
+                "ruleType": "DISALLOW",
+                "pattern": "**/invalid-link.json"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              }
+            ],
+            "expectedProducts": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
+                "sourcePathPrefix": "",
+                "destinationPathPrefix": "target/",
+                "destinationType": "PRODUCTS",
+                "destinationStepName": "build segment 1",
+                "destinationSegmentName": "segment 1"
+              },
+              {
+                "ruleType": "REQUIRE",
+                "pattern": "**Argos4jIT.java"
+              },
+              {
+                "ruleType": "DISALLOW",
+                "pattern": "**/bob"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "segment 2",
+        "steps": [
+          {
+            "name": "build segment 2",
+            "authorizedKeyIds": [
+              "a97daeaf3afaed859472a367da7a860b4b90eefb97fe51384bd45e9eed020b5b"
+            ],
+            "requiredNumberOfLinks": 1,
+            "expectedCommand": [
+              "expectedCommand 1",
+              "expectedCommand 2"
+            ],
+            "expectedMaterials": [
+              {
+                "ruleType": "REQUIRE",
+                "pattern": "**Argos4jIT.java"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              }
+            ],
+            "expectedProducts": [
+              {
+                "ruleType": "MODIFY",
+                "pattern": "target/maven-archiver/pom.properties"
+              },
+              {
+                "ruleType": "CREATE",
+                "pattern": "target/argos-frontend.jar"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              },
+              {
+                "ruleType": "DELETE",
+                "pattern": "**/*.java"
+              }
+            ]
+          },
+          {
+            "name": "test segment 2",
+            "authorizedKeyIds": [
+              "a97daeaf3afaed859472a367da7a860b4b90eefb97fe51384bd45e9eed020b5b"
+            ],
+            "requiredNumberOfLinks": 1,
+            "expectedCommand": [
+              "stepName2 expectedCommand"
+            ],
+            "expectedMaterials": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "pom.xml",
+                "sourcePathPrefix": "sourcePathPrefix",
+                "destinationPathPrefix": "destinationPathPrefix",
+                "destinationType": "MATERIALS",
+                "destinationStepName": "build segment 2",
+                "destinationSegmentName": "segment 2"
+              },
+              {
+                "ruleType": "DISALLOW",
+                "pattern": "**/invalid-link.json"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              }
+            ],
+            "expectedProducts": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "argos-frontend.jar",
+                "sourcePathPrefix": "",
+                "destinationPathPrefix": "target/",
+                "destinationType": "PRODUCTS",
+                "destinationStepName": "build segment 2",
+                "destinationSegmentName": "segment 2"
+              },
+              {
+                "ruleType": "REQUIRE",
+                "pattern": "**Argos4jIT.java"
+              },
+              {
+                "ruleType": "DISALLOW",
+                "pattern": "**/bob"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

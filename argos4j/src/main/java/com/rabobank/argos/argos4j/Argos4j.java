@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,10 +47,16 @@ public class Argos4j implements Serializable {
         products.addAll(new ArtifactCollector(settings, productsDirectory.getPath()).collect(""));
     }
 
-    public void store() {
-        Link link = Link.builder().runId(settings.getRunId()).materials(materials).products(products).stepName(settings.getStepName()).build();
-        Signature signature = new Argos4JSigner().sign(settings.getSigningKey(), new JsonSigningSerializer().serialize(link));
-        new ArgosServiceClient(settings).uploadLinkMetaBlockToService(LinkMetaBlock.builder().link(link).signature(signature).build());
+    public void store(char[] signingKeyPassphrase) {
+        Link link = Link.builder().runId(settings.getRunId())
+                .materials(materials)
+                .products(products)
+                .layoutSegmentName(settings.getLayoutSegmentName())
+                .stepName(settings.getStepName()).build();
+        ArgosServiceClient argosServiceClient = new ArgosServiceClient(settings);
+        Signature signature = new Argos4JSigner().sign(argosServiceClient.getKeyPair(), signingKeyPassphrase, new JsonSigningSerializer().serialize(link));
+
+        argosServiceClient.uploadLinkMetaBlockToService(LinkMetaBlock.builder().link(link).signature(signature).build());
     }
 
     public static String getVersion() {

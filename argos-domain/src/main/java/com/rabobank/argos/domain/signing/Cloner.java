@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.rabobank.argos.domain.signing;
 
 import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.MatchRule;
 import com.rabobank.argos.domain.layout.rule.Rule;
@@ -39,6 +40,10 @@ public interface Cloner {
     Artifact clone(Artifact artifact);
 
     Layout clone(Layout layout);
+
+    List<LayoutSegment> cloneLayoutSegments(List<LayoutSegment> layoutSegments);
+
+    LayoutSegment clone(LayoutSegment layoutSegment);
 
     List<Step> cloneSteps(List<Step> steps);
 

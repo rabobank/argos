@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,11 @@ public interface LinkMetaBlockRepository {
     List<LinkMetaBlock> findBySupplyChainAndSha(String supplyChainId, String hash);
     void save(LinkMetaBlock link);
 
-    List<LinkMetaBlock> findBySupplyChainAndStepNameAndProductHashes(String supplyChainId, String stepName, List<String> hashes);
+    List<LinkMetaBlock> findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(String supplyChainId, String segmentName, String stepName, List<String> hashes);
 
-    List<LinkMetaBlock> findBySupplyChainAndStepNameAndMaterialHash(String supplyChainId, String stepName, List<String> hashes);
+    List<LinkMetaBlock> findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(String supplyChainId, String segmentName, String stepName, List<String> hashes);
+
     List<LinkMetaBlock> findByRunId(String supplyChainId, String runId);
+
+    List<LinkMetaBlock> findByRunId(String supplyChainId, String segmentName, String runId, List<String> resolvedSteps);
 }

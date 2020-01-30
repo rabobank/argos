@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,9 @@ public class Argos4jSettings implements Serializable {
 
     private final String supplyChainName;
     private final String runId;
+    private final String layoutSegmentName;
     private final String stepName;
-    private final SigningKey signingKey;
+    private final String signingKeyId;
     private final String argosServerBaseUrl;
 
 }

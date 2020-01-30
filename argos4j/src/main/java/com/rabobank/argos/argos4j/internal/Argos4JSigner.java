@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,37 @@
 package com.rabobank.argos.argos4j.internal;
 
 import com.rabobank.argos.argos4j.Argos4jError;
-import com.rabobank.argos.argos4j.SigningKey;
+import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
+import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.Signature;
-import com.rabobank.argos.domain.key.KeyIdProvider;
-import com.rabobank.argos.domain.key.KeyIdProviderImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
+import org.bouncycastle.operator.InputDecryptorProvider;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
+import org.bouncycastle.pkcs.PKCSException;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
+import java.security.Security;
 
+@Slf4j
 public class Argos4JSigner {
 
-    private KeyIdProvider keyIdProvider = new KeyIdProviderImpl();
+    public Argos4JSigner() {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
-    public  Signature sign(SigningKey signingKey, String jsonRepresentation) {
-        String keyId = keyIdProvider.computeKeyId(signingKey.getKeyPair().getPublic());
-        return Signature.builder().keyId(keyId).signature(createSignature(signingKey.getKeyPair().getPrivate(), jsonRepresentation)).build();
+    public Signature sign(RestKeyPair keyPair, char[] keyPassphrase, String jsonRepresentation) {
+        return Signature.builder().keyId(keyPair.getKeyId())
+                .signature(createSignature(decryptPrivateKey(keyPair.getEncryptedPrivateKey(), keyPassphrase), jsonRepresentation))
+                .build();
     }
 
     private static String createSignature(PrivateKey privateKey, String jsonRepr) {
@@ -43,6 +57,18 @@ public class Argos4JSigner {
             return Hex.encodeHexString(privateSignature.sign());
         } catch (GeneralSecurityException e) {
             throw new Argos4jError(e.getMessage(), e);
+        }
+    }
+
+    private static PrivateKey decryptPrivateKey(byte[] encodedPrivateKey, char[] keyPassphrase) {
+        try {
+            PKCS8EncryptedPrivateKeyInfo encPKInfo = new PKCS8EncryptedPrivateKeyInfo(encodedPrivateKey);
+            log.info("EncryptionAlgorithm : {}", encPKInfo.getEncryptionAlgorithm().getAlgorithm());
+            InputDecryptorProvider decProv = new JceOpenSSLPKCS8DecryptorProviderBuilder().setProvider("BC").build(keyPassphrase);
+            PrivateKeyInfo pkInfo = encPKInfo.decryptPrivateKeyInfo(decProv);
+            return new JcaPEMKeyConverter().setProvider("BC").getPrivateKey(pkInfo);
+        } catch (IOException | PKCSException | OperatorCreationException e) {
+            throw new ArgosError(e.getMessage(), e);
         }
     }
 }

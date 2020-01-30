@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ argosConfig.setPort(8080)
 
 FreeStyleProject fp = instance.createProject(FreeStyleProject.class, "argos-test-app-freestyle-recording")
 fp.setScm(new GitSCM("https://github.com/rabobank/argos-test-app.git"))
-argosRecorder = new ArgosRecorder("argos-test-app", "bob", "build", '${BUILD_NUMBER}')
+argosRecorder = new ArgosRecorder("argos-test-app", "bob", "segment 1", "build", '${BUILD_NUMBER}')
 fp.getPublishersList().add(argosRecorder)
 fp.getBuildersList().add(new Shell("mvn clean install"))
 

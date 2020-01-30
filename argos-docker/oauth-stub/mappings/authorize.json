@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/oauth2/v2.0/authorize"
+  },
+  "response": {
+    "status": 301,
+    "body": "{{request.query.redirect_uri}}",
+    "headers": {
+      "Location": "{{request.query.redirect_uri}}?code=oath-code&state={{urlEncode request.query.state}}&session_state=3827ce94-654c-4329-922e-6b3a9e19c2a3"
+    }
+  }
+}

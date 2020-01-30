@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.domain.verification.rules;
 
+import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
@@ -30,11 +31,14 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.RULES;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,6 +49,7 @@ import static org.mockito.Mockito.when;
 class RulesVerificationTest {
 
     private static final String STEP_NAME = "stepName";
+    private static final String SEGMENT_NAME = "segmentName";
     @Mock
     private RuleVerification ruleVerification;
 
@@ -59,6 +64,9 @@ class RulesVerificationTest {
 
     @Mock
     private LinkMetaBlock linkMetaBlock;
+
+    @Mock
+    private LayoutSegment layoutSegment;
 
     @Mock
     private Rule expectedMaterialRule;
@@ -110,10 +118,13 @@ class RulesVerificationTest {
 
         assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
 
-        verify(ruleVerification).verifyExpectedMaterials(ruleVerificationContextArgumentCaptor.capture());
+        verify(verificationContext).removeLinkMetaBlocks(Collections.emptyList());
+
+        verify(ruleVerification).verifyExpectedProducts(ruleVerificationContextArgumentCaptor.capture());
         RuleVerificationContext<?> ruleVerificationContext = ruleVerificationContextArgumentCaptor.getValue();
-        assertThat(ruleVerificationContext.getLink(), sameInstance(link));
-        assertThat(ruleVerificationContext.getRule(), sameInstance(expectedMaterialRule));
+        assertThat(ruleVerificationContext.getMaterials(), empty());
+        assertThat(ruleVerificationContext.getProducts(), empty());
+        assertThat(ruleVerificationContext.getRule(), sameInstance(expectedProductRule));
         assertThat(ruleVerificationContext.getVerificationContext(), sameInstance(verificationContext));
     }
 
@@ -128,7 +139,7 @@ class RulesVerificationTest {
         when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
         when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(productArtifact));
 
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
         verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
 
     }
@@ -144,7 +155,7 @@ class RulesVerificationTest {
         when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
         when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(productArtifact));
 
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
         verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
 
     }
@@ -163,7 +174,7 @@ class RulesVerificationTest {
         when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
         when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of());
 
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
         verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
 
     }
@@ -182,7 +193,7 @@ class RulesVerificationTest {
         when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of());
         when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(productArtifact));
 
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
         verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
 
     }
@@ -197,7 +208,7 @@ class RulesVerificationTest {
 
         when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
 
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
         verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
 
     }
@@ -205,12 +216,12 @@ class RulesVerificationTest {
     private void setupMocks() {
         when(ruleVerification.getRuleType()).thenReturn(RuleType.ALLOW);
         verification.init();
-        when(verificationContext.getExpectedStepNames()).thenReturn(List.of(STEP_NAME));
-        when(verificationContext.getStepByStepName(STEP_NAME)).thenReturn(step);
+        when(verificationContext.layoutSegments()).thenReturn(singletonList(layoutSegment));
+        when(layoutSegment.getName()).thenReturn(SEGMENT_NAME);
+        when(verificationContext.getExpectedStepNamesBySegmentName(SEGMENT_NAME)).thenReturn(singletonList(STEP_NAME));
+        when(verificationContext.getStepBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(step);
         when(linkMetaBlock.getLink()).thenReturn(link);
-        when(link.getStepName()).thenReturn(STEP_NAME);
-        when(verificationContext.getLinksByStepName(STEP_NAME)).thenReturn(List.of(linkMetaBlock));
-
+        when(verificationContext.getLinksBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(List.of(linkMetaBlock));
         when(step.getStepName()).thenReturn(STEP_NAME);
         when(expectedMaterialRule.getRuleType()).thenReturn(RuleType.ALLOW);
         when(step.getExpectedMaterials()).thenReturn(List.of(expectedMaterialRule));

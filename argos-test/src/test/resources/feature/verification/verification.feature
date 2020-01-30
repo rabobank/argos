@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 Rabobank Nederland
+# Copyright (C) 2019 - 2020 Rabobank Nederland
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,60 +18,84 @@ Feature: Verification
 
   Background:
     * def defaultVerificationRequest = {expectedProducts: [{uri: 'target/argos-test-0.0.1-SNAPSHOT.jar',hash: '49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162'}] }
-    * def defaultSteps = ['build-step-link.json','test-step-link.json']
+    * def defaultSteps = [{link:'build-step-link.json', signingKey:2},{link:'test-step-link.json', signingKey:3}]
 
   Scenario: happy flow all rules
-    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest) ,testDir: 'happy-flow',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest) ,testDir: 'happy-flow',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":true}
 
+  Scenario: expected expected end products not matches
+    * def verificationRequest = {expectedProducts: [{uri: 'argos-test-0.0.1-SNAPSHOT.jar',hash: '49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162'}] }
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(verificationRequest) ,testDir: 'happy-flow',steps:#(defaultSteps),layoutSigningKey:1}
+    And match resp.response == {"runIsValid":false}
+
+  #Scenario: multi segment happy flow all rules todo:make this valid in test messages because now it is not valid and that is correct !
+   # * def steps = [{link:'segment-1-build-step-link.json', signingKey:2},{link:'segment-1-test-step-link.json', signingKey:2},{link:'segment-2-build-step-link.json', signingKey:3},{link:'segment-2-test-step-link.json',signingKey:3}]
+    #* def verificationRequest = {expectedProducts: [{uri: 'target/argos-frontend.jar', hash: 49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6163}, {uri: 'target/argos-test-0.0.1-SNAPSHOT.jar',hash: '49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162'}] }
+    #* def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(verificationRequest) ,testDir: 'multi-segment-happy-flow',steps:#(steps),layoutSigningKey:1}
+    #And match resp.response == {"runIsValid":true}
+
   Scenario: happy flow match-rule-happy-flow
-    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest) ,testDir: 'match-rule-happy-flow',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest) ,testDir: 'match-rule-happy-flow',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":true}
 
   Scenario: happy flow match-rule-happy-flow-with-prefix
-    * def resp = call read('classpath:feature/verification/verification-template.feature') {verificationRequest:#(defaultVerificationRequest) ,testDir: 'match-rule-happy-flow-with-prefix',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature') {verificationRequest:#(defaultVerificationRequest) ,testDir: 'match-rule-happy-flow-with-prefix',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":true}
 
   Scenario: happy flow match-rule-no-destination-artifact
-    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'match-rule-no-destination-artifact',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'match-rule-no-destination-artifact',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":false}
 
   Scenario: happy flow match-rule-no-source-artifact
-    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'match-rule-no-source-artifact',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'match-rule-no-source-artifact',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":false}
 
   Scenario: build-steps-incomplete-run
-    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'build-steps-incomplete-run',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'build-steps-incomplete-run',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":false}
 
   Scenario: commands-incorrect
-    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'commands-incorrect',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'commands-incorrect',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":false}
 
   Scenario: delete-rule-no-deletion
-    * def resp = call read('classpath:feature/verification/verification-template.feature')  { verificationRequest:#(defaultVerificationRequest),testDir: 'delete-rule-no-deletion',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature')  { verificationRequest:#(defaultVerificationRequest),testDir: 'delete-rule-no-deletion',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":false}
 
   Scenario: create-rule-no-creation
-    * def resp = call read('classpath:feature/verification/verification-template.feature')  { verificationRequest:#(defaultVerificationRequest),testDir: 'create-rule-no-creation',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature')  { verificationRequest:#(defaultVerificationRequest),testDir: 'create-rule-no-creation',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":false}
 
   Scenario: modify-rule-not-modified
-    * def resp = call read('classpath:feature/verification/verification-template.feature')  { verificationRequest:#(defaultVerificationRequest),testDir: 'modify-rule-not-modified',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature')  { verificationRequest:#(defaultVerificationRequest),testDir: 'modify-rule-not-modified',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":false}
 
   Scenario: require-rule-no-required-product-material
-    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'require-rule-no-required-product-material',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'require-rule-no-required-product-material',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":false}
 
   Scenario: disallow-rule-non-empty
-    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'disallow-rule-non-empty',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'disallow-rule-non-empty',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":false}
 
   Scenario: allow-rule-no-match
-    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'allow-rule-no-match',steps:#(defaultSteps)}
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'allow-rule-no-match',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":false}
 
+  Scenario: multiple-run-id-happy-flow
+    * def steps = [{link:'runid1-build-step-link.json', signingKey:2},{link:'runid1-test-step-link.json', signingKey:3},{link:'runid2-build-step-link.json', signingKey:2},{link:'runid2-test-step-link.json',signingKey:3}]
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'multiple-run-id-happy-flow',steps:#(steps),layoutSigningKey:1}
+    And match resp.response == {"runIsValid":true}
 
+  Scenario: multiple-link-files-per-step-one-invalid
+    * def steps = [{link:'build-step-link1.json', signingKey:2},{link:'build-step-link2.json', signingKey:2},{link:'test-step-link1.json', signingKey:2},{link:'test-step-link2.json',signingKey:2}]
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'multiple-link-files-per-step-one-invalid',steps:#(steps),layoutSigningKey:1}
+    And match resp.response == {"runIsValid":true}
+
+  Scenario: multiple-verification-contexts-happy-flow
+    * def steps = [{link:'build-step-link-valid.json', signingKey:2},{link:'build-step-link-invalid.json', signingKey:3},{link:'test-step-link-invalid.json', signingKey:2},{link:'test-step-link-valid.json',signingKey:3}]
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'multiple-verification-contexts',steps:#(steps),layoutSigningKey:1}
+    And match resp.response == {"runIsValid":true}
 
 

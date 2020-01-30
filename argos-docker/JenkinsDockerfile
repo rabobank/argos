@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 Rabobank Nederland
+# Copyright (C) 2019 - 2020 Rabobank Nederland
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,9 +18,6 @@ FROM rabobanknl/argos-jenkins-base:latest
 
 # groovy files
 COPY jenkins_config/*.groovy* /usr/share/jenkins/ref/init.groovy.d/
-
-# copy private key bob
-COPY jenkins_config/bob /var/jenkins_home/bob
 
 COPY target/lib/argos.hpi /var/jenkins_home/argos.hpi
 COPY jenkins_config/list-of-plugins.txt /var/jenkins_home/list-of-plugins.txt

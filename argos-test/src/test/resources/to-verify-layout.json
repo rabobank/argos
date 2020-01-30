@@ -1,0 +1,65 @@
+{
+  "layout": {
+    "authorizedKeyIds": [
+      "c8df0a497ab0df7136c4f97892f17914e6e5e021fdc039f0ea7c27d5a95c1254"
+    ],
+    "expectedEndProducts": [
+      {
+        "pattern": "target/argos-test-app.war",
+        "destinationType": "MATERIALS",
+        "destinationStepName": "deploy",
+        "destinationSegmentName": "segment 1"
+      }
+    ],
+    "layoutSegments": [
+      {
+        "name": "segment 1",
+        "steps": [
+          {
+            "name": "build",
+            "authorizedKeyIds": [
+              "c8df0a497ab0df7136c4f97892f17914e6e5e021fdc039f0ea7c27d5a95c1254"
+            ],
+            "requiredNumberOfLinks": 1,
+            "expectedMaterials": [
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              }
+            ],
+            "expectedProducts": [
+              {
+                "ruleType": "CREATE",
+                "pattern": "target/argos-test-app.war"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              }
+            ]
+          },
+          {
+            "name": "deploy",
+            "authorizedKeyIds": [
+              "c8df0a497ab0df7136c4f97892f17914e6e5e021fdc039f0ea7c27d5a95c1254"
+            ],
+            "requiredNumberOfLinks": 1,
+            "expectedMaterials": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "target/argos-test-app.war",
+                "destinationType": "PRODUCTS",
+                "destinationStepName": "build",
+                "destinationSegmentName": "segment 1"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
+              }
+            ]
+          }
+        ]
+      }
+      ]
+  }
+}

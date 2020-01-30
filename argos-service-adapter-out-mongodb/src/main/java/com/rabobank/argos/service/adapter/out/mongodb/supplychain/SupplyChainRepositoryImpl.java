@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,11 @@ package com.rabobank.argos.service.adapter.out.mongodb.supplychain;
 import com.rabobank.argos.domain.supplychain.SupplyChain;
 import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.HashedIndex;
-import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,16 +30,10 @@ import java.util.Optional;
 @Component
 public class SupplyChainRepositoryImpl implements SupplyChainRepository {
 
-    private static final String COLLECTION = "supplyChains";
-    private static final String SUPPLY_CHAIN_ID_FIELD = "supplyChainId";
-    private static final String SUPPLY_CHAIN_NAME = "name";
+    static final String COLLECTION = "supplyChains";
+    static final String SUPPLY_CHAIN_ID_FIELD = "supplyChainId";
+    static final String SUPPLY_CHAIN_NAME = "name";
     private final MongoTemplate template;
-
-    @PostConstruct
-    public void postConstruct() {
-        template.indexOps(COLLECTION).ensureIndex(HashedIndex.hashed(SUPPLY_CHAIN_ID_FIELD));
-        template.indexOps(COLLECTION).ensureIndex(new Index().on(SUPPLY_CHAIN_NAME, Sort.Direction.ASC));
-    }
 
     @Override
     public Optional<SupplyChain> findBySupplyChainId(String supplyChainId) {

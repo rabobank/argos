@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
@@ -24,50 +25,52 @@ import com.offbytwo.jenkins.model.Job;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
-import com.rabobank.argos.argos4j.Argos4jError;
+import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
 import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
-import com.rabobank.argos.domain.key.KeyIdProviderImpl;
+import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
+import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChainItem;
+import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.openssl.PEMKeyPair;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyPair;
-import java.security.PublicKey;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.rabobank.argos.test.TestHelper.clearDatabase;
-import static com.rabobank.argos.test.TestHelper.getKeyApiApi;
-import static com.rabobank.argos.test.TestHelper.getSupplychainApi;
-import static com.rabobank.argos.test.TestHelper.waitForArgosServiceToStart;
+import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getSnapshotHash;
+import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.isValidEndProduct;
+import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
+import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
+import static com.rabobank.argos.test.TestServiceHelper.signAndStoreLayout;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 public class JenkinsTestIT {
 
+
+    public static final String TEST_APP_BRANCH = "master";
+    private static final String KEY_PASSWORD = "test";
     private static Properties properties = Properties.getInstance();
     private static final String SERVER_BASEURL = "server.baseurl";
     private JenkinsServer jenkins;
+    private String supplyChainId;
+    private String keyId;
 
     @BeforeAll
     static void startup() {
@@ -78,11 +81,14 @@ public class JenkinsTestIT {
     }
 
     @BeforeEach
-    void setUp() throws URISyntaxException {
+    void setUp() throws URISyntaxException, IOException {
         clearDatabase();
-        getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
-        PublicKey publicKey = getPemKeyPair(getClass().getResourceAsStream("/bob")).getPublic();
-        getKeyApiApi().storeKey(new RestKeyPair().publicKey(publicKey.getEncoded()).keyId(new KeyIdProviderImpl().computeKeyId(publicKey)));
+        RestSupplyChainItem restSupplyChainItem = getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
+        this.supplyChainId = restSupplyChainItem.getId();
+        RestKeyPair restKeyPair = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair1.json"), RestKeyPair.class);
+        keyId = restKeyPair.getKeyId();
+        getKeyApi().storeKey(restKeyPair);
+        createLayout();
         jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
     }
 
@@ -104,6 +110,14 @@ public class JenkinsTestIT {
         log.info("jenkins started");
     }
 
+    private void createLayout()  {
+        try {
+            signAndStoreLayout(supplyChainId,new ObjectMapper().readValue(getClass().getResourceAsStream("/to-verify-layout.json"), RestLayoutMetaBlock.class),keyId, KEY_PASSWORD);
+        } catch (IOException e) {
+            fail(e);
+        }
+    }
+
     @Test
     public void testFreestyle() throws IOException {
         int buildNumber = runBuild(getJob("argos-test-app-freestyle-recording"));
@@ -121,9 +135,11 @@ public class JenkinsTestIT {
         JobWithDetails job = getJob("argos-test-app-pipeline");
         FolderJob folderJob = jenkins.getFolderJob(job).get();
         Map<String, Job> jobs = folderJob.getJobs();
-        int buildNumber = runBuild(jobs.get("master"));
+        int buildNumber = runBuild(jobs.get(TEST_APP_BRANCH));
 
-        verifyJobResult(jenkins.getJob(folderJob, "master"), buildNumber);
+        verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
+
+        verifyEndProducts();
     }
 
 
@@ -151,6 +167,11 @@ public class JenkinsTestIT {
         assertThat(build.details().getResult(), is(BuildResult.SUCCESS));
     }
 
+    public void verifyEndProducts() {
+        String hash = getSnapshotHash();
+        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("target/argos-test-app.war").hash(hash))));
+    }
+
     private JobWithDetails getJob(String name) throws IOException {
         await().atMost(10, SECONDS).until(() -> jenkins.getJob(name) != null);
         return jenkins.getJob(name);
@@ -159,26 +180,7 @@ public class JenkinsTestIT {
     private boolean hasMaster(JobWithDetails pipeLineJob) throws IOException {
         Optional<FolderJob> folderJob = jenkins.getFolderJob(pipeLineJob);
         return folderJob.isPresent() &&
-                folderJob.get().getJob("master") != null;
-    }
-
-
-    private static KeyPair getPemKeyPair(InputStream signingKey) {
-        try (Reader reader = new InputStreamReader(signingKey, StandardCharsets.UTF_8);
-             PEMParser pemReader = new PEMParser(reader)) {
-            Object pem = pemReader.readObject();
-            PEMKeyPair kpr;
-            if (pem instanceof PEMKeyPair) {
-                kpr = (PEMKeyPair) pem;
-            } else if (pem instanceof SubjectPublicKeyInfo) {
-                kpr = new PEMKeyPair((SubjectPublicKeyInfo) pem, null);
-            } else {
-                throw new Argos4jError("Couldn't parse PEM object: " + pem.toString());
-            }
-            return new JcaPEMKeyConverter().getKeyPair(kpr);
-        } catch (IOException e) {
-            throw new Argos4jError(e.toString(), e);
-        }
+                folderJob.get().getJob(TEST_APP_BRANCH) != null;
     }
 
 

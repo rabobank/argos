@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,5 +18,9 @@ package com.rabobank.argos.domain;
 public class ArgosError extends RuntimeException {
     public ArgosError(String message, Throwable e) {
         super(message, e);
+    }
+
+    public ArgosError(String message) {
+        super(message);
     }
 }

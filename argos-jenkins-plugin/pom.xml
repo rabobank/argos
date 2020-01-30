@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2019 Rabobank Nederland
+    Copyright (C) 2019 - 2020 Rabobank Nederland
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -101,17 +101,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.63</version>
-        </dependency>
-        <!-- bcprov: bouncycastle crypto provider -->
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.64</version>
-        </dependency>
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.4.2</version>
@@ -207,10 +196,10 @@
                         <exclude>**/bob</exclude>
                         <exclude>**/*.pem</exclude>
                     </excludes>
-                    <header>${project.basedir}/../docs/header.txt</header>
+                    <header>https://raw.github.com/rabobank/argos/develop/docs/header.txt</header>
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <properties>
-                        <lic.year>2019</lic.year>
+                        <lic.year>2020</lic.year>
                     </properties>
                     <encoding>UTF-8</encoding>
                     <mapping>
@@ -228,4 +217,41 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.8.4</version>
+                        <executions>
+                            <!--genereer report voor elke submodule -->
+                            <execution>
+                                <id>reporting</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>default-report</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                        <version>3.6.1.1688</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

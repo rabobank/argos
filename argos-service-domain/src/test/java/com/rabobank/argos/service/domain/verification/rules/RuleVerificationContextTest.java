@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.rabobank.argos.service.domain.verification.rules;
 
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.link.Artifact;
-import com.rabobank.argos.domain.link.Link;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,9 +39,6 @@ class RuleVerificationContextTest {
     private RuleVerificationContext<Rule> verificationContext;
 
     @Mock
-    private Link link;
-
-    @Mock
     private Rule rule;
 
     @Mock
@@ -53,13 +49,12 @@ class RuleVerificationContextTest {
 
     @BeforeEach
     void setUp() {
-        verificationContext = RuleVerificationContext.builder().link(link).rule(rule).build();
+        verificationContext = RuleVerificationContext.builder().products(List.of(artifact1, artifact2)).materials(List.of(artifact1, artifact2)).rule(rule).build();
     }
 
     @Test
     void getFilteredProducts() {
         mockArtifacts();
-        when(link.getProducts()).thenReturn(List.of(artifact1, artifact2));
         List<Artifact> artifacts = verificationContext.getFilteredProducts().collect(Collectors.toList());
         assertThat(artifacts, contains(artifact1));
     }
@@ -67,14 +62,13 @@ class RuleVerificationContextTest {
     @Test
     void getFilteredMaterials() {
         mockArtifacts();
-        when(link.getMaterials()).thenReturn(List.of(artifact1, artifact2));
         List<Artifact> artifacts = verificationContext.getFilteredMaterials().collect(Collectors.toList());
         assertThat(artifacts, contains(artifact1));
     }
 
     @Test
     void containsSomeMaterials() {
-        when(link.getMaterials()).thenReturn(List.of(artifact2));
+        verificationContext = RuleVerificationContext.builder().materials(List.of(artifact2)).rule(rule).build();
         assertThat(verificationContext.containsSomeMaterials(List.of(artifact1)), is(false));
         assertThat(verificationContext.containsSomeMaterials(List.of(artifact2)), is(true));
         assertThat(verificationContext.containsSomeMaterials(List.of(artifact1, artifact2)), is(true));

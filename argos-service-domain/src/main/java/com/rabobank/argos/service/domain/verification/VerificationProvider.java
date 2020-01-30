@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@ package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.link.Artifact;
-import com.rabobank.argos.domain.link.LinkMetaBlock;
-import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -26,15 +24,16 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class VerificationProvider {
 
-    private final LinkMetaBlockRepository linkMetaBlockRepository;
-    private final RunIdResolver runIdResolver;
     private final List<Verification> verifications;
+
+    private final VerificationContextsProvider verificationContextsProvider;
 
     @PostConstruct
     public void init() {
@@ -44,24 +43,23 @@ public class VerificationProvider {
     }
 
     public VerificationRunResult verifyRun(LayoutMetaBlock layoutMetaBlock, List<Artifact> productsToVerify) {
-        return runIdResolver.getRunId(layoutMetaBlock, productsToVerify)
-                .map(runId -> verifyRun(runId, layoutMetaBlock))
-                .orElse(VerificationRunResult.builder().runIsValid(false).build());
-    }
 
-    private VerificationRunResult verifyRun(String runId, LayoutMetaBlock layoutMetaBlock) {
-        return verifyRun(linkMetaBlockRepository.findByRunId(layoutMetaBlock.getSupplyChainId(), runId), layoutMetaBlock);
-    }
+        List<VerificationContext> possibleVerificationContexts = verificationContextsProvider
+                .createPossibleVerificationContexts(layoutMetaBlock, productsToVerify);
 
-    private VerificationRunResult verifyRun(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
-        VerificationContext context = VerificationContext.builder()
-                .linkMetaBlocks(linkMetaBlocks)
-                .layoutMetaBlock(layoutMetaBlock)
-                .build();
-        return verifications.stream()
-                .map(verification -> verification.verify(context))
-                .filter(result -> !result.isRunIsValid())
-                .findFirst().orElse(VerificationRunResult.okay());
-    }
+        List<VerificationRunResult> verificationRunResults = possibleVerificationContexts
+                .stream()
+                .map(context -> verifications
+                        .stream()
+                        .map(verification -> verification.verify(context))
+                        .filter(result -> !result.isRunIsValid())
+                        .findFirst().orElse(VerificationRunResult.okay())
+                ).collect(Collectors.toList());
 
+        return verificationRunResults
+                .stream()
+                .peek(verificationRunResult -> log.info("context validity: {}", verificationRunResult.isRunIsValid()))
+                .filter(VerificationRunResult::isRunIsValid)
+                .findFirst().orElse(VerificationRunResult.valid(false));
+    }
 }

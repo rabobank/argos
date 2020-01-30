@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2019 Rabobank Nederland
+    Copyright (C) 2019 - 2020 Rabobank Nederland
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@
 		<java.version>11</java.version>
 		<commons-codec.version>1.11</commons-codec.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring-boot.version>2.2.0.RELEASE</spring-boot.version>
+		<spring-boot.version>2.2.2.RELEASE</spring-boot.version>
 		<org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
 		<lombok.version>1.18.10</lombok.version>
 		<pitest.version>1.4.10</pitest.version>
@@ -156,13 +156,15 @@
 					</excludes>
 					<useDefaultExcludes>true</useDefaultExcludes>
 					<properties>
-						<lic.year>2019</lic.year>
+						<lic.year>2020</lic.year>
 					</properties>
 					<encoding>UTF-8</encoding>
 					<mapping>
 						<java>SLASHSTAR_STYLE</java>
 						<ServiceDockerfile>SCRIPT_STYLE</ServiceDockerfile>
 						<JenkinsDockerfile>SCRIPT_STYLE</JenkinsDockerfile>
+						<IntegrationTestServiceDockerfile>SCRIPT_STYLE</IntegrationTestServiceDockerfile>
+						<plantuml>APOSTROPHE_STYLE</plantuml>
 					</mapping>
 				</configuration>
 				<executions>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package io.jenkins.plugins.argos.recorders;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jError;
 import hudson.EnvVars;
@@ -36,7 +37,6 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.plaincredentials.FileCredentials;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -64,9 +64,13 @@ public class ArgosRecorder extends Recorder {
     private String privateKeyCredentialId;
 
     /**
+     * Name of the segment to execute.
+     */
+    @DataBoundSetter
+    private final String layoutSegmentName;
+
+    /**
      * Name of the step to execute.
-     * <p>
-     * If not defined, will default to step
      */
     @DataBoundSetter
     private String stepName;
@@ -84,8 +88,9 @@ public class ArgosRecorder extends Recorder {
 
 
     @DataBoundConstructor
-    public ArgosRecorder(String supplyChainName, String privateKeyCredentialId, String stepName, String runId) {
+    public ArgosRecorder(String supplyChainName, String privateKeyCredentialId, String layoutSegmentName, String stepName, String runId) {
         this.stepName = stepName;
+        this.layoutSegmentName = layoutSegmentName;
         this.supplyChainName = supplyChainName;
         this.privateKeyCredentialId = privateKeyCredentialId;
         this.runId = runId;
@@ -103,6 +108,10 @@ public class ArgosRecorder extends Recorder {
         return stepName;
     }
 
+    public String getLayoutSegmentName() {
+        return layoutSegmentName;
+    }
+
     public String getRunId() {
         return runId;
     }
@@ -118,6 +127,7 @@ public class ArgosRecorder extends Recorder {
             argos4j = new ArgosJenkinsHelper(
                     environment.expand(privateKeyCredentialId),
                     environment.expand(stepName),
+                    environment.expand(layoutSegmentName),
                     environment.expand(supplyChainName),
                     environment.expand(runId)).createArgos();
 
@@ -144,7 +154,7 @@ public class ArgosRecorder extends Recorder {
         listener.getLogger().println("[argos] Dumping metadata to: " + argos4j.getSettings().getArgosServerBaseUrl());
 
 
-        argos4j.store();
+        argos4j.store(ArgosJenkinsHelper.getPrivateKeyPassword(privateKeyCredentialId));
         return true;
     }
 
@@ -191,7 +201,7 @@ public class ArgosRecorder extends Recorder {
                     .includeEmptyValue()
                     .includeAs(ACL.SYSTEM,
                             Jenkins.get(),
-                            FileCredentials.class)
+                            StandardUsernamePasswordCredentials.class)
                     .includeCurrentValue(privateKeyCredentialId);
         }
 

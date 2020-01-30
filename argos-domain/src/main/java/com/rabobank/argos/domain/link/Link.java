@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 @EqualsAndHashCode
 public class Link {
     private String runId;
+    private String layoutSegmentName;
     private String stepName;
     @Builder.Default
     private List<String> command = new ArrayList<>();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package com.rabobank.argos.service.domain.verification.rules;
 
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.link.Artifact;
-import com.rabobank.argos.domain.link.Link;
+import com.rabobank.argos.service.domain.verification.ArtifactMatcher;
 import com.rabobank.argos.service.domain.verification.VerificationContext;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,9 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
-import java.nio.file.FileSystems;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -38,7 +35,8 @@ public class RuleVerificationContext<R extends Rule> {
 
     private final VerificationContext verificationContext;
     private final R rule;
-    private final Link link;
+    private final List<Artifact> materials;
+    private final List<Artifact> products;
 
     public Stream<Artifact> getFilteredProducts() {
         return getFilteredProducts(null);
@@ -49,16 +47,15 @@ public class RuleVerificationContext<R extends Rule> {
     }
 
     public Stream<Artifact> getFilteredProducts(String prefix) {
-        return filterArtifacts(link.getProducts(), rule.getPattern(), prefix);
+        return filterArtifacts(products, rule.getPattern(), prefix);
     }
 
     public Stream<Artifact> getFilteredMaterials(String prefix) {
-        return filterArtifacts(link.getMaterials(), rule.getPattern(), prefix);
+        return filterArtifacts(materials, rule.getPattern(), prefix);
     }
 
     public static Stream<Artifact> filterArtifacts(List<Artifact> artifacts, String pattern, @Nullable String prefix) {
-        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-        return artifacts.stream().filter(artifact -> matcher.matches(Paths.get(getUri(artifact, prefix))));
+        return artifacts.stream().filter(artifact -> ArtifactMatcher.matches(getUri(artifact, prefix), pattern));
     }
 
     private static String getUri(Artifact artifact, String prefix) {
@@ -70,7 +67,7 @@ public class RuleVerificationContext<R extends Rule> {
     }
 
     public boolean containsSomeMaterials(List<Artifact> artifacts) {
-        return artifacts.stream().anyMatch(artifact -> link.getMaterials().contains(artifact));
+        return artifacts.stream().anyMatch(materials::contains);
     }
 
     public <T extends Rule> T getRule() {

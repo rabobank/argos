@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb;
 
+import com.github.mongobee.Mongobee;
 import com.rabobank.argos.service.adapter.out.mongodb.key.converter.ByteArrayToPublicKeyToReadConverter;
 import com.rabobank.argos.service.adapter.out.mongodb.key.converter.PublicKeyToByteArrayWriteConverter;
-import com.rabobank.argos.service.adapter.out.mongodb.layout.converter.MatchFilterReadConverter;
-import com.rabobank.argos.service.adapter.out.mongodb.layout.converter.MatchFilterWriteConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 
 import java.util.ArrayList;
@@ -34,8 +35,17 @@ public class MongoConfig {
         List<Converter<?, ?>> converterList = new ArrayList<>();
         converterList.add(new ByteArrayToPublicKeyToReadConverter());
         converterList.add(new PublicKeyToByteArrayWriteConverter());
-        converterList.add(new MatchFilterWriteConverter());
-        converterList.add(new MatchFilterReadConverter());
         return new MongoCustomConversions(converterList);
+    }
+
+    @Value("${spring.data.mongodb.uri}")
+    private String mongoURI;
+
+    @Bean
+    public Mongobee mongobee(MongoTemplate mongoTemplate) {
+        Mongobee runner = new Mongobee(mongoURI);
+        runner.setChangeLogsScanPackage("com.rabobank.argos.service.adapter.out.mongodb");
+        runner.setMongoTemplate(mongoTemplate);
+        return runner;
     }
 }

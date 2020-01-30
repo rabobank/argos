@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 Rabobank Nederland
+# Copyright (C) 2019 - 2020 Rabobank Nederland
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ info:
     name: Apache License 2.0
 servers:
   - url: /api
+
 paths:
   /supplychain:
     post:
@@ -349,7 +350,50 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
+  /user/me:
+    get:
+      summary: returns the user profile
+      operationId: getUserProfile
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      responses:
+        '200':
+          description: User Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '500':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: updates the user profile
+      operationId: updateUserProfile
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserProfile"
+      responses:
+        '200':
+          description: Updated User Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '500':
+          $ref: '#/components/responses/Error'
 components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   responses:
     ValidationError:
       description: validation error
@@ -409,12 +453,17 @@ components:
       type: object
       required:
         - runId
+        - layoutSegmentName
         - stepName
         - command
         - materials
         - products
       properties:
         runId:
+          type: string
+        stepName:
+          type: string
+        layoutSegmentName:
           type: string
         command:
           type: array
@@ -425,8 +474,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Artifact"
-        stepName:
-          type: string
         products:
           type: array
           items:
@@ -500,7 +547,7 @@ components:
       required:
         - authorizedKeyIds
         - expectedEndProducts
-        - steps
+        - layoutSegments
       properties:
         authorizedKeyIds:
           type: array
@@ -512,6 +559,19 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/MatchRule'
+        layoutSegments:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/LayoutSegment"
+    LayoutSegment:
+      type: object
+      required:
+        - name
+        - steps
+      properties:
+        name:
+          type: string
         steps:
           type: array
           minItems: 1
@@ -519,6 +579,11 @@ components:
             $ref: "#/components/schemas/Step"
     MatchRule:
       type: object
+      required:
+        - pattern
+        - destinationType
+        - destinationSegmentName
+        - destinationStepName
       properties:
         pattern:
           type: string
@@ -527,6 +592,8 @@ components:
           enum:
             - PRODUCTS
             - MATERIALS
+        destinationSegmentName:
+          type: string
         destinationStepName:
           type: string
     Step:
@@ -591,6 +658,8 @@ components:
           type: string
         destinationPathPrefix:
           type: string
+        destinationSegmentName:
+          type: string
         destinationType:
           type: string
           enum:
@@ -598,6 +667,20 @@ components:
             - MATERIALS
         destinationStepName:
           type: string
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        keyIds:
+          type: array
+          items:
+            type: string
     Error:
       type: object
       required:

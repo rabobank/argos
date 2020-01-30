@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,12 @@
  */
 package com.rabobank.argos.argos4j;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
+import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -36,6 +39,7 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.badRequest;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.noContent;
+import static com.github.tomakehurst.wiremock.client.WireMock.notFound;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
@@ -48,11 +52,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class Argos4jTest {
 
+    public static final char[] KEY_PASSPHRASE = "password".toCharArray();
     private Argos4j argos4j;
     private WireMockServer wireMockServer;
 
     @TempDir
     static File sharedTempDir;
+    private String keyId;
+    private String restKeyPairRest;
 
     @BeforeAll
     static void setUpBefore() throws IOException {
@@ -74,11 +81,21 @@ class Argos4jTest {
         generator.initialize(2048);
         KeyPair pair = generator.generateKeyPair();
 
+        keyId = new KeyIdProviderImpl().computeKeyId(pair.getPublic());
+
+        RestKeyPair restKeyPair = new RestKeyPair()
+                .keyId(keyId).publicKey(pair.getPublic().getEncoded())
+                .encryptedPrivateKey(EncryptionHelper
+                        .addPassword(pair.getPrivate().getEncoded(), KEY_PASSPHRASE));
+
+        restKeyPairRest = new ObjectMapper().writeValueAsString(restKeyPair);
+
         Argos4jSettings settings = Argos4jSettings.builder()
                 .argosServerBaseUrl("http://localhost:" + randomPort + "/api")
                 .stepName("build")
                 .supplyChainName("supplyChainName")
-                .signingKey(SigningKey.builder().keyPair(pair).build())
+                .layoutSegmentName("layoutSegmentName")
+                .signingKeyId(keyId)
                 .runId("runId")
                 .build();
         argos4j = new Argos4j(settings);
@@ -95,27 +112,36 @@ class Argos4jTest {
     void storeMetablockLinkForDirectory() {
         wireMockServer.stubFor(get(urlEqualTo("/api/supplychain?name=supplyChainName")).willReturn(ok().withBody("[{\"name\":\"supplyChainName\",\"id\":\"supplyChainId\"}]")));
         wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link")).willReturn(noContent()));
+        wireMockServer.stubFor(get(urlEqualTo("/api/key/" + keyId)).willReturn(ok().withBody(restKeyPairRest)));
         argos4j.collectMaterials(sharedTempDir.getAbsoluteFile());
         argos4j.collectProducts(sharedTempDir.getAbsoluteFile());
-        argos4j.store();
+        argos4j.store(KEY_PASSPHRASE);
         List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
-        assertThat(requests, hasSize(2));
-        assertThat(requests.get(1).getBodyAsString(), endsWith(",\"link\":{\"runId\":\"runId\",\"command\":[],\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"cb6bdad36690e8024e7df13e6796ae6603f2cb9cf9f989c9ff939b2ecebdcb91\"}],\"stepName\":\"build\",\"products\":[{\"uri\":\"text.txt\",\"hash\":\"cb6bdad36690e8024e7df13e6796ae6603f2cb9cf9f989c9ff939b2ecebdcb91\"}]}}"));
+        assertThat(requests, hasSize(3));
+        assertThat(requests.get(2).getBodyAsString(), endsWith(",\"link\":{\"runId\":\"runId\",\"stepName\":\"build\",\"layoutSegmentName\":\"layoutSegmentName\",\"command\":[],\"materials\":[{\"uri\":\"text.txt\",\"hash\":\"cb6bdad36690e8024e7df13e6796ae6603f2cb9cf9f989c9ff939b2ecebdcb91\"}],\"products\":[{\"uri\":\"text.txt\",\"hash\":\"cb6bdad36690e8024e7df13e6796ae6603f2cb9cf9f989c9ff939b2ecebdcb91\"}]}}"));
     }
 
     @Test
     void storeMetablockLinkForDirectoryFailed() {
         wireMockServer.stubFor(get(urlEqualTo("/api/supplychain?name=supplyChainName")).willReturn(ok().withBody("[{\"name\":\"supplyChainName\",\"id\":\"supplyChainId\"}]")));
+        wireMockServer.stubFor(get(urlEqualTo("/api/key/" + keyId)).willReturn(ok().withBody(restKeyPairRest)));
         wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link")).willReturn(serverError()));
-        Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store());
+        Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store(KEY_PASSPHRASE));
         assertThat(error.getMessage(), is("500 "));
     }
 
     @Test
-    void storeMetablockLinkForDirectoryUnexectedResonse() {
+    void storeMetaBlockLinkForDirectoryUnexpectedResponse() {
+        wireMockServer.stubFor(get(urlEqualTo("/api/key/" + keyId)).willReturn(ok().withBody(restKeyPairRest)));
         wireMockServer.stubFor(get(urlEqualTo("/api/supplychain?name=supplyChainName")).willReturn(badRequest()));
-        wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link")).willReturn(ok()));
-        Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store());
+        Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store(KEY_PASSPHRASE));
         assertThat(error.getMessage(), is("400 "));
+    }
+
+    @Test
+    void storeMetaBlockLinkForDirectoryUnknownKeyId() {
+        wireMockServer.stubFor(get(urlEqualTo("/api/key/" + keyId)).willReturn(notFound()));
+        Argos4jError error = assertThrows(Argos4jError.class, () -> argos4j.store(KEY_PASSPHRASE));
+        assertThat(error.getMessage(), is("404 "));
     }
 }

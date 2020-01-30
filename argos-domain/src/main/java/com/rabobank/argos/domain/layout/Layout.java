@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,6 @@ import java.util.List;
 @Builder
 public class Layout {
     private List<String> authorizedKeyIds;
-    private List<Step> steps;
     private List<MatchFilter> expectedEndProducts;
+    private List<LayoutSegment> layoutSegments;
 }

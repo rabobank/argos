@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import com.intuit.karate.junit5.Karate;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 
-import static com.rabobank.argos.test.TestHelper.waitForArgosIntegrationTestServiceToStart;
-import static com.rabobank.argos.test.TestHelper.waitForArgosServiceToStart;
+import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosIntegrationTestServiceToStart;
+import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 
 @Slf4j
 @KarateOptions(tags = {"~@ignore"})
@@ -63,5 +63,10 @@ public class ArgosServiceTestIT {
     @Karate.Test
     Karate verification() {
         return new Karate().feature("classpath:feature/verification/verification.feature");
+    }
+
+    @Karate.Test
+    Karate user() {
+        return new Karate().feature("classpath:feature/user/user.feature");
     }
 }

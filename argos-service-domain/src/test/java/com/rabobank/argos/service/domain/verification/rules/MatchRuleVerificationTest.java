@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,14 +41,12 @@ import static org.mockito.Mockito.when;
 class MatchRuleVerificationTest {
 
     private static final String DESTINATION_STEP_NAME = "destinationStepName";
+    private static final String DESTINATION_SEGMENTNAME = "destinationSegmentName";
     private static final String HASH = "hash";
     private MatchRuleVerification verification;
 
     @Mock
     private RuleVerificationContext<MatchRule> context;
-
-    @Mock
-    private Link link;
 
     @Mock
     private Artifact sourceArtifact;
@@ -81,7 +79,7 @@ class MatchRuleVerificationTest {
     @Test
     void verifyExpectedProductsDestinationProducts() {
 
-        when(link.getProducts()).thenReturn(List.of(sourceArtifact));
+        when(context.getProducts()).thenReturn(List.of(sourceArtifact));
         when(matchRule.getDestinationType()).thenReturn(DestinationType.PRODUCTS);
         when(destinationLink.getProducts()).thenReturn(List.of(destinationArtifact));
         when(destinationArtifact.getHash()).thenReturn(HASH);
@@ -96,7 +94,7 @@ class MatchRuleVerificationTest {
     @Test
     void verifyExpectedProductsDestinationMaterials() {
 
-        when(link.getProducts()).thenReturn(List.of(sourceArtifact));
+        when(context.getProducts()).thenReturn(List.of(sourceArtifact));
         when(matchRule.getDestinationType()).thenReturn(DestinationType.MATERIALS);
         when(destinationLink.getMaterials()).thenReturn(List.of(destinationArtifact));
         when(destinationArtifact.getHash()).thenReturn(HASH);
@@ -111,7 +109,7 @@ class MatchRuleVerificationTest {
     @Test
     void verifyExpectedMaterialsDestinationMaterials() {
 
-        when(link.getMaterials()).thenReturn(List.of(sourceArtifact));
+        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
         when(matchRule.getDestinationType()).thenReturn(DestinationType.MATERIALS);
         when(destinationLink.getMaterials()).thenReturn(List.of(destinationArtifact));
         when(destinationArtifact.getHash()).thenReturn(HASH);
@@ -127,7 +125,7 @@ class MatchRuleVerificationTest {
     @Test
     void verifyExpectedMaterialsDestinationProducts() {
 
-        when(link.getMaterials()).thenReturn(List.of(sourceArtifact));
+        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
         when(matchRule.getDestinationType()).thenReturn(DestinationType.PRODUCTS);
         when(destinationLink.getProducts()).thenReturn(List.of(destinationArtifact));
         when(destinationArtifact.getHash()).thenReturn(HASH);
@@ -142,8 +140,7 @@ class MatchRuleVerificationTest {
     @Test
     void verifyExpectedMaterialsNoDestinationLinks() {
         when(context.getRule()).thenReturn(matchRule);
-        when(context.getLink()).thenReturn(link);
-        when(link.getMaterials()).thenReturn(List.of(sourceArtifact));
+        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
         when(matchRule.getDestinationStepName()).thenReturn(DESTINATION_STEP_NAME);
 
         when(context.getVerificationContext()).thenReturn(verificationContext);
@@ -156,13 +153,13 @@ class MatchRuleVerificationTest {
     @Test
     void verifyExpectedMaterialsUnknownDestinationType() {
         when(context.getRule()).thenReturn(matchRule);
-        when(context.getLink()).thenReturn(link);
-        when(link.getMaterials()).thenReturn(List.of(sourceArtifact));
+
+        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
         when(matchRule.getDestinationStepName()).thenReturn(DESTINATION_STEP_NAME);
-        when(verificationContext.getLinksByStepName(DESTINATION_STEP_NAME)).thenReturn(List.of(destinationLinkMetaBlock));
-
+        when(matchRule.getDestinationSegmentName()).thenReturn(DESTINATION_SEGMENTNAME);
+        when(verificationContext.getOriginalLinksBySegmentNameAndStepName(DESTINATION_SEGMENTNAME, DESTINATION_STEP_NAME))
+                .thenReturn(List.of(destinationLinkMetaBlock));
         when(context.getVerificationContext()).thenReturn(verificationContext);
-
         RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
         assertThat(ruleVerificationResult.isValid(), is(false));
         assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
@@ -170,7 +167,7 @@ class MatchRuleVerificationTest {
 
     @Test
     void verifyExpectedMaterialsDifferentHash() {
-        when(link.getMaterials()).thenReturn(List.of(sourceArtifact));
+        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
         when(matchRule.getDestinationType()).thenReturn(DestinationType.PRODUCTS);
         when(destinationLink.getProducts()).thenReturn(List.of(destinationArtifact));
 
@@ -184,7 +181,7 @@ class MatchRuleVerificationTest {
 
     @Test
     void verifyExpectedMaterialsDestinationArtifactNotFound() {
-        when(link.getMaterials()).thenReturn(List.of(sourceArtifact));
+        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
         when(matchRule.getDestinationType()).thenReturn(DestinationType.PRODUCTS);
         when(destinationLink.getProducts()).thenReturn(List.of(destinationArtifact));
 
@@ -197,18 +194,18 @@ class MatchRuleVerificationTest {
     }
 
     private void setupMocks() {
-        when(context.getLink()).thenReturn(link);
 
         when(context.getRule()).thenReturn(matchRule);
 
         when(matchRule.getSourcePathPrefix()).thenReturn("src/");
         when(matchRule.getDestinationPathPrefix()).thenReturn("dest/");
         when(matchRule.getPattern()).thenReturn("cool.jar");
-
+        when(matchRule.getDestinationSegmentName()).thenReturn(DESTINATION_SEGMENTNAME);
         when(matchRule.getDestinationStepName()).thenReturn(DESTINATION_STEP_NAME);
 
         when(context.getVerificationContext()).thenReturn(verificationContext);
-        when(verificationContext.getLinksByStepName(DESTINATION_STEP_NAME)).thenReturn(List.of(destinationLinkMetaBlock));
+        when(verificationContext.getOriginalLinksBySegmentNameAndStepName(DESTINATION_SEGMENTNAME, DESTINATION_STEP_NAME))
+                .thenReturn(List.of(destinationLinkMetaBlock));
         when(destinationLinkMetaBlock.getLink()).thenReturn(destinationLink);
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,17 +43,18 @@ public class MatchRuleVerification implements RuleVerification {
 
     @Override
     public RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
-        return verify(context, filterSourceArtifacts(context.getLink().getProducts(), context.getRule()));
+        return verify(context, filterSourceArtifacts(context.getProducts(), context.getRule()));
     }
 
     @Override
     public RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context) {
-        return verify(context, filterSourceArtifacts(context.getLink().getMaterials(), context.getRule()));
+        return verify(context, filterSourceArtifacts(context.getMaterials(), context.getRule()));
     }
 
     private RuleVerificationResult verify(RuleVerificationContext<? extends Rule> context, Stream<Artifact> filteredSourceArtifacts) {
         MatchRule rule = context.getRule();
-        List<LinkMetaBlock> linksByStepName = context.getVerificationContext().getLinksByStepName(rule.getDestinationStepName());
+        List<LinkMetaBlock> linksByStepName = context.getVerificationContext()
+                .getOriginalLinksBySegmentNameAndStepName(rule.getDestinationSegmentName(), rule.getDestinationStepName());
         if (!linksByStepName.isEmpty()) {
             if (rule.getDestinationType() == PRODUCTS) {
                 return checkResult(getLinkStream(linksByStepName).map(destinationLink ->

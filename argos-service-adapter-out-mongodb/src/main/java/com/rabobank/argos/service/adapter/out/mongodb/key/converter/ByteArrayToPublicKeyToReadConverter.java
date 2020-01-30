@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,8 @@ import com.rabobank.argos.service.adapter.out.mongodb.MongoDbException;
 import org.bson.types.Binary;
 import org.springframework.core.convert.converter.Converter;
 
-import java.security.NoSuchAlgorithmException;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
 
 import static com.rabobank.argos.domain.key.RSAPublicKeyFactory.instance;
 
@@ -31,7 +30,7 @@ public class ByteArrayToPublicKeyToReadConverter implements Converter<Binary, Pu
     public PublicKey convert(Binary bytes) {
         try {
             return instance(bytes.getData());
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+        } catch (GeneralSecurityException e) {
             throw new MongoDbException(e);
         }
     }

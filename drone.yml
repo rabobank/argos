@@ -69,8 +69,8 @@ steps:
   - name: build argos service image
     image: plugins/docker
     settings:
-      repo: rabobanknl/argos-service
-      tags: ${DRONE_COMMIT:0:8}
+      repo: rabobanknl/argos-service-snapshot
+      tags: ${DRONE_BRANCH/\//_}
       context: argos-docker
       dockerfile: argos-docker/ServiceDockerfile
       username:
@@ -85,9 +85,24 @@ steps:
     image: plugins/docker
     settings:
       repo: rabobanknl/argos-integration-test-service
-      tags: ${DRONE_COMMIT:0:8}
+      tags: ${DRONE_BRANCH/\//_}
       context: argos-docker
       dockerfile: argos-docker/IntegrationTestServiceDockerfile
+      username:
+        from_secret: docker_login_user
+      password:
+        from_secret: docker_login_token
+    depends_on:
+      - pitest
+      - sonar
+
+  - name: build argos integration test stub image
+    image: plugins/docker
+    settings:
+      repo: rabobanknl/argos-integration-test-stub
+      tags: ${DRONE_BRANCH/\//_}
+      context: argos-docker/oauth-stub
+      dockerfile: argos-docker/oauth-stub/Dockerfile
       username:
         from_secret: docker_login_user
       password:
@@ -99,8 +114,8 @@ steps:
   - name: build argos jenkins image
     image: plugins/docker
     settings:
-      repo: rabobanknl/argos-jenkins
-      tags: ${DRONE_COMMIT:0:8}
+      repo: rabobanknl/argos-jenkins-snapshot
+      tags: ${DRONE_BRANCH/\//_}
       context: argos-docker
       dockerfile: argos-docker/JenkinsDockerfile
       username:
@@ -119,16 +134,23 @@ steps:
       - sonar
 
   - name: argos-service
-    image: rabobanknl/argos-service:${DRONE_COMMIT:0:8}
+    image: rabobanknl/argos-service-snapshot:${DRONE_BRANCH/\//_}
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
+      spring.security.oauth2.client.registration.azure.clientId: client-id
+      spring.security.oauth2.client.registration.azure.clientSecret: client-secret
+      spring.security.oauth2.client.provider.azure.authorizationUri: http://argos-integration-test-stub:8080/oauth2/v2.0/authorize
+      spring.security.oauth2.client.provider.azure.tokenUri: http://argos-integration-test-stub:8080/oauth2/v2.0/token
+      spring.security.oauth2.client.provider.azure.userInfoUri: http://argos-integration-test-stub:8080/v1.0/me
+      jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
+      auth.frontendRedirectBasePath: http://argos-integration-test-stub:8080
     detach: true
     depends_on:
       - mongodb
       - build argos service image
 
   - name: argos-integration-test-service
-    image: rabobanknl/argos-integration-test-service:${DRONE_COMMIT:0:8}
+    image: rabobanknl/argos-integration-test-service:${DRONE_BRANCH/\//_}
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
     detach: true
@@ -136,8 +158,14 @@ steps:
       - mongodb
       - build argos integration test service image
 
+  - name: argos-integration-test-stub
+    image: rabobanknl/argos-integration-test-stub:${DRONE_BRANCH/\//_}
+    detach: true
+    depends_on:
+      - build argos integration test stub image
+
   - name: argos-jenkins
-    image: rabobanknl/argos-jenkins:${DRONE_COMMIT:0:8}
+    image: rabobanknl/argos-jenkins-snapshot:${DRONE_BRANCH/\//_}
     environment:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false
       snapshotsUrl: http://nexus:8081/nexus/content/repositories/snapshots/

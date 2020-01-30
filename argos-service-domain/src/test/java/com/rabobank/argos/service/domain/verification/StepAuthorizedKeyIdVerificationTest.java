@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import static org.mockito.Mockito.when;
 class StepAuthorizedKeyIdVerificationTest {
 
     private static final String STEP_NAME = "stepName";
+    private static final String SEGMENT_NAME = "segmentName";
 
     private StepAuthorizedKeyIdVerification stepAuthorizedKeyIdVerification;
 
@@ -70,11 +71,11 @@ class StepAuthorizedKeyIdVerificationTest {
     void verifyWithCorrectKeyIdShouldReturnValidResponse() {
         when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
         when(linkMetaBlock.getLink().getStepName()).thenReturn(STEP_NAME);
-        when(context.getLayoutMetaBlock().getLayout().getSteps()).thenReturn(Collections.singletonList(step));
+        when(context.getLayoutMetaBlock().getLayout().getLayoutSegments().get(0).getSteps()).thenReturn(Collections.singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(Collections.singletonList("keyId"));
-        when(context.getStepByStepName(eq(STEP_NAME))).thenReturn(step);
-        when(context.getLinksByStepName(eq(STEP_NAME))).thenReturn(Collections.singletonList(linkMetaBlock));
+        when(context.getStepBySegmentNameAndStepName(eq(SEGMENT_NAME), eq(STEP_NAME))).thenReturn(step);
         when(linkMetaBlock.getSignature().getKeyId()).thenReturn("keyId");
+        when(linkMetaBlock.getLink().getLayoutSegmentName()).thenReturn(SEGMENT_NAME);
         VerificationRunResult result = stepAuthorizedKeyIdVerification.verify(context);
         verify(context, times(0)).removeLinkMetaBlocks(listArgumentCaptor.capture());
         assertThat(result.isRunIsValid(), is(true));
@@ -83,9 +84,8 @@ class StepAuthorizedKeyIdVerificationTest {
     @Test
     void verifyWithCorrectIncorrectKeyIdShouldReturnInValidResponse() {
         when(context.getLinkMetaBlocks()).thenReturn(Collections.singletonList(linkMetaBlock));
-        when(context.getLayoutMetaBlock().getLayout().getSteps()).thenReturn(Collections.singletonList(step));
+        when(context.getLayoutMetaBlock().getLayout().getLayoutSegments().get(0).getSteps()).thenReturn(Collections.singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(Collections.singletonList("keyId"));
-        when(context.getLinksByStepName(eq(STEP_NAME))).thenReturn(Collections.singletonList(linkMetaBlock));
         when(linkMetaBlock.getSignature().getKeyId()).thenReturn("unTrustedKeyId");
         VerificationRunResult result = stepAuthorizedKeyIdVerification.verify(context);
         verify(context).removeLinkMetaBlocks(listArgumentCaptor.capture());

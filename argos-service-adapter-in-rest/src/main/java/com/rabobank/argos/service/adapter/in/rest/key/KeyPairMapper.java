@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Rabobank Nederland
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,8 @@ import org.mapstruct.Mapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.security.NoSuchAlgorithmException;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
 
 import static com.rabobank.argos.domain.key.RSAPublicKeyFactory.instance;
 
@@ -39,7 +38,7 @@ public interface KeyPairMapper {
     default PublicKey convertByteArrayToPublicKey(byte[] publicKey) {
         try {
             return instance(publicKey);
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+        } catch (GeneralSecurityException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid public key " + e.getMessage());
         }
     }
