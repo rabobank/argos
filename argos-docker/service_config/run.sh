@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright (C) 2019 - 2020 Rabobank Nederland
 #
@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 
 if [ -z "$@" ]; then
 	exec java -jar /argos-service.jar

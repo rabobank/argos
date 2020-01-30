@@ -16,6 +16,11 @@
 
 FROM openjdk:11.0.5-jre-slim-buster
 
+#
+# default shell doesn't handle dotted environment variables, bash does
+# https://github.com/docker-library/openjdk/issues/135
+#
+RUN apt-get install -y bash
 RUN adduser --system --home /home/argos --uid 1000 argos
 
 COPY service_config/run.sh /
@@ -29,4 +34,4 @@ USER argos
 
 ADD target/lib/argos-service.jar /
 
-ENTRYPOINT ["java","-jar","/argos-service.jar"]
+ENTRYPOINT ["/run.sh"]
