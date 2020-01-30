@@ -349,22 +349,24 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
-  /supplychaintree:
+  /hierarchy:
     get:
-      summary: get supply chain trees
-      operationId: getSupplyChainTrees
+      summary: get hierarchy trees
+      operationId: getHierarchyTrees
       tags:
-        - supplychain
+        - hierarchy
       parameters:
         - name: depth
           in: query
           required: false
+          description: specifies the maximum number of levels are retured when not specified all levels are returned
           schema:
             type: integer
             format: int32
-        - name: parentId
+        - name: parentLabelId
           in: query
           required: false
+          description: this will be the root of the retruned tree
           schema:
             type: string
         - name: name
@@ -381,7 +383,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/SupplyChainNode"
+                  $ref: "#/components/schemas/TreeNode"
         '500':
           $ref: '#/components/responses/Error'
 
@@ -390,7 +392,7 @@ paths:
       summary: create a new label
       operationId: createLabel
       tags:
-        - label
+        - hierarchy
       requestBody:
         content:
           application/json:
@@ -412,7 +414,7 @@ paths:
       summary: get label by id
       operationId: getLabelById
       tags:
-        - label
+        - hierarchy
       parameters:
         - name: labelId
           in: path
@@ -433,7 +435,7 @@ paths:
       summary: update label by id
       operationId: updateLabelById
       tags:
-        - label
+        - hierarchy
       parameters:
         - name: labelId
           in: path
@@ -456,7 +458,7 @@ paths:
       summary: delete label by id
       operationId: deleteLabelById
       tags:
-        - label
+        - hierarchy
       parameters:
         - name: labelId
           in: path
@@ -752,9 +754,9 @@ components:
           type: string
         name:
           type: string
-        parentId:
+        parentLabelId:
           type: string
-    SupplyChainNode:
+    TreeNode:
       type: object
       required:
         - name
@@ -774,7 +776,7 @@ components:
         children:
           type: array
           items:
-            $ref: "#/components/schemas/SupplyChainNode"
+            $ref: "#/components/schemas/TreeNode"
 
     Error:
       type: object

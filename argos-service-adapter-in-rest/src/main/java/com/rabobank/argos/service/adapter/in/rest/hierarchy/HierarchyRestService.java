@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.in.rest.label;
+package com.rabobank.argos.service.adapter.in.rest.hierarchy;
 
-import com.rabobank.argos.service.adapter.in.rest.api.handler.LabelApi;
+import com.rabobank.argos.service.adapter.in.rest.api.handler.HierarchyApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,5 +25,5 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class LabelRestService implements LabelApi {
+public class HierarchyRestService implements HierarchyApi {
 }
