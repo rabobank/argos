@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Copyright (C) 2019 - 2020 Rabobank Nederland
 #
@@ -14,24 +15,12 @@
 # limitations under the License.
 #
 
-FROM openjdk:11.0.5-jre-slim-buster
-
-#
-# default shell doesn't handle dotted environment variables, bash does
-# https://github.com/docker-library/openjdk/issues/135
-#
-RUN apt-get install -y bash
-RUN adduser --system --home /home/argos --uid 1000 argos
-
-COPY service_config/run.sh /
-RUN chmod +x /run.sh
-
-ARG VERSION
-
-ENV ARGOS_VERSION ${VERSION}
-
-USER argos
-
-ADD target/lib/argos-service.jar /
-
-ENTRYPOINT ["/run.sh"]
+if [ -z "$@" ]; then
+	exec java -jar /argos-service.jar
+else
+	if [ "$1" = "version" ]; then
+		echo ${ARGOS_VERSION:-"no version"}
+	else
+		$@
+	fi
+fi
