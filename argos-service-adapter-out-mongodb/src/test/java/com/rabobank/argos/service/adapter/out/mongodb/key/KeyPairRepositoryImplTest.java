@@ -26,9 +26,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.util.Optional;
+
 import static com.rabobank.argos.service.adapter.out.mongodb.key.KeyPairRepositoryImpl.COLLECTION;
+import static com.rabobank.argos.service.adapter.out.mongodb.key.KeyPairRepositoryImpl.KEY_ID;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -62,8 +65,16 @@ class KeyPairRepositoryImplTest {
     @Test
     void findByKeyIdShouldFindKeypair() {
         when(template.findOne(any(), eq(KeyPair.class), eq(COLLECTION))).thenReturn(keyPair);
-        keyPairRepository.findByKeyId("keyId");
+        assertThat(keyPairRepository.findByKeyId("keyId"), is(Optional.of(keyPair)));
         verify(template).findOne(queryArgumentCaptor.capture(), eq(KeyPair.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"keyId\" : \"keyId\"}, Fields: {}, Sort: {}"));
+    }
+
+    @Test
+    void exists() {
+        when(template.exists(any(), eq(KeyPair.class), eq(COLLECTION))).thenReturn(true);
+        assertThat(keyPairRepository.exists(KEY_ID), is(true));
+        verify(template).exists(queryArgumentCaptor.capture(), eq(KeyPair.class), eq(COLLECTION));
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"keyId\" : \"keyId\"}, Fields: {}, Sort: {}"));
     }
 }
