@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-FROM openjdk:11.0.5-jre-slim-buster
+FROM openjdk:11.0.6-jre-slim-buster
 
 #
 # default shell doesn't handle dotted environment variables, bash does
