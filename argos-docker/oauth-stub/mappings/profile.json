@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/v1.0/me"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json; charset=utf-8;"
+    },
+    "body": "{\"@odata.context\":\"https://graph.microsoft.com/v1.0/$metadata#users/$entity\",\"businessPhones\":[],\"displayName\":\"Luke Skywalker\",\"givenName\":\"Luke Skywalker\",\"jobTitle\":null,\"mail\":null,\"mobilePhone\":null,\"officeLocation\":null,\"preferredLanguage\":null,\"surname\":\"Skywalker\",\"userPrincipalName\":\"luke@skywalker.imp\",\"id\":\"172214b85-321-4fbd-a327-22e40c3556c7\"}"
+  }
+}

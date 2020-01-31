@@ -85,7 +85,7 @@
 		<java.version>11</java.version>
 		<commons-codec.version>1.11</commons-codec.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring-boot.version>2.2.0.RELEASE</spring-boot.version>
+		<spring-boot.version>2.2.2.RELEASE</spring-boot.version>
 		<org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
 		<lombok.version>1.18.10</lombok.version>
 		<pitest.version>1.4.10</pitest.version>
@@ -164,7 +164,7 @@
 						<ServiceDockerfile>SCRIPT_STYLE</ServiceDockerfile>
 						<JenkinsDockerfile>SCRIPT_STYLE</JenkinsDockerfile>
 						<IntegrationTestServiceDockerfile>SCRIPT_STYLE</IntegrationTestServiceDockerfile>
-						<argos.plantuml>APOSTROPHE_STYLE</argos.plantuml>
+						<plantuml>APOSTROPHE_STYLE</plantuml>
 					</mapping>
 				</configuration>
 				<executions>

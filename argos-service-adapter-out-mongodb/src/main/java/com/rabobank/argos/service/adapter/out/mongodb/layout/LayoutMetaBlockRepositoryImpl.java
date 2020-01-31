@@ -21,14 +21,11 @@ import com.rabobank.argos.service.domain.layout.LayoutMetaBlockRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.HashedIndex;
-import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,20 +33,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class LayoutMetaBlockRepositoryImpl implements LayoutMetaBlockRepository {
 
-    private static final String COLLECTION = "layoutMetaBlocks";
-    private static final String LAYOUT_ID_FIELD = "layoutMetaBlockId";
-    private static final String SUPPLY_CHAIN_ID_FIELD = "supplyChainId";
+    static final String COLLECTION = "layoutMetaBlocks";
+    static final String LAYOUT_ID_FIELD = "layoutMetaBlockId";
+    static final String SUPPLY_CHAIN_ID_FIELD = "supplyChainId";
     private final MongoTemplate template;
-
-    @PostConstruct
-    public void postConstruct() {
-        createIndex(HashedIndex.hashed(SUPPLY_CHAIN_ID_FIELD));
-        createIndex(HashedIndex.hashed(LAYOUT_ID_FIELD));
-    }
-
-    private void createIndex(IndexDefinition indexDefinition) {
-        template.indexOps(COLLECTION).ensureIndex(indexDefinition);
-    }
 
     @Override
     public void save(LayoutMetaBlock layoutMetaBlock) {

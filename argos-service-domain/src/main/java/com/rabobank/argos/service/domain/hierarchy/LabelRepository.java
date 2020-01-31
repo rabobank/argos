@@ -17,15 +17,15 @@ package com.rabobank.argos.service.domain.hierarchy;
 
 import com.rabobank.argos.domain.hierarchy.Label;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface LabelRepository {
-    boolean exists(String id);
 
     void save(Label label);
 
     Optional<Label> findById(String id);
 
-    Optional<Label> findByNameAndPathToRoot(String name, List<String> pathToRoot);
+    boolean deleteById(String id);
+
+    Optional<Label> update(String id, Label label);
 }
