@@ -11,19 +11,17 @@ steps:
 - name: set version
   image: rabobanknl/argos-build:latest
   commands:
-  - echo "update version to ${new_version}"
-  - mvn -q versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
-  - mvn -q -f argos4j/pom.xml versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
-  - mvn -q -f argos-jenkins-plugin/pom.xml versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
-  - mvn -q -f argos-service/pom.xml versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
-  - mvn -q -f argos-test/pom.xml versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
-  - mvn -q scm:checkin -Dmessage=$new_version -Dpassword=$github_token -Dusername=$github_user
+  - echo "update version to ${DRONE_TAG}"
+  - mvn -q versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
+  - mvn -q -f argos4j/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
+  - mvn -q -f argos-jenkins-plugin/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
+  - mvn -q -f argos-service/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
+  - mvn -q -f argos-test/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
   environment:
     github_token:
       from_secret: github_token
     github_user:
       from_secret: github_user
-    new_version: ${DRONE_TAG}
   volumes:
   - name: mvn_cache
     path: /root/.m2/repository
