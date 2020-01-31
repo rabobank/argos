@@ -30,7 +30,7 @@ import java.util.Optional;
 @Component
 public class LabelRepositoryImpl implements LabelRepository {
 
-    private static final String COLLECTION = "supplyChainlabels";
+    private static final String COLLECTION = "labels";
     private static final String SUPPLY_CHAIN_LABEL_ID_FIELD = "id";
     private static final String SUPPLY_CHAIN_LABEL_NAME = "name";
     private final MongoTemplate template;
