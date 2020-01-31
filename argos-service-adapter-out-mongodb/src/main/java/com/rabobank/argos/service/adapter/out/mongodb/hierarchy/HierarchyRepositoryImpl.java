@@ -18,20 +18,46 @@ package com.rabobank.argos.service.adapter.out.mongodb.hierarchy;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
 import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringSubstitutor;
+import org.bson.Document;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class HierarchyRepositoryImpl implements HierarchyRepository {
+    private final MongoTemplate mongoTemplate;
+
+    private static String PATH_TO_ROOT_QUERY;
+
+    static {
+        try {
+            PATH_TO_ROOT_QUERY = IOUtils.toString(HierarchyRepositoryImpl.class
+                    .getResourceAsStream("/db-query-scripts/pathtoroot-query.json"), UTF_8);
+        } catch (IOException e) {
+            log.error("error while reading query {}", e);
+        }
+    }
+
     @Override
     public List<String> getPathToRoot(String parentLabelId) {
-
-        //so
-        //gr
-        return Collections.emptyList();
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("labelIdToBeReplaced", parentLabelId);
+        String queryCommand = StringSubstitutor.replace(PATH_TO_ROOT_QUERY, data);
+        Document document = mongoTemplate.getDb().runCommand(Document.parse(queryCommand));
+        List<String> pathToRoot = (List<String>) document.get("pathToRootIncluding");
+        return pathToRoot;
     }
 
     @Override

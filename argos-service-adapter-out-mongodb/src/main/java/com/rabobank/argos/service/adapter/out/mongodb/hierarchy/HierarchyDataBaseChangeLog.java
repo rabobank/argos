@@ -29,7 +29,7 @@ public class HierarchyDataBaseChangeLog {
     @ChangeSet(order = "001", id = "HierarchyChangelog-1", author = "michel")
     public void createHierarchyView(MongoTemplate template) throws IOException {
         String createViewCommand = IOUtils.toString(getClass()
-                .getResourceAsStream("/db-scripts/create-hierarchy-view.json"), UTF_8);
+                .getResourceAsStream("/db-migration-scripts/create-hierarchy-view-01.json"), UTF_8);
 
         template.getDb().getCollection("hierarchy").drop();
         template.executeCommand(createViewCommand);

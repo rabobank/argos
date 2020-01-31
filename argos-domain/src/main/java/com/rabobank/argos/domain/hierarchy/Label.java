@@ -15,6 +15,8 @@
  */
 package com.rabobank.argos.domain.hierarchy;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,10 +24,17 @@ import lombok.Setter;
 import java.util.List;
 import java.util.UUID;
 
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
+@JsonDeserialize(builder = Label.LabelBuilder.class)
 public class Label {
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class LabelBuilder {
+    }
+
+
     @Builder.Default
     private String labelId = UUID.randomUUID().toString();
     private String parentLabelId;
@@ -34,4 +43,6 @@ public class Label {
     boolean isRoot() {
         return parentLabelId == null;
     }
+
+
 }

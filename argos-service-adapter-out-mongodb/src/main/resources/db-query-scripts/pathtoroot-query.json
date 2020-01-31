@@ -1,0 +1,62 @@
+{
+  "aggregate": "labels",
+  "pipeline": [
+    {
+      "$match": {
+        "labelId": " ${labelIdToBeReplaced}"
+      }
+    },
+    {
+      "$graphLookup": {
+        "from": "labels",
+        "startWith": "$parentLabelId",
+        "connectFromField": "parentLabelId",
+        "connectToField": "labelId",
+        "as": "pathToRoot",
+        "depthField": "depthField"
+      }
+    },
+    {
+      "$unwind": "$pathToRoot"
+    },
+    {
+      "$sort": {
+        "pathToRoot.depthField": 1
+      }
+    },
+    {
+      "$group": {
+        "_id": ",$_id",
+        "labelId": {
+          "$first": "$labelId"
+        },
+        "name": {
+          "$first": "$name"
+        },
+        "pathToRoot": {
+          "$push": "$pathToRoot.name"
+        }
+      }
+    },
+    {
+      "$project": {
+        "labelId": 1,
+        "pathToRoot": 1,
+        "pathToRootIncluding": {
+          "$concatArrays": [
+            [
+              "$name"
+            ],
+            "$pathToRoot"
+          ]
+        }
+      }
+    }
+  ],
+  "allowDiskUse": true,
+  "cursor": {}
+}
+
+
+
+

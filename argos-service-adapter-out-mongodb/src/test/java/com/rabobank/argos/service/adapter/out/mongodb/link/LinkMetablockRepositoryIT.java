@@ -15,6 +15,8 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.link;
 
+import com.github.mongobee.Mongobee;
+import com.github.mongobee.exception.MongobeeException;
 import com.mongodb.client.MongoClients;
 import com.rabobank.argos.domain.Signature;
 import com.rabobank.argos.domain.link.Artifact;
@@ -60,7 +62,7 @@ public class LinkMetablockRepositoryIT {
     private LinkMetaBlockRepository linkMetaBlockRepository;
 
     @BeforeEach
-    void setup() throws IOException {
+    void setup() throws IOException, MongobeeException {
         String ip = "localhost";
         int port = Network.getFreeServerPort();
         IMongodConfig mongodConfig = new MongodConfigBuilder().version(Version.Main.PRODUCTION)
@@ -70,8 +72,15 @@ public class LinkMetablockRepositoryIT {
         MongodStarter starter = MongodStarter.getInstance(runtimeConfig);
         mongodExecutable = starter.prepare(mongodConfig);
         mongodExecutable.start();
-        MongoTemplate mongoTemplate = new MongoTemplate(MongoClients.create("mongodb://localhost:" + port), "test");
+        String connectionString = "mongodb://localhost:" + port;
+        MongoTemplate mongoTemplate = new MongoTemplate(MongoClients.create(connectionString), "test");
         linkMetaBlockRepository = new LinkMetaBlockRepositoryImpl(mongoTemplate);
+        Mongobee runner = new Mongobee(connectionString);
+        runner.setChangeLogsScanPackage("com.rabobank.argos.service.adapter.out.mongodb");
+        runner.setMongoTemplate(mongoTemplate);
+        runner.setDbName("test");
+        runner.execute();
+
     }
 
     @AfterEach

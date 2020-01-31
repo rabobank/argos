@@ -1,0 +1,31 @@
+[
+  {
+    "name": "nl",
+    "labelId": "5e32e74d058a273b0a60115a"
+  },
+  {
+    "name": "rabobank",
+    "parentLabelId": "5e32e74d058a273b0a60115a",
+    "labelId": "5e32e80b058a273b0a60115f"
+  },
+  {
+    "name": "TAS",
+    "parentLabelId": "5e32e80b058a273b0a60115f",
+    "labelId": "5e32e928058a273b0a601168"
+  },
+  {
+    "name": "GAMMA",
+    "parentLabelId": "5e32e928058a273b0a601168",
+    "labelId": "5e32e9bc058a273b0a601169"
+  },
+  {
+    "name": "TAU",
+    "parentLabelId": "5e32e928058a273b0a601168",
+    "labelId": "5e32f52e058a273b0a6011e4"
+  },
+  {
+    "name": "Delta",
+    "parentLabelId": "5e32f52e058a273b0a6011e4",
+    "labelId": "5e32f62e058a273b0a6011f3"
+  }
+]
