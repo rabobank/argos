@@ -28,8 +28,6 @@ steps:
   - name: mvn_cache
     path: /root/.m2/repository
   when:
-    branch:
-    - master
     event:
     - tag
 
@@ -204,8 +202,6 @@ steps:
     username:
       from_secret: docker_login_user
   when:
-    branch:
-    - master
     event:
     - tag
   depends_on:
@@ -225,8 +221,6 @@ steps:
     passphrase:
       from_secret: argos-signing-private-key-passphrase
   when:
-    branch:
-    - master
     event:
     - tag
   depends_on:
@@ -248,8 +242,6 @@ steps:
   - name: mvn_cache
     path: /root/.m2/repository
   when:
-    branch:
-    - master
     event:
     - tag
   depends_on:
@@ -300,30 +292,5 @@ trigger:
 
 depends_on:
 - argosbuild
-
----
-kind: pipeline
-name: build build image
-
-platform:
-  os: linux
-  arch: amd64
-
-steps:
-- name: build build image
-  image: plugins/docker
-  settings:
-    context: docker-build-image
-    dockerfile: docker-build-image/Dockerfile
-    password:
-      from_secret: docker_login_token
-    repo: rabobanknl/argos-build
-    tags: latest
-    username:
-      from_secret: docker_login_user
-
-trigger:
-  ref:
-  - refs/tags/build-image**
 
 ...
