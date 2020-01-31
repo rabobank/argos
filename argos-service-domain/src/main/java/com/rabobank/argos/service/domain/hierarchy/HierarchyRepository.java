@@ -22,7 +22,7 @@ import java.util.List;
 public interface HierarchyRepository {
     List<String> getPathToRoot(String labelId);
 
-    List<TreeNode> searchByName(String name, int depth);
+    List<TreeNode> searchByName(String name);
 
     TreeNode getSubTree(String id, int depth);
 }

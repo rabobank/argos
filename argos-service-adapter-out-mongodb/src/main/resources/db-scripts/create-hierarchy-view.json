@@ -1,0 +1,62 @@
+{
+  "create": "hierarchy",
+  "viewOn": "labels",
+  "pipeline": [
+    {
+      "$facet": {
+        "joinedsupplychains": [
+          {
+            "$lookup": {
+              "from": "supplyChains",
+              "localField": "labelId",
+              "foreignField": "parentLabelId",
+              "as": "supplychains"
+            }
+          },
+          {
+            "$unwind": "$supplychains"
+          },
+          {
+            "$project": {
+              "_id": "$supplychains._id",
+              "referenceId": "$supplychains.supplyChainId",
+              "name": "$supplychains.name",
+              "type": "SUPPLY_CHAIN",
+              "parentLabelId": "$supplychains.parentLabelId"
+            }
+          }
+        ],
+        "labelsprojected": [
+          {
+            "$project": {
+              "_id": 1,
+              "referenceId": "$labelId",
+              "name": 1.0,
+              "type": "LABEL",
+              "parentLabelId": 1.0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$project": {
+        "hierarchy": {
+          "$concatArrays": [
+            "$labelsprojected",
+            "$joinedsupplychains"
+          ]
+        }
+      }
+    },
+    {
+      "$unwind": "$hierarchy"
+    },
+    {
+      "$replaceRoot": {
+        "newRoot": "$hierarchy"
+      }
+    }
+  ]
+}
+
