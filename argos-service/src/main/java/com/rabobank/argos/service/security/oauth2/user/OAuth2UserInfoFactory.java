@@ -28,11 +28,9 @@ import java.util.Map;
 public class OAuth2UserInfoFactory {
 
     public static OAuth2UserInfo getOAuth2UserInfo(AuthenticationProvider authenticationProvider, Map<String, Object> attributes) {
-        switch (authenticationProvider) {
-            case AZURE:
-                return new AzureOAuth2UserInfo(attributes);
-            default:
-                throw new ArgosError("not supported authentication provider");
+        if (authenticationProvider == AuthenticationProvider.AZURE) {
+            return new AzureOAuth2UserInfo(attributes);
         }
+        throw new ArgosError("not supported authentication provider");
     }
 }

@@ -16,6 +16,7 @@
 package com.rabobank.argos.service.domain.user;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +28,7 @@ import static java.util.UUID.randomUUID;
 @Getter
 @Setter
 @Builder
+@EqualsAndHashCode
 public class User implements Serializable {
 
     @Builder.Default
