@@ -63,7 +63,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JenkinsTestIT {
 
 
-    public static final String TEST_APP_BRANCH = "multi-segment";
+    public static final String TEST_APP_BRANCH = System.getProperty("TEST_APP_BRANCH") != null ? System.getProperty("TEST_APP_BRANCH") : "master";
     private static final String KEY_PASSWORD = "test";
     private static Properties properties = Properties.getInstance();
     private static final String SERVER_BASEURL = "server.baseurl";
@@ -74,6 +74,7 @@ public class JenkinsTestIT {
     @BeforeAll
     static void startup() {
         log.info("jenkins base url : {}", properties.getJenkinsBaseUrl());
+        log.info("Test App branch : {}", TEST_APP_BRANCH);
         System.setProperty(SERVER_BASEURL, properties.getApiBaseUrl());
         waitForJenkinsToStart();
         waitForArgosServiceToStart();
