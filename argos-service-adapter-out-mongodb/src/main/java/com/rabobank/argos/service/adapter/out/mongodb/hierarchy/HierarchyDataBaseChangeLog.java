@@ -28,10 +28,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class HierarchyDataBaseChangeLog {
     @ChangeSet(order = "001", id = "HierarchyChangelog-1", author = "michel")
     public void createHierarchyView(MongoTemplate template) throws IOException {
+        String createTmpViewCommand = IOUtils.toString(getClass()
+                .getResourceAsStream("/db-migration-scripts/create-hierarchy-tmp-view-01.json"), UTF_8);
         String createViewCommand = IOUtils.toString(getClass()
                 .getResourceAsStream("/db-migration-scripts/create-hierarchy-view-01.json"), UTF_8);
-
-        template.getDb().getCollection("hierarchy").drop();
+        template.dropCollection("hierarchy_tmp");
+        template.dropCollection("hierarchy");
+        template.executeCommand(createTmpViewCommand);
         template.executeCommand(createViewCommand);
+
     }
 }

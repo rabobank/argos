@@ -19,8 +19,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 import static java.util.UUID.randomUUID;
 
 @Getter
@@ -28,7 +26,6 @@ import static java.util.UUID.randomUUID;
 @Builder
 public class SupplyChain {
     private String parentLabelId;
-    private List<String> pathToRoot;
     @Builder.Default
     private String supplyChainId = randomUUID().toString();
     private String name;

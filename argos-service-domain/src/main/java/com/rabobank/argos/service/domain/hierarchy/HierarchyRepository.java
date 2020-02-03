@@ -18,11 +18,10 @@ package com.rabobank.argos.service.domain.hierarchy;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface HierarchyRepository {
-    List<String> getPathToRoot(String labelId);
-
     List<TreeNode> searchByName(String name);
 
-    TreeNode getSubTree(String id, int depth);
+    Optional<TreeNode> getSubTree(String id, int depth);
 }

@@ -1,39 +1,73 @@
 {
   "create": "hierarchy",
-  "viewOn": "labels",
+  "viewOn": "hierarchy_tmp",
   "pipeline": [
     {
       "$facet": {
-        "joinedsupplychains": [
+        "withpathtoroot": [
           {
-            "$lookup": {
-              "from": "supplyChains",
-              "localField": "labelId",
-              "foreignField": "parentLabelId",
-              "as": "supplychains"
+            "$graphLookup": {
+              "from": "hierarchy_tmp",
+              "startWith": "$parentLabelId",
+              "connectFromField": "parentLabelId",
+              "connectToField": "referenceId",
+              "as": "pathToRoot",
+              "depthField": "depth"
             }
           },
           {
-            "$unwind": "$supplychains"
+            "$unwind": "$pathToRoot"
+          },
+          {
+            "$sort": {
+              "pathToRoot.depth": 1
+            }
+          },
+          {
+            "$group": {
+              "_id": "$_id",
+              "referenceId": {
+                "$first": "$referenceId"
+              },
+              "name": {
+                "$first": "$name"
+              },
+              "parentLabelId": {
+                "$first": "$parentLabelId"
+              },
+              "type": {
+                "$first": "$type"
+              },
+              "pathToRoot": {
+                "$push": "$pathToRoot.name"
+              }
+            }
           },
           {
             "$project": {
-              "_id": "$supplychains._id",
-              "referenceId": "$supplychains.supplyChainId",
-              "name": "$supplychains.name",
-              "type": "SUPPLY_CHAIN",
-              "parentLabelId": "$supplychains.parentLabelId"
+              "referenceId": 1,
+              "parentLabelId": 1,
+              "name": 1,
+              "type": 1,
+              "pathToRoot": 1,
+              "_class": "com.rabobank.argos.service.adapter.out.mongodb.hierarchy.HierarchyRepositoryImpl.HierarchyItem"
             }
           }
         ],
-        "labelsprojected": [
+        "rootnodes": [
+          {
+            "$match": {
+              "parentLabelId": null
+            }
+          },
           {
             "$project": {
-              "_id": 1,
-              "referenceId": "$labelId",
-              "name": 1.0,
-              "type": "LABEL",
-              "parentLabelId": 1.0
+              "referenceId": 1,
+              "parentLabelId": 1,
+              "name": 1,
+              "type": 1,
+              "pathToRoot": [],
+              "_class": "com.rabobank.argos.service.adapter.out.mongodb.hierarchy.HierarchyRepositoryImpl.HierarchyItem"
             }
           }
         ]
@@ -41,20 +75,20 @@
     },
     {
       "$project": {
-        "hierarchy": {
+        "tmp": {
           "$concatArrays": [
-            "$labelsprojected",
-            "$joinedsupplychains"
+            "$withpathtoroot",
+            "$rootnodes"
           ]
         }
       }
     },
     {
-      "$unwind": "$hierarchy"
+      "$unwind": "$tmp"
     },
     {
       "$replaceRoot": {
-        "newRoot": "$hierarchy"
+        "newRoot": "$tmp"
       }
     }
   ]

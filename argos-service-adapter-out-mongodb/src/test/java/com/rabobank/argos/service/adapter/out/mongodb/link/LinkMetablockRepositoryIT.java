@@ -76,7 +76,7 @@ public class LinkMetablockRepositoryIT {
         MongoTemplate mongoTemplate = new MongoTemplate(MongoClients.create(connectionString), "test");
         linkMetaBlockRepository = new LinkMetaBlockRepositoryImpl(mongoTemplate);
         Mongobee runner = new Mongobee(connectionString);
-        runner.setChangeLogsScanPackage("com.rabobank.argos.service.adapter.out.mongodb");
+        runner.setChangeLogsScanPackage("com.rabobank.argos.service.adapter.out.mongodb.link");
         runner.setMongoTemplate(mongoTemplate);
         runner.setDbName("test");
         runner.execute();

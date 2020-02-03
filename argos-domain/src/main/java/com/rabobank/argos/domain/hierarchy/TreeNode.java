@@ -28,6 +28,8 @@ public class TreeNode {
     public enum Type {LABEL, SUPPLY_CHAIN}
     private String referenceId;
     private String name;
+    private String parentLabelId;
     private List<TreeNode> children;
     private Type type;
+    private List<String> pathToRoot;
 }
