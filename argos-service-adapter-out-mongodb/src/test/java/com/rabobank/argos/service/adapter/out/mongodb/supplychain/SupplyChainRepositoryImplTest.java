@@ -68,6 +68,14 @@ class SupplyChainRepositoryImplTest {
     }
 
     @Test
+    void exists() {
+        when(template.exists(any(), eq(SupplyChain.class), eq(COLLECTION))).thenReturn(true);
+        assertThat(repository.exists(SUPPLY_CHAIN_ID), is(true));
+        verify(template).exists(queryArgumentCaptor.capture(), eq(SupplyChain.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\"}, Fields: {}, Sort: {}"));
+    }
+
+    @Test
     void save() {
         repository.save(supplyChain);
         verify(template).save(supplyChain, COLLECTION);

@@ -17,6 +17,7 @@ package com.rabobank.argos.integrationtest.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,6 +28,8 @@ public class RepositoryResetProviderImpl implements RepositoryResetProvider {
 
     @Override
     public void resetAllRepositories() {
-        template.getCollectionNames().forEach(template::dropCollection);
+        template.getCollectionNames().stream()
+                .filter(name -> !name.equals("dbchangelog"))
+                .forEach(name -> template.remove(new Query(), name));
     }
 }

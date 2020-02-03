@@ -28,4 +28,6 @@ public interface LabelRepository {
     boolean deleteById(String id);
 
     Optional<Label> update(String id, Label label);
+
+    boolean exists(String id);
 }
