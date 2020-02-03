@@ -16,10 +16,12 @@
 package com.rabobank.argos.service.adapter.out.mongodb.hierarchy;
 
 import com.mongodb.client.result.UpdateResult;
+import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.hierarchy.Label;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -38,15 +40,23 @@ public class LabelRepositoryImpl implements LabelRepository {
     static final String PARENT_LABEL_ID_FIELD = "parentLabelId";
     private final MongoTemplate template;
 
-
     @Override
     public void save(Label label) {
-        template.save(label, COLLECTION);
+        try {
+            template.save(label, COLLECTION);
+        } catch (DuplicateKeyException e) {
+            throw duplicateKeyException(label, e);
+        }
     }
 
     @Override
     public Optional<Label> findById(String id) {
         return Optional.ofNullable(template.findOne(getPrimaryKeyQuery(id), Label.class, COLLECTION));
+    }
+
+    @Override
+    public boolean exists(String id) {
+        return template.exists(getPrimaryKeyQuery(id), Label.class, COLLECTION);
     }
 
     @Override
@@ -60,17 +70,25 @@ public class LabelRepositoryImpl implements LabelRepository {
         Query query = getPrimaryKeyQuery(id);
         Document document = new Document();
         template.getConverter().write(label, document);
-        UpdateResult updateResult = template.updateFirst(query, Update.fromDocument(document), Label.class, COLLECTION);
-        if (updateResult.getMatchedCount() > 0) {
-            label.setLabelId(id);
-            return Optional.of(label);
-        } else {
-            return Optional.empty();
+        try {
+            UpdateResult updateResult = template.updateFirst(query, Update.fromDocument(document), Label.class, COLLECTION);
+            if (updateResult.getMatchedCount() > 0) {
+                label.setLabelId(id);
+                return Optional.of(label);
+            } else {
+                return Optional.empty();
+            }
+        } catch (DuplicateKeyException e) {
+            throw duplicateKeyException(label, e);
         }
     }
 
     private Query getPrimaryKeyQuery(String id) {
         return new Query(Criteria.where(LABEL_ID_FIELD).is(id));
+    }
+
+    private ArgosError duplicateKeyException(Label label, DuplicateKeyException e) {
+        return new ArgosError("label with name: " + label.getName() + " and parentLabelId: " + label.getParentLabelId() + " already exists", e, ArgosError.Level.WARNING);
     }
 
 }

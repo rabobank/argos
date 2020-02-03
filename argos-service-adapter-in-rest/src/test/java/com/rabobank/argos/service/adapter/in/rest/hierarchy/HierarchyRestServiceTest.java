@@ -39,6 +39,7 @@ import static org.mockito.Mockito.when;
 class HierarchyRestServiceTest {
 
     private static final String LABEL_ID = "labelId";
+    private static final String PARENT_LABEL_ID = "parentLabelId";
     @Mock
     private LabelRepository labelRepository;
 
@@ -66,6 +67,14 @@ class HierarchyRestServiceTest {
         assertThat(response.getStatusCodeValue(), is(200));
         assertThat(response.getBody(), sameInstance(restLabel));
         verify(labelRepository).save(label);
+    }
+
+    @Test
+    void createLabelParentNotExists() {
+        when(restLabel.getParentLabelId()).thenReturn(PARENT_LABEL_ID);
+        when(labelRepository.exists(PARENT_LABEL_ID)).thenReturn(false);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.createLabel(restLabel));
+        assertThat(exception.getMessage(), is("404 NOT_FOUND \"label not found : parentLabelId\""));
     }
 
     @Test
@@ -109,10 +118,27 @@ class HierarchyRestServiceTest {
     }
 
     @Test
+    void updateLabelByIdSameId() {
+        when(restLabel.getParentLabelId()).thenReturn(LABEL_ID);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.updateLabelById(LABEL_ID, restLabel));
+        assertThat(exception.getMessage(), is("400 BAD_REQUEST \"labelId and parentLabelId are equal\""));
+    }
+
+    @Test
     void updateLabelByIdNotFound() {
         when(labelMapper.convertFromRestLabel(restLabel)).thenReturn(label);
         when(labelRepository.update(LABEL_ID, label)).thenReturn(Optional.empty());
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.updateLabelById(LABEL_ID, restLabel));
         assertThat(exception.getMessage(), is("404 NOT_FOUND \"label not found : labelId\""));
     }
+
+    @Test
+    void updateLabelByParentIdNotFound() {
+        when(restLabel.getParentLabelId()).thenReturn(PARENT_LABEL_ID);
+        when(labelRepository.exists(PARENT_LABEL_ID)).thenReturn(false);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.updateLabelById(LABEL_ID, restLabel));
+        assertThat(exception.getMessage(), is("404 NOT_FOUND \"label not found : parentLabelId\""));
+    }
+
+
 }

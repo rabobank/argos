@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -39,9 +41,16 @@ public class HierarchyRestService implements HierarchyApi {
 
     @Override
     public ResponseEntity<RestLabel> createLabel(RestLabel restLabel) {
+        verifyParentLabelExists(restLabel.getParentLabelId());
         Label label = labelMapper.convertFromRestLabel(restLabel);
         labelRepository.save(label);
         return ResponseEntity.ok(labelMapper.convertToRestLabel(label));
+    }
+
+    private void verifyParentLabelExists(String parentLabelId) {
+        Optional.ofNullable(parentLabelId).filter(parentId -> !labelRepository.exists(parentId)).ifPresent(parentId -> {
+            throw labelNotFound(parentId);
+        });
     }
 
     @Override
@@ -61,11 +70,18 @@ public class HierarchyRestService implements HierarchyApi {
 
     @Override
     public ResponseEntity<RestLabel> updateLabelById(String labelId, RestLabel restLabel) {
+        verifyParentLabelIsDifferent(labelId, restLabel.getParentLabelId());
+        verifyParentLabelExists(restLabel.getParentLabelId());
         return labelRepository.update(labelId, labelMapper.convertFromRestLabel(restLabel))
                 .map(labelMapper::convertToRestLabel).map(ResponseEntity::ok)
                 .orElseThrow(() -> labelNotFound(labelId));
     }
 
+    private void verifyParentLabelIsDifferent(String labelId, String parentLabelId) {
+        if (labelId.equals(parentLabelId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "labelId and parentLabelId are equal");
+        }
+    }
 
     private ResponseStatusException labelNotFound(String labelId) {
         return new ResponseStatusException(HttpStatus.NOT_FOUND, "label not found : " + labelId);
