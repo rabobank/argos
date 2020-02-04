@@ -177,18 +177,7 @@ public class JenkinsTestIT {
 
     public void verifyEndProducts() {
         String hash = getWarSnapshotHash();
-        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash))));
-        /*
-         * assertFalse(isValidEndProduct(supplyChainId, new
-         * RestVerifyCommand().addExpectedProductsItem(new
-         * RestArtifact().uri("argos-test-app.war").hash(
-         * "1234567890123456789012345678901234567890123456789012345678901234"))));
-         * RestVerifyCommand verifyCommand = new RestVerifyCommand()
-         * .addExpectedProductsItem(new
-         * RestArtifact().uri("argos-test-app.war").hash(hash))
-         * .addExpectedProductsItem(new RestArtifact().uri("foo").hash(hash));
-         * assertFalse(isValidEndProduct(supplyChainId, verifyCommand));
-         */
+        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash))));        
     }
 
     private JobWithDetails getJob(String name) throws IOException {
