@@ -1,8 +1,24 @@
+/*
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.rabobank.argos.service.adapter.out.mongodb.hierarchy;
 
 import com.github.mongobee.Mongobee;
 import com.github.mongobee.exception.MongobeeException;
 import com.mongodb.client.MongoClients;
+import com.rabobank.argos.domain.hierarchy.HierarchyMode;
 import com.rabobank.argos.domain.hierarchy.Label;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
 import com.rabobank.argos.domain.supplychain.SupplyChain;
@@ -76,19 +92,30 @@ class HierarchyRepositoryImplIT {
     }
 
     @Test
-    void testSearchByName() {
+    void testGetRootNodes() {
         createDataSet();
-        List<TreeNode> result = hierarchyRepository.searchByName("nl");
+        List<TreeNode> result = hierarchyRepository.getRootNodes(HierarchyMode.NONE, 0);
         assertThat(result, hasSize(1));
         assertThat(result.iterator().next().getName(), is("nl"));
     }
 
     @Test
+    void testFindByNamePathToRootAndType() {
+        createDataSet();
+        List<String> pathToRoot = List.of("team 1", "department 1", "company 1", "nl");
+        Optional<TreeNode> optionalSubTree = hierarchyRepository
+                .findByNamePathToRootAndType("team 1 supply chain", pathToRoot, TreeNode.Type.SUPPLY_CHAIN);
+        assertThat(optionalSubTree.isPresent(), is(true));
+        assertThat(optionalSubTree.get().getName(), is("team 1 supply chain"));
+        assertThat(optionalSubTree.get().getType(), is(TreeNode.Type.SUPPLY_CHAIN));
+    }
+
+    @Test
     void testGetSubTree() {
         createDataSet();
-        List<TreeNode> result = hierarchyRepository.searchByName("nl");
+        List<TreeNode> result = hierarchyRepository.getRootNodes(HierarchyMode.NONE, 0);
         String referenceId = result.iterator().next().getReferenceId();
-        Optional<TreeNode> optionalSubTree = hierarchyRepository.getSubTree(referenceId, -1);
+        Optional<TreeNode> optionalSubTree = hierarchyRepository.getSubTree(referenceId, HierarchyMode.ALL, 0);
         assertThat(optionalSubTree.isPresent(), is(true));
         TreeNode treeNode = optionalSubTree.get();
         assertThat(treeNode.getChildren(), hasSize(1));
@@ -106,6 +133,7 @@ class HierarchyRepositoryImplIT {
         createLabel("team 3", department1.getLabelId());
         createLabel("team 2", department1.getLabelId());
         Label team1 = createLabel("team 1", department1.getLabelId());
+        createLabel("team 1 supply chain", team1.getLabelId());
         createSupplyChain("team 1 supply chain", team1.getLabelId());
     }
 

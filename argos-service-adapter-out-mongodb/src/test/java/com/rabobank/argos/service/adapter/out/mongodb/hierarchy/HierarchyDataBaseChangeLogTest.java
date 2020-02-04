@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.hierarchy;
+package com.rabobank.argos.service.adapter.out.mongodb.hierarchy;
 
-import com.rabobank.argos.domain.hierarchy.HierarchyMode;
-import com.rabobank.argos.domain.hierarchy.TreeNode;
+import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Optional;
+class HierarchyDataBaseChangeLogTest {
 
-public interface HierarchyRepository {
-    List<TreeNode> getRootNodes(HierarchyMode hierarchyMode, int maxDepth);
-
-    Optional<TreeNode> getSubTree(String referenceId, HierarchyMode hierarchyMode, int maxDepth);
-
-    Optional<TreeNode> findByNamePathToRootAndType(String name, List<String> pathToRoot, TreeNode.Type type);
+    @Test
+    void createHierarchyView() {
+    }
 }

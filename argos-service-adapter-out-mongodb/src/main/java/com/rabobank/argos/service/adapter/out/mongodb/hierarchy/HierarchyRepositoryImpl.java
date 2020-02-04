@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.hierarchy;
 
+import com.rabobank.argos.domain.hierarchy.HierarchyMode;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
 import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
 import lombok.Getter;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,60 +47,146 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
     private static final String DEPTH = "depth";
     private static final String DESCENDANTS = "descendants";
     private static final String START_REFERENCE_ID = "$referenceId";
-    private static final String NAME_FIELD = "name";
+    public static final String NAME_FIELD = "name";
+    public static final String PATH_TO_ROOT_FIELD = "pathToRoot";
+    public static final String TYPE_FIELD = "type";
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public List<TreeNode> searchByName(String name) {
-        Criteria criteria = Criteria.where(NAME_FIELD).regex(".*" + name + ".*", "i");
+    public List<TreeNode> getRootNodes(HierarchyMode hierarchyMode, int maxDepth) {
+        Criteria rootNodeCriteria = Criteria.where(PARENT_LABEL_ID).is(null);
+        final MatchOperation matchStage = Aggregation.match(rootNodeCriteria);
+        switch (hierarchyMode) {
+            case ALL:
+                return getRootNodesWithAllDescendants(matchStage);
+            case NONE:
+                return getRootNodesWithNoDescendants(rootNodeCriteria);
+            case MAX_DEPTH:
+                return getRootNodesWithMaxDepthDescendants(matchStage, maxDepth);
+        }
+        return Collections.emptyList();
+    }
 
-        List<HierarchyItem> results = mongoTemplate.find(new Query(criteria),
-                HierarchyItem.class,
-                COLLECTION);
+    private List<TreeNode> getRootNodesWithMaxDepthDescendants(MatchOperation matchStage, int maxDepth) {
+        GraphLookupOperation graphLookupOperation = getGraphLookupOperationWithDepth(maxDepth);
+        return queryWithAggregationForRootNodes(matchStage, graphLookupOperation);
+    }
 
-        return results.stream().map(this::convertToTreeNode)
+    private List<TreeNode> getRootNodesWithNoDescendants(Criteria rootNodeCriteria) {
+        List<HierarchyItem> hierarchyItems = mongoTemplate.find(new Query(rootNodeCriteria), HierarchyItem.class, COLLECTION);
+        return hierarchyItems
+                .stream()
+                .map(this::getTreeNode)
                 .collect(Collectors.toList());
     }
 
+    private List<TreeNode> getRootNodesWithAllDescendants(MatchOperation matchStage) {
+        GraphLookupOperation graphLookupOperation = getGraphLookupOperationAllDescendants();
+        return queryWithAggregationForRootNodes(matchStage, graphLookupOperation);
+    }
+
+
     @Override
-    public Optional<TreeNode> getSubTree(String id, int depth) {
-        final Criteria referenceId = new Criteria(REFERENCE_ID).is(id);
-        final MatchOperation matchStage = Aggregation.match(referenceId);
-        GraphLookupOperation graphLookupOperation;
-        if (depth == -1) {
-            graphLookupOperation = GraphLookupOperation
-                    .builder()
-                    .from(COLLECTION)
-                    .startWith(START_REFERENCE_ID)
-                    .connectFrom(REFERENCE_ID)
-                    .connectTo(PARENT_LABEL_ID)
-                    .depthField(DEPTH)
-                    .as(DESCENDANTS);
-        } else {
-            graphLookupOperation = GraphLookupOperation
-                    .builder()
-                    .from(COLLECTION)
-                    .startWith(START_REFERENCE_ID)
-                    .connectFrom(REFERENCE_ID)
-                    .connectTo(PARENT_LABEL_ID)
-                    .maxDepth(depth)
-                    .depthField(DEPTH)
-                    .as(DESCENDANTS);
+    public Optional<TreeNode> getSubTree(String referenceId, HierarchyMode hierarchyMode, int maxDepth) {
+        final Criteria referenceCriteria = new Criteria(REFERENCE_ID).is(referenceId);
+        final MatchOperation matchStage = Aggregation.match(referenceCriteria);
+        switch (hierarchyMode) {
+            case ALL:
+                return getSubTreeWithAllDescendants(matchStage);
+            case NONE:
+                return getSubTreeWithNoDescendants(referenceCriteria);
+            case MAX_DEPTH:
+                return getSubTreeWithMaxDepthDescendants(matchStage, maxDepth);
         }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<TreeNode> findByNamePathToRootAndType(String name, List<String> pathToRoot, TreeNode.Type type) {
+        Criteria pathTorootCriteria = Criteria.where(NAME_FIELD).is(name)
+                .andOperator(Criteria.where(PATH_TO_ROOT_FIELD).is(pathToRoot), Criteria.where(TYPE_FIELD).is(type));
+        HierarchyItem hierarchyItem = mongoTemplate.findOne(new Query(pathTorootCriteria), HierarchyItem.class, COLLECTION);
+        return convertToTreeNodeHierarchyForSubTree(List.of(hierarchyItem));
+    }
+
+    private Optional<TreeNode> getSubTreeWithNoDescendants(Criteria referenceCriteria) {
+        return convertToTreeNodeHierarchyForSubTree(List
+                .of(Objects.requireNonNull(mongoTemplate.findOne(new Query(referenceCriteria), HierarchyItem.class, COLLECTION)))
+        );
+    }
+
+    private Optional<TreeNode> getSubTreeWithMaxDepthDescendants(MatchOperation matchStage, int maxDepth) {
+        GraphLookupOperation graphLookupOperation = getGraphLookupOperationWithDepth(maxDepth);
+        return queryWithAggregationForSubTree(matchStage, graphLookupOperation);
+    }
+
+    private GraphLookupOperation getGraphLookupOperationWithDepth(int maxDepth) {
+        return GraphLookupOperation
+                    .builder()
+                    .from(COLLECTION)
+                    .startWith(START_REFERENCE_ID)
+                    .connectFrom(REFERENCE_ID)
+                    .connectTo(PARENT_LABEL_ID)
+                .maxDepth(maxDepth - 1)
+                    .depthField(DEPTH)
+                    .as(DESCENDANTS);
+    }
+
+    private Optional<TreeNode> queryWithAggregationForSubTree(MatchOperation matchStage, GraphLookupOperation graphLookupOperation) {
+        List<HierarchyItem> hierarchyResults = queryWithAggregation(matchStage, graphLookupOperation);
+        return convertToTreeNodeHierarchyForSubTree(hierarchyResults);
+    }
+
+    private List<TreeNode> queryWithAggregationForRootNodes(MatchOperation matchStage, GraphLookupOperation graphLookupOperation) {
+        List<HierarchyItem> hierarchyResults = queryWithAggregation(matchStage, graphLookupOperation);
+        return hierarchyResults
+                .stream()
+                .map(this::getTreeNode)
+                .collect(Collectors.toList());
+    }
+
+    private List<HierarchyItem> queryWithAggregation(MatchOperation matchStage, GraphLookupOperation graphLookupOperation) {
         Aggregation aggregation = Aggregation.newAggregation(matchStage, graphLookupOperation);
-        List<HierarchyItem> hierarchyResults = mongoTemplate.aggregate(aggregation, COLLECTION, HierarchyItem.class).getMappedResults();
+        return mongoTemplate.aggregate(aggregation, COLLECTION, HierarchyItem.class).getMappedResults();
+    }
+
+    private Optional<TreeNode> convertToTreeNodeHierarchyForSubTree(List<HierarchyItem> hierarchyResults) {
         if (!hierarchyResults.isEmpty()) {
             HierarchyItem rootItem = hierarchyResults.iterator().next();
-            TreeNode root = convertToTreeNode(rootItem);
+            TreeNode root = getTreeNode(rootItem);
+            return Optional.of(root);
+        }
+        return Optional.empty();
+    }
+
+    private TreeNode getTreeNode(HierarchyItem rootItem) {
+        TreeNode root = convertToTreeNode(rootItem);
+        if (rootItem.getDescendants() != null) {
             List<TreeNode> descendants = rootItem
                     .getDescendants()
                     .stream()
                     .map(this::convertToTreeNode)
                     .collect(Collectors.toList());
             setChildren(root, descendants);
-            return Optional.of(root);
         }
-        return Optional.empty();
+        return root;
+    }
+
+    private Optional<TreeNode> getSubTreeWithAllDescendants(MatchOperation matchStage) {
+        GraphLookupOperation graphLookupOperation = getGraphLookupOperationAllDescendants();
+        return queryWithAggregationForSubTree(matchStage, graphLookupOperation);
+
+    }
+
+    private GraphLookupOperation getGraphLookupOperationAllDescendants() {
+        return GraphLookupOperation
+                .builder()
+                .from(COLLECTION)
+                .startWith(START_REFERENCE_ID)
+                .connectFrom(REFERENCE_ID)
+                .connectTo(PARENT_LABEL_ID)
+                .depthField(DEPTH)
+                .as(DESCENDANTS);
     }
 
     private TreeNode convertToTreeNode(HierarchyItem hierarchyItem) {
@@ -127,10 +215,8 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
 
     @Getter
     @Setter
-    public static class HierarchyItem {
-
-        public enum Type {LABEL, SUPPLY_CHAIN}
-
+    private static class HierarchyItem {
+        private enum Type {LABEL, SUPPLY_CHAIN}
         private String referenceId;
         private String name;
         private String parentLabelId;

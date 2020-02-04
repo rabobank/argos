@@ -352,33 +352,27 @@ paths:
           $ref: '#/components/responses/Error'
   /hierarchy:
     get:
-      summary: get hierarchy trees
-      operationId: getHierarchyTrees
+      summary: get all root nodes
+      operationId: getRootNodes
       tags:
         - hierarchy
       parameters:
-        - name: depth
+        - name: HierarchyMode
+          in: query
+          schema:
+            $ref: "#/components/schemas/HierarchyMode"
+        - name: maxDepth
           in: query
           required: false
-          description: specifies the maximum number of levels are retured when not specified all levels are returned
+          description: positive integer specifying the maximum levels of descendants that are retured in a search. This parameter is ignored in case of HierarchyhMode ALL and NONE
           schema:
             type: integer
             format: int32
-        - name: parentLabelId
-          in: query
-          required: false
-          description: this will be the root of the retruned tree
-          schema:
-            type: string
-        - name: name
-          description: full name or part of the label name or supply chain name
-          in: query
-          required: false
-          schema:
-            type: string
+            minimum: 1
+            default: 1
       responses:
         '200':
-          description: list of supply chain nodes
+          description: list of nodes
           content:
             application/json:
               schema:
@@ -388,6 +382,41 @@ paths:
         '500':
           $ref: '#/components/responses/Error'
 
+  /hierarchy/{referenceId}:
+    get:
+      summary: get a subtree
+      operationId: getSubTree
+      tags:
+        - hierarchy
+      parameters:
+        - name: HierarchyMode
+          in: query
+          schema:
+            $ref: "#/components/schemas/HierarchyMode"
+        - name: maxDepth
+          in: query
+          required: false
+          description: positive integer specifying the maximum levels of descendants that are retured this parameter is ignored in case of HierarchyhMode ALL and NONE
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            default: 1
+        - name: referenceId
+          in: path
+          required: true
+          description: this will be the root id of the returned sub tree
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TreeNode"
+        '500':
+          $ref: '#/components/responses/Error'
   /label:
     post:
       summary: create a new label
@@ -831,6 +860,14 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TreeNode"
+    HierarchyMode:
+      type: string
+      enum:
+        - ALL
+        - NONE
+        - MAX_DEPTH
+      default: NONE
+      description: The mode of the returned descendants in a tree node hierarchy. ALL returns all descendants, NONE returns nodes without any descendants , MAX_DEPTH returns descendants up to a specified depth
     UserProfile:
       type: object
       properties:
@@ -852,5 +889,4 @@ components:
       properties:
         message:
           type: string
-
 
