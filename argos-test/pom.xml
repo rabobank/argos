@@ -401,6 +401,9 @@
                                 <nexus.war-snapshot-url>
                                     http://nexus:8081/nexus/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.rabobank.argos&amp;a=argos-test-app&amp;v=1.0-SNAPSHOT&amp;e=war
                                 </nexus.war-snapshot-url>
+                                <argos-test-app.branch>
+                                    master
+                                </argos-test-app.branch>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

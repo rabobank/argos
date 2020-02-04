@@ -63,10 +63,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JenkinsTestIT {
 
 
-    public static final String TEST_APP_BRANCH = System.getProperty("TEST_APP_BRANCH") != null ? System.getProperty("TEST_APP_BRANCH") : "master";
     private static final String KEY_PASSWORD = "test";
     private static Properties properties = Properties.getInstance();
     private static final String SERVER_BASEURL = "server.baseurl";
+    private static final String TEST_APP_BRANCH = properties.getArgosTestAppBranch();
     private JenkinsServer jenkins;
     private String supplyChainId;
     private String keyIdBob;

@@ -28,6 +28,7 @@ public class Properties {
     private final String integrationTestServiceBaseUrl;
     private final String nexusDarSnapshotUrl;
     private final String nexusWarSnapshotUrl;
+    private final String argosTestAppBranch;
 
     public static Properties getInstance() {
         if (INSTANCE == null) {
@@ -43,6 +44,7 @@ public class Properties {
         integrationTestServiceBaseUrl = conf.getString("argos-integration-test-service.rest-api.base-url");
         nexusDarSnapshotUrl = conf.getString("nexus.dar-snapshot-url");
         nexusWarSnapshotUrl = conf.getString("nexus.war-snapshot-url");
+        argosTestAppBranch = conf.getString("argos-test-app.branch");
 
     }
 }
