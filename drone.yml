@@ -154,7 +154,7 @@ steps:
         path: /root/.m2/repository
     commands:
       - cd argos-test
-      - mvn -q clean verify -Pregression-test-drone -DTEST_APP_BRANCH=${DRONE_BRANCH}
+      - mvn -q clean verify -Pregression-test-drone -Dargos-test-app.branch=add-multisegment-jenkins
     depends_on:
       - argos-jenkins
       - argos-service
