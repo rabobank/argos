@@ -47,9 +47,9 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
     private static final String DEPTH = "depth";
     private static final String DESCENDANTS = "descendants";
     private static final String START_REFERENCE_ID = "$referenceId";
-    public static final String NAME_FIELD = "name";
-    public static final String PATH_TO_ROOT_FIELD = "pathToRoot";
-    public static final String TYPE_FIELD = "type";
+    private static final String NAME_FIELD = "name";
+    private static final String PATH_TO_ROOT_FIELD = "pathToRoot";
+    private static final String TYPE_FIELD = "type";
     private final MongoTemplate mongoTemplate;
 
     @Override
@@ -106,7 +106,11 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
         Criteria pathTorootCriteria = Criteria.where(NAME_FIELD).is(name)
                 .andOperator(Criteria.where(PATH_TO_ROOT_FIELD).is(pathToRoot), Criteria.where(TYPE_FIELD).is(type));
         HierarchyItem hierarchyItem = mongoTemplate.findOne(new Query(pathTorootCriteria), HierarchyItem.class, COLLECTION);
-        return convertToTreeNodeHierarchyForSubTree(List.of(hierarchyItem));
+        if (hierarchyItem != null) {
+            return convertToTreeNodeHierarchyForSubTree(List.of(hierarchyItem));
+        } else {
+            return Optional.empty();
+        }
     }
 
     private Optional<TreeNode> getSubTreeWithNoDescendants(Criteria referenceCriteria) {
@@ -127,7 +131,10 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
                     .startWith(START_REFERENCE_ID)
                     .connectFrom(REFERENCE_ID)
                     .connectTo(PARENT_LABEL_ID)
-                .maxDepth(maxDepth - 1)
+                /*  maxDepth 0 in GraphLookupOperation returns root plus immediate children this is
+                    counter intuitive so in the api it is minimum 1
+                */
+                .maxDepth((long) maxDepth - 1)
                     .depthField(DEPTH)
                     .as(DESCENDANTS);
     }
@@ -215,7 +222,8 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
 
     @Getter
     @Setter
-    private static class HierarchyItem {
+
+    static class HierarchyItem {
         private enum Type {LABEL, SUPPLY_CHAIN}
         private String referenceId;
         private String name;

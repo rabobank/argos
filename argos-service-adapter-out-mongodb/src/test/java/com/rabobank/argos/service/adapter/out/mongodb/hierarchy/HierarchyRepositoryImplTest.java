@@ -15,15 +15,34 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.hierarchy;
 
+import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
+@ExtendWith(MockitoExtension.class)
 class HierarchyRepositoryImplTest {
 
-    @Test
-    void getRootNodes() {
+    @Mock
+    private MongoTemplate template;
+    private HierarchyRepository hierarchyRepository;
+
+    @BeforeEach
+    void setup() {
+        hierarchyRepository = new HierarchyRepositoryImpl(template);
     }
 
     @Test
-    void getSubTree() {
+    void getRootNodesWithHierarchyModeAllShouldReturnFullTrees() {
+
+
+    }
+
+    @Test
+    void getSubTreeWithHierarchyModeAllShouldReturnFullSubTree() {
+
     }
 }
