@@ -16,6 +16,7 @@
 package com.rabobank.argos.test;
 
 import com.rabobank.argos.argos4j.rest.api.ApiClient;
+import com.rabobank.argos.argos4j.rest.api.client.HierarchyApi;
 import com.rabobank.argos.argos4j.rest.api.client.KeyApi;
 import com.rabobank.argos.argos4j.rest.api.client.LayoutApi;
 import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
@@ -112,6 +113,10 @@ public class ServiceStatusHelper {
 
     public static SupplychainApi getSupplychainApi() {
         return getApiClient().buildClient(SupplychainApi.class);
+    }
+
+    public static HierarchyApi getHierarchyApi() {
+        return getApiClient().buildClient(HierarchyApi.class);
     }
 
     public static KeyApi getKeyApi() {

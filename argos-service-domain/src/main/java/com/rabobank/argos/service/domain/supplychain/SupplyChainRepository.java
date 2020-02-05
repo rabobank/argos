@@ -17,14 +17,15 @@ package com.rabobank.argos.service.domain.supplychain;
 
 import com.rabobank.argos.domain.supplychain.SupplyChain;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface SupplyChainRepository {
-    Optional<SupplyChain> findBySupplyChainId(String supplyChainId);
-    boolean exists(String supplyChainId);
-    List<SupplyChain> findByName(String name);
-    Optional<SupplyChain> findByNameAndPathToRoot(String name, List<String> pathToRoot);
-    List<SupplyChain> findAll();
     void save(SupplyChain supplyChain);
+
+    Optional<SupplyChain> findBySupplyChainId(String supplyChainId);
+
+    Optional<SupplyChain> update(String supplyChainId, SupplyChain supplyChain);
+
+    boolean exists(String supplyChainId);
+
 }

@@ -29,16 +29,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Slf4j
 public class ArgosJenkinsHelper {
 
+    private static final Pattern SUPPLY_CHAIN_PATH_REGEX = Pattern.compile("([\\w.]+):([\\w\\-]+)");
+
     private final String privateKeyCredentialId;
     private final String layoutSegmentName;
     private final String stepName;
-    private final String supplyChainName;
+    private final String supplyChainIdentifier;
     private final String runId;
 
 
@@ -47,7 +54,7 @@ public class ArgosJenkinsHelper {
         checkProperty(privateKeyCredentialId, "privateKeyCredentialId");
         checkProperty(layoutSegmentName, "layoutSegmentName");
         checkProperty(stepName, "stepName");
-        checkProperty(supplyChainName, "supplyChainName");
+        checkProperty(supplyChainIdentifier, "supplyChainIdentifier");
         checkProperty(runId, "runId");
 
 
@@ -56,14 +63,37 @@ public class ArgosJenkinsHelper {
         log.info("argos4j version = {}", Argos4j.getVersion());
         log.info("argosServiceBaseUrl = {}", argosServiceBaseUrl);
 
+        String supplyChainName = getSupplyChainName(supplyChainIdentifier);
+        List<String> pathToRoot = getPathToRoot(supplyChainIdentifier);
 
         return new Argos4j(Argos4jSettings.builder()
+                .pathToLabelRoot(pathToRoot)
                 .layoutSegmentName(layoutSegmentName)
                 .stepName(stepName)
                 .runId(runId)
                 .argosServerBaseUrl(argosServiceBaseUrl)
                 .signingKeyId(getCredentials(privateKeyCredentialId).getUsername())
                 .supplyChainName(supplyChainName).build());
+    }
+
+    private String getSupplyChainName(String supplyChainPath) {
+        Matcher matcher = SUPPLY_CHAIN_PATH_REGEX.matcher(supplyChainPath);
+        if (matcher.matches()) {
+            return matcher.group(2);
+        } else {
+            throw new Argos4jError(supplyChainPath + " not correct should be <label>.<label>:<supplyChainName>");
+        }
+    }
+
+    private List<String> getPathToRoot(String supplyChainPath) {
+        Matcher matcher = SUPPLY_CHAIN_PATH_REGEX.matcher(supplyChainPath);
+        if (matcher.matches()) {
+            List<String> path = new ArrayList<>(Arrays.asList(StringUtils.split(matcher.group(1), '.')));
+            Collections.reverse(path);
+            return path;
+        } else {
+            throw new Argos4jError(supplyChainPath + " not correct should be <label>.<label>:<supplyChainName>");
+        }
     }
 
     public static char[] getPrivateKeyPassword(String privateKeyCredentialId) {

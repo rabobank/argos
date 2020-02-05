@@ -26,12 +26,9 @@ import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLinkMetaBlock;
-import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChainItem;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import feign.FeignException;
 import org.mapstruct.factory.Mappers;
-
-import java.util.List;
 
 
 public class ArgosServiceClient {
@@ -66,8 +63,6 @@ public class ArgosServiceClient {
 
     private String getSupplyChainId() {
         SupplychainApi supplychainApi = apiClient.buildClient(SupplychainApi.class);
-        List<RestSupplyChainItem> supplyChains = supplychainApi.searchSupplyChains(settings.getSupplyChainName());
-        return supplyChains.stream().findFirst().map(RestSupplyChainItem::getId)
-                .orElseThrow(() -> new Argos4jError("supply chain id not found for:" + settings.getSupplyChainName()));
+        return supplychainApi.getSupplyChainByPathToRoot(settings.getSupplyChainName(), settings.getPathToLabelRoot()).getId();
     }
 }

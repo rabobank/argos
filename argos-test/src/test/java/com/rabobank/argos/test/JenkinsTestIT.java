@@ -26,10 +26,10 @@ import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
-import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
+import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
-import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChainItem;
+import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,6 +45,7 @@ import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSnapshotHash;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
@@ -64,7 +65,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class JenkinsTestIT {
 
 
-    public static final String TEST_APP_BRANCH = "master";
+    public static final String TEST_APP_BRANCH = "supply-chain-management";
     private static final String KEY_PASSWORD = "test";
     private static Properties properties = Properties.getInstance();
     private static final String SERVER_BASEURL = "server.baseurl";
@@ -83,7 +84,9 @@ public class JenkinsTestIT {
     @BeforeEach
     void setUp() throws URISyntaxException, IOException {
         clearDatabase();
-        RestSupplyChainItem restSupplyChainItem = getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
+        RestLabel rootLabel = getHierarchyApi().createLabel(new RestLabel().name("root_label"));
+        RestLabel childLabel = getHierarchyApi().createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
+        RestSupplyChain restSupplyChainItem = getSupplychainApi().createSupplyChain(new RestSupplyChain().name("argos-test-app").parentLabelId(childLabel.getId()));
         this.supplyChainId = restSupplyChainItem.getId();
         RestKeyPair restKeyPair = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair1.json"), RestKeyPair.class);
         keyId = restKeyPair.getKeyId();

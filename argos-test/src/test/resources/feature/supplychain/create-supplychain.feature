@@ -21,8 +21,9 @@ Feature: using __arg
     * url karate.properties['server.baseurl']
 
   Scenario: create a supplychain
+    * def labelResult = call read('classpath:feature/label/create-label.feature') {name: label}
     Given path '/api/supplychain'
-    And request __arg
+    And request { name: #(__arg.name), parentLabelId: #(labelResult.response.id)}
     And header Content-Type = 'application/json'
     When method POST
     Then status 201
