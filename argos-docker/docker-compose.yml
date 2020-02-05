@@ -22,6 +22,8 @@ services:
     build:
       context: .
       dockerfile: ServiceDockerfile
+      args:
+        - VERSION=compose
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
       spring.security.oauth2.client.registration.azure.clientId: client-id
@@ -33,6 +35,8 @@ services:
       auth.frontendRedirectBasePath: http://localhost:8087
     ports:
       - 8080:8080
+    depends_on:
+      - mongodb
 
   oauth-stub:
     build:
@@ -48,6 +52,8 @@ services:
       spring.data.mongodb.uri: mongodb://mongodb/test
     ports:
       - 2877:2877
+    depends_on:
+      - mongodb
 
   mongodb:
     image: mongo:4.2.1-bionic
