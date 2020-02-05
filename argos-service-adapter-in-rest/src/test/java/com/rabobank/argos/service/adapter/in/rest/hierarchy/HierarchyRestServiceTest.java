@@ -17,6 +17,7 @@ package com.rabobank.argos.service.adapter.in.rest.hierarchy;
 
 import com.rabobank.argos.domain.hierarchy.Label;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLabel;
+import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,12 @@ class HierarchyRestServiceTest {
     @Mock
     private LabelMapper labelMapper;
 
+    @Mock
+    private HierarchyRepository hierarchyRepository;
+
+    @Mock
+    private TreeNodeMapper treeNodeMapper;
+
     private HierarchyRestService service;
 
     @Mock
@@ -56,7 +63,7 @@ class HierarchyRestServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new HierarchyRestService(labelRepository, labelMapper);
+        service = new HierarchyRestService(labelRepository, labelMapper, hierarchyRepository, treeNodeMapper);
     }
 
     @Test
