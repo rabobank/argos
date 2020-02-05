@@ -1,342 +1,294 @@
 ---
 kind: pipeline
-name: argosbuild
 type: docker
+name: argosbuild
 
-services:
-  - name: nexus
-    image: sonatype/nexus:2.14.15-01
+platform:
+  os: linux
+  arch: amd64
 
 steps:
-  - name: set version
-    image: rabobanknl/argos-build:latest
-    volumes:
-      - name: mvn_cache
-        path: /root/.m2/repository
-    environment:
-      github_token:
-        from_secret: github_token
-      github_user:
-        from_secret: github_user
-      new_version: '0.0.1-SNAPSHOT'
-    commands:
-      - echo "update version to ${new_version}"
-      - mvn -q versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
-      - mvn -q -f argos4j/pom.xml versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
-      - mvn -q -f argos-jenkins-plugin/pom.xml versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
-      - mvn -q -f argos-service/pom.xml versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
-      - mvn -q -f argos-test/pom.xml versions:set -DnewVersion=$new_version -DgenerateBackupPoms=false
-      - mvn -q scm:checkin -Dmessage=$new_version -Dpassword=$github_token -Dusername=$github_user
-    when:
-      branch:
-        - master
-        - develop
-      event:
-        - push
+- name: set version
+  image: rabobanknl/argos-build:latest
+  commands:
+  - echo "update version to ${DRONE_TAG}"
+  - mvn -q versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
+  - mvn -q -f argos4j/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
+  - mvn -q -f argos-jenkins-plugin/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
+  - mvn -q -f argos-service/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
+  - mvn -q -f argos-test/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
+  environment:
+    github_token:
+      from_secret: github_token
+    github_user:
+      from_secret: github_user
+  volumes:
+  - name: mvn_cache
+    path: /root/.m2/repository
+  when:
+    event:
+    - tag
 
-  - name: build
-    image: rabobanknl/argos-build:latest
-    volumes:
-      - name: mvn_cache
-        path: /root/.m2/repository
-    commands:
-      - mvn -q install
+- name: build
+  image: rabobanknl/argos-build:latest
+  commands:
+  - mvn -q install
+  volumes:
+  - name: mvn_cache
+    path: /root/.m2/repository
+  depends_on:
+  - set version
 
-  - name: sonar
-    image: rabobanknl/argos-build:latest
-    environment:
-      SONAR_LOGIN:
-        from_secret: sonar_login
-    volumes:
-      - name: mvn_cache
-        path: /root/.m2/repository
-    commands:
-      - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=rabobank_argos -Dsonar.organization=rabobank -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
-    depends_on:
-      - build
+- name: sonar
+  image: rabobanknl/argos-build:latest
+  commands:
+  - mvn -q -e verify sonar:sonar -Psonar -Dsonar.projectKey=rabobank_argos -Dsonar.organization=rabobank -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
+  environment:
+    SONAR_LOGIN:
+      from_secret: sonar_login
+  volumes:
+  - name: mvn_cache
+    path: /root/.m2/repository
+  depends_on:
+  - build
 
-  - name: pitest
-    image: rabobanknl/argos-build:latest
-    volumes:
-      - name: mvn_cache
-        path: /root/.m2/repository
-    commands:
-      - mvn -q -e verify -Ppitest
-    depends_on:
-      - sonar
+- name: pitest
+  image: rabobanknl/argos-build:latest
+  commands:
+  - mvn -q -e verify -Ppitest
+  volumes:
+  - name: mvn_cache
+    path: /root/.m2/repository
+  depends_on:
+  - sonar
 
-  - name: build argos service image
-    image: plugins/docker
-    settings:
-      repo: rabobanknl/argos-service-snapshot
-      tags: ${DRONE_BRANCH/\//_}
-      context: argos-docker
-      dockerfile: argos-docker/ServiceDockerfile
-      username:
-        from_secret: docker_login_user
-      password:
-        from_secret: docker_login_token
-    depends_on:
-      - pitest
-      - sonar
+- name: build argos service image
+  image: plugins/docker
+  settings:
+    context: argos-docker
+    dockerfile: argos-docker/ServiceDockerfile
+    password:
+      from_secret: docker_login_token
+    repo: rabobanknl/argos-service-snapshot
+    tags: ${DRONE_BRANCH/\//_}${DRONE_TAG}
+    username:
+      from_secret: docker_login_user
+  depends_on:
+  - pitest
+  - sonar
 
-  - name: build argos integration test service image
-    image: plugins/docker
-    settings:
-      repo: rabobanknl/argos-integration-test-service
-      tags: ${DRONE_BRANCH/\//_}
-      context: argos-docker
-      dockerfile: argos-docker/IntegrationTestServiceDockerfile
-      username:
-        from_secret: docker_login_user
-      password:
-        from_secret: docker_login_token
-    depends_on:
-      - pitest
-      - sonar
+- name: build argos integration test service image
+  image: plugins/docker
+  settings:
+    context: argos-docker
+    dockerfile: argos-docker/IntegrationTestServiceDockerfile
+    password:
+      from_secret: docker_login_token
+    repo: rabobanknl/argos-integration-test-service
+    tags: ${DRONE_BRANCH/\//_}${DRONE_TAG}
+    username:
+      from_secret: docker_login_user
+  depends_on:
+  - pitest
+  - sonar
 
-  - name: build argos integration test stub image
-    image: plugins/docker
-    settings:
-      repo: rabobanknl/argos-integration-test-stub
-      tags: ${DRONE_BRANCH/\//_}
-      context: argos-docker/oauth-stub
-      dockerfile: argos-docker/oauth-stub/Dockerfile
-      username:
-        from_secret: docker_login_user
-      password:
-        from_secret: docker_login_token
-    depends_on:
-      - pitest
-      - sonar
+- name: build argos integration test stub image
+  image: plugins/docker
+  settings:
+    context: argos-docker/oauth-stub
+    dockerfile: argos-docker/oauth-stub/Dockerfile
+    password:
+      from_secret: docker_login_token
+    repo: rabobanknl/argos-integration-test-stub
+    tags: ${DRONE_BRANCH/\//_}${DRONE_TAG}
+    username:
+      from_secret: docker_login_user
+  depends_on:
+  - pitest
+  - sonar
 
-  - name: build argos jenkins image
-    image: plugins/docker
-    settings:
-      repo: rabobanknl/argos-jenkins-snapshot
-      tags: ${DRONE_BRANCH/\//_}
-      context: argos-docker
-      dockerfile: argos-docker/JenkinsDockerfile
-      username:
-        from_secret: docker_login_user
-      password:
-        from_secret: docker_login_token
-    depends_on:
-      - pitest
-      - sonar
+- name: build argos jenkins image
+  image: plugins/docker
+  settings:
+    context: argos-docker
+    dockerfile: argos-docker/JenkinsDockerfile
+    password:
+      from_secret: docker_login_token
+    repo: rabobanknl/argos-jenkins-snapshot
+    tags: ${DRONE_BRANCH/\//_}${DRONE_TAG}
+    username:
+      from_secret: docker_login_user
+  depends_on:
+  - pitest
+  - sonar
 
-  - name: mongodb
-    image: mongo:4.2.1-bionic
-    detach: true
-    depends_on:
-      - pitest
-      - sonar
+- name: mongodb
+  image: mongo:4.2.1-bionic
+  detach: true
+  depends_on:
+  - pitest
+  - sonar
 
-  - name: argos-service
-    image: rabobanknl/argos-service-snapshot:${DRONE_BRANCH/\//_}
-    environment:
-      spring.data.mongodb.uri: mongodb://mongodb/test
-      spring.security.oauth2.client.registration.azure.clientId: client-id
-      spring.security.oauth2.client.registration.azure.clientSecret: client-secret
-      spring.security.oauth2.client.provider.azure.authorizationUri: http://argos-integration-test-stub:8080/oauth2/v2.0/authorize
-      spring.security.oauth2.client.provider.azure.tokenUri: http://argos-integration-test-stub:8080/oauth2/v2.0/token
-      spring.security.oauth2.client.provider.azure.userInfoUri: http://argos-integration-test-stub:8080/v1.0/me
-      jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
-      auth.frontendRedirectBasePath: http://argos-integration-test-stub:8080
-    detach: true
-    depends_on:
-      - mongodb
-      - build argos service image
+- name: argos-service
+  image: rabobanknl/argos-service-snapshot:${DRONE_BRANCH/\//_}${DRONE_TAG}
+  detach: true
+  environment:
+    auth.frontendRedirectBasePath: http://argos-integration-test-stub:8080
+    jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
+    spring.data.mongodb.uri: mongodb://mongodb/test
+    spring.security.oauth2.client.provider.azure.authorizationUri: http://argos-integration-test-stub:8080/oauth2/v2.0/authorize
+    spring.security.oauth2.client.provider.azure.tokenUri: http://argos-integration-test-stub:8080/oauth2/v2.0/token
+    spring.security.oauth2.client.provider.azure.userInfoUri: http://argos-integration-test-stub:8080/v1.0/me
+    spring.security.oauth2.client.registration.azure.clientId: client-id
+    spring.security.oauth2.client.registration.azure.clientSecret: client-secret
+  depends_on:
+  - mongodb
+  - build argos service image
 
-  - name: argos-integration-test-service
-    image: rabobanknl/argos-integration-test-service:${DRONE_BRANCH/\//_}
-    environment:
-      spring.data.mongodb.uri: mongodb://mongodb/test
-    detach: true
-    depends_on:
-      - mongodb
-      - build argos integration test service image
+- name: argos-integration-test-service
+  image: rabobanknl/argos-integration-test-service:${DRONE_BRANCH/\//_}${DRONE_TAG}
+  detach: true
+  environment:
+    spring.data.mongodb.uri: mongodb://mongodb/test
+  depends_on:
+  - mongodb
+  - build argos integration test service image
 
-  - name: argos-integration-test-stub
-    image: rabobanknl/argos-integration-test-stub:${DRONE_BRANCH/\//_}
-    detach: true
-    depends_on:
-      - build argos integration test stub image
+- name: argos-integration-test-stub
+  image: rabobanknl/argos-integration-test-stub:${DRONE_BRANCH/\//_}${DRONE_TAG}
+  detach: true
+  depends_on:
+  - build argos integration test stub image
 
-  - name: argos-jenkins
-    image: rabobanknl/argos-jenkins-snapshot:${DRONE_BRANCH/\//_}
-    environment:
-      JAVA_OPTS: -Djenkins.install.runSetupWizard=false
-      snapshotsUrl: http://nexus:8081/nexus/content/repositories/snapshots/
-    volumes:
-      - name: mvn_cache
-        path: /root/.m2/repository
-    detach: true
-    depends_on:
-      - build argos jenkins image
+- name: argos-jenkins
+  image: rabobanknl/argos-jenkins-snapshot:${DRONE_BRANCH/\//_}${DRONE_TAG}
+  detach: true
+  environment:
+    JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+    snapshotsUrl: http://nexus:8081/nexus/content/repositories/snapshots/
+  volumes:
+  - name: mvn_cache
+    path: /root/.m2/repository
+  depends_on:
+  - build argos jenkins image
 
-  - name: regression test
-    image: rabobanknl/argos-build:latest
-    volumes:
-      - name: mvn_cache
-        path: /root/.m2/repository
-    commands:
-      - cd argos-test
-      - mvn -q clean verify -Pregression-test-drone
-    depends_on:
-      - argos-jenkins
-      - argos-service
-      - argos-integration-test-service
-      - nexus
+- name: regression test
+  image: rabobanknl/argos-build:latest
+  commands:
+  - cd argos-test
+  - mvn -q clean verify -Pregression-test-drone
+  volumes:
+  - name: mvn_cache
+    path: /root/.m2/repository
+  depends_on:
+  - argos-jenkins
+  - argos-service
+  - argos-integration-test-service
+  - nexus
 
-  - name: build beta argos service image
-    image: plugins/docker
-    settings:
-      repo: rabobanknl/argos-service
-      tags: '0.0.1-SNAPSHOT'
-      context: argos-docker
-      dockerfile: argos-docker/ServiceDockerfile
-      username:
-        from_secret: docker_login_user
-      password:
-        from_secret: docker_login_token
-    depends_on:
-      - regression test
-    when:
-      branch:
-        - develop
-        - master
-      event:
-        - push
+- name: release argos service image
+  image: plugins/docker
+  settings:
+    auto_tag: true
+    build_args:
+    - VERSION=${DRONE_TAG}
+    context: argos-docker
+    dockerfile: argos-docker/ServiceDockerfile
+    password:
+      from_secret: docker_login_token
+    repo: rabobanknl/argos-service
+    username:
+      from_secret: docker_login_user
+  when:
+    event:
+    - tag
+  depends_on:
+  - regression test
 
-  - name: sign artifacts
-    image: plugins/gpgsign
-    settings:
-      key:
-        from_secret: argos-signing-private-key
-      passphrase:
-        from_secret: argos-signing-private-key-passphrase
-      detach_sign: true
-      files:
-        - argos4j/target/*.jar
-        - argos4j/dependency-reduced-pom.xml
-        - argos-service/target/*.jar
-        - argos-service/target/pom.xml
-    depends_on:
-      - regression test
-    when:
-      branch:
-        - develop
-        - master
-        - build-release
-      event:
-        - push
+- name: sign artifacts
+  image: plugins/gpgsign
+  settings:
+    detach_sign: true
+    files:
+    - argos4j/target/*.jar
+    - argos4j/dependency-reduced-pom.xml
+    - argos-service/target/*.jar
+    - argos-service/target/pom.xml
+    key:
+      from_secret: argos-signing-private-key
+    passphrase:
+      from_secret: argos-signing-private-key-passphrase
+  when:
+    event:
+    - tag
+  depends_on:
+  - regression test
 
-  - name: deploy release to sonatype
-    image: rabobanknl/argos-build:latest
-    volumes:
-      - name: mvn_cache
-        path: /root/.m2/repository
-    environment:
-      ossrh_username:
-        from_secret: ossrh_login_user
-      ossrh_password:
-        from_secret: ossrh_login_password
-    commands:
-      - cp argos4j/dependency-reduced-pom.xml argos4j/target/pom.xml
-      - cp argos4j/dependency-reduced-pom.xml.asc argos4j/target/pom.xml.asc
-      - mvn -q -f argos4j/pom.xml deploy:deploy-file -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/
-      - mvn -q -f argos-service/pom.xml deploy:deploy-file -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/
-    depends_on:
-      - sign artifacts
-    when:
-      branch:
-        - master
-      event:
-        - push
+- name: deploy release to sonatype
+  image: rabobanknl/argos-build:latest
+  commands:
+  - cp argos4j/dependency-reduced-pom.xml argos4j/target/pom.xml
+  - cp argos4j/dependency-reduced-pom.xml.asc argos4j/target/pom.xml.asc
+  - mvn -q -f argos4j/pom.xml deploy:deploy-file -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/
+  - mvn -q -f argos-service/pom.xml deploy:deploy-file -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/
+  environment:
+    ossrh_password:
+      from_secret: ossrh_login_password
+    ossrh_username:
+      from_secret: ossrh_login_user
+  volumes:
+  - name: mvn_cache
+    path: /root/.m2/repository
+  when:
+    event:
+    - tag
+  depends_on:
+  - sign artifacts
 
-  - name: deploy snapshot to sonatype
-    image: rabobanknl/argos-build:latest
-    volumes:
-      - name: mvn_cache
-        path: /root/.m2/repository
-    environment:
-      ossrh_username:
-        from_secret: ossrh_login_user
-      ossrh_password:
-        from_secret: ossrh_login_password
-    commands:
-      - cp argos4j/dependency-reduced-pom.xml argos4j/target/pom.xml
-      - cp argos4j/dependency-reduced-pom.xml.asc argos4j/target/pom.xml.asc
-      - mvn -q -f argos4j/pom.xml deploy:deploy-file -Durl=https://oss.sonatype.org/content/repositories/snapshots
-      - mvn -q -f argos-service/pom.xml deploy:deploy-file -Durl=https://oss.sonatype.org/content/repositories/snapshots
-    depends_on:
-      - sign artifacts
-    when:
-      branch:
-        - develop
-      event:
-        - push
+- name: slack on success
+  image: plugins/slack
+  settings:
+    webhook:
+      from_secret: slack_webhook
+  depends_on:
+  - release argos service image
+  - deploy release to sonatype
+  - regression test
 
-  - name: slack on success
-    image: plugins/slack
-    settings:
-      webhook:
-        from_secret: slack_webhook
-    depends_on:
-      - regression test
-      - build beta argos service image
+services:
+- name: nexus
+  image: sonatype/nexus:2.14.15-01
 
 volumes:
-  - name: mvn_cache
-    temp: {}
+- name: mvn_cache
+  temp: {}
 
 trigger:
   event:
-    - push
-    - pull_request
+  - push
+  - tag
 
 ---
 kind: pipeline
-name: report result
 type: docker
+name: report result
+
+platform:
+  os: linux
+  arch: amd64
 
 steps:
-
-  - name: slack on failure
-    image: plugins/slack
-    settings:
-      webhook:
-        from_secret: slack_webhook
-    trigger:
-      status:
-        - failure
-
-depends_on:
-  - argosbuild
+- name: slack on failure
+  image: plugins/slack
+  settings:
+    webhook:
+      from_secret: slack_webhook
 
 trigger:
   status:
-    - failure
+  - failure
 
----
-kind: pipeline
-name: build build image
+depends_on:
+- argosbuild
 
-steps:
-  - name: build build image
-    image: plugins/docker
-    settings:
-      repo: rabobanknl/argos-build
-      tags: latest
-      context: docker-build-image
-      dockerfile: docker-build-image/Dockerfile
-      username:
-        from_secret: docker_login_user
-      password:
-        from_secret: docker_login_token
-
-trigger:
-  ref:
-    include:
-      - refs/tags/build-image**
+...
