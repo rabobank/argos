@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.verification.rules;
+package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
@@ -22,9 +22,10 @@ import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
-import com.rabobank.argos.service.domain.verification.Verification;
-import com.rabobank.argos.service.domain.verification.VerificationContext;
-import com.rabobank.argos.service.domain.verification.VerificationRunResult;
+import com.rabobank.argos.service.domain.verification.rules.RuleVerification;
+import com.rabobank.argos.service.domain.verification.rules.RuleVerificationContext;
+import com.rabobank.argos.service.domain.verification.rules.RuleVerificationResult;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

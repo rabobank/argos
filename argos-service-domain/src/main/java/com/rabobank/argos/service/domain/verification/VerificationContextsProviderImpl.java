@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 
 import static com.rabobank.argos.domain.layout.DestinationType.MATERIALS;
 import static com.rabobank.argos.domain.layout.DestinationType.PRODUCTS;
-import static com.rabobank.argos.service.domain.verification.ArtifactMatcher.matches;
+import static com.rabobank.argos.service.domain.verification.rules.ArtifactMatcher.matches;
 import static com.rabobank.argos.service.domain.verification.rules.RuleVerificationContext.filterArtifacts;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.groupingBy;
