@@ -20,16 +20,20 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 @Component
 @RequiredArgsConstructor
 public class RepositoryResetProviderImpl implements RepositoryResetProvider {
 
     private final MongoTemplate template;
 
+    private static final Set<String> IGNORED_COLLECTIONS = Set.of("dbchangelog", "mongobeelock", "hierarchy", "hierarchy_tmp", "system.views");
+
     @Override
     public void resetAllRepositories() {
         template.getCollectionNames().stream()
-                .filter(name -> !name.equals("dbchangelog"))
+                .filter(name -> !IGNORED_COLLECTIONS.contains(name))
                 .forEach(name -> template.remove(new Query(), name));
     }
 }
