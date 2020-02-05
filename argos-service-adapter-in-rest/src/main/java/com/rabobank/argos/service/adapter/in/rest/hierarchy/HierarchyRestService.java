@@ -26,7 +26,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Optional;
 
 @RestController
@@ -44,7 +46,12 @@ public class HierarchyRestService implements HierarchyApi {
         verifyParentLabelExists(restLabel.getParentLabelId());
         Label label = labelMapper.convertFromRestLabel(restLabel);
         labelRepository.save(label);
-        return ResponseEntity.ok(labelMapper.convertToRestLabel(label));
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{labelId}")
+                .buildAndExpand(label.getLabelId())
+                .toUri();
+        return ResponseEntity.created(location).body(labelMapper.convertToRestLabel(label));
     }
 
     private void verifyParentLabelExists(String parentLabelId) {

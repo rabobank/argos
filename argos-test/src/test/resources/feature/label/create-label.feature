@@ -25,4 +25,4 @@ Feature: using __arg
     And request __arg
     And header Content-Type = 'application/json'
     When method POST
-    Then status 200
+    Then status 201
