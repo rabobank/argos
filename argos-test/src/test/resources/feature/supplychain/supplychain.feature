@@ -36,6 +36,16 @@ Feature: SupplyChain
     Then status 400
     And match response.message contains 'supply chain with name: name and parentLabelId'
 
+  Scenario: update supplychain should return a 200
+    * def supplyChainResponse = call read('create-supplychain.feature') { name: 'name'}
+    * def labelResult = call read('classpath:feature/label/create-label.feature') {name: otherlabel}
+    Given path '/api/supplychain/'+supplyChainResponse.response.id
+    And request  {"name":"supply-chain-name", parentLabelId: "#(labelResult.response.id)"}
+    And header Content-Type = 'application/json'
+    When method PUT
+    Then status 200
+    And match response == { name: 'supply-chain-name', id: '#(supplyChainResponse.response.id)', parentLabelId: '#(labelResult.response.id)' }
+
   Scenario: get supplychain with valid id should return a 200
     * def result = call read('create-supplychain.feature') { name: 'name'}
     * def restPath = '/api/supplychain/'+result.response.id
