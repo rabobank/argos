@@ -30,12 +30,13 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 @RequiredArgsConstructor
 @Component
@@ -64,7 +65,7 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
             case MAX_DEPTH:
                 return getRootNodesWithMaxDepthDescendants(matchStage, maxDepth);
         }
-        return Collections.emptyList();
+        return emptyList();
     }
 
     private List<TreeNode> getRootNodesWithMaxDepthDescendants(MatchOperation matchStage, int maxDepth) {
@@ -126,17 +127,17 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
 
     private GraphLookupOperation getGraphLookupOperationWithDepth(int maxDepth) {
         return GraphLookupOperation
-                    .builder()
-                    .from(COLLECTION)
-                    .startWith(START_REFERENCE_ID)
-                    .connectFrom(REFERENCE_ID)
-                    .connectTo(PARENT_LABEL_ID)
-                /*  maxDepth 0 in GraphLookupOperation returns root plus immediate children this is
-                    counter intuitive so in the api it is minimum 1
+                .builder()
+                .from(COLLECTION)
+                .startWith(START_REFERENCE_ID)
+                .connectFrom(REFERENCE_ID)
+                .connectTo(PARENT_LABEL_ID)
+                /*  maxDepth 0 in GraphLookupOperation returns root plus immediate children.
+                    This is counter intuitive so in the api it is minimum 1
                 */
                 .maxDepth((long) maxDepth - 1)
-                    .depthField(DEPTH)
-                    .as(DESCENDANTS);
+                .depthField(DEPTH)
+                .as(DESCENDANTS);
     }
 
     private Optional<TreeNode> queryWithAggregationForSubTree(MatchOperation matchStage, GraphLookupOperation graphLookupOperation) {
@@ -166,17 +167,19 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
         return Optional.empty();
     }
 
-    private TreeNode getTreeNode(HierarchyItem rootItem) {
-        TreeNode root = convertToTreeNode(rootItem);
-        if (rootItem.getDescendants() != null) {
-            List<TreeNode> descendants = rootItem
+    private TreeNode getTreeNode(HierarchyItem parentItem) {
+        TreeNode parent = convertToTreeNode(parentItem);
+        if (parentItem.getDescendants() != null) {
+            List<TreeNode> descendants = parentItem
                     .getDescendants()
                     .stream()
                     .map(this::convertToTreeNode)
                     .collect(Collectors.toList());
-            setChildren(root, descendants);
+            setChildren(parent, descendants);
+        } else {
+            parent.setChildren(emptyList());
         }
-        return root;
+        return parent;
     }
 
     private Optional<TreeNode> getSubTreeWithAllDescendants(MatchOperation matchStage) {
@@ -209,6 +212,7 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
 
     private void setChildren(TreeNode parentItem, List<TreeNode> descendants) {
         Map<String, List<TreeNode>> descendantsByParenLabelId = descendants.stream()
+                .filter(node -> node.getParentLabelId() != null)
                 .collect(Collectors.groupingBy(TreeNode::getParentLabelId));
         List<TreeNode> children = getChildren(parentItem, descendantsByParenLabelId);
         parentItem.setChildren(children);
@@ -217,14 +221,15 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
     }
 
     private List<TreeNode> getChildren(TreeNode parentItem, Map<String, List<TreeNode>> descendants) {
-        return descendants.getOrDefault(parentItem.getReferenceId(), Collections.emptyList());
+        return descendants.getOrDefault(parentItem.getReferenceId(), emptyList());
     }
 
     @Getter
     @Setter
 
     static class HierarchyItem {
-        private enum Type {LABEL, SUPPLY_CHAIN}
+        enum Type {LABEL, SUPPLY_CHAIN}
+
         private String referenceId;
         private String name;
         private String parentLabelId;
