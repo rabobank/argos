@@ -429,8 +429,14 @@ paths:
             schema:
               $ref: "#/components/schemas/Label"
       responses:
-        '200':
+        '201':
           description: created label
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: location where the created label can be found
           content:
             application/json:
               schema:

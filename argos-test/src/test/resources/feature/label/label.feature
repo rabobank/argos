@@ -20,7 +20,7 @@ Feature: Label
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
 
-  Scenario: store a root label with valid name should return a 200
+  Scenario: store a root label with valid name should return a 201
     * def result = call read('create-label.feature') { name: 'label1'}
     * match result.response == { name: 'label1', id: '#uuid' }
 
@@ -60,7 +60,7 @@ Feature: Label
     Then status 200
     And match response == { name: 'label4', id: '#(labelId)' }
 
-  Scenario: store a child label with valid name should return a 200
+  Scenario: store a child label with valid name should return a 201
     * def rootLabelResponse = call read('create-label.feature') { name: 'parent'}
     * def rootId = rootLabelResponse.response.id
     * def childLabelResponse = call read('create-label.feature') { name: 'child', parentLabelId: '#(rootId)'}
