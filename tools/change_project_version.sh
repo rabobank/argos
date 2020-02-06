@@ -23,6 +23,7 @@ usage() {
 }
 
 if [ -z "$1" ]; then
+    printf "\033[31m%-5s\033[0m %s\n" "ERROR" "No version parameter."
     usage
     exit 8
 fi
@@ -33,5 +34,5 @@ SCRIPT_DIRECTORY=$(cd `dirname $0` && pwd)
 
 PARENT_DIR="${SCRIPT_DIRECTORY}/.."
 
-echo "update version in all modules to ${VERSION}"
+printf "\033[33m%-5s\033[0m %s\n" "INFO" "Update version in all modules to ${VERSION}"
 mvn -q -f ${PARENT_DIR}/pom.xml versions:set -DnewVersion=${VERSION} -DprocessAllModules=true -DgenerateBackupPoms=false

@@ -30,14 +30,15 @@ push() {
 }
 
 if [ -z "$1" ]; then
+    printf "\033[31m%-5s\033[0m %s\n" "ERROR" "No version parameter."
     usage
     exit 8
 fi
 
 VERSION=$1
 
-echo "This will force a release of the project with the version ${VERSION}"
-echo "with a force push of the tag ${VERSION}"
+printf "\033[33m%-5s\033[0m %s\n" "WARN" "This will force a release of the project with the version ${VERSION}"
+printf "\033[33m%-5s\033[0m %s\n" "WARN" "with a force push of the tag ${VERSION}"
 while true; do
     read -p "Are you sure you wish to do this [y/n]: " yn
     case $yn in
