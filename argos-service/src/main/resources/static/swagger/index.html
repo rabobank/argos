@@ -15,6 +15,7 @@
     limitations under the License.
 
 -->
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -50,7 +51,7 @@
 <script>
     window.onload = function () {
         // Begin Swagger UI call region
-        const ui = SwaggerUIBundle({
+        window.ui = SwaggerUIBundle({
             urls: [{url: "./api.yml", name: "api"}],
             dom_id: '#swagger-ui',
             deepLinking: true,
@@ -67,8 +68,6 @@
             layout: "StandaloneLayout"
         });
         // End Swagger UI call region
-
-        window.ui = ui
     }
 </script>
 </body>
