@@ -15,25 +15,34 @@
  */
 package com.rabobank.argos.service.domain.verification.rules;
 
-import com.rabobank.argos.domain.layout.DestinationType;
+import com.rabobank.argos.domain.layout.ArtifactType;
 import com.rabobank.argos.domain.layout.rule.MatchRule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
+import com.rabobank.argos.service.domain.verification.ArtifactsVerificationContext;
 import com.rabobank.argos.service.domain.verification.VerificationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -41,34 +50,44 @@ import static org.mockito.Mockito.when;
 class MatchRuleVerificationTest {
 
     private static final String DESTINATION_STEP_NAME = "destinationStepName";
-    private static final String DESTINATION_SEGMENTNAME = "destinationSegmentName";
+    private static final String DESTINATION_SEGMENT_NAME = "destinationSegmentName";
+    private static final String SRC_SEGMENT_NAME = "sourceSegmentName";
+    private static final String DESTINATION_PATH_PREFIX = "dest/dir";
+    private static final String DESTINATION_PATH_PREFIX2 = "dest/dir2";
+    private static final String SRC_PATH_PREFIX = "src";
+    private static final String URI = "cool.jar";
     private static final String HASH = "hash";
+    
     private MatchRuleVerification verification;
 
     @Mock
     private RuleVerificationContext<MatchRule> context;
-
+    
     @Mock
-    private Artifact sourceArtifact;
+    private ArtifactsVerificationContext artifactsContext;
+    
+    @Mock(answer=Answers.RETURNS_DEEP_STUBS)
+    private Map<String, Map<String, Set<Link>>> linksMap;
 
-    @Mock
-    private MatchRule matchRule;
+    private Artifact sourceArtifactWithPrfx = new Artifact(SRC_PATH_PREFIX+"/"+URI, HASH);
 
-    @Mock
-    private VerificationContext verificationContext;
+    private Artifact destinationArtifactWithPrfx = new Artifact(DESTINATION_PATH_PREFIX+"/"+URI, HASH);
 
-    @Mock
-    private LinkMetaBlock destinationLinkMetaBlock;
+    private Artifact destinationArtifactWithPrfx2 = new Artifact(DESTINATION_PATH_PREFIX2+"/"+URI, HASH);
+
+    private Artifact artifactWithoutPrfx = new Artifact(URI, HASH);
+    
+    private Artifact destinationOtherHash = new Artifact(URI, "other hash");
 
     @Mock
     private Link destinationLink;
-
+    
     @Mock
-    private Artifact destinationArtifact;
+    private Link sourceLink;
 
     @BeforeEach
     void setUp() {
-        verification = new MatchRuleVerification();
+        verification = new MatchRuleVerification(); 
     }
 
     @Test
@@ -77,143 +96,176 @@ class MatchRuleVerificationTest {
     }
 
     @Test
-    void verifyExpectedProductsDestinationProducts() {
-
-        when(context.getProducts()).thenReturn(List.of(sourceArtifact));
-        when(matchRule.getDestinationType()).thenReturn(DestinationType.PRODUCTS);
-        when(destinationLink.getProducts()).thenReturn(List.of(destinationArtifact));
-        when(destinationArtifact.getHash()).thenReturn(HASH);
-
-        setupMocks();
-
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedProducts(context);
-        assertThat(ruleVerificationResult.isValid(), is(true));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), contains(sourceArtifact));
-    }
-
-    @Test
-    void verifyExpectedProductsDestinationMaterials() {
-
-        when(context.getProducts()).thenReturn(List.of(sourceArtifact));
-        when(matchRule.getDestinationType()).thenReturn(DestinationType.MATERIALS);
-        when(destinationLink.getMaterials()).thenReturn(List.of(destinationArtifact));
-        when(destinationArtifact.getHash()).thenReturn(HASH);
-
-        setupMocks();
-
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedProducts(context);
-        assertThat(ruleVerificationResult.isValid(), is(true));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), contains(sourceArtifact));
-    }
-
-    @Test
-    void verifyExpectedMaterialsDestinationMaterials() {
-
-        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
-        when(matchRule.getDestinationType()).thenReturn(DestinationType.MATERIALS);
-        when(destinationLink.getMaterials()).thenReturn(List.of(destinationArtifact));
-        when(destinationArtifact.getHash()).thenReturn(HASH);
-
-        setupMocks();
-
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
-        assertThat(ruleVerificationResult.isValid(), is(true));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), contains(sourceArtifact));
-    }
-
-
-    @Test
-    void verifyExpectedMaterialsDestinationProducts() {
-
-        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
-        when(matchRule.getDestinationType()).thenReturn(DestinationType.PRODUCTS);
-        when(destinationLink.getProducts()).thenReturn(List.of(destinationArtifact));
-        when(destinationArtifact.getHash()).thenReturn(HASH);
-
-        setupMocks();
-
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
-        assertThat(ruleVerificationResult.isValid(), is(true));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), contains(sourceArtifact));
-    }
-
-    @Test
-    void verifyExpectedMaterialsNoDestinationLinks() {
+    void verifyMatchRuleDestMaterials() {
+        MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, null, null, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
-        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
-        when(matchRule.getDestinationStepName()).thenReturn(DESTINATION_STEP_NAME);
+        when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
+        when(context.getSegmentName()).thenReturn(SRC_SEGMENT_NAME);
+        
+        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(destinationLink.getMaterials()).thenReturn(List.of(artifactWithoutPrfx));
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of(artifactWithoutPrfx));
+        
+    }
+    
+    @Test
+    void verifyMatchRuleFails() {
+        MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, null, null, DESTINATION_STEP_NAME);
+        when(context.getRule()).thenReturn(matchRule);
+        when(context.getSegmentName()).thenReturn(SRC_SEGMENT_NAME);
+        
+        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(destinationLink.getMaterials()).thenReturn(List.of(artifactWithoutPrfx));
+        when(destinationLink.getProducts()).thenReturn(List.of(artifactWithoutPrfx));
 
-        when(context.getVerificationContext()).thenReturn(verificationContext);
-
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
-        assertThat(ruleVerificationResult.isValid(), is(false));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
+        when(context.getFilteredArtifacts(null)).thenReturn(Set.of(sourceArtifactWithPrfx));
+        matchRule.setDestinationType(ArtifactType.MATERIALS);
+        assertThat(verification.verify(context), is(false));
+        verify(context, times(0)).consume(anySet());
+        
+        when(context.getFilteredArtifacts(null)).thenReturn(Set.of(sourceArtifactWithPrfx));
+        matchRule.setDestinationType(ArtifactType.PRODUCTS);
+        assertThat(verification.verify(context), is(false));
+        verify(context, times(0)).consume(anySet());
+        
+    }
+    
+    @Test
+    void verifyMatchRuleDestProducts() {
+        MatchRule matchRule = new MatchRule(URI, null, ArtifactType.PRODUCTS, null, null, DESTINATION_STEP_NAME);
+        when(context.getRule()).thenReturn(matchRule);
+        when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
+        when(context.getSegmentName()).thenReturn(SRC_SEGMENT_NAME);
+        
+        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(destinationLink.getProducts()).thenReturn(List.of(artifactWithoutPrfx));
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of(artifactWithoutPrfx));
+        
     }
 
     @Test
-    void verifyExpectedMaterialsUnknownDestinationType() {
+    void verifyMatchRuleOtherSegment() {
+        MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, null, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
+        when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(destinationLink.getMaterials()).thenReturn(List.of(artifactWithoutPrfx));
+        
+        when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
 
-        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
-        when(matchRule.getDestinationStepName()).thenReturn(DESTINATION_STEP_NAME);
-        when(matchRule.getDestinationSegmentName()).thenReturn(DESTINATION_SEGMENTNAME);
-        when(verificationContext.getOriginalLinksBySegmentNameAndStepName(DESTINATION_SEGMENTNAME, DESTINATION_STEP_NAME))
-                .thenReturn(List.of(destinationLinkMetaBlock));
-        when(context.getVerificationContext()).thenReturn(verificationContext);
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
-        assertThat(ruleVerificationResult.isValid(), is(false));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of(artifactWithoutPrfx));
+    }
+    
+    @Test
+    void verifyMatchRuleOtherSegmentEmptyFilter() {
+        MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, null, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
+        when(context.getRule()).thenReturn(matchRule);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(destinationLink.getMaterials()).thenReturn(List.of(artifactWithoutPrfx));
+        
+        when(context.getFilteredArtifacts(null)).thenReturn(Set.of());
+
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of());
+    }
+    
+    @Test
+    void verifyMatchRuleOtherSegmentWithSrcPrefix() {
+        MatchRule matchRule = new MatchRule(URI, SRC_PATH_PREFIX, ArtifactType.MATERIALS, null, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
+        when(context.getRule()).thenReturn(matchRule);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(destinationLink.getMaterials()).thenReturn(List.of(artifactWithoutPrfx));
+        
+        when(context.getFilteredArtifacts(SRC_PATH_PREFIX)).thenReturn(Set.of(sourceArtifactWithPrfx));
+
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of(sourceArtifactWithPrfx));
+    }
+
+    @Test
+    void verifyMatchRuleOtherSegmentWithSrcPrefixInvalid() {
+        MatchRule matchRule = new MatchRule(URI, SRC_PATH_PREFIX, ArtifactType.MATERIALS, null, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
+        when(context.getRule()).thenReturn(matchRule);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        
+        when(context.getFilteredArtifacts(SRC_PATH_PREFIX)).thenReturn(Set.of(sourceArtifactWithPrfx));
+        
+        when(destinationLink.getMaterials()).thenReturn(List.of(sourceArtifactWithPrfx));
+
+        assertThat(verification.verify(context), is(false));
+        verify(context, times(0)).consume(anySet());
+    }
+
+    @Test
+    void verifyMatchRuleOtherSegmentWithDestPrefix() {
+        MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, DESTINATION_PATH_PREFIX, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
+        when(context.getRule()).thenReturn(matchRule);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(destinationLink.getMaterials()).thenReturn(List.of(destinationArtifactWithPrfx));
+        
+        when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
+
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of(artifactWithoutPrfx));
+    }
+    
+    @Test
+    void verifyMatchRuleOtherSegmentWithDestPrefixInvalid() {
+        MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, DESTINATION_PATH_PREFIX, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
+        when(context.getRule()).thenReturn(matchRule);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        
+        when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
+        
+        when(destinationLink.getMaterials()).thenReturn(List.of(sourceArtifactWithPrfx));
+
+        assertThat(verification.verify(context), is(false));
+        verify(context, times(0)).consume(anySet());
+    }
+
+    @Test
+    void verifyMatchRuleOtherSegmentWithSrcAndDestPrefix() {
+        MatchRule matchRule = new MatchRule(URI, SRC_PATH_PREFIX, ArtifactType.MATERIALS, DESTINATION_PATH_PREFIX, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
+        when(context.getRule()).thenReturn(matchRule);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(destinationLink.getMaterials()).thenReturn(List.of(destinationArtifactWithPrfx));
+        
+        when(context.getFilteredArtifacts(SRC_PATH_PREFIX)).thenReturn(Set.of(sourceArtifactWithPrfx));
+
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of(sourceArtifactWithPrfx));
+        
+    }
+    
+    @Test
+    void verifyMatchRuleOtherSegmentWithSrcAndDestPrefixInvalid() {
+        MatchRule matchRule = new MatchRule(URI, SRC_PATH_PREFIX, ArtifactType.MATERIALS, DESTINATION_PATH_PREFIX, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
+        when(context.getRule()).thenReturn(matchRule);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        
+        when(context.getFilteredArtifacts(SRC_PATH_PREFIX)).thenReturn(Set.of(sourceArtifactWithPrfx));
+        
+        when(destinationLink.getMaterials()).thenReturn(List.of(destinationArtifactWithPrfx2));
+
+        assertThat(verification.verify(context), is(false));
+        verify(context, times(0)).consume(anySet());
     }
 
     @Test
     void verifyExpectedMaterialsDifferentHash() {
-        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
-        when(matchRule.getDestinationType()).thenReturn(DestinationType.PRODUCTS);
-        when(destinationLink.getProducts()).thenReturn(List.of(destinationArtifact));
 
-        setupMocks();
-        when(destinationArtifact.getHash()).thenReturn("otherHash");
-
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
-        assertThat(ruleVerificationResult.isValid(), is(false));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
-    }
-
-    @Test
-    void verifyExpectedMaterialsDestinationArtifactNotFound() {
-        when(context.getMaterials()).thenReturn(List.of(sourceArtifact));
-        when(matchRule.getDestinationType()).thenReturn(DestinationType.PRODUCTS);
-        when(destinationLink.getProducts()).thenReturn(List.of(destinationArtifact));
-
-        setupMocks();
-        when(destinationArtifact.getUri()).thenReturn("dest/not-cool.jar");
-
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
-        assertThat(ruleVerificationResult.isValid(), is(false));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
-    }
-
-    private void setupMocks() {
-
+        MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, null, null, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
-
-        when(matchRule.getSourcePathPrefix()).thenReturn("src/");
-        when(matchRule.getDestinationPathPrefix()).thenReturn("dest/");
-        when(matchRule.getPattern()).thenReturn("cool.jar");
-        when(matchRule.getDestinationSegmentName()).thenReturn(DESTINATION_SEGMENTNAME);
-        when(matchRule.getDestinationStepName()).thenReturn(DESTINATION_STEP_NAME);
-
-        when(context.getVerificationContext()).thenReturn(verificationContext);
-        when(verificationContext.getOriginalLinksBySegmentNameAndStepName(DESTINATION_SEGMENTNAME, DESTINATION_STEP_NAME))
-                .thenReturn(List.of(destinationLinkMetaBlock));
-        when(destinationLinkMetaBlock.getLink()).thenReturn(destinationLink);
-
-
-        when(destinationArtifact.getUri()).thenReturn("dest/cool.jar");
-        when(sourceArtifact.getUri()).thenReturn("src/cool.jar");
-        when(sourceArtifact.getHash()).thenReturn(HASH);
-
+        when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
+        when(context.getSegmentName()).thenReturn(SRC_SEGMENT_NAME);
+        
+        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(destinationLink.getMaterials()).thenReturn(List.of(destinationOtherHash));
+        assertThat(verification.verify(context), is(false));
+        verify(context, times(0)).consume(anySet());
     }
-
 
 }

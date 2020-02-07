@@ -18,12 +18,14 @@ package com.rabobank.argos.domain.layout;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 @Getter
 @Setter
 @Builder
+@ToString
 public class Layout {
     private List<String> authorizedKeyIds;
     private List<MatchFilter> expectedEndProducts;

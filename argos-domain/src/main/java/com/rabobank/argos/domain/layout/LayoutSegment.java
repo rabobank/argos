@@ -18,12 +18,14 @@ package com.rabobank.argos.domain.layout;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 @Getter
 @Setter
 @Builder
+@ToString
 public class LayoutSegment {
     private String name;
     private List<Step> steps;

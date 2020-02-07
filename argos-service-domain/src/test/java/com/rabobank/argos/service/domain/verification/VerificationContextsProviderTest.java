@@ -15,7 +15,7 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-import com.rabobank.argos.domain.layout.DestinationType;
+import com.rabobank.argos.domain.layout.ArtifactType;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
@@ -200,14 +200,14 @@ class VerificationContextsProviderTest {
 
     private void createMatchFilters() {
         MatchFilter matchFilterProduct = MatchFilter.builder()
-                .destinationType(DestinationType.PRODUCTS)
+                .destinationType(ArtifactType.PRODUCTS)
                 .destinationStepName(STEP_NAME_1)
                 .destinationSegmentName(SEGMENT_NAME_1)
                 .pattern("**/*.jar")
                 .build();
 
         MatchFilter matchFilterMaterials = MatchFilter.builder()
-                .destinationType(DestinationType.MATERIALS)
+                .destinationType(ArtifactType.MATERIALS)
                 .destinationStepName(STEP_NAME_1)
                 .destinationSegmentName(SEGMENT_NAME_1)
                 .pattern("**/*.jar")
@@ -219,7 +219,7 @@ class VerificationContextsProviderTest {
     private void createMatchFilterMaterials() {
 
         MatchFilter matchFilterMaterials = MatchFilter.builder()
-                .destinationType(DestinationType.MATERIALS)
+                .destinationType(ArtifactType.MATERIALS)
                 .destinationStepName(STEP_NAME_1)
                 .destinationSegmentName(SEGMENT_NAME_1)
                 .pattern("**/*.jar")
@@ -295,6 +295,7 @@ class VerificationContextsProviderTest {
     private void setupMocksForSingleStep() {
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
         when(layout.getLayoutSegments()).thenReturn(singletonList(layoutSegment1));
+        when(layoutSegment1.getName()).thenReturn(SEGMENT_NAME_1);
         when(layoutSegment1.getSteps()).thenReturn(singletonList(step1));
         when(step1.getStepName()).thenReturn(STEP_NAME_1);
         when(layoutMetaBlock.expectedEndProducts()).thenReturn(matchFilters);
@@ -308,6 +309,7 @@ class VerificationContextsProviderTest {
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
         when(layout.getLayoutSegments()).thenReturn(singletonList(layoutSegment1));
+        when(layoutSegment1.getName()).thenReturn(SEGMENT_NAME_1);
         when(layoutSegment1.getSteps()).thenReturn(singletonList(step1));
         when(step1.getStepName()).thenReturn(STEP_NAME_1);
         when(layoutMetaBlock.expectedEndProducts()).thenReturn(matchFilters);
@@ -327,13 +329,13 @@ class VerificationContextsProviderTest {
     void setupMocksForMultipleSegments() {
         MatchRule matchRule4StepOne2StepTwo = MatchRule.builder()
                 .destinationStepName(STEP_NAME_2).pattern("**/*.jar")
-                .destinationType(DestinationType.PRODUCTS)
+                .destinationType(ArtifactType.PRODUCTS)
                 .destinationSegmentName(SEGMENT_NAME_2)
                 .build();
 
         MatchRule matchRule4StepOne2StepThree = MatchRule.builder()
                 .destinationStepName(STEP_NAME_3).pattern("**/*.jar")
-                .destinationType(DestinationType.PRODUCTS)
+                .destinationType(ArtifactType.PRODUCTS)
                 .destinationSegmentName(SEGMENT_NAME_3)
                 .build();
         matchRulesForProductsStep1 = List.of(matchRule4StepOne2StepTwo, matchRule4StepOne2StepThree);
@@ -346,7 +348,8 @@ class VerificationContextsProviderTest {
         when(layoutSegment2.getSteps()).thenReturn(singletonList(step2));
         when(layoutSegment2.getName()).thenReturn(SEGMENT_NAME_2);
 
-        when(layoutSegment2.getName()).thenReturn(SEGMENT_NAME_3);
+        when(layoutSegment3.getSteps()).thenReturn(singletonList(step3));
+        when(layoutSegment3.getName()).thenReturn(SEGMENT_NAME_3);
         when(layoutSegment3.getSteps()).thenReturn(singletonList(step3));
         when(step1.getExpectedProducts()).thenReturn(matchRulesForProductsStep1);
         when(step2.getExpectedProducts()).thenReturn(emptyList());
@@ -390,13 +393,13 @@ class VerificationContextsProviderTest {
 
         MatchRule matchRule4StepOne2StepTwo = MatchRule.builder()
                 .destinationStepName(STEP_NAME_2).pattern("**/*.jar")
-                .destinationType(DestinationType.PRODUCTS)
+                .destinationType(ArtifactType.PRODUCTS)
                 .destinationSegmentName(SEGMENT_NAME_2)
                 .build();
 
         MatchRule matchRule4StepTwo2StepThree = MatchRule.builder()
                 .destinationStepName(STEP_NAME_3).pattern("**/*.jar")
-                .destinationType(DestinationType.PRODUCTS)
+                .destinationType(ArtifactType.PRODUCTS)
                 .destinationSegmentName(SEGMENT_NAME_3)
                 .build();
 
@@ -414,6 +417,8 @@ class VerificationContextsProviderTest {
         when(layoutSegment2.getName()).thenReturn(SEGMENT_NAME_2);
 
         when(layoutSegment3.getSteps()).thenReturn(singletonList(step3));
+        when(layoutSegment3.getName()).thenReturn(SEGMENT_NAME_3);
+
         when(step1.getExpectedProducts()).thenReturn(matchRulesForProductsStep1);
         when(step2.getExpectedProducts()).thenReturn(matchRulesForProductsStep2);
         when(step1.getStepName()).thenReturn(STEP_NAME_1);
@@ -443,13 +448,13 @@ class VerificationContextsProviderTest {
 
         MatchRule matchRule4StepOne2StepTwo = MatchRule.builder()
                 .destinationStepName(STEP_NAME_2).pattern("**/*.jar")
-                .destinationType(DestinationType.PRODUCTS)
+                .destinationType(ArtifactType.PRODUCTS)
                 .destinationSegmentName(SEGMENT_NAME_2)
                 .build();
 
         MatchRule matchRule4StepTwo2StepThree = MatchRule.builder()
                 .destinationStepName(STEP_NAME_3).pattern("**/*.jar")
-                .destinationType(DestinationType.PRODUCTS)
+                .destinationType(ArtifactType.PRODUCTS)
                 .destinationSegmentName(SEGMENT_NAME_3)
                 .build();
 
@@ -467,6 +472,7 @@ class VerificationContextsProviderTest {
         when(layoutSegment2.getName()).thenReturn(SEGMENT_NAME_2);
 
         when(layoutSegment3.getSteps()).thenReturn(singletonList(step3));
+        when(layoutSegment3.getName()).thenReturn(SEGMENT_NAME_3);
         when(step1.getExpectedProducts()).thenReturn(matchRulesForProductsStep1);
         when(step2.getExpectedProducts()).thenReturn(matchRulesForProductsStep2);
         when(step1.getStepName()).thenReturn(STEP_NAME_1);

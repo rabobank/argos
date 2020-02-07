@@ -52,5 +52,4 @@ public class LinkMetaBlockSignatureVerification implements Verification {
                 .orElse(false);
     }
 
-
 }

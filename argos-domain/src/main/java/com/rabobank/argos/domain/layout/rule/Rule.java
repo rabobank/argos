@@ -17,12 +17,15 @@ package com.rabobank.argos.domain.layout.rule;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class Rule {
+    @NonNull
     private RuleType ruleType;
+    @NonNull
     private String pattern;
 }

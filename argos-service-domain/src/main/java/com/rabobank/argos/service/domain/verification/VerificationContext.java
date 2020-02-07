@@ -18,21 +18,23 @@ package com.rabobank.argos.service.domain.verification;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
+import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 
+@ToString
 public class VerificationContext {
     private static final String COULD_NOT_BE_FOUND = " could not be found";
     @Getter
@@ -41,33 +43,58 @@ public class VerificationContext {
     private final List<LinkMetaBlock> originalLinkMetaBlocks;
     @Getter
     private final LayoutMetaBlock layoutMetaBlock;
-    private Map<String, Map<String, Step>> stepBySegmentNameAndStepName = new HashMap<>();
-    private Map<String, Map<String, List<LinkMetaBlock>>> linksBySegmentNameAndStepName;
-    private Map<String, Map<String, List<LinkMetaBlock>>> originalLinksBySegmentNameAndStepName;
+    private Map<String, Map<String, Step>> stepBySegmentNameAndStepName;
+    private Map<String, Map<String, List<LinkMetaBlock>>> linkMetaBlocksBySegmentNameAndStepName;
+    private Map<String, Map<Step, Link>> linksBySegmentNameAndStep;
+    private Map<String, Map<String, Link>> linksBySegmentNameAndStepName;
 
     @Builder
-    public VerificationContext(List<LinkMetaBlock> linkMetaBlocks, LayoutMetaBlock layoutMetaBlock) {
+    public VerificationContext(@NonNull List<LinkMetaBlock> linkMetaBlocks, 
+            @NonNull LayoutMetaBlock layoutMetaBlock) {
         this.linkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.originalLinkMetaBlocks = new ArrayList<>(linkMetaBlocks);
         this.layoutMetaBlock = layoutMetaBlock;
+        
+        linkMetaBlocksBySegmentNameAndStepName = this.linkMetaBlocks.stream()
+                .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getLayoutSegmentName(),
+                        groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName())));
+
+        createMaps();
+    }
+    
+    private void createMaps() {
+        stepBySegmentNameAndStepName = new HashMap<>();
+        linksBySegmentNameAndStep = new HashMap<>();
+        linksBySegmentNameAndStepName = new HashMap<>();
         layoutMetaBlock
                 .getLayout()
                 .getLayoutSegments()
                 .forEach(segment -> {
                     stepBySegmentNameAndStepName.put(segment.getName(), new HashMap<>());
-                    segment.getSteps().forEach(step -> stepBySegmentNameAndStepName
+                    linksBySegmentNameAndStep.put(segment.getName(), new HashMap<>());
+                    linksBySegmentNameAndStepName.put(segment.getName(), new HashMap<>());
+                    linkMetaBlocksBySegmentNameAndStepName.putIfAbsent(segment.getName(), new HashMap<>());
+                    segment.getSteps().forEach(step -> {
+                        stepBySegmentNameAndStepName
                             .get(segment.getName())
-                            .put(step.getStepName(), step));
-        });
-
-        linksBySegmentNameAndStepName = this.linkMetaBlocks.stream()
-                .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getLayoutSegmentName(),
-                        groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName())));
-
-        originalLinksBySegmentNameAndStepName = this.originalLinkMetaBlocks.stream()
-                .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getLayoutSegmentName(),
-                        groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName())));
-
+                            .put(step.getStepName(), step);
+                        linkMetaBlocksBySegmentNameAndStepName
+                            .get(segment.getName())
+                            .putIfAbsent(step.getStepName(), new ArrayList<>());
+                        List<LinkMetaBlock> metaBlocks = linkMetaBlocksBySegmentNameAndStepName
+                                .getOrDefault(segment.getName(), emptyMap())
+                                .getOrDefault(step.getStepName(), emptyList());
+                        if (!metaBlocks.isEmpty() && metaBlocks.get(0).getLink() != null) {
+                            linksBySegmentNameAndStep
+                                .get(segment.getName())
+                                .put(step, metaBlocks.get(0).getLink());
+                            linksBySegmentNameAndStepName
+                                .get(segment.getName())
+                                .put(step.getStepName(), metaBlocks.get(0).getLink());
+                        }
+                    });
+                });
+        
     }
 
     public List<LayoutSegment> layoutSegments() {
@@ -76,27 +103,20 @@ public class VerificationContext {
                 .getLayoutSegments();
     }
 
-    public List<LinkMetaBlock> getOriginalLinksBySegmentNameAndStepName(String segmentName, String stepName) {
-        return originalLinksBySegmentNameAndStepName
-                .getOrDefault(segmentName, emptyMap())
-                .getOrDefault(stepName, emptyList());
-    }
-
     public void removeLinkMetaBlocks(List<LinkMetaBlock> linkMetaBlocksToRemove) {
         linkMetaBlocks.removeAll(linkMetaBlocksToRemove);
-        linksBySegmentNameAndStepName.forEach((segmentName, stepNames) -> stepNames
+        linkMetaBlocksBySegmentNameAndStepName.forEach((segmentName, stepNames) -> stepNames
                 .forEach((stepName, blocks) -> blocks.removeAll(linkMetaBlocksToRemove)));
+        createMaps();
     }
 
-    public List<String> getExpectedStepNamesBySegmentName(String segmentName) {
-        return layoutMetaBlock
-                .getLayout()
-                .getLayoutSegments()
-                .stream().filter(segment -> segment.getName().equals(segmentName))
-                .findFirst()
-                .orElseThrow(() -> new VerificationError("layout segment with name: " + segmentName + COULD_NOT_BE_FOUND))
-                .getSteps().stream().map(Step::getStepName)
-                .collect(toList());
+    public List<String> getStepNamesBySegmentName(String segmentName) {
+        Map<String, List<LinkMetaBlock>> segmentMap = linkMetaBlocksBySegmentNameAndStepName.get(segmentName);
+        if (segmentMap == null) {
+            throw new VerificationError("layout segment with name: " + segmentName + COULD_NOT_BE_FOUND);
+        } else {
+            return new ArrayList<>(segmentMap.keySet());
+        }
     }
 
     public Step getStepBySegmentNameAndStepName(String segmentName, String stepName) {
@@ -108,19 +128,20 @@ public class VerificationContext {
         }
         return stepBySegmentNameAndStepName.get(segmentName).get(stepName);
     }
-
-    public Map<String, List<LinkMetaBlock>> getLinksBySegmentName(String segmentName) {
-        return linksBySegmentNameAndStepName.getOrDefault(segmentName, emptyMap());
+    
+    public List<LinkMetaBlock> getLinkMetaBlocksBySegmentNameAndStepName(String segmentName, String stepName) {
+        if (linkMetaBlocksBySegmentNameAndStepName.get(segmentName) == null || linkMetaBlocksBySegmentNameAndStepName.get(segmentName).get(stepName) == null) {
+            return emptyList();
+        }
+        return linkMetaBlocksBySegmentNameAndStepName.get(segmentName).get(stepName);
     }
-
-    public List<String> getStepNamesFromLinksBySegmentName(String name) {
-        return getLinksBySegmentName(name)
-                .entrySet().stream()
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+    
+    public Map<String, Map<Step, Link>> getLinksBySegmentNameAndStep() {
+        return linksBySegmentNameAndStep;
     }
-
-    public List<LinkMetaBlock> getLinksBySegmentNameAndStepName(String segmentName, String stepName) {
-        return getLinksBySegmentName(segmentName).getOrDefault(stepName, emptyList());
+    
+    public Map<String, Map<String, Link>> getLinksBySegmentNameAndStepName() {
+        return linksBySegmentNameAndStepName;
     }
+    
 }

@@ -37,6 +37,7 @@ services:
       - 8080:8080
     depends_on:
       - mongodb
+      - argos-integration-test-service
 
   oauth-stub:
     build:
@@ -67,14 +68,19 @@ services:
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
       - snapshotsUrl=http://nexus:8081/nexus/content/repositories/snapshots/
+    volumes:
+      - maven_cache:/root/.m2/repository
     ports:
       - 9080:8080
     depends_on:
-      - argos-service
       - nexus
 
   nexus:
     image: sonatype/nexus:2.14.15-01
     ports:
       - 8081:8081
+
+volumes:
+  maven_cache:
+    external: true
 

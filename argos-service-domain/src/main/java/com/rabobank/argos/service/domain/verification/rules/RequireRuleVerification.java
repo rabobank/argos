@@ -18,13 +18,15 @@ package com.rabobank.argos.service.domain.verification.rules;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
+@Slf4j
 public class RequireRuleVerification implements RuleVerification {
     @Override
     public RuleType getRuleType() {
@@ -32,23 +34,16 @@ public class RequireRuleVerification implements RuleVerification {
     }
 
     @Override
-    public RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
-        return verify(context.getFilteredProducts());
-    }
-
-    @Override
-    public RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context) {
-        return verify(context.getFilteredMaterials());
-    }
-
-    private RuleVerificationResult verify(Stream<Artifact> filteredArtifacts) {
-        Set<Artifact> artifacts = filteredArtifacts.collect(Collectors.toSet());
-        if (!artifacts.isEmpty()) {
-            return RuleVerificationResult.okay(artifacts);
+    public Boolean verify(RuleVerificationContext<? extends Rule> context) {
+        Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
+        if (!filteredArtifacts.isEmpty()) {
+            context.consume(filteredArtifacts);
+            logResult(log, filteredArtifacts, getRuleType());
+            return Boolean.TRUE;
         } else {
-            return RuleVerificationResult.notOkay();
+            logErrors(log, filteredArtifacts, getRuleType());
+            return Boolean.FALSE;
         }
     }
-
 
 }

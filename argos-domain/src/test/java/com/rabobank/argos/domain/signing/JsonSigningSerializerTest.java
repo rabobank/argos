@@ -17,7 +17,7 @@ package com.rabobank.argos.domain.signing;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabobank.argos.domain.layout.DestinationType;
+import com.rabobank.argos.domain.layout.ArtifactType;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.MatchFilter;
@@ -61,7 +61,7 @@ class JsonSigningSerializerTest {
         String serialized = new JsonSigningSerializer().serialize(Layout.builder()
                 .expectedEndProducts(singletonList(MatchFilter.builder()
                         .destinationSegmentName("destinationSegmentName")
-                        .destinationType(DestinationType.PRODUCTS)
+                        .destinationType(ArtifactType.PRODUCTS)
                         .destinationStepName("destinationStepName")
                         .pattern("MatchFiler").build()))
                 .layoutSegments(singletonList(LayoutSegment.builder().name("segment 1")
@@ -90,7 +90,7 @@ class JsonSigningSerializerTest {
                                                         .sourcePathPrefix("sourcePathPrefix")
                                                         .destinationStepName("destinationStepName")
                                                         .destinationSegmentName("segment 1")
-                                                        .destinationType(DestinationType.MATERIALS)
+                                                        .destinationType(ArtifactType.MATERIALS)
                                                         .build(),
                                                 new Rule(RuleType.DELETE, "DeleteRule")
                                         ))

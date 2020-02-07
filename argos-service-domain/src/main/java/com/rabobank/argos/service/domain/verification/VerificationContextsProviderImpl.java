@@ -15,7 +15,7 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-import com.rabobank.argos.domain.layout.DestinationType;
+import com.rabobank.argos.domain.layout.ArtifactType;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.MatchFilter;
 import com.rabobank.argos.domain.layout.Step;
@@ -45,10 +45,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static com.rabobank.argos.domain.layout.DestinationType.MATERIALS;
-import static com.rabobank.argos.domain.layout.DestinationType.PRODUCTS;
-import static com.rabobank.argos.service.domain.verification.rules.ArtifactMatcher.matches;
-import static com.rabobank.argos.service.domain.verification.rules.RuleVerificationContext.filterArtifacts;
+import static com.rabobank.argos.domain.layout.ArtifactType.MATERIALS;
+import static com.rabobank.argos.domain.layout.ArtifactType.PRODUCTS;
+import static com.rabobank.argos.service.domain.verification.ArtifactMatcher.matches;
+import static com.rabobank.argos.service.domain.verification.ArtifactsVerificationContext.filterArtifacts;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -85,11 +85,11 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
             so the list of matchrules shrinks
         */
 
-        Map<String, Map<String, Map<DestinationType, List<MatchRuleWithSourceType>>>> matchRulesGrouped =
+        Map<String, Map<String, Map<ArtifactType, List<MatchRuleWithSourceType>>>> matchRulesGrouped =
                 createMatchRulesBySegmentNameStepNameAndDestinationType(layoutMetaBlock, resolvedSegmentsWithLinkSets);
 
         if (!matchRulesGrouped.isEmpty()) {
-            Map<String, Map<DestinationType, List<MatchRuleWithSourceType>>> firstMatchRule = matchRulesGrouped.values().iterator().next();
+            Map<String, Map<ArtifactType, List<MatchRuleWithSourceType>>> firstMatchRule = matchRulesGrouped.values().iterator().next();
             Set<Set<LinkMetaBlock>> sourceLinkSets = getPossibleLinkSetsForSourceSegment(resolvedSegmentsWithLinkSets, firstMatchRule);
             resolveArtifactsForAllPossibleLinkSets(firstMatchRule, sourceLinkSets);
             /*
@@ -101,7 +101,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         }
     }
 
-    private void resolveArtifactsForAllPossibleLinkSets(Map<String, Map<DestinationType, List<MatchRuleWithSourceType>>> firstMatchRule, Set<Set<LinkMetaBlock>> sourceLinkSets) {
+    private void resolveArtifactsForAllPossibleLinkSets(Map<String, Map<ArtifactType, List<MatchRuleWithSourceType>>> firstMatchRule, Set<Set<LinkMetaBlock>> sourceLinkSets) {
         for (Set<LinkMetaBlock> linkSet : sourceLinkSets) {
             firstMatchRule
                     .forEach((stepName, byDestinationType) -> byDestinationType
@@ -113,7 +113,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         }
     }
 
-    private Set<Set<LinkMetaBlock>> getPossibleLinkSetsForSourceSegment(ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets, Map<String, Map<DestinationType, List<MatchRuleWithSourceType>>> firstMatchRule) {
+    private Set<Set<LinkMetaBlock>> getPossibleLinkSetsForSourceSegment(ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets, Map<String, Map<ArtifactType, List<MatchRuleWithSourceType>>> firstMatchRule) {
         Set<Set<LinkMetaBlock>> sourceLinkSets = new HashSet<>();
         firstMatchRule
                 .values()
@@ -125,8 +125,8 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         return sourceLinkSets;
     }
 
-    private void getLinksForMatchRules(LayoutMetaBlock layoutMetaBlock, ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets, Map<String, Map<DestinationType, List<MatchRuleWithSourceType>>> firstMatchRule) {
-        Map<String, Map<DestinationType, List<List<Artifact>>>> filteredArtifacts = new HashMap<>();
+    private void getLinksForMatchRules(LayoutMetaBlock layoutMetaBlock, ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets, Map<String, Map<ArtifactType, List<MatchRuleWithSourceType>>> firstMatchRule) {
+        Map<String, Map<ArtifactType, List<List<Artifact>>>> filteredArtifacts = new HashMap<>();
         AtomicReference<String> destinationSegmentName = new AtomicReference<>();
         firstMatchRule
                 .values()
@@ -169,7 +169,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         resolvedSegmentsWithLinkSets.addResolvedSegment(destinationSegmentName.get());
     }
 
-    private Map<String, Map<String, Map<DestinationType, List<MatchRuleWithSourceType>>>> createMatchRulesBySegmentNameStepNameAndDestinationType(LayoutMetaBlock layoutMetaBlock, ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets) {
+    private Map<String, Map<String, Map<ArtifactType, List<MatchRuleWithSourceType>>>> createMatchRulesBySegmentNameStepNameAndDestinationType(LayoutMetaBlock layoutMetaBlock, ResolvedSegmentsWithLinkSets resolvedSegmentsWithLinkSets) {
         List<MatchRuleWithSourceType> matchRules = matchRulesForUnResolvedSegmentsByDestinationType(layoutMetaBlock, resolvedSegmentsWithLinkSets.getResolvedSegments(), PRODUCTS);
         List<MatchRuleWithSourceType> matchRulesForMaterials = matchRulesForUnResolvedSegmentsByDestinationType(layoutMetaBlock, resolvedSegmentsWithLinkSets.getResolvedSegments(), MATERIALS);
         matchRules.addAll(matchRulesForMaterials);
@@ -179,7 +179,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                                 groupingBy(m -> m.getMatchRule().getDestinationType()))));
     }
 
-    private List<MatchRuleWithSourceType> matchRulesForUnResolvedSegmentsByDestinationType(LayoutMetaBlock layoutMetaBlock, Set<String> resolvedSegments, DestinationType destinationType) {
+    private List<MatchRuleWithSourceType> matchRulesForUnResolvedSegmentsByDestinationType(LayoutMetaBlock layoutMetaBlock, Set<String> resolvedSegments, ArtifactType destinationType) {
         List<MatchRuleWithSourceType> matchRules = new ArrayList<>();
         layoutMetaBlock.getLayout().getLayoutSegments()
                 .stream()
@@ -206,7 +206,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                 .collect(Collectors.toList());
     }
 
-    private List<Rule> getRulesByDestinationType(Step step, DestinationType destinationType) {
+    private List<Rule> getRulesByDestinationType(Step step, ArtifactType destinationType) {
         if (PRODUCTS == destinationType) {
             return step.getExpectedProducts();
         } else {
@@ -216,7 +216,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
 
     private ResolvedSegmentsWithLinkSets processMatchFilters(LayoutMetaBlock layoutMetaBlock, List<Artifact> endProducts) {
 
-        Map<String, Map<DestinationType, List<Artifact>>> filteredArtifacts = filterEndproductsByStepAndDestinationType(layoutMetaBlock.expectedEndProducts(), endProducts);
+        Map<String, Map<ArtifactType, List<Artifact>>> filteredArtifacts = filterEndproductsByStepAndDestinationType(layoutMetaBlock.expectedEndProducts(), endProducts);
         String destinationSegmentName = layoutMetaBlock.expectedEndProducts().iterator().next().getDestinationSegmentName();
         GetLinkParameters getLinkParameters = GetLinkParameters
                 .builder()
@@ -383,7 +383,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
 
     private Set<LinkMetaBlock> queryByArtifacts(String supplyChainId,
                                                 String destinationSegmentName,
-                                                String stepName, DestinationType destinationType,
+                                                String stepName, ArtifactType destinationType,
                                                 List<Artifact> filteredArtifacts) {
         if (!filteredArtifacts.isEmpty()) {
             if (PRODUCTS == destinationType) {
@@ -397,7 +397,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                                         .map(Artifact::getHash)
                                         .collect(Collectors.toList()))
                 );
-            } else if (DestinationType.MATERIALS == destinationType) {
+            } else if (ArtifactType.MATERIALS == destinationType) {
                 return new HashSet<>(linkMetaBlockRepository
                         .findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(
                                 supplyChainId,
@@ -417,15 +417,15 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         return new HashSet<>(linkMetaBlockRepository.findByRunId(supplyChainId, destinationSegmentName, runId, resolvedSteps));
     }
 
-    private Map<String, Map<DestinationType, List<Artifact>>> filterEndproductsByStepAndDestinationType(List<MatchFilter> matchFilters, List<Artifact> endProducts) {
+    private Map<String, Map<ArtifactType, List<Artifact>>> filterEndproductsByStepAndDestinationType(List<MatchFilter> matchFilters, List<Artifact> endProducts) {
 
-        Map<String, Map<DestinationType, List<Artifact>>> filteredArtifactsByStepNameByDestinationType = new HashMap<>();
-        Map<String, Map<DestinationType, List<MatchFilter>>> matchFiltersByStepNameByDestinationType = matchFilters
+        Map<String, Map<ArtifactType, List<Artifact>>> filteredArtifactsByStepNameByDestinationType = new HashMap<>();
+        Map<String, Map<ArtifactType, List<MatchFilter>>> matchFiltersByStepNameByDestinationType = matchFilters
                 .stream()
                 .collect(groupingBy(MatchFilter::getDestinationStepName, groupingBy(MatchFilter::getDestinationType)));
 
         matchFiltersByStepNameByDestinationType.forEach((stepName, destinationType) -> {
-            filteredArtifactsByStepNameByDestinationType.put(stepName, new EnumMap<>(DestinationType.class));
+            filteredArtifactsByStepNameByDestinationType.put(stepName, new EnumMap<>(ArtifactType.class));
                     destinationType.forEach((destination, filters) -> {
 
                                 filteredArtifactsByStepNameByDestinationType
@@ -477,7 +477,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
         private String sourceStepName;
         private String sourceSegmentName;
         private MatchRule matchRule;
-        private DestinationType sourceType;
+        private ArtifactType sourceType;
         private List<List<Artifact>> resolvedArtifacts;
 
         void resolveArtifacts(Set<LinkMetaBlock> linkMetaBlocks) {
@@ -497,10 +497,12 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                 } else {
                     artifacts = linkMetaBlock.getLink().getMaterials();
                 }
-
-                resolvedArtifacts.add(filterArtifacts(artifacts,
+                List<Artifact> filterArtifacts = new ArrayList<>();
+                filterArtifacts.addAll(filterArtifacts(new HashSet<>(artifacts),
                         matchRule.getPattern(),
-                        matchRule.getSourcePathPrefix()).collect(Collectors.toList()));
+                        matchRule.getSourcePathPrefix()));
+
+                resolvedArtifacts.add(filterArtifacts);
             });
         }
     }
@@ -509,7 +511,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
     @Getter
     private static class GetLinkParameters {
         private final LayoutMetaBlock layoutMetaBlock;
-        private final Map<String, Map<DestinationType, List<Artifact>>> filteredArtifacts;
+        private final Map<String, Map<ArtifactType, List<Artifact>>> filteredArtifacts;
         private final Set<String> resolvedSegments;
         private final Set<Set<LinkMetaBlock>> linkSets;
         private final String destinationSegmentName;

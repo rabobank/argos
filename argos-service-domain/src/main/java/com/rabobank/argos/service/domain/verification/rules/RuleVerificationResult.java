@@ -19,6 +19,7 @@ package com.rabobank.argos.service.domain.verification.rules;
 import com.rabobank.argos.domain.link.Artifact;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import static java.util.Collections.emptySet;
 
 @Builder
 @Getter
+@ToString
 public class RuleVerificationResult {
 
     private boolean valid;

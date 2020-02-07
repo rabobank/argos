@@ -18,12 +18,14 @@ package com.rabobank.argos.domain.supplychain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import static java.util.UUID.randomUUID;
 
 @Getter
 @Setter
 @Builder
+@ToString
 public class SupplyChain {
 
     @Builder.Default

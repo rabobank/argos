@@ -45,12 +45,12 @@
                 "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar"
               },
               {
-                "ruleType": "ALLOW",
-                "pattern": "**"
-              },
-              {
                 "ruleType": "DELETE",
                 "pattern": "**/*.java"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "**"
               }
             ]
           },
@@ -67,9 +67,14 @@
               {
                 "ruleType": "MATCH",
                 "pattern": "pom.xml",
-                "sourcePathPrefix": "sourcePathPrefix",
-                "destinationPathPrefix": "destinationPathPrefix",
                 "destinationType": "MATERIALS",
+                "destinationStepName": "build",
+                "destinationSegmentName": "segment 1"
+              },
+              {
+                "ruleType": "MATCH",
+                "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
+                "destinationType": "PRODUCTS",
                 "destinationStepName": "build",
                 "destinationSegmentName": "segment 1"
               },
@@ -79,14 +84,13 @@
               },
               {
                 "ruleType": "ALLOW",
-                "pattern": "**"
+                "pattern": "src/**"
               }
             ],
             "expectedProducts": [
               {
                 "ruleType": "MATCH",
                 "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
-                "sourcePathPrefix": "",
                 "destinationPathPrefix": "target/",
                 "destinationType": "PRODUCTS",
                 "destinationStepName": "build",
@@ -102,7 +106,11 @@
               },
               {
                 "ruleType": "ALLOW",
-                "pattern": "**"
+                "pattern": "src/**"
+              },
+              {
+                "ruleType": "ALLOW",
+                "pattern": "*"
               }
             ]
           }

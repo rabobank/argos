@@ -20,6 +20,7 @@ import com.rabobank.argos.domain.layout.rule.MatchRule;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.Set;
@@ -30,6 +31,7 @@ import static java.util.UUID.randomUUID;
 @Getter
 @Setter
 @Builder
+@ToString
 public class LayoutMetaBlock {
     private String supplyChainId;
 

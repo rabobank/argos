@@ -18,14 +18,16 @@ package com.rabobank.argos.service.domain.verification.rules;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
+@Slf4j
 public class DeleteRuleVerification implements RuleVerification {
     @Override
     public RuleType getRuleType() {
@@ -33,24 +35,19 @@ public class DeleteRuleVerification implements RuleVerification {
     }
 
     @Override
-    public RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
+    public Boolean verify(RuleVerificationContext<? extends Rule> context) {
         // deleteRule filteredMaterials must not be in filteredProducts
         // example pattern **/*.java not in filteredProducts but exists in filteredMaterials
-        List<Artifact> filteredProducts = context.getFilteredProducts().collect(toList());
-        List<Artifact> filteredMaterials = context.getFilteredMaterials().collect(toList());
-        if (filteredProducts.isEmpty() && !filteredMaterials.isEmpty()) {
-            return RuleVerificationResult.okay(Collections.emptySet());
+        Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
+        Set<Artifact> complement = new HashSet<>(context.getMaterials());
+        complement.removeAll(context.getProducts());
+        if (filteredArtifacts.stream().allMatch(complement::contains)) {
+            context.consume(filteredArtifacts);
+            logResult(log, filteredArtifacts, getRuleType());
+            return Boolean.TRUE;
         } else {
-            return RuleVerificationResult.notOkay();
-        }
-    }
-
-    @Override
-    public RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context) {
-        if (context.getFilteredMaterials().count() != 0) {
-            return RuleVerificationResult.okay(Collections.emptySet());
-        } else {
-            return RuleVerificationResult.notOkay();
+            logErrors(log, filteredArtifacts, getRuleType());
+            return Boolean.FALSE;
         }
     }
 }

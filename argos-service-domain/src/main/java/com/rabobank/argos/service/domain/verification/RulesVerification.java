@@ -15,41 +15,35 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-import com.rabobank.argos.domain.layout.LayoutSegment;
+import com.rabobank.argos.domain.layout.ArtifactType;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
-import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.domain.verification.rules.RuleVerification;
 import com.rabobank.argos.service.domain.verification.rules.RuleVerificationContext;
-import com.rabobank.argos.service.domain.verification.rules.RuleVerificationResult;
 
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.Predicate;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.RULES;
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@ToString
 public class RulesVerification implements Verification {
 
     private final List<RuleVerification> ruleVerificationList;
@@ -67,120 +61,112 @@ public class RulesVerification implements Verification {
     }
 
     @Override
-    public VerificationRunResult verify(VerificationContext context) {
-        List<VerificationRunResult> verificationRunResults = new ArrayList<>();
-        context.layoutSegments().forEach(segment ->
-                verificationRunResults.addAll(verifyForSegment(segment, context))
-        );
-
-        return verificationRunResults
-                .stream()
-                .filter(VerificationRunResult::isRunIsValid)
-                .findFirst().orElse(VerificationRunResult.valid(false));
+    public VerificationRunResult verify(VerificationContext verificationContext) {
+        Map<String, Map<Step, Link>> linksBySegmentAndStep = verificationContext.getLinksBySegmentNameAndStep();
+        Map<String, Map<String, Link>> linksMap = verificationContext.getLinksBySegmentNameAndStepName();
+        
+        return linksBySegmentAndStep.keySet().stream()
+                .map(segmentName -> verifyForSegment(
+                        linksMap, 
+                        segmentName,
+                        linksBySegmentAndStep.get(segmentName)))
+                .filter(result1 -> result1.equals(Boolean.FALSE))
+                .findFirst()
+                .map(result2 -> VerificationRunResult.builder().runIsValid(false).build())
+                .orElse(VerificationRunResult.builder().runIsValid(true).build());
     }
 
-    private List<VerificationRunResult> verifyForSegment(LayoutSegment segment, VerificationContext context) {
-        return context.getExpectedStepNamesBySegmentName(segment.getName())
-                .stream().map(stepName -> verifyStep(context, segment.getName(), stepName))
-                .collect(Collectors.toList());
+    private Boolean verifyForSegment(Map<String, Map<String, Link>> linksMap, String segmentName, Map<Step, Link> stepMap) {
+        return stepMap.keySet().stream().map(step -> verifyStep(linksMap, segmentName, step, stepMap.get(step))).noneMatch(result -> result.equals(Boolean.FALSE));
     }
 
-    private VerificationRunResult verifyStep(VerificationContext context, String segmentName, String stepName) {
-        log.info("verify rules for step {}", stepName);
-        Step step = context.getStepBySegmentNameAndStepName(segmentName, stepName);
-        List<LinkMetaBlock> linkMetaBlocks = context.getLinksBySegmentNameAndStepName(segmentName, stepName);
-
-        Map<Boolean, List<LinkMetaBlock>> resultMap = linkMetaBlocks.stream()
-                .collect(groupingBy(linkMetaBlock -> verifyStep(context, step, linkMetaBlock.getLink()).isRunIsValid()));
-
-        context.removeLinkMetaBlocks(resultMap.getOrDefault(false, emptyList()));
-        return VerificationRunResult.valid(true);
-    }
-
-    private VerificationRunResult verifyStep(VerificationContext context, Step step, Link link) {
-        List<Artifact> materials = new ArrayList<>(link.getMaterials());
-        List<Artifact> products = new ArrayList<>(link.getProducts());
-
-        List<RuleVerificationResult> verificationResults = Stream.concat(verifyExpectedProducts(context, step, materials, products),
-                verifyExpectedMaterials(context, step, materials)
-        ).collect(toList());
-
-        Optional<RuleVerificationResult> optionalNotValidRule = verificationResults.stream()
-                .filter(result -> !result.isValid())
-                .findFirst();
-
-        return optionalNotValidRule.map(result -> VerificationRunResult
-                .valid(result.isValid()))
-                .orElseGet(() -> verifyResultAfterAllRulesAreVerified(step,
-                        link,
-                        collectValidatedArtifacts(verificationResults))
-                );
-    }
-
-
-    private Set<Artifact> collectValidatedArtifacts(List<RuleVerificationResult> verificationResults) {
-        return verificationResults.stream().map(RuleVerificationResult::getValidatedArtifacts).flatMap(Set::stream).collect(toSet());
-    }
-
-    private Stream<RuleVerificationResult> verifyExpectedProducts(VerificationContext verificationContext, Step step, List<Artifact> materials, List<Artifact> products) {
-        return step.getExpectedProducts().stream().map(rule -> verifyRule(rule, ruleVerifier -> {
-            log.info("verify expected product {} for step {}", rule.getRuleType(), step.getStepName());
-            RuleVerificationContext<Rule> context = RuleVerificationContext.builder()
-                    .verificationContext(verificationContext)
-                    .rule(rule)
-                    .materials(materials)
-                    .products(products)
-                    .build();
-            RuleVerificationResult ruleVerificationResult = ruleVerifier.verifyExpectedProducts(context);
-            products.removeAll(ruleVerificationResult.getValidatedArtifacts());
-            return ruleVerificationResult;
-        }));
-    }
-
-    private Stream<RuleVerificationResult> verifyExpectedMaterials(VerificationContext verificationContext, Step step, List<Artifact> materials) {
-        return step.getExpectedMaterials().stream().map(rule -> verifyRule(rule, ruleVerifier -> {
-            log.info("verify expected material {} for step {}", rule.getRuleType(), step.getStepName());
-            RuleVerificationContext<Rule> context = RuleVerificationContext.builder()
-                    .verificationContext(verificationContext)
-                    .rule(rule)
-                    .materials(materials)
-                    .products(emptyList())
-                    .build();
-            RuleVerificationResult ruleVerificationResult = ruleVerifier.verifyExpectedMaterials(context);
-            materials.removeAll(ruleVerificationResult.getValidatedArtifacts());
-            return ruleVerificationResult;
-        }));
-    }
-
-
-    private VerificationRunResult verifyResultAfterAllRulesAreVerified(Step step, Link link, Set<Artifact> validatedArtifacts) {
-        boolean valid = validatedArtifacts.containsAll(link.getProducts()) && validatedArtifacts.containsAll(link.getMaterials());
-        if (!valid) {
-            ArrayList<Artifact> unknownArtifacts = new ArrayList<>(link.getProducts());
-            unknownArtifacts.addAll(link.getMaterials());
-            unknownArtifacts.removeAll(validatedArtifacts);
-            log.warn("unknown artifacts in step {}: {}", step.getStepName(), unknownArtifacts);
+    private Boolean verifyStep(Map<String, Map<String, Link>> linksMap, String segmentName, Step step, Link link) {
+        if (link == null) {
+            log.warn("no links for step {}", step.getStepName());
+            return false;
         }
-        return VerificationRunResult.valid(valid);
+        return verifyLink(linksMap, segmentName, step, link);
     }
 
-    private RuleVerificationResult verifyRule(Rule rule, Function<RuleVerification, RuleVerificationResult> ruleVerifyFunction) {
+    private Boolean verifyLink(Map<String, Map<String, Link>> linksMap, String segmentName, Step step, Link link) {
+        Boolean isValid =  verifyArtifactsByType(linksMap, segmentName, step, new HashSet<>(link.getMaterials()), link, ArtifactType.MATERIALS);
+        
+        if (Boolean.FALSE.equals(isValid)) {
+            return Boolean.FALSE;
+        }
+        
+        isValid =  verifyArtifactsByType(linksMap, segmentName, step, new HashSet<>(link.getProducts()), link, ArtifactType.PRODUCTS);
+        
+        if (Boolean.FALSE.equals(isValid)) {
+            return Boolean.FALSE;
+        }
+        
+        return Boolean.TRUE;
+    }
+
+    private Boolean verifyArtifactsByType(Map<String, Map<String, Link>> linksMap, String segmentName, Step step,
+            Set<Artifact> artifacts, Link link, ArtifactType type) {
+        ArtifactsVerificationContext artifactsContext = ArtifactsVerificationContext.builder()
+                .type(type)
+                .segmentName(segmentName)
+                .step(step)
+                .link(link)
+                .notConsumedArtifacts(artifacts)
+                .linksMap(linksMap)
+                .build();
+
+        return getExpectedArtifactRulesByType(step, type).stream()
+                .map(rule -> verifyRule(rule, ruleVerifier -> {
+                    log.info("verify expected {} {} for step {}", type, rule.getRuleType(), step.getStepName());
+                    RuleVerificationContext<Rule> context = RuleVerificationContext.builder()
+                            .rule(rule)
+                            .artifactsContext(artifactsContext)
+                            .build();
+                    return ruleVerifier.verify(context);
+                }))
+                .filter(valid -> valid.equals(Boolean.FALSE))
+                .findFirst()
+                .orElseGet(() -> validateNotConsumedArtifacts(artifactsContext));        
+    }
+
+    private Boolean verifyRule(Rule rule, Predicate<RuleVerification> ruleVerifyFunction) {
         return Optional.ofNullable(rulesVerificationMap.get(rule.getRuleType()))
-                .map(ruleVerifyFunction)
-                .map(ruleVerificationResult -> logRuleVerificationResult(rule, ruleVerificationResult))
+                .map(ruleVerifyFunction::test)
                 .orElseGet(() -> {
                     log.error("rule verification {} not implemented", rule.getRuleType());
-                    return RuleVerificationResult.notOkay();
+                    return Boolean.FALSE;
                 });
     }
-
-    private RuleVerificationResult logRuleVerificationResult(Rule rule, RuleVerificationResult ruleVerificationResult) {
-        log.info("verify result for {} was valid: {}, number of valid artifacts {}",
-                rule.getRuleType(),
-                ruleVerificationResult.isValid(),
-                ruleVerificationResult.getValidatedArtifacts().size());
-        return ruleVerificationResult;
+    
+    private List<Rule> getExpectedArtifactRulesByType(Step step, ArtifactType type){
+        if(type == ArtifactType.PRODUCTS) {
+            if (step.getExpectedProducts() != null) {
+                return step.getExpectedProducts();
+            } else {
+                return List.of();
+            }
+        }else {
+            if (step.getExpectedMaterials() != null) {
+                return step.getExpectedMaterials();
+            } else {
+                return List.of();
+            }
+        }
     }
-
+    
+    private Boolean validateNotConsumedArtifacts(ArtifactsVerificationContext artifactsContext) {
+        Link link = artifactsContext.getLink();
+        if (!artifactsContext.getNotConsumedArtifacts().isEmpty()) {
+            artifactsContext.getNotConsumedArtifacts().stream().forEach(artifact -> {
+                log.info("Link with name {} with run id {} has not consumed artifact on {}: {}", 
+                        link.getStepName(),
+                        link.getRunId(),
+                        artifactsContext.getType(),
+                        artifact);
+            });
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
 
 }

@@ -18,12 +18,14 @@ package com.rabobank.argos.domain.key;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.security.PublicKey;
 
 @Builder
 @Getter
 @Setter
+@ToString
 public class KeyPair {
     private String keyId;
     private byte[] encryptedPrivateKey;

@@ -18,18 +18,21 @@ package com.rabobank.argos.service.domain.verification.rules;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
+import com.rabobank.argos.service.domain.verification.ArtifactsVerificationContext;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.stream.Stream;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +42,9 @@ class RequireRuleVerificationTest {
 
     @Mock
     private RuleVerificationContext<? extends Rule> context;
+    
+    @Mock
+    private ArtifactsVerificationContext artifactsContext;
 
     @Mock
     private Artifact artifact;
@@ -54,38 +60,17 @@ class RequireRuleVerificationTest {
     }
 
     @Test
-    void verifyExpectedProductsHappyFlow() {
-        when(context.getFilteredProducts()).thenReturn(Stream.of(artifact));
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedProducts(context);
-
-        assertThat(ruleVerificationResult.isValid(), is(true));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), contains(artifact));
+    void verifyArtifactsHappyFlow() {
+        when(context.getFilteredArtifacts()).thenReturn(Set.of(artifact));
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of(artifact));
     }
 
     @Test
-    void verifyExpectedProductsMissingProducts() {
-        when(context.getFilteredProducts()).thenReturn(Stream.of());
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedProducts(context);
-
-        assertThat(ruleVerificationResult.isValid(), is(false));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
-    }
-
-    @Test
-    void verifyExpectedMaterialsHappyFlow() {
-        when(context.getFilteredMaterials()).thenReturn(Stream.of(artifact));
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
-
-        assertThat(ruleVerificationResult.isValid(), is(true));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), contains(artifact));
-    }
-
-    @Test
-    void verifyExpectedMaterialsMissingMaterial() {
-        when(context.getFilteredMaterials()).thenReturn(Stream.of());
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
-
-        assertThat(ruleVerificationResult.isValid(), is(false));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
+    void verifyArtifactsProducts() {
+        when(context.getFilteredArtifacts()).thenReturn(Set.of());
+        
+        assertThat(verification.verify(context), is(false));
+        verify(context, times(0)).consume(anySet());
     }
 }
