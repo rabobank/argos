@@ -29,8 +29,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +41,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,6 +79,9 @@ class HierarchyRestServiceTest {
     @Mock
     private RestTreeNode restTreeNode;
 
+    @Mock
+    private HttpServletRequest httpServletRequest;
+
     @BeforeEach
     void setUp() {
         service = new HierarchyRestService(labelRepository, labelMapper, hierarchyRepository, treeNodeMapper);
@@ -82,13 +89,17 @@ class HierarchyRestServiceTest {
 
     @Test
     void createLabel() {
+        ServletRequestAttributes servletRequestAttributes = new ServletRequestAttributes(httpServletRequest);
+        RequestContextHolder.setRequestAttributes(servletRequestAttributes);
         when(labelMapper.convertFromRestLabel(restLabel)).thenReturn(label);
         when(labelMapper.convertToRestLabel(label)).thenReturn(restLabel);
         ResponseEntity<RestLabel> response = service.createLabel(restLabel);
-        assertThat(response.getStatusCodeValue(), is(200));
+        assertThat(response.getStatusCodeValue(), is(201));
         assertThat(response.getBody(), sameInstance(restLabel));
+        assertThat(response.getHeaders().getLocation(), notNullValue());
         verify(labelRepository).save(label);
     }
+
 
     @Test
     void createLabelParentNotExists() {
