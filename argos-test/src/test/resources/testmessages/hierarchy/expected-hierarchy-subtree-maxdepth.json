@@ -4,19 +4,13 @@
   "referenceId": "#uuid",
   "children": [
     {
-      "name": "#string",
+      "name": "childaroot1",
       "type": "LABEL",
       "referenceId": "#uuid",
       "children": []
     },
     {
-      "name": "#string",
-      "type": "LABEL",
-      "referenceId": "#uuid",
-      "children": []
-    },
-    {
-      "name": "#string",
+      "name": "childbroot1",
       "type": "LABEL",
       "referenceId": "#uuid",
       "children": []

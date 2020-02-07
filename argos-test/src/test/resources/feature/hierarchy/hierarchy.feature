@@ -22,13 +22,12 @@ Feature: Hierarchy
     * def root1 = call read('classpath:feature/label/create-label.feature') { name: 'root1'}
     * def root2 = call read('classpath:feature/label/create-label.feature') { name: 'root2'}
     * def root3 = call read('classpath:feature/label/create-label.feature') { name: 'root3'}
-    * def root1Children = [{ name: 'childaroot1',parentLabelId:#(root1.response.id)},{ name: 'childbroot1',parentLabelId:'#(root1.response.id)'}]
-    * def root2Children = [{ name: 'childaroot2',parentLabelId:#(root2.response.id)},{ name: 'childbroot2',parentLabelId:'#(root2.response.id)'}]
-    * def root3Children = [{ name: 'childaroot3',parentLabelId:#(root3.response.id)},{ name: 'childbroot3',parentLabelId:'#(root3.response.id)'}]
-    * call read('classpath:feature/label/create-label.feature') root1Children
-    * call read('classpath:feature/label/create-label.feature') root2Children
-    * call read('classpath:feature/label/create-label.feature') root3Children
-
+    * def root1ChildResponse = call read('classpath:feature/label/create-label.feature') { name: 'childaroot1',parentLabelId:#(root1.response.id)}
+    * def root2ChildResponse = call read('classpath:feature/label/create-label.feature') { name: 'childaroot2',parentLabelId:#(root2.response.id)}
+    * def root3ChildResponse = call read('classpath:feature/label/create-label.feature') { name: 'childaroot3',parentLabelId:#(root3.response.id)}
+    * def root1Child2Response = call read('classpath:feature/label/create-label.feature') { name: 'childbroot1',parentLabelId:#(root1.response.id)}
+    * def root2Chil2dResponse = call read('classpath:feature/label/create-label.feature') { name: 'childbroot2',parentLabelId:#(root2.response.id)}
+    * def root3Child2Response = call read('classpath:feature/label/create-label.feature') { name: 'childbroot3',parentLabelId:#(root3.response.id)}
   Scenario: get root nodes with HierarchyMode all should return full trees
     Given path '/api/hierarchy'
     And param HierarchyMode = 'ALL'
@@ -46,8 +45,8 @@ Feature: Hierarchy
     And match response == expectedResponse
 
   Scenario: get root nodes with HierarchyMode maxdepth should return maxdepth descendant entries only
-    * def root1ChildWithExceedingMaxdepth = call read('classpath:feature/label/create-label.feature')  { name: 'child3root1',parentLabelId:#(root1.response.id)}
-    * call read('classpath:feature/label/create-label.feature') { name: 'subchild1child3root1',parentLabelId:#(root1ChildWithExceedingMaxdepth.response.id)}
+
+    * call read('classpath:feature/label/create-label.feature') { name: 'subchild1root1',parentLabelId:#(root1ChildResponse.response.id)}
     Given path '/api/hierarchy'
     And param HierarchyMode = 'MAX_DEPTH'
     And param maxDepth = 1
@@ -65,8 +64,7 @@ Feature: Hierarchy
     And match response == {message:'getRootNodes.maxDepth:must be greater than or equal to 1'}
 
   Scenario: get root nodes with HierarchyMode maxdepth and no maxdepth should return maxdepth 1 descendant entries only
-    * def root1ChildWithExceedingMaxdepth = call read('classpath:feature/label/create-label.feature')  { name: 'child3root1',parentLabelId:#(root1.response.id)}
-    * call read('classpath:feature/label/create-label.feature') { name: 'subchild1child3root1',parentLabelId:#(root1ChildWithExceedingMaxdepth.response.id)}
+    * call read('classpath:feature/label/create-label.feature') { name: 'subchild1child3root1',parentLabelId:#(root1ChildResponse.response.id)}
     Given path '/api/hierarchy'
     And param HierarchyMode = 'MAX_DEPTH'
     When method GET
@@ -91,8 +89,7 @@ Feature: Hierarchy
     And match response == expectedResponse
 
   Scenario: get subtree with HierarchyMode max depth 1 should return only direct descendants
-    * def root1ChildWithExceedingMaxdepth = call read('classpath:feature/label/create-label.feature')  { name: 'child3root1',parentLabelId:#(root1.response.id)}
-    * call read('classpath:feature/label/create-label.feature') { name: 'subchild1child3root1',parentLabelId:#(root1ChildWithExceedingMaxdepth.response.id)}
+    * call read('classpath:feature/label/create-label.feature') { name: 'subchild1child3root1',parentLabelId:#(root1ChildResponse.response.id)}
     Given path '/api/hierarchy/' + root1.response.id
     And param HierarchyMode = 'MAX_DEPTH'
     And param maxDepth = 1
@@ -110,8 +107,7 @@ Feature: Hierarchy
     And match response == {message:'getSubTree.maxDepth:must be greater than or equal to 1'}
 
   Scenario: get subtree with HierarchyMode maxdepth and no maxdepth should return maxdepth 1 descendant entries only
-    * def root1ChildWithExceedingMaxdepth = call read('classpath:feature/label/create-label.feature')  { name: 'child3root1',parentLabelId:#(root1.response.id)}
-    * call read('classpath:feature/label/create-label.feature') { name: 'subchild1child3root1',parentLabelId:#(root1ChildWithExceedingMaxdepth.response.id)}
+    * call read('classpath:feature/label/create-label.feature') { name: 'subchild1child3root1',parentLabelId:#(root1ChildResponse.response.id)}
     Given path '/api/hierarchy/' + root1.response.id
     And param HierarchyMode = 'MAX_DEPTH'
     When method GET

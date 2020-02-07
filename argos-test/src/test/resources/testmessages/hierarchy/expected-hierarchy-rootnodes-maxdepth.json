@@ -5,19 +5,13 @@
     "referenceId": "#uuid",
     "children": [
       {
-        "name": "#string",
+        "name": "childaroot1",
         "type": "LABEL",
         "referenceId": "#uuid",
         "children": []
       },
       {
-        "name": "#string",
-        "type": "LABEL",
-        "referenceId": "#uuid",
-        "children": []
-      },
-      {
-        "name": "#string",
+        "name": "childbroot1",
         "type": "LABEL",
         "referenceId": "#uuid",
         "children": []
@@ -30,13 +24,13 @@
     "referenceId": "#uuid",
     "children": [
       {
-        "name": "#string",
+        "name": "childaroot2",
         "type": "LABEL",
         "referenceId": "#uuid",
         "children": []
       },
       {
-        "name": "#string",
+        "name": "childbroot2",
         "type": "LABEL",
         "referenceId": "#uuid",
         "children": []
@@ -49,13 +43,13 @@
     "referenceId": "#uuid",
     "children": [
       {
-        "name": "#string",
+        "name": "childaroot3",
         "type": "LABEL",
         "referenceId": "#uuid",
         "children": []
       },
       {
-        "name": "#string",
+        "name": "childbroot3",
         "type": "LABEL",
         "referenceId": "#uuid",
         "children": []

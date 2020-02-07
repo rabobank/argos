@@ -30,6 +30,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -221,7 +222,9 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
     }
 
     private List<TreeNode> getChildren(TreeNode parentItem, Map<String, List<TreeNode>> descendants) {
-        return descendants.getOrDefault(parentItem.getReferenceId(), emptyList());
+        List<TreeNode> children = descendants.getOrDefault(parentItem.getReferenceId(), emptyList());
+        children.sort(Comparator.comparing(TreeNode::getName));
+        return children;
     }
 
     @Getter
