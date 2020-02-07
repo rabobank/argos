@@ -17,7 +17,6 @@ package com.rabobank.argos.service.domain.verification.rules;
 
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.link.Artifact;
-import com.rabobank.argos.service.domain.verification.ArtifactMatcher;
 import com.rabobank.argos.service.domain.verification.VerificationContext;
 import lombok.Builder;
 import lombok.Getter;

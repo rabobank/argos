@@ -16,12 +16,14 @@
 package com.rabobank.argos.domain;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Builder
 @Setter
 @Getter
+@EqualsAndHashCode
 public class Signature {
     private String keyId;
     private String signature;
