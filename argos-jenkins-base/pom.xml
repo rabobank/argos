@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>com.rabobank.argos</groupId>
 		<artifactId>argos-parent</artifactId>
-		<version>0.0.1-ALPHA</version>
+		<version>0.0.1-RC2</version>
 	</parent>
 	<artifactId>argos-jenkins-base</artifactId>
 	<packaging>pom</packaging>
