@@ -15,11 +15,15 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
+import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.domain.signing.SignatureValidator;
-import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.security.PublicKey;
+import java.util.Optional;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.LINK_METABLOCK_SIGNATURE;
 import static java.util.stream.Collectors.toList;
@@ -27,11 +31,10 @@ import static java.util.stream.Collectors.toList;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class LinkMetaBlockSignatureVerification implements Verification {
 
     private final SignatureValidator signatureValidator;
-
-    private final KeyPairRepository keyPairRepository;
 
     @Override
     public Priority getPriority() {
@@ -41,16 +44,25 @@ public class LinkMetaBlockSignatureVerification implements Verification {
     @Override
     public VerificationRunResult verify(VerificationContext context) {
         context.removeLinkMetaBlocks(context.getLinkMetaBlocks().stream()
-                .filter(linkMetaBlock -> !okay(linkMetaBlock)).collect(toList()));
+                .filter(linkMetaBlock -> !okay(context.getLayoutMetaBlock(), linkMetaBlock)).collect(toList()));
         return VerificationRunResult.okay();
     }
 
-    private boolean okay(LinkMetaBlock linkMetaBlock) {
-        return keyPairRepository.findByKeyId(linkMetaBlock.getSignature().getKeyId())
+    private boolean okay(LayoutMetaBlock layoutMetaBlock, LinkMetaBlock linkMetaBlock) {
+        return getPublicKey(layoutMetaBlock, linkMetaBlock.getSignature().getKeyId())
                 .map(keyPair -> signatureValidator.isValid(linkMetaBlock.getLink(),
-                        linkMetaBlock.getSignature().getSignature(), keyPair.getPublicKey()))
+                        linkMetaBlock.getSignature().getSignature(), keyPair))
                 .orElse(false);
     }
 
+    private Optional<PublicKey> getPublicKey(LayoutMetaBlock layoutMetaBlock, String keyId) {
+        Optional<PublicKey> publicKeyOptional = layoutMetaBlock.getLayout().getKeys().stream()
+                .filter(publicKey -> publicKey.getId().equals(keyId))
+                .map(com.rabobank.argos.domain.layout.PublicKey::getKey).findFirst();
+        if (publicKeyOptional.isEmpty()) {
+            log.info("key with id: {} not found in layout", keyId);
+        }
+        return publicKeyOptional;
+    }
 
 }

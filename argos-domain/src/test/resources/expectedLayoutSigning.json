@@ -11,6 +11,12 @@
       "pattern": "MatchFiler"
     }
   ],
+  "keys": [
+    {
+      "id": "keyId",
+      "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoDIw5p3LYjFLr+JFvWOz0KQ22x538O2BoQO4e4EorYYkSMHn00pabqAQ9z6+nA+l43+Jxb5eJrHoroV4YZN8WDMsjY0eB1Q1K6hl3SHgeqTvA2i2GlpDg7zLRnP9YWbUwbWP+UWtRFK0x1lCCkSmxsP2HAom/T11/MMd/kitVt0rGsq8wQH7PLsOZ8zPh4sQ0iyCVLil6+VF6zsT83dKFocdfZWAywkQ6sVZbuzFCe+pLQktwTz1Ir8mMQi6sPh57b5yyFCSVstK1lKf+OQTtuuQzYz2bvpr9zkXr0O80IdTXOnoO1vM1lJuRPT3J0Zcr2nYdbmIskp4ZQyezXMqawIDAQAB"
+    }
+  ],
   "layoutSegments": [
     {
       "name": "segment 1",

@@ -16,11 +16,11 @@
 package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.Signature;
-import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.domain.signing.SignatureValidator;
-import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.security.PublicKey;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,9 +43,6 @@ class LinkMetaBlockSignatureVerificationTest {
     private static final String SIG = "sigNa";
     @Mock
     private SignatureValidator signatureValidator;
-
-    @Mock
-    private KeyPairRepository keyPairRepository;
 
     @Mock
     private VerificationContext context;
@@ -63,14 +59,20 @@ class LinkMetaBlockSignatureVerificationTest {
     private Signature signature;
 
     @Mock
-    private KeyPair keyPair;
+    private PublicKey publicKey;
 
     @Mock
-    private PublicKey publicKey;
+    private LayoutMetaBlock layoutMetaBlock;
+
+    @Mock
+    private Layout layout;
+
+    @Mock
+    private com.rabobank.argos.domain.layout.PublicKey domainPublicKey;
 
     @BeforeEach
     void setUp() {
-        verification = new LinkMetaBlockSignatureVerification(signatureValidator, keyPairRepository);
+        verification = new LinkMetaBlockSignatureVerification(signatureValidator);
     }
 
     @Test
@@ -94,10 +96,12 @@ class LinkMetaBlockSignatureVerificationTest {
 
     @Test
     void verifyKeyNotFound() {
+        when(context.getLayoutMetaBlock()).thenReturn(layoutMetaBlock);
+        when(layoutMetaBlock.getLayout()).thenReturn(layout);
         when(context.getLinkMetaBlocks()).thenReturn(List.of(linkMetaBlock));
         when(linkMetaBlock.getSignature()).thenReturn(signature);
         when(signature.getKeyId()).thenReturn(KEY_ID);
-        when(keyPairRepository.findByKeyId(KEY_ID)).thenReturn(Optional.empty());
+        when(layout.getKeys()).thenReturn(Collections.emptyList());
         assertThat(verification.verify(context).isRunIsValid(), is(true));
         verify(context).removeLinkMetaBlocks(List.of(linkMetaBlock));
     }
@@ -108,8 +112,11 @@ class LinkMetaBlockSignatureVerificationTest {
         when(linkMetaBlock.getSignature()).thenReturn(signature);
         when(signature.getKeyId()).thenReturn(KEY_ID);
         when(signature.getSignature()).thenReturn(SIG);
-        when(keyPairRepository.findByKeyId(KEY_ID)).thenReturn(Optional.of(keyPair));
-        when(keyPair.getPublicKey()).thenReturn(publicKey);
+        when(domainPublicKey.getId()).thenReturn(KEY_ID);
+        when(domainPublicKey.getKey()).thenReturn(publicKey);
+        when(layout.getKeys()).thenReturn(List.of(domainPublicKey));
+        when(context.getLayoutMetaBlock()).thenReturn(layoutMetaBlock);
+        when(layoutMetaBlock.getLayout()).thenReturn(layout);
         when(signatureValidator.isValid(link, SIG, publicKey)).thenReturn(valid);
     }
 }

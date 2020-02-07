@@ -24,6 +24,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface SupplyChainMapper {
 
+    @Mapping(target = "supplyChainId", ignore = true)
     SupplyChain convertFromRestSupplyChainCommand(RestCreateSupplyChainCommand createSupplyChainCommand);
 
     @Mapping(source = "supplyChainId", target = "id")

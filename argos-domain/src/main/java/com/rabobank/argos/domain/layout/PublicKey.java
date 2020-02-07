@@ -19,14 +19,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
+@Builder
 @Getter
 @Setter
-@Builder
-public class Layout {
-    private List<PublicKey> keys;
-    private List<String> authorizedKeyIds;
-    private List<MatchFilter> expectedEndProducts;
-    private List<LayoutSegment> layoutSegments;
+public class PublicKey {
+    private String id;
+    private java.security.PublicKey key;
 }

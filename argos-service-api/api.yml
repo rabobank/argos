@@ -528,6 +528,17 @@ components:
         name:
           type: string
           maxLength: 256
+    PublicKey:
+      type: object
+      required:
+        - id
+        - key
+      properties:
+        id:
+          $ref: '#/components/schemas/KeyId'
+        key:
+          type: string
+          format: byte
     LayoutMetaBlock:
       type: object
       required:
@@ -545,10 +556,16 @@ components:
     Layout:
       type: object
       required:
+        - keys
         - authorizedKeyIds
         - expectedEndProducts
         - layoutSegments
       properties:
+        keys:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PublicKey'
         authorizedKeyIds:
           type: array
           minItems: 1
