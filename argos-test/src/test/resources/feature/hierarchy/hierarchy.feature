@@ -73,3 +73,48 @@ Feature: Hierarchy
     Then status 200
     * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-rootnodes-maxdepth.json')
     And match response == expectedResponse
+
+  Scenario: get sub tree with HierarchyMode all should return full tree
+    Given path '/api/hierarchy/' + root1.response.id
+    And param HierarchyMode = 'ALL'
+    When method GET
+    Then status 200
+    * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-subtree-all.json')
+    And match response == expectedResponse
+
+  Scenario: get sub tree with HierarchyMode none should return only root
+    Given path '/api/hierarchy/' + root1.response.id
+    And param HierarchyMode = 'NONE'
+    When method GET
+    Then status 200
+    * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-subtree-none.json')
+    And match response == expectedResponse
+
+  Scenario: get sub tree with HierarchyMode max depth 1 should return only direct descendants
+    * def root1ChildWithExceedingMaxdepth = call read('classpath:feature/label/create-label.feature')  { name: 'child3root1',parentLabelId:#(root1.response.id)}
+    * call read('classpath:feature/label/create-label.feature') { name: 'subchild1child3root1',parentLabelId:#(root1ChildWithExceedingMaxdepth.response.id)}
+    Given path '/api/hierarchy/' + root1.response.id
+    And param HierarchyMode = 'MAX_DEPTH'
+    And param maxDepth = 1
+    When method GET
+    Then status 200
+    * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-subtree-maxdepth.json')
+    And match response == expectedResponse
+
+  Scenario: get sub tree with HierarchyMode max depth -1 should return a validation error
+    Given path '/api/hierarchy/' + root1.response.id
+    And param HierarchyMode = 'MAX_DEPTH'
+    And param maxDepth = -1
+    When method GET
+    Then status 400
+    And match response == {message:'getSubTree.maxDepth:must be greater than or equal to 1'}
+
+  Scenario: get sub tree with HierarchyMode maxdepth and no maxdepth should return maxdepth 1 descendant entries only
+    * def root1ChildWithExceedingMaxdepth = call read('classpath:feature/label/create-label.feature')  { name: 'child3root1',parentLabelId:#(root1.response.id)}
+    * call read('classpath:feature/label/create-label.feature') { name: 'subchild1child3root1',parentLabelId:#(root1ChildWithExceedingMaxdepth.response.id)}
+    Given path '/api/hierarchy/' + root1.response.id
+    And param HierarchyMode = 'MAX_DEPTH'
+    When method GET
+    Then status 200
+    * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-subtree-maxdepth.json')
+    And match response == expectedResponse
