@@ -23,11 +23,11 @@
         </encoder>
     </appender>
 
-    <logger name="com.intuit.karate" level="DEBUG"/>
+    <logger name="com.intuit.karate" level="INFO"/>
 
-    <logger name="feign.Logger" level="ERROR"/>
+    <logger name="feign.Logger" level="DEBUG"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

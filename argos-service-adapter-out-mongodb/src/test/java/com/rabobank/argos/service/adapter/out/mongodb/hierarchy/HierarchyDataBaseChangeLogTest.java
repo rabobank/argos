@@ -15,11 +15,31 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.hierarchy;
 
+import org.bson.Document;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
+import java.io.IOException;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 class HierarchyDataBaseChangeLogTest {
+    @Mock
+    private MongoTemplate template;
+    @Mock
+    Document response;
 
     @Test
-    void createHierarchyView() {
+    void createHierarchyView() throws IOException {
+        when(template.executeCommand(any(String.class))).thenReturn(response);
+        new HierarchyDataBaseChangeLog().createHierarchyView(template);
+        verify(template, times(2)).executeCommand(any(String.class));
     }
 }
