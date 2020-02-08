@@ -15,14 +15,16 @@
  */
 package com.rabobank.argos.service.domain.hierarchy;
 
+import com.rabobank.argos.domain.hierarchy.HierarchyMode;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface HierarchyRepository {
-    List<String> getPathToRoot(String parentLabelId);
+    List<TreeNode> getRootNodes(HierarchyMode hierarchyMode, int maxDepth);
 
-    List<TreeNode> searchByName(String name, int depth);
+    Optional<TreeNode> getSubTree(String referenceId, HierarchyMode hierarchyMode, int maxDepth);
 
-    TreeNode getSubTree(String id, int depth);
+    Optional<TreeNode> findByNamePathToRootAndType(String name, List<String> pathToRoot, TreeNode.Type type);
 }

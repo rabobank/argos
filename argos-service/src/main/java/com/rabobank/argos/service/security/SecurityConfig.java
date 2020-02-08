@@ -101,7 +101,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/swagger/**",
                         "/api/supplychain", "/api/supplychain/**",
                         "/api/key", "/api/key/**", "/actuator/**",
-                        "/api/label", "/api/label/*", "/api/hierarchy")
+                        "/api/label", "/api/label/*",
+                        "/api/hierarchy", "/api/hierarchy/*")
                 .permitAll()
                 .antMatchers("/api/auth/**", "/api/oauth2/**")
                 .permitAll()

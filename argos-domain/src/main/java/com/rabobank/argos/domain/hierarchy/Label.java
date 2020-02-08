@@ -29,8 +29,4 @@ public class Label {
     private String labelId = UUID.randomUUID().toString();
     private String parentLabelId;
     private String name;
-
-    boolean isRoot() {
-        return parentLabelId == null;
-    }
 }

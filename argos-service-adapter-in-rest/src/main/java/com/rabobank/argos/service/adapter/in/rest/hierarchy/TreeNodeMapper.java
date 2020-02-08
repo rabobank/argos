@@ -13,20 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.supplychain;
+package com.rabobank.argos.service.adapter.in.rest.hierarchy;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import com.rabobank.argos.domain.hierarchy.TreeNode;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestTreeNode;
+import org.mapstruct.Mapper;
 
-import static java.util.UUID.randomUUID;
-
-@Getter
-@Setter
-@Builder
-public class SupplyChain {
-    private String parentLabelId;
-    @Builder.Default
-    private String supplyChainId = randomUUID().toString();
-    private String name;
+@Mapper(componentModel = "spring")
+public interface TreeNodeMapper {
+    RestTreeNode convertToRestTreeNode(TreeNode treeNode);
 }

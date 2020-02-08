@@ -1,0 +1,96 @@
+{
+  "create": "hierarchy",
+  "viewOn": "hierarchy_tmp",
+  "pipeline": [
+    {
+      "$facet": {
+        "withpathtoroot": [
+          {
+            "$graphLookup": {
+              "from": "hierarchy_tmp",
+              "startWith": "$parentLabelId",
+              "connectFromField": "parentLabelId",
+              "connectToField": "referenceId",
+              "as": "pathToRoot",
+              "depthField": "depth"
+            }
+          },
+          {
+            "$unwind": "$pathToRoot"
+          },
+          {
+            "$sort": {
+              "pathToRoot.depth": 1
+            }
+          },
+          {
+            "$group": {
+              "_id": "$_id",
+              "referenceId": {
+                "$first": "$referenceId"
+              },
+              "name": {
+                "$first": "$name"
+              },
+              "parentLabelId": {
+                "$first": "$parentLabelId"
+              },
+              "type": {
+                "$first": "$type"
+              },
+              "pathToRoot": {
+                "$push": "$pathToRoot.name"
+              }
+            }
+          },
+          {
+            "$project": {
+              "referenceId": 1,
+              "parentLabelId": 1,
+              "name": 1,
+              "type": 1,
+              "pathToRoot": 1,
+              "_class": "com.rabobank.argos.service.adapter.out.mongodb.hierarchy.HierarchyRepositoryImpl.HierarchyItem"
+            }
+          }
+        ],
+        "rootnodes": [
+          {
+            "$match": {
+              "parentLabelId": null
+            }
+          },
+          {
+            "$project": {
+              "referenceId": 1,
+              "parentLabelId": 1,
+              "name": 1,
+              "type": 1,
+              "pathToRoot": [],
+              "_class": "com.rabobank.argos.service.adapter.out.mongodb.hierarchy.HierarchyRepositoryImpl.HierarchyItem"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "$project": {
+        "tmp": {
+          "$concatArrays": [
+            "$withpathtoroot",
+            "$rootnodes"
+          ]
+        }
+      }
+    },
+    {
+      "$unwind": "$tmp"
+    },
+    {
+      "$replaceRoot": {
+        "newRoot": "$tmp"
+      }
+    }
+  ]
+}
+
