@@ -398,7 +398,7 @@ paths:
         - name: maxDepth
           in: query
           required: false
-          description: positive integer specifying the maximum levels of descendants that are retured in a search. This parameter is ignored in case of HierarchyhMode ALL and NONE
+          description: positive integer specifying the maximum levels of descendants that are returned in a search. This parameter is ignored in case of HierarchyhMode ALL and NONE
           schema:
             type: integer
             format: int32
@@ -463,8 +463,14 @@ paths:
             schema:
               $ref: "#/components/schemas/Label"
       responses:
-        '200':
+        '201':
           description: created label
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: location where the created label can be found
           content:
             application/json:
               schema:

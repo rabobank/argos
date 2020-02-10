@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.ConstraintViolationException;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -49,6 +50,18 @@ public class RestServiceExceptionHandler {
 
         return ResponseEntity.badRequest().contentType(APPLICATION_JSON).body(createMessage(message));
     }
+
+    @ExceptionHandler(value = {ConstraintViolationException.class})
+    public ResponseEntity<RestError> handleConstraintViolationException(
+            ConstraintViolationException ex) {
+        String message = ex.getConstraintViolations()
+                .stream()
+                .map(error -> error.getPropertyPath() + ":" + error.getMessage())
+                .collect(Collectors.joining(", "));
+
+        return ResponseEntity.badRequest().contentType(APPLICATION_JSON).body(createMessage(message));
+    }
+
 
     @ExceptionHandler(value = {JsonMappingException.class})
     public ResponseEntity<RestError> handleJsonMappingException() {

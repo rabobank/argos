@@ -15,9 +15,13 @@
  */
 package com.rabobank.argos.service.adapter.in.rest.hierarchy;
 
+import com.rabobank.argos.domain.hierarchy.HierarchyMode;
 import com.rabobank.argos.domain.hierarchy.Label;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.HierarchyApi;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestHierarchyMode;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLabel;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestTreeNode;
+import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +30,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -39,12 +47,21 @@ public class HierarchyRestService implements HierarchyApi {
 
     private final LabelMapper labelMapper;
 
+    private final HierarchyRepository hierarchyRepository;
+
+    private final TreeNodeMapper treeNodeMapper;
+
     @Override
     public ResponseEntity<RestLabel> createLabel(RestLabel restLabel) {
         verifyParentLabelExists(restLabel.getParentLabelId());
         Label label = labelMapper.convertFromRestLabel(restLabel);
         labelRepository.save(label);
-        return ResponseEntity.ok(labelMapper.convertToRestLabel(label));
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{labelId}")
+                .buildAndExpand(label.getLabelId())
+                .toUri();
+        return ResponseEntity.created(location).body(labelMapper.convertToRestLabel(label));
     }
 
     private void verifyParentLabelExists(String parentLabelId) {
@@ -75,6 +92,19 @@ public class HierarchyRestService implements HierarchyApi {
         return labelRepository.update(labelId, labelMapper.convertFromRestLabel(restLabel))
                 .map(labelMapper::convertToRestLabel).map(ResponseEntity::ok)
                 .orElseThrow(() -> labelNotFound(labelId));
+    }
+
+    @Override
+    public ResponseEntity<List<RestTreeNode>> getRootNodes(RestHierarchyMode hierarchyMode, Integer maxDepth) {
+        return ResponseEntity.ok(hierarchyRepository.getRootNodes(HierarchyMode.valueOf(hierarchyMode.name()), maxDepth).stream()
+                .map(treeNodeMapper::convertToRestTreeNode).collect(Collectors.toList()));
+    }
+
+    @Override
+    public ResponseEntity<RestTreeNode> getSubTree(String referenceId, RestHierarchyMode hierarchyMode, Integer maxDepth) {
+        return hierarchyRepository.getSubTree(referenceId, HierarchyMode.valueOf(hierarchyMode.name()), maxDepth)
+                .map(treeNodeMapper::convertToRestTreeNode).map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "subtree with referenceId: " + referenceId + " not found"));
     }
 
     private void verifyParentLabelIsDifferent(String labelId, String parentLabelId) {

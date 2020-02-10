@@ -74,4 +74,9 @@ public class ArgosServiceTestIT {
     Karate label() {
         return new Karate().feature("classpath:feature/label/label.feature");
     }
+
+    @Karate.Test
+    Karate hierarchy() {
+        return new Karate().feature("classpath:feature/hierarchy/hierarchy.feature");
+    }
 }
