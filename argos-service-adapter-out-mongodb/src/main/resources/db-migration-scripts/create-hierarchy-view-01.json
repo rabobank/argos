@@ -50,6 +50,7 @@
               "name": 1,
               "type": 1,
               "pathToRoot": 1,
+              "hasChildren": 1,
               "_class": "com.rabobank.argos.service.adapter.out.mongodb.hierarchy.HierarchyRepositoryImpl.HierarchyItem"
             }
           }
@@ -67,6 +68,7 @@
               "name": 1,
               "type": 1,
               "pathToRoot": [],
+              "hasChildren": 1,
               "_class": "com.rabobank.argos.service.adapter.out.mongodb.hierarchy.HierarchyRepositoryImpl.HierarchyItem"
             }
           }

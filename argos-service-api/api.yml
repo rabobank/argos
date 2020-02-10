@@ -862,6 +862,8 @@ components:
             - SUPPLY_CHAIN
         referenceId:
           type: string
+        hasChildren:
+          type: boolean
         children:
           type: array
           items:

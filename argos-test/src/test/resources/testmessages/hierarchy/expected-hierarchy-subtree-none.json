@@ -2,6 +2,7 @@
   "name": "root1",
   "type": "LABEL",
   "referenceId": "#uuid",
+  "hasChildren": true,
   "children": [
   ]
 }
