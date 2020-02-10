@@ -52,6 +52,11 @@ public class SupplyChainRepositoryImpl implements SupplyChainRepository {
     }
 
     @Override
+    public Optional<SupplyChain> findByNameAndPathToRoot(String name, List<String> pathToRoot) {
+        return Optional.empty();
+    }
+
+    @Override
     public List<SupplyChain> findAll() {
         return template.findAll(SupplyChain.class, COLLECTION);
     }

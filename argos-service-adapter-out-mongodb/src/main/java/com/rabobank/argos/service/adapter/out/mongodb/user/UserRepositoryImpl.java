@@ -19,15 +19,11 @@ import com.rabobank.argos.service.domain.user.User;
 import com.rabobank.argos.service.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -36,20 +32,10 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
 
-    private static final String COLLECTION = "users";
-    private static final String USER_ID = "userId";
-    private static final String EMAIL = "email";
+    static final String COLLECTION = "users";
+    static final String USER_ID = "userId";
+    static final String EMAIL = "email";
     private final MongoTemplate template;
-
-    @PostConstruct
-    public void postConstruct() {
-        createIndex(new Index(USER_ID, Sort.Direction.ASC).unique());
-        createIndex(new Index(EMAIL, Sort.Direction.ASC).unique());
-    }
-
-    private void createIndex(IndexDefinition indexDefinition) {
-        template.indexOps(COLLECTION).ensureIndex(indexDefinition);
-    }
 
     @Override
     public Optional<User> findByEmail(String email) {

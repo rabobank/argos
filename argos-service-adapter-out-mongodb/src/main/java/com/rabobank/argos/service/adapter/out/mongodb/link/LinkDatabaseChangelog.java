@@ -23,7 +23,6 @@ import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.HashedIndex;
 import org.springframework.data.mongodb.core.index.IndexDefinition;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.rabobank.argos.service.adapter.out.mongodb.link.LinkMetaBlockRepositoryImpl.COLLECTION;
@@ -46,11 +45,8 @@ public class LinkDatabaseChangelog {
     }
 
     private void createCompoundIndexOnSupplyChainAndStepName(MongoTemplate template) {
-        Map<String, Object> keys = new HashMap<>();
-        keys.put(SUPPLY_CHAIN_ID_FIELD, 1);
-        keys.put(SEGMENT_NAME_FIELD, 1);
-        keys.put(STEP_NAME_FIELD, 1);
-        createIndex(template, new CompoundIndexDefinition(new Document(keys)).named(SUPPLY_CHAIN_ID_FIELD + "_" + SEGMENT_NAME_FIELD + "_" + STEP_NAME_FIELD));
+        createIndex(template, new CompoundIndexDefinition(new Document(Map.of(SUPPLY_CHAIN_ID_FIELD, 1, SEGMENT_NAME_FIELD, 1, STEP_NAME_FIELD, 1)))
+                .named(SUPPLY_CHAIN_ID_FIELD + "_" + SEGMENT_NAME_FIELD + "_" + STEP_NAME_FIELD));
     }
 
     private void createIndex(MongoTemplate template, IndexDefinition indexDefinition) {

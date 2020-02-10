@@ -15,12 +15,32 @@
  */
 package com.rabobank.argos.domain;
 
+import lombok.Getter;
+
+@Getter
 public class ArgosError extends RuntimeException {
+
+    public enum Level {
+        WARNING, ERROR
+    }
+
+    private final Level level;
+
     public ArgosError(String message, Throwable e) {
-        super(message, e);
+        this(message, e, Level.ERROR);
     }
 
     public ArgosError(String message) {
+        this(message, Level.ERROR);
+    }
+
+    public ArgosError(String message, Throwable e, Level level) {
+        super(message, e);
+        this.level = level;
+    }
+
+    public ArgosError(String message, Level level) {
         super(message);
+        this.level = level;
     }
 }

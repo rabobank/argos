@@ -36,5 +36,4 @@ public class SupplyChainDatabaseChangelog {
         template.indexOps(COLLECTION).ensureIndex(new Index().on(SUPPLY_CHAIN_NAME, Sort.Direction.ASC));
     }
 
-
 }

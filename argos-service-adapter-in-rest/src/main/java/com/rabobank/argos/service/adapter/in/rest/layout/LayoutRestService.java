@@ -51,7 +51,6 @@ public class LayoutRestService implements LayoutApi {
         LayoutMetaBlock layoutMetaBlock = converter.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
         layoutMetaBlock.setSupplyChainId(supplyChainId);
         validator.validate(layoutMetaBlock);
-
         repository.save(layoutMetaBlock);
 
         URI location = ServletUriComponentsBuilder
