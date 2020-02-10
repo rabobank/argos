@@ -550,6 +550,138 @@ paths:
                 $ref: '#/components/schemas/UserProfile'
         '500':
           $ref: '#/components/responses/Error'
+  /nonpersonalaccount:
+    post:
+      summary: create a new non personal account
+      operationId: createNonPersonalAccount
+      tags:
+        - non personal account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NonPersonalAccount"
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonPersonalAccount"
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: location where the created non personal account can be found
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+  /nonpersonalaccount/{nonPersonalAccountId}:
+    get:
+      summary: find non personal account by id
+      operationId: getNonPersonalAccountById
+      tags:
+        - non personal account
+      parameters:
+        - name: nonPersonalAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: non personal account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonPersonalAccount"
+        '500':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: update non personal account by id
+      operationId: updateNonPersonalAccountById
+      tags:
+        - non personal account
+      parameters:
+        - name: nonPersonalAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NonPersonalAccount"
+      responses:
+        '200':
+          description: updated non personal account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonPersonalAccount"
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+  /nonpersonalaccount/{nonPersonalAccountId}/key:
+    post:
+      summary: create a new active key the old key will be made inactive
+      operationId: createNonPersonalAccountKeyById
+      tags:
+        - non personal account
+      parameters:
+        - name: nonPersonalAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KeyPair"
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KeyPair"
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: location where the created non personal account can be found
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+    get:
+      summary: return the active key pair
+      operationId: getNonPersonalAccountKeyById
+      tags:
+        - non personal account
+      parameters:
+        - name: nonPersonalAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KeyPair"
+        '404':
+          description: no active key exists
+        '500':
+          $ref: '#/components/responses/Error'
 components:
   securitySchemes:
     bearerAuth:            # arbitrary name for the security scheme
@@ -888,6 +1020,21 @@ components:
           type: array
           items:
             type: string
+    NonPersonalAccount:
+      type: object
+      required:
+        - name
+        - parentLabelId
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        parentLabelId:
+          type: string
+          minLength: 36
+          maxLength: 36
+          pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
     Error:
       type: object
       required:
