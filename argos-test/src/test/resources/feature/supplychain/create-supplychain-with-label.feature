@@ -19,12 +19,8 @@ Feature: using __arg
 
   Background:
     * url karate.properties['server.baseurl']
-    * def parentLabelId = __arg.parentLabelId
     * def supplyChainName = __arg.supplyChainName
 
   Scenario: create a supplychain
-    Given path '/api/supplychain'
-    And request { name: #(supplyChainName), parentLabelId: #(parentLabelId)}
-    And header Content-Type = 'application/json'
-    When method POST
-    Then status 201
+    * def labelResult = call read('classpath:feature/label/create-label.feature') {name: label}
+    * call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: #(supplyChainName), parentLabelId: #(labelResult.response.id)}

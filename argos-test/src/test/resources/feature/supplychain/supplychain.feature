@@ -22,13 +22,13 @@ Feature: SupplyChain
 
   Scenario: store supplychain with valid name should return a 201
     Given path '/api/supplychain'
-    * def result = call read('create-supplychain.feature') { name: 'name'}
+    * def result = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
     * def locationHeader = result.responseHeaders['Location'][0]
     * match result.response == { name: 'name', id: '#uuid', parentLabelId: '#uuid' }
     * match locationHeader contains 'api/supplychain/'
 
   Scenario: store supplychain with non unique name should return a 400
-    * def supplyChainResponse = call read('create-supplychain.feature') { name: 'name'}
+    * def supplyChainResponse = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
     Given path '/api/supplychain'
     And request  {"name":"name", parentLabelId: "#(supplyChainResponse.response.parentLabelId)"}
     And header Content-Type = 'application/json'
@@ -37,7 +37,7 @@ Feature: SupplyChain
     And match response.message contains 'supply chain with name: name and parentLabelId'
 
   Scenario: update supplychain should return a 200
-    * def supplyChainResponse = call read('create-supplychain.feature') { name: 'name'}
+    * def supplyChainResponse = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
     * def labelResult = call read('classpath:feature/label/create-label.feature') {name: otherlabel}
     Given path '/api/supplychain/'+supplyChainResponse.response.id
     And request  {"name":"supply-chain-name", parentLabelId: "#(labelResult.response.id)"}
@@ -47,7 +47,7 @@ Feature: SupplyChain
     And match response == { name: 'supply-chain-name', id: '#(supplyChainResponse.response.id)', parentLabelId: '#(labelResult.response.id)' }
 
   Scenario: get supplychain with valid id should return a 200
-    * def result = call read('create-supplychain.feature') { name: 'name'}
+    * def result = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
     * def restPath = '/api/supplychain/'+result.response.id
     Given path restPath
     When method GET
@@ -61,7 +61,7 @@ Feature: SupplyChain
     And match response == {"message":"supply chain not found : invalidid"}
 
   Scenario: query supplychain with name should return a 200
-    * def result = call read('create-supplychain.feature') { name: 'supply-chain-name'}
+    * def result = call read('create-supplychain-with-label.feature') { supplyChainName: 'supply-chain-name'}
     Given path '/api/supplychain'
     And param supplyChainName = 'supply-chain-name'
     And param pathToRoot = 'label'
@@ -70,7 +70,7 @@ Feature: SupplyChain
     And match response == { name: 'supply-chain-name', id: '#uuid', parentLabelId: '#uuid' }
 
   Scenario: query supplychain with name and non existing label should return a 404
-    * def result = call read('create-supplychain.feature') { name: 'supply-chain-name'}
+    * def result = call read('create-supplychain-with-label.feature') { supplyChainName: 'supply-chain-name'}
     Given path '/api/supplychain'
     And param supplyChainName = 'supply-chain-name'
     And param pathToRoot = 'otherlabel'
