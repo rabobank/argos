@@ -9,12 +9,6 @@
         "destinationType": "PRODUCTS",
         "destinationStepName": "build segment 1",
         "destinationSegmentName": "segment 1"
-      },
-      {
-        "pattern": "target/argos-frontend.jar",
-        "destinationType": "PRODUCTS",
-        "destinationStepName": "build segment 2",
-        "destinationSegmentName": "segment 2"
       }
     ],
     "layoutSegments": [
@@ -32,6 +26,13 @@
               "expectedCommand 2"
             ],
             "expectedMaterials": [
+              {
+                "ruleType": "MATCH",
+                "pattern": "**/argos-frontend.jar",
+                "destinationType": "PRODUCTS",
+                "destinationStepName": "build segment 2",
+                "destinationSegmentName": "segment 2"
+              },
               {
                 "ruleType": "REQUIRE",
                 "pattern": "**Argos4jIT.java"
@@ -70,15 +71,6 @@
               "stepName2 expectedCommand"
             ],
             "expectedMaterials": [
-              {
-                "ruleType": "MATCH",
-                "pattern": "pom.xml",
-                "sourcePathPrefix": "sourcePathPrefix",
-                "destinationPathPrefix": "destinationPathPrefix",
-                "destinationType": "MATERIALS",
-                "destinationStepName": "build segment 1",
-                "destinationSegmentName": "segment 1"
-              },
               {
                 "ruleType": "DISALLOW",
                 "pattern": "**/invalid-link.json"

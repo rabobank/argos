@@ -20,7 +20,6 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
-import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -53,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class Argos4jTest {
 
-    public static final char[] KEY_PASSPHRASE = "password".toCharArray();
+    public static final char[] KEY_PASSPHRASE = "gBM1Q4sc3kh05E".toCharArray();
     private Argos4j argos4j;
     private WireMockServer wireMockServer;
 
@@ -73,21 +72,13 @@ class Argos4jTest {
     }
 
     @BeforeEach
-    void setUp() throws IOException, NoSuchAlgorithmException {
+    void setUp() throws IOException {
         Integer randomPort = findRandomPort();
         wireMockServer = new WireMockServer(randomPort);
         wireMockServer.start();
 
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        generator.initialize(2048);
-        KeyPair pair = generator.generateKeyPair();
-
-        keyId = new KeyIdProviderImpl().computeKeyId(pair.getPublic());
-
-        RestKeyPair restKeyPair = new RestKeyPair()
-                .keyId(keyId).publicKey(pair.getPublic().getEncoded())
-                .encryptedPrivateKey(EncryptionHelper
-                        .addPassword(pair.getPrivate().getEncoded(), KEY_PASSPHRASE));
+        RestKeyPair restKeyPair = new ObjectMapper().readValue(this.getClass().getResourceAsStream("/keypair.json"), RestKeyPair.class);
+        keyId = restKeyPair.getKeyId();
 
         restKeyPairRest = new ObjectMapper().writeValueAsString(restKeyPair);
 

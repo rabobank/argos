@@ -22,6 +22,8 @@ import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.Argos4jSettings;
+import hudson.Plugin;
+import hudson.PluginWrapper;
 import hudson.security.ACL;
 import io.jenkins.plugins.argos.ArgosServiceConfiguration;
 import jenkins.model.Jenkins;
@@ -35,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -48,8 +51,16 @@ public class ArgosJenkinsHelper {
     private final String supplyChainIdentifier;
     private final String runId;
 
-
     public Argos4j createArgos() {
+
+        String version = Optional.ofNullable(Jenkins.getInstanceOrNull())
+                .map(jenkins -> Optional.ofNullable(jenkins.getPlugin("bouncycastle-api")))
+                .filter(Optional::isPresent).map(Optional::get).map(Plugin::getWrapper)
+                .map(PluginWrapper::getVersion).orElseThrow(() -> new Argos4jError("bouncycastle-api plugin not installed"));
+
+        if (Float.parseFloat(version) < 1.8F) {
+            throw new Argos4jError("bouncycastle-api plugin " + version + " installed, minimal version 1.8 required");
+        }
 
         checkProperty(privateKeyCredentialId, "privateKeyCredentialId");
         checkProperty(layoutSegmentName, "layoutSegmentName");

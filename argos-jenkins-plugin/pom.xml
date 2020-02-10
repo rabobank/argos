@@ -28,7 +28,7 @@
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>argos</artifactId>
     <name>argos-jenkins-plugin</name>
-    <version>0.0.1-ALPHA</version>
+    <version>0.0.1-RC2</version>
     <packaging>hpi</packaging>
     <description>Jenkins plugin for Argos Supply Chain Notary</description>
     <url>https://github.com/rabobank/argos/argos-jenkins-plugin</url>
@@ -83,6 +83,21 @@
             <groupId>com.rabobank.argos</groupId>
             <artifactId>argos4j</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk15on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>bouncycastle-api</artifactId>
+            <version>2.18</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>

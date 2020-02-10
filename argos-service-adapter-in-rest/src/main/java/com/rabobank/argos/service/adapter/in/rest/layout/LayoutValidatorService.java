@@ -31,6 +31,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -49,9 +50,20 @@ public class LayoutValidatorService {
         validateSegmentNamesUnique(layoutMetaBlock.getLayout());
         validateStepNamesUnique(layoutMetaBlock.getLayout());
         validateMatchFilterDestinations(layoutMetaBlock.getLayout());
+        validateExpectedProductsHaveSameSegmentName(layoutMetaBlock.getLayout());
         validateSupplyChain(layoutMetaBlock);
         validateAutorizationKeyIds(layoutMetaBlock.getLayout());
         validateSignatures(layoutMetaBlock);
+    }
+
+    private void validateExpectedProductsHaveSameSegmentName(Layout layout) {
+        Set<String> sameSegmentNames = layout.getExpectedEndProducts()
+                .stream()
+                .map(MatchFilter::getDestinationSegmentName)
+                .collect(Collectors.toSet());
+        if (sameSegmentNames.size() > 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "segment names for expectedProducts should all be the same");
+        }
     }
 
     private void validateStepNamesUnique(Layout layout) {

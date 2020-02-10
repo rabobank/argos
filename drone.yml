@@ -8,27 +8,6 @@ platform:
   arch: amd64
 
 steps:
-- name: set version
-  image: rabobanknl/argos-build:latest
-  commands:
-  - echo "update version to ${DRONE_TAG}"
-  - mvn -q versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
-  - mvn -q -f argos4j/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
-  - mvn -q -f argos-jenkins-plugin/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
-  - mvn -q -f argos-service/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
-  - mvn -q -f argos-test/pom.xml versions:set -DnewVersion=${DRONE_TAG} -DgenerateBackupPoms=false
-  environment:
-    github_token:
-      from_secret: github_token
-    github_user:
-      from_secret: github_user
-  volumes:
-  - name: mvn_cache
-    path: /root/.m2/repository
-  when:
-    event:
-    - tag
-
 - name: build
   image: rabobanknl/argos-build:latest
   commands:
@@ -36,8 +15,6 @@ steps:
   volumes:
   - name: mvn_cache
     path: /root/.m2/repository
-  depends_on:
-  - set version
 
 - name: sonar
   image: rabobanknl/argos-build:latest
@@ -202,6 +179,8 @@ steps:
   when:
     event:
     - tag
+    branch:
+    - master
   depends_on:
   - regression test
 
@@ -221,6 +200,8 @@ steps:
   when:
     event:
     - tag
+    branch:
+    - master
   depends_on:
   - regression test
 
@@ -242,6 +223,8 @@ steps:
   when:
     event:
     - tag
+    branch:
+    - master
   depends_on:
   - sign artifacts
 

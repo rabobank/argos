@@ -17,10 +17,12 @@ package com.rabobank.argos.service.domain.security;
 
 
 import com.rabobank.argos.service.domain.user.User;
+import lombok.EqualsAndHashCode;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 public class UserPrincipal extends org.springframework.security.core.userdetails.User {
     private final User user;
 
