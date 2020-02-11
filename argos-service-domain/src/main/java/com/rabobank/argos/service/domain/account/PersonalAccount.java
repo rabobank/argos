@@ -15,10 +15,13 @@
  */
 package com.rabobank.argos.service.domain.user;
 
+import com.rabobank.argos.domain.key.KeyPair;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 import java.io.Serializable;
 import java.util.List;
