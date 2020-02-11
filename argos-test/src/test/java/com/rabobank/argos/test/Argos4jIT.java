@@ -36,14 +36,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PublicKey;
 import java.util.List;
 
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
-import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getVerificationApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
@@ -70,12 +65,6 @@ public class Argos4jIT {
     @Test
     void postLinkMetaBlockWithSignatureValidationAndVerify() {
 
-
-        PublicKey publicKey = keyPair.getPublic();
-        String keyId = new KeyIdProviderImpl().computeKeyId(publicKey);
-
-        KeyApi keyApiApi = getKeyApi();
-        keyApiApi.storeKey(new RestKeyPair().keyId(keyId).publicKey(publicKey.getEncoded()));
         RestLabel rootLabel = getHierarchyApi().createLabel(new RestLabel().name("root_label"));
         RestLabel childLabel = getHierarchyApi().createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
         String supplyChainId = getSupplychainApi().createSupplyChain(new RestSupplyChain().name("test-supply-chain").parentLabelId(childLabel.getId())).getId();
@@ -92,8 +81,8 @@ public class Argos4jIT {
                 .stepName("build")
                 .runId("runId")
                 .supplyChainName("test-supply-chain")
-                .pathToLabelRoot(List.of("child_label","root_label"))
-                .signingKeyId(restKeyPair.getKeyId())
+                .pathToLabelRoot(List.of("child_label", "root_label"))
+                .signingKeyId(keyPair.getKeyId())
                 .build();
         Argos4j argos4j = new Argos4j(settings);
         argos4j.collectProducts(new File("."));
