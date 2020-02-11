@@ -9,7 +9,7 @@
         "name": "childaroot1",
         "type": "LABEL",
         "referenceId": "#uuid",
-        "hasChildren": false,
+        "hasChildren": true,
         "children": []
       },
       {
@@ -31,7 +31,7 @@
         "name": "childaroot2",
         "type": "LABEL",
         "referenceId": "#uuid",
-        "hasChildren": false,
+        "hasChildren": true,
         "children": []
       },
       {
@@ -53,7 +53,7 @@
         "name": "childaroot3",
         "type": "LABEL",
         "referenceId": "#uuid",
-        "hasChildren": false,
+        "hasChildren": true,
         "children": []
       },
       {

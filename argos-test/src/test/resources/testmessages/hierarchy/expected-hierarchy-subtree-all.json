@@ -13,10 +13,11 @@
           "name": "supply-chain-1",
           "type": "SUPPLY_CHAIN",
           "referenceId": "#uuid",
+          "hasChildren": false,
           "children": []
         }
       ],
-      "hasChildren": false
+      "hasChildren": true
 
     },
     {

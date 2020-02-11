@@ -9,12 +9,13 @@
         "name": "childaroot1",
         "type": "LABEL",
         "referenceId": "#uuid",
-        "hasChildren": false,
+        "hasChildren": true,
         "children": [
           {
             "name": "supply-chain-1",
             "type": "SUPPLY_CHAIN",
             "referenceId": "#uuid",
+            "hasChildren": false,
             "children": []
           }
         ]
@@ -38,12 +39,13 @@
         "name": "childaroot2",
         "type": "LABEL",
         "referenceId": "#uuid",
-        "hasChildren": false,
+        "hasChildren": true,
         "children": [
           {
             "name": "supply-chain-2",
             "type": "SUPPLY_CHAIN",
             "referenceId": "#uuid",
+            "hasChildren": false,
             "children": []
           }
         ]
@@ -72,10 +74,11 @@
             "name": "supply-chain-3",
             "type": "SUPPLY_CHAIN",
             "referenceId": "#uuid",
+            "hasChildren": false,
             "children": []
           }
         ],
-        "hasChildren": false
+        "hasChildren": true
 
       },
       {
