@@ -26,12 +26,16 @@ import java.util.List;
 public class UserPrincipal extends org.springframework.security.core.userdetails.User {
     private final User user;
 
-    public UserPrincipal(User user) {
-        super(user.getName(), "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
-        this.user = user;
+    public AccountUserDetailsAdapter(PersonalAccount account) {
+        super(account.getName(), "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        this.account = account;
     }
 
     public String getId() {
-        return user.getUserId();
+        return account.getAccountId();
+    }
+
+    public Account getAccount() {
+        return account;
     }
 }

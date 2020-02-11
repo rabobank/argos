@@ -26,11 +26,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -65,7 +63,7 @@ class UserRestServiceImplTest {
         assertThat(user.getEmail(), is(EMAIL));
         assertThat(user.getId(), is(ID));
         assertThat(user.getName(), is(NAME));
-        assertThat(user.getKeyIds(), contains(KEY_ID));
+
     }
 
     @Test
@@ -83,12 +81,11 @@ class UserRestServiceImplTest {
         when(userRepository.findByUserId(ID)).thenReturn(Optional.of(user));
         RestUserProfile user = service.updateUserProfile(userPrincipal, new RestUserProfile().id("otherId")
                 .email("other_email")
-                .name("other_name")
-                .addKeyIdsItem("some_new_key_id"));
+                .name("other_name"));
         assertThat(user.getEmail(), is(EMAIL));
         assertThat(user.getId(), is(ID));
         assertThat(user.getName(), is(NAME));
-        assertThat(user.getKeyIds(), contains("some_new_key_id"));
+
     }
 
     @Test

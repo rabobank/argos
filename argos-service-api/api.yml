@@ -884,10 +884,6 @@ components:
         email:
           type: string
           format: email
-        keyIds:
-          type: array
-          items:
-            type: string
     Error:
       type: object
       required:

@@ -19,12 +19,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.security.PublicKey;
 
 @Builder
 @Getter
 @Setter
-public class KeyPair {
+public class KeyPair implements Serializable {
     private String keyId;
     private byte[] encryptedPrivateKey;
     private PublicKey publicKey;

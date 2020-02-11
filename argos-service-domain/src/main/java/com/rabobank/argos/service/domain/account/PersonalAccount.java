@@ -23,6 +23,9 @@ import lombok.Setter;
 
 import java.util.List;
 
+import static java.util.Collections.emptyList;
+import static java.util.UUID.randomUUID;
+
 import java.io.Serializable;
 import java.util.List;
 
