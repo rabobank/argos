@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.user;
+package com.rabobank.argos.service.domain.account;
 
 import com.rabobank.argos.domain.key.KeyPair;
 import lombok.Builder;
@@ -26,22 +26,28 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 
-import java.io.Serializable;
-import java.util.List;
-
-import static java.util.UUID.randomUUID;
-
 @Getter
 @Setter
-@Builder
-@EqualsAndHashCode
-public class User implements Serializable {
+@EqualsAndHashCode(callSuper = true)
+public class PersonalAccount extends Account {
+    @Builder
+    public PersonalAccount(String accountId,
+                           String name,
+                           String email,
+                           KeyPair activeKey,
+                           List<KeyPair> inactiveKeys,
+                           AuthenticationProvider provider,
+                           String providerId
 
-    @Builder.Default
-    private String userId = randomUUID().toString();
-    private String name;
-    private String email;
+    ) {
+        super(accountId == null ? randomUUID().toString() : accountId,
+                name,
+                email,
+                activeKey,
+                inactiveKeys == null ? emptyList() : inactiveKeys);
+        this.provider = provider;
+        this.providerId = providerId;
+    }
     private AuthenticationProvider provider;
     private String providerId;
-    private List<String> keyIds;
 }

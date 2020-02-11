@@ -13,18 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.user;
+package com.rabobank.argos.service.domain.account;
 
-import java.util.Optional;
-
-
-public interface UserRepository {
-
-    Optional<User> findByEmail(String email);
-
-    Optional<User> findByUserId(String userId);
-
-    void save(User user);
-
-    void update(User existingUser);
+public enum AuthenticationProvider {
+    AZURE
 }

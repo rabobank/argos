@@ -512,42 +512,100 @@ paths:
           description: label deleted
         '500':
           $ref: '#/components/responses/Error'
-  /user/me:
-    get:
-      summary: returns the user profile
-      operationId: getUserProfile
-      security:
-        - bearerAuth: []
+  /personalaccount/me/key:
+    post:
+      summary: creates a new active public and private key pair
+      operationId: createKey
       tags:
-        - user
-      responses:
-        '200':
-          description: User Profile
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserProfile'
-        '500':
-          $ref: '#/components/responses/Error'
-    put:
-      summary: updates the user profile
-      operationId: updateUserProfile
-      security:
-        - bearerAuth: []
-      tags:
-        - user
+        - personal account
+      parameters:
+        - name: accountid
+          in: path
+          description: account id
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserProfile"
+              $ref: "#/components/schemas/KeyPair"
+      responses:
+        '204':
+          description: no content
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+
+    get:
+      summary: gets the currently active a key pair
+      operationId: getKeyPair
+      tags:
+        - personal account
+      parameters:
+        - name: keyId
+          in: path
+          description: key pair id
+          required: true
+          schema:
+            type: string
+            minLength: 64
+            maxLength: 64
+            pattern: '^[0-9a-f]*$'
+        - name: accountid
+          in: path
+          description: account id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Key pair
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KeyPair"
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+  /personalaccount/me:
+    get:
+      summary: returns the personal account profile of the authenticated personal account based on the bearer token
+      operationId: getPersonalAccountOfAuthenticatedUser
+      security:
+        - bearerAuth: []
+      tags:
+        - personal account
+      responses:
+        '200':
+          description: Personal Account Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalAccount'
+        '500':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: updates the personal account profile returns the personal account profile of the authenticated personal account based on the bearer token
+      operationId: updateUserProfile
+      security:
+        - bearerAuth: []
+      tags:
+        - personal account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PersonalAccount"
       responses:
         '200':
           description: Updated User Profile
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfile'
+                $ref: '#/components/schemas/PersonalAccount'
         '500':
           $ref: '#/components/responses/Error'
 components:
@@ -874,7 +932,7 @@ components:
         - MAX_DEPTH
       default: NONE
       description: The mode of the returned descendants in a tree node hierarchy. ALL returns all descendants, NONE returns nodes without any descendants , MAX_DEPTH returns descendants up to a specified depth
-    UserProfile:
+    PersonalAccount:
       type: object
       properties:
         id:
@@ -891,4 +949,3 @@ components:
       properties:
         message:
           type: string
-

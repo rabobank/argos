@@ -15,8 +15,8 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.user;
 
-import com.rabobank.argos.service.domain.user.User;
-import com.rabobank.argos.service.domain.user.UserRepository;
+import com.rabobank.argos.service.domain.account.PersonalAccount;
+import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -30,7 +30,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
 @RequiredArgsConstructor
-public class UserRepositoryImpl implements UserRepository {
+public class PersonalAccountRepositoryImpl implements PersonalAccountRepository {
 
     static final String COLLECTION = "users";
     static final String USER_ID = "userId";
@@ -38,26 +38,26 @@ public class UserRepositoryImpl implements UserRepository {
     private final MongoTemplate template;
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return Optional.ofNullable(template.findOne(new Query(where(EMAIL).is(email)), User.class, COLLECTION));
+    public Optional<PersonalAccount> findByEmail(String email) {
+        return Optional.ofNullable(template.findOne(new Query(where(EMAIL).is(email)), PersonalAccount.class, COLLECTION));
     }
 
     @Override
-    public Optional<User> findByUserId(String userId) {
-        return Optional.ofNullable(template.findOne(getPrimaryQuery(userId), User.class, COLLECTION));
+    public Optional<PersonalAccount> findByUserId(String userId) {
+        return Optional.ofNullable(template.findOne(getPrimaryQuery(userId), PersonalAccount.class, COLLECTION));
     }
 
     @Override
-    public void save(User user) {
-        template.save(user, COLLECTION);
+    public void save(PersonalAccount personalAccount) {
+        template.save(personalAccount, COLLECTION);
     }
 
     @Override
-    public void update(User existingUser) {
-        Query query = getPrimaryQuery(existingUser.getUserId());
+    public void update(PersonalAccount existingPersonalAccount) {
+        Query query = getPrimaryQuery(existingPersonalAccount.getAccountId());
         Document document = new Document();
-        template.getConverter().write(existingUser, document);
-        template.updateFirst(query, Update.fromDocument(document), User.class, COLLECTION);
+        template.getConverter().write(existingPersonalAccount, document);
+        template.updateFirst(query, Update.fromDocument(document), PersonalAccount.class, COLLECTION);
     }
 
     private Query getPrimaryQuery(String userId) {

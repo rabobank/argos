@@ -15,7 +15,7 @@
  */
 package com.rabobank.argos.service.domain.security;
 
-import com.rabobank.argos.service.domain.user.User;
+import com.rabobank.argos.service.domain.account.PersonalAccount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,29 +29,29 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserPrincipalTest {
+class PersonalAccountPrincipalTest {
 
     @Mock
-    private User user;
+    private PersonalAccount personalAccount;
 
     @BeforeEach
     void setUp() {
-        when(user.getName()).thenReturn("name");
+        when(personalAccount.getName()).thenReturn("name");
     }
 
     @Test
     void getId() {
-        when(user.getUserId()).thenReturn("id");
-        assertThat(new UserPrincipal(user).getId(), is("id"));
+        when(personalAccount.getAccountId()).thenReturn("id");
+        assertThat(new AccountUserDetailsAdapter(personalAccount).getId(), is("id"));
     }
 
     @Test
     void getPassword() {
-        assertThat(new UserPrincipal(user).getPassword(), is(""));
+        assertThat(new AccountUserDetailsAdapter(personalAccount).getPassword(), is(""));
     }
 
     @Test
     void getAuthorities() {
-        assertThat(new UserPrincipal(user).getAuthorities(), contains(new SimpleGrantedAuthority("ROLE_USER")));
+        assertThat(new AccountUserDetailsAdapter(personalAccount).getAuthorities(), contains(new SimpleGrantedAuthority("ROLE_USER")));
     }
 }

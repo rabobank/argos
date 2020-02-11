@@ -22,13 +22,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 
-import static com.rabobank.argos.service.adapter.out.mongodb.user.UserRepositoryImpl.COLLECTION;
+import static com.rabobank.argos.service.adapter.out.mongodb.user.PersonalAccountRepositoryImpl.COLLECTION;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserDatabaseChangelogTest {
+class PersonalAccountDatabaseChangelogTest {
 
     @Mock
     private MongoTemplate template;

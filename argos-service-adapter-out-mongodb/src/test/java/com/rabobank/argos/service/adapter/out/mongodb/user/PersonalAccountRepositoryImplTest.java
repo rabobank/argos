@@ -16,7 +16,7 @@
 package com.rabobank.argos.service.adapter.out.mongodb.user;
 
 import com.mongodb.client.result.UpdateResult;
-import com.rabobank.argos.service.domain.user.User;
+import com.rabobank.argos.service.domain.account.PersonalAccount;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Optional;
 
-import static com.rabobank.argos.service.adapter.out.mongodb.user.UserRepositoryImpl.COLLECTION;
+import static com.rabobank.argos.service.adapter.out.mongodb.user.PersonalAccountRepositoryImpl.COLLECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,16 +41,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserRepositoryImplTest {
+class PersonalAccountRepositoryImplTest {
 
 
     @Mock
     private MongoTemplate template;
 
-    private UserRepositoryImpl repository;
+    private PersonalAccountRepositoryImpl repository;
 
     @Mock
-    private User user;
+    private PersonalAccount personalAccount;
 
     @Captor
     private ArgumentCaptor<Query> queryArgumentCaptor;
@@ -66,41 +66,41 @@ class UserRepositoryImplTest {
 
     @BeforeEach
     void setUp() {
-        repository = new UserRepositoryImpl(template);
+        repository = new PersonalAccountRepositoryImpl(template);
     }
 
     @Test
     void saveShouldUser() {
-        repository.save(user);
-        verify(template).save(user, COLLECTION);
+        repository.save(personalAccount);
+        verify(template).save(personalAccount, COLLECTION);
     }
 
     @Test
     void findByUserId() {
-        when(template.findOne(any(), eq(User.class), eq(COLLECTION))).thenReturn(user);
-        assertThat(repository.findByUserId("userId"), is(Optional.of(user)));
-        verify(template).findOne(queryArgumentCaptor.capture(), eq(User.class), eq(COLLECTION));
+        when(template.findOne(any(), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(personalAccount);
+        assertThat(repository.findByUserId("userId"), is(Optional.of(personalAccount)));
+        verify(template).findOne(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"userId\" : \"userId\"}, Fields: {}, Sort: {}"));
     }
 
     @Test
     void findByEmail() {
-        when(template.findOne(any(), eq(User.class), eq(COLLECTION))).thenReturn(user);
-        assertThat(repository.findByEmail("email"), is(Optional.of(user)));
-        verify(template).findOne(queryArgumentCaptor.capture(), eq(User.class), eq(COLLECTION));
+        when(template.findOne(any(), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(personalAccount);
+        assertThat(repository.findByEmail("email"), is(Optional.of(personalAccount)));
+        verify(template).findOne(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"email\" : \"email\"}, Fields: {}, Sort: {}"));
     }
 
     @Test
     void update() {
-        when(user.getUserId()).thenReturn("userId");
+        when(personalAccount.getAccountId()).thenReturn("userId");
         when(template.getConverter()).thenReturn(converter);
-        when(template.updateFirst(any(Query.class), any(Update.class), eq(User.class), eq(COLLECTION))).thenReturn(updateResult);
-        repository.update(user);
+        when(template.updateFirst(any(Query.class), any(Update.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(updateResult);
+        repository.update(personalAccount);
 
-        verify(template).updateFirst(queryArgumentCaptor.capture(), updateArgumentCaptor.capture(), eq(User.class), eq(COLLECTION));
+        verify(template).updateFirst(queryArgumentCaptor.capture(), updateArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"userId\" : \"userId\"}, Fields: {}, Sort: {}"));
         assertThat(updateArgumentCaptor.getValue().toString(), is("{}"));
-        verify(converter).write(eq(user), any(Document.class));
+        verify(converter).write(eq(personalAccount), any(Document.class));
     }
 }

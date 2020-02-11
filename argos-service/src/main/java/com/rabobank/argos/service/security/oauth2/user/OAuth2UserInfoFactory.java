@@ -16,7 +16,7 @@
 package com.rabobank.argos.service.security.oauth2.user;
 
 import com.rabobank.argos.domain.ArgosError;
-import com.rabobank.argos.service.domain.user.AuthenticationProvider;
+import com.rabobank.argos.service.domain.account.AuthenticationProvider;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;

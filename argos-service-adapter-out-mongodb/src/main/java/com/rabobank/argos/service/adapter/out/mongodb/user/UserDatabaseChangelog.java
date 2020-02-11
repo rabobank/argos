@@ -21,9 +21,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 
-import static com.rabobank.argos.service.adapter.out.mongodb.user.UserRepositoryImpl.COLLECTION;
-import static com.rabobank.argos.service.adapter.out.mongodb.user.UserRepositoryImpl.EMAIL;
-import static com.rabobank.argos.service.adapter.out.mongodb.user.UserRepositoryImpl.USER_ID;
+import static com.rabobank.argos.service.adapter.out.mongodb.user.PersonalAccountRepositoryImpl.COLLECTION;
+import static com.rabobank.argos.service.adapter.out.mongodb.user.PersonalAccountRepositoryImpl.EMAIL;
+import static com.rabobank.argos.service.adapter.out.mongodb.user.PersonalAccountRepositoryImpl.USER_ID;
 
 
 @ChangeLog

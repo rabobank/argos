@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.in.rest.user;
+package com.rabobank.argos.service.adapter.in.rest.personalaccount;
 
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestUserProfile;
-import com.rabobank.argos.service.domain.security.UserPrincipal;
-import com.rabobank.argos.service.domain.user.User;
-import com.rabobank.argos.service.domain.user.UserRepository;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
+import com.rabobank.argos.service.domain.account.PersonalAccount;
+import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
+import com.rabobank.argos.service.domain.security.AccountUserDetailsAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,32 +34,32 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserRestServiceImplTest {
+class PersonalAccountRestServiceImplTest {
 
     private static final String NAME = "name";
     private static final String EMAIL = "email";
     private static final String ID = "id";
     private static final String KEY_ID = "keyId";
     @Mock
-    private UserRepository userRepository;
+    private PersonalAccountRepository personalAccountRepository;
 
-    private UserRestServiceImpl service;
+    private PersonalAccountRestServiceImpl service;
 
     @Mock
-    private UserPrincipal userPrincipal;
+    private AccountUserDetailsAdapter accountUserDetailsAdapter;
 
-    private User user = User.builder().name(NAME).email(EMAIL).userId(ID).keyIds(List.of(KEY_ID)).build();
+    private PersonalAccount personalAccount = PersonalAccount.builder().name(NAME).email(EMAIL).accountId(ID).build();
 
     @BeforeEach
     void setUp() {
-        service = new UserRestServiceImpl(userRepository);
+        service = new PersonalAccountRestServiceImpl(personalAccountRepository);
     }
 
     @Test
     void getCurrentUser() {
-        when(userPrincipal.getId()).thenReturn(ID);
-        when(userRepository.findByUserId(ID)).thenReturn(Optional.of(user));
-        RestUserProfile user = service.getCurrentUser(userPrincipal);
+        when(accountUserDetailsAdapter.getId()).thenReturn(ID);
+        when(personalAccountRepository.findByUserId(ID)).thenReturn(Optional.of(personalAccount));
+        RestPersonalAccount user = service.getCurrentUser(accountUserDetailsAdapter);
         assertThat(user.getEmail(), is(EMAIL));
         assertThat(user.getId(), is(ID));
         assertThat(user.getName(), is(NAME));
@@ -68,18 +68,18 @@ class UserRestServiceImplTest {
 
     @Test
     void getCurrentUserNotFound() {
-        when(userPrincipal.getId()).thenReturn(ID);
-        when(userRepository.findByUserId(ID)).thenReturn(Optional.empty());
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getCurrentUser(userPrincipal));
+        when(accountUserDetailsAdapter.getId()).thenReturn(ID);
+        when(personalAccountRepository.findByUserId(ID)).thenReturn(Optional.empty());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getCurrentUser(accountUserDetailsAdapter));
         assertThat(exception.getStatus().value(), is(404));
         assertThat(exception.getMessage(), is("404 NOT_FOUND \"profile not found for : id\""));
     }
 
     @Test
     void updateUserProfile() {
-        when(userPrincipal.getId()).thenReturn(ID);
-        when(userRepository.findByUserId(ID)).thenReturn(Optional.of(user));
-        RestUserProfile user = service.updateUserProfile(userPrincipal, new RestUserProfile().id("otherId")
+        when(accountUserDetailsAdapter.getId()).thenReturn(ID);
+        when(personalAccountRepository.findByUserId(ID)).thenReturn(Optional.of(personalAccount));
+        RestPersonalAccount user = service.updateUserProfile(accountUserDetailsAdapter, new RestPersonalAccount().id("otherId")
                 .email("other_email")
                 .name("other_name"));
         assertThat(user.getEmail(), is(EMAIL));
@@ -90,9 +90,9 @@ class UserRestServiceImplTest {
 
     @Test
     void updateUserProfileNotFound() {
-        when(userPrincipal.getId()).thenReturn(ID);
-        when(userRepository.findByUserId(ID)).thenReturn(Optional.empty());
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.updateUserProfile(userPrincipal, new RestUserProfile()));
+        when(accountUserDetailsAdapter.getId()).thenReturn(ID);
+        when(personalAccountRepository.findByUserId(ID)).thenReturn(Optional.empty());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.updateUserProfile(accountUserDetailsAdapter, new RestPersonalAccount()));
         assertThat(exception.getStatus().value(), is(404));
         assertThat(exception.getMessage(), is("404 NOT_FOUND \"profile not found for : id\""));
     }

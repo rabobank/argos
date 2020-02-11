@@ -15,28 +15,10 @@
  */
 package com.rabobank.argos.service.domain.security;
 
-
 import com.rabobank.argos.service.domain.account.Account;
-import com.rabobank.argos.service.domain.account.PersonalAccount;
-import lombok.EqualsAndHashCode;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.List;
+import java.util.Optional;
 
-@EqualsAndHashCode(callSuper = true)
-public class AccountUserDetailsAdapter extends org.springframework.security.core.userdetails.User {
-    private final Account account;
-
-    public AccountUserDetailsAdapter(PersonalAccount account) {
-        super(account.getName(), "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
-        this.account = account;
-    }
-
-    public String getId() {
-        return account.getAccountId();
-    }
-
-    public Account getAccount() {
-        return account;
-    }
+public interface AccountSecurityContext {
+    Optional<Account> getAuthenticatedAccount();
 }

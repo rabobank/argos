@@ -15,7 +15,7 @@
  */
 package com.rabobank.argos.service.security.oauth2.user;
 
-import com.rabobank.argos.service.domain.user.AuthenticationProvider;
+import com.rabobank.argos.service.domain.account.AuthenticationProvider;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -23,7 +23,7 @@ import java.util.Collections;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 
-class OAuth2UserInfoFactoryTest {
+class OAuth2PersonalAccountInfoFactoryTest {
 
     @Test
     void getOAuth2UserInfoAzure() {
