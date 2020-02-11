@@ -17,17 +17,19 @@ package com.rabobank.argos.service.adapter.in.rest.personalaccount;
 
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.domain.account.PersonalAccount;
-import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
-import com.rabobank.argos.service.domain.security.AccountUserDetailsAdapter;
+import com.rabobank.argos.service.domain.security.AccountSecurityContextImpl;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,61 +41,36 @@ class PersonalAccountRestServiceImplTest {
     private static final String NAME = "name";
     private static final String EMAIL = "email";
     private static final String ID = "id";
-    private static final String KEY_ID = "keyId";
-    @Mock
-    private PersonalAccountRepository personalAccountRepository;
 
     private PersonalAccountRestServiceImpl service;
-
     @Mock
-    private AccountUserDetailsAdapter accountUserDetailsAdapter;
+    private AccountSecurityContextImpl accountSecurityContext;
 
     private PersonalAccount personalAccount = PersonalAccount.builder().name(NAME).email(EMAIL).accountId(ID).build();
 
     @BeforeEach
     void setUp() {
-        service = new PersonalAccountRestServiceImpl(personalAccountRepository);
+        service = new PersonalAccountRestServiceImpl(accountSecurityContext);
     }
 
-    @Test
-    void getCurrentUser() {
-        when(accountUserDetailsAdapter.getId()).thenReturn(ID);
-        when(personalAccountRepository.findByUserId(ID)).thenReturn(Optional.of(personalAccount));
-        RestPersonalAccount user = service.getCurrentUser(accountUserDetailsAdapter);
-        assertThat(user.getEmail(), is(EMAIL));
-        assertThat(user.getId(), is(ID));
-        assertThat(user.getName(), is(NAME));
-
-    }
 
     @Test
     void getCurrentUserNotFound() {
-        when(accountUserDetailsAdapter.getId()).thenReturn(ID);
-        when(personalAccountRepository.findByUserId(ID)).thenReturn(Optional.empty());
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getCurrentUser(accountUserDetailsAdapter));
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.empty());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getPersonalAccountOfAuthenticatedUser());
         assertThat(exception.getStatus().value(), is(404));
-        assertThat(exception.getMessage(), is("404 NOT_FOUND \"profile not found for : id\""));
+        assertThat(exception.getMessage(), is("404 NOT_FOUND \"profile not found\""));
     }
 
     @Test
-    void updateUserProfile() {
-        when(accountUserDetailsAdapter.getId()).thenReturn(ID);
-        when(personalAccountRepository.findByUserId(ID)).thenReturn(Optional.of(personalAccount));
-        RestPersonalAccount user = service.updateUserProfile(accountUserDetailsAdapter, new RestPersonalAccount().id("otherId")
-                .email("other_email")
-                .name("other_name"));
-        assertThat(user.getEmail(), is(EMAIL));
-        assertThat(user.getId(), is(ID));
-        assertThat(user.getName(), is(NAME));
-
-    }
-
-    @Test
-    void updateUserProfileNotFound() {
-        when(accountUserDetailsAdapter.getId()).thenReturn(ID);
-        when(personalAccountRepository.findByUserId(ID)).thenReturn(Optional.empty());
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.updateUserProfile(accountUserDetailsAdapter, new RestPersonalAccount()));
-        assertThat(exception.getStatus().value(), is(404));
-        assertThat(exception.getMessage(), is("404 NOT_FOUND \"profile not found for : id\""));
+    void getPersonalAccountOfAuthenticatedUser() {
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
+        ResponseEntity<RestPersonalAccount> responseEntity = service.getPersonalAccountOfAuthenticatedUser();
+        assertThat(responseEntity.getStatusCodeValue(), Matchers.is(200));
+        RestPersonalAccount restPersonalAccount = responseEntity.getBody();
+        assertThat(restPersonalAccount, is(notNullValue()));
+        assertThat(restPersonalAccount.getId(), is(ID));
+        assertThat(restPersonalAccount.getName(), is(NAME));
+        assertThat(restPersonalAccount.getEmail(), is(EMAIL));
     }
 }

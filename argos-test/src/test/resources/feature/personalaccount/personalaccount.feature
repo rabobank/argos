@@ -23,16 +23,8 @@ Feature: User
     * def headerAuthorization = 'Bearer ' + result.response.token
 
   Scenario: get user profile
-    Given path '/api/user/me'
+    Given path '/api/personalaccount/me'
     And header Authorization = headerAuthorization
     When method GET
     Then status 200
     Then match response contains {"name":"Luke Skywalker","email":"luke@skywalker.imp"}
-
-  Scenario: update profile
-    Given path '/api/user/me'
-    And header Authorization = headerAuthorization
-    And request {"keyIds": ["keyId1","keyId2"]}
-    When method PUT
-    Then status 200
-    Then match response contains {"name":"Luke Skywalker","email":"luke@skywalker.imp", "keyIds": ["keyId1","keyId2"]}
