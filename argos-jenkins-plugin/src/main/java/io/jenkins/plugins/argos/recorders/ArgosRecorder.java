@@ -49,12 +49,11 @@ import java.util.Optional;
 /**
  * Jenkins recorder plugin to output signed link metadata for Jenkins pipeline
  * steps.
- *
  */
 public class ArgosRecorder extends Recorder {
 
     @DataBoundSetter
-    private String supplyChainName;
+    private String supplyChainIdentifier;
     /**
      * Credential id with private key to load.
      * <p>
@@ -88,16 +87,16 @@ public class ArgosRecorder extends Recorder {
 
 
     @DataBoundConstructor
-    public ArgosRecorder(String supplyChainName, String privateKeyCredentialId, String layoutSegmentName, String stepName, String runId) {
+    public ArgosRecorder(String supplyChainIdentifier, String privateKeyCredentialId, String layoutSegmentName, String stepName, String runId) {
         this.stepName = stepName;
         this.layoutSegmentName = layoutSegmentName;
-        this.supplyChainName = supplyChainName;
+        this.supplyChainIdentifier = supplyChainIdentifier;
         this.privateKeyCredentialId = privateKeyCredentialId;
         this.runId = runId;
     }
 
-    public String getSupplyChainName() {
-        return supplyChainName;
+    public String getSupplyChainIdentifier() {
+        return supplyChainIdentifier;
     }
 
     public String getPrivateKeyCredentialId() {
@@ -128,7 +127,7 @@ public class ArgosRecorder extends Recorder {
                     environment.expand(privateKeyCredentialId),
                     environment.expand(stepName),
                     environment.expand(layoutSegmentName),
-                    environment.expand(supplyChainName),
+                    environment.expand(supplyChainIdentifier),
                     environment.expand(runId)).createArgos();
 
             argos4j.collectMaterials(new File(cwdStr));

@@ -27,23 +27,23 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Optional;
 
+import static com.rabobank.argos.service.adapter.out.mongodb.user.UserRepositoryImpl.COLLECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserRepositoryImplTest {
-    private static final String COLLECTION = "users";
+
+
     @Mock
     private MongoTemplate template;
 
@@ -54,9 +54,6 @@ class UserRepositoryImplTest {
 
     @Captor
     private ArgumentCaptor<Query> queryArgumentCaptor;
-
-    @Mock
-    private IndexOperations indexOperations;
 
     @Mock
     private MongoConverter converter;
@@ -70,13 +67,6 @@ class UserRepositoryImplTest {
     @BeforeEach
     void setUp() {
         repository = new UserRepositoryImpl(template);
-    }
-
-    @Test
-    void postConstructShouldConfigure() {
-        when(template.indexOps(COLLECTION)).thenReturn(indexOperations);
-        repository.postConstruct();
-        verify(template, times(2)).indexOps(COLLECTION);
     }
 
     @Test

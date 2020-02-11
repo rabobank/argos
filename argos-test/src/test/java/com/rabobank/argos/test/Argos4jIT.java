@@ -18,8 +18,8 @@ package com.rabobank.argos.test;
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jSettings;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
-import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
+import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayout;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutSegment;
@@ -27,6 +27,7 @@ import com.rabobank.argos.argos4j.rest.api.model.RestMatchRule;
 import com.rabobank.argos.argos4j.rest.api.model.RestPublicKey;
 import com.rabobank.argos.argos4j.rest.api.model.RestRule;
 import com.rabobank.argos.argos4j.rest.api.model.RestStep;
+import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerificationResult;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import org.hamcrest.Matchers;
@@ -35,7 +36,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PublicKey;
+import java.util.List;
 
+import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getVerificationApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
@@ -63,7 +71,14 @@ public class Argos4jIT {
     void postLinkMetaBlockWithSignatureValidationAndVerify() {
 
 
-        String supplyChainId = getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("test-supply-chain")).getId();
+        PublicKey publicKey = keyPair.getPublic();
+        String keyId = new KeyIdProviderImpl().computeKeyId(publicKey);
+
+        KeyApi keyApiApi = getKeyApi();
+        keyApiApi.storeKey(new RestKeyPair().keyId(keyId).publicKey(publicKey.getEncoded()));
+        RestLabel rootLabel = getHierarchyApi().createLabel(new RestLabel().name("root_label"));
+        RestLabel childLabel = getHierarchyApi().createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
+        String supplyChainId = getSupplychainApi().createSupplyChain(new RestSupplyChain().name("test-supply-chain").parentLabelId(childLabel.getId())).getId();
 
         keyPair = createAndStoreKeyPair("test");
 
@@ -77,7 +92,8 @@ public class Argos4jIT {
                 .stepName("build")
                 .runId("runId")
                 .supplyChainName("test-supply-chain")
-                .signingKeyId(keyPair.getKeyId())
+                .pathToLabelRoot(List.of("child_label","root_label"))
+                .signingKeyId(restKeyPair.getKeyId())
                 .build();
         Argos4j argos4j = new Argos4j(settings);
         argos4j.collectProducts(new File("."));

@@ -20,7 +20,7 @@ Feature: Link
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
     * call read('classpath:feature/key/insert-test-key-pairs.feature')
-    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { name: 'name'}
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
     * def linkPath = '/api/supplychain/'+ supplyChain.response.id + '/link'
     * def validLink = 'classpath:testmessages/link/valid-link.json'
 
