@@ -108,6 +108,7 @@ steps:
 
 - name: argos-service
   image: rabobanknl/argos-service-snapshot:${DRONE_BRANCH/\//_}${DRONE_TAG}
+  pull: always
   detach: true
   environment:
     auth.frontendRedirectBasePath: http://argos-integration-test-stub:8080
@@ -124,6 +125,7 @@ steps:
 
 - name: argos-integration-test-service
   image: rabobanknl/argos-integration-test-service:${DRONE_BRANCH/\//_}${DRONE_TAG}
+  pull: always
   detach: true
   environment:
     spring.data.mongodb.uri: mongodb://mongodb/test
@@ -133,12 +135,14 @@ steps:
 
 - name: argos-integration-test-stub
   image: rabobanknl/argos-integration-test-stub:${DRONE_BRANCH/\//_}${DRONE_TAG}
+  pull: always
   detach: true
   depends_on:
   - build argos integration test stub image
 
 - name: argos-jenkins
   image: rabobanknl/argos-jenkins-snapshot:${DRONE_BRANCH/\//_}${DRONE_TAG}
+  pull: always
   detach: true
   environment:
     JAVA_OPTS: -Djenkins.install.runSetupWizard=false
