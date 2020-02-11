@@ -17,17 +17,13 @@ package com.rabobank.argos.service.adapter.out.mongodb.supplychain;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 
 import static com.rabobank.argos.service.adapter.out.mongodb.supplychain.SupplyChainRepositoryImpl.COLLECTION;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,16 +37,11 @@ class SupplyChainDatabaseChangelogTest {
     @Mock
     private IndexOperations indexOperations;
 
-    @Captor
-    private ArgumentCaptor<IndexDefinition> indexDefinitionArgumentCaptor;
-
-
     @Test
     void addIndex() {
         when(template.indexOps(COLLECTION)).thenReturn(indexOperations);
         new SupplyChainDatabaseChangelog().addIndex(template);
-        verify(indexOperations, times(2)).ensureIndex(indexDefinitionArgumentCaptor.capture());
-        assertThat(indexDefinitionArgumentCaptor.getValue().getIndexKeys().toJson(), is("{\"name\": 1}"));
+        verify(indexOperations, times(2)).ensureIndex(any());
     }
 
 }

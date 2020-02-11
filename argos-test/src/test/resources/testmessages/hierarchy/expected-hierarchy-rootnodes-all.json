@@ -9,8 +9,16 @@
         "name": "childaroot1",
         "type": "LABEL",
         "referenceId": "#uuid",
-        "hasChildren": false,
-        "children": []
+        "hasChildren": true,
+        "children": [
+          {
+            "name": "supply-chain-1",
+            "type": "SUPPLY_CHAIN",
+            "referenceId": "#uuid",
+            "hasChildren": false,
+            "children": []
+          }
+        ]
       },
       {
         "name": "childbroot1",
@@ -31,8 +39,16 @@
         "name": "childaroot2",
         "type": "LABEL",
         "referenceId": "#uuid",
-        "hasChildren": false,
-        "children": []
+        "hasChildren": true,
+        "children": [
+          {
+            "name": "supply-chain-2",
+            "type": "SUPPLY_CHAIN",
+            "referenceId": "#uuid",
+            "hasChildren": false,
+            "children": []
+          }
+        ]
       },
       {
         "name": "childbroot2",
@@ -53,8 +69,17 @@
         "name": "childaroot3",
         "type": "LABEL",
         "referenceId": "#uuid",
-        "hasChildren": false,
-        "children": []
+        "children": [
+          {
+            "name": "supply-chain-3",
+            "type": "SUPPLY_CHAIN",
+            "referenceId": "#uuid",
+            "hasChildren": false,
+            "children": []
+          }
+        ],
+        "hasChildren": true
+
       },
       {
         "name": "childbroot3",

@@ -8,8 +8,17 @@
       "name": "childaroot1",
       "type": "LABEL",
       "referenceId": "#uuid",
-      "hasChildren": false,
-      "children": []
+      "children": [
+        {
+          "name": "supply-chain-1",
+          "type": "SUPPLY_CHAIN",
+          "referenceId": "#uuid",
+          "hasChildren": false,
+          "children": []
+        }
+      ],
+      "hasChildren": true
+
     },
     {
       "name": "childbroot1",

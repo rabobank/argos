@@ -8,7 +8,7 @@
       "name": "childaroot1",
       "type": "LABEL",
       "referenceId": "#uuid",
-      "hasChildren": false,
+      "hasChildren": true,
       "children": []
     },
     {

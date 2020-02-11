@@ -44,13 +44,31 @@
             }
           },
           {
+            "$graphLookup": {
+              "from": "hierarchy_tmp",
+              "startWith": "$referenceId",
+              "connectFromField": "referenceId",
+              "connectToField": "parentLabelId",
+              "as": "children",
+              "maxDepth": 0,
+              "depthField": "depth"
+            }
+          },
+          {
             "$project": {
               "referenceId": 1,
               "parentLabelId": 1,
               "name": 1,
               "type": 1,
               "pathToRoot": 1,
-              "hasChildren": 1,
+              "hasChildren": {
+                "$gt": [
+                  {
+                    "$size": "$children"
+                  },
+                  0
+                ]
+              },
               "_class": "com.rabobank.argos.service.adapter.out.mongodb.hierarchy.HierarchyRepositoryImpl.HierarchyItem"
             }
           }
@@ -62,13 +80,31 @@
             }
           },
           {
+            "$graphLookup": {
+              "from": "hierarchy_tmp",
+              "startWith": "$referenceId",
+              "connectFromField": "referenceId",
+              "connectToField": "parentLabelId",
+              "as": "children",
+              "maxDepth": 0,
+              "depthField": "depth"
+            }
+          },
+          {
             "$project": {
               "referenceId": 1,
               "parentLabelId": 1,
               "name": 1,
               "type": 1,
               "pathToRoot": [],
-              "hasChildren": 1,
+              "hasChildren": {
+                "$gt": [
+                  {
+                    "$size": "$children"
+                  },
+                  0
+                ]
+              },
               "_class": "com.rabobank.argos.service.adapter.out.mongodb.hierarchy.HierarchyRepositoryImpl.HierarchyItem"
             }
           }

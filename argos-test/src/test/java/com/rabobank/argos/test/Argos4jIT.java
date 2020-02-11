@@ -19,14 +19,15 @@ import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jSettings;
 import com.rabobank.argos.argos4j.rest.api.client.KeyApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
-import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
+import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayout;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutSegment;
 import com.rabobank.argos.argos4j.rest.api.model.RestMatchRule;
 import com.rabobank.argos.argos4j.rest.api.model.RestRule;
 import com.rabobank.argos.argos4j.rest.api.model.RestStep;
+import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerificationResult;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import com.rabobank.argos.domain.key.KeyIdProviderImpl;
@@ -40,7 +41,9 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
+import java.util.List;
 
+import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getVerificationApi;
@@ -77,7 +80,9 @@ public class Argos4jIT {
 
         KeyApi keyApiApi = getKeyApi();
         keyApiApi.storeKey(new RestKeyPair().keyId(keyId).publicKey(publicKey.getEncoded()));
-        String supplyChainId = getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("test-supply-chain")).getId();
+        RestLabel rootLabel = getHierarchyApi().createLabel(new RestLabel().name("root_label"));
+        RestLabel childLabel = getHierarchyApi().createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
+        String supplyChainId = getSupplychainApi().createSupplyChain(new RestSupplyChain().name("test-supply-chain").parentLabelId(childLabel.getId())).getId();
 
         restKeyPair = createAndStoreKeyPair("test");
 
@@ -91,6 +96,7 @@ public class Argos4jIT {
                 .stepName("build")
                 .runId("runId")
                 .supplyChainName("test-supply-chain")
+                .pathToLabelRoot(List.of("child_label","root_label"))
                 .signingKeyId(restKeyPair.getKeyId())
                 .build();
         Argos4j argos4j = new Argos4j(settings);

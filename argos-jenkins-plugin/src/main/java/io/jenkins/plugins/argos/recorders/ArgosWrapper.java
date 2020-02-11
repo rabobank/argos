@@ -35,7 +35,6 @@ import java.io.Serializable;
 /**
  * Jenkins recorder plugin to output signed link metadata for Jenkins pipeline
  * steps.
- *
  */
 public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
 
@@ -65,7 +64,7 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
      * Protocol information *must* be included.
      */
     @DataBoundSetter
-    public String supplyChainName;
+    public String supplyChainIdentifier;
 
     /**
      * Run Id of the pipeline
@@ -76,11 +75,11 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
     private Argos4j argos4j;
 
     @DataBoundConstructor
-    public ArgosWrapper(String privateKeyCredentialId, String stepName, String layoutSegmentName, String supplyChainName, String runId) {
+    public ArgosWrapper(String privateKeyCredentialId, String stepName, String layoutSegmentName, String supplyChainIdentifier, String runId) {
         this.privateKeyCredentialId = privateKeyCredentialId;
         this.layoutSegmentName = layoutSegmentName;
         this.stepName = stepName;
-        this.supplyChainName = supplyChainName;
+        this.supplyChainIdentifier = supplyChainIdentifier;
         this.runId = runId;
     }
 
@@ -97,7 +96,7 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
 
 
         listener.getLogger().println("[argos] creating metadata... ");
-        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, layoutSegmentName, stepName, supplyChainName, runId).createArgos();
+        argos4j = new ArgosJenkinsHelper(privateKeyCredentialId, layoutSegmentName, stepName, supplyChainIdentifier, runId).createArgos();
 
         argos4j.collectMaterials(new File(workspace.getRemote()));
 

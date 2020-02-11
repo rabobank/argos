@@ -14,7 +14,13 @@
 # limitations under the License.
 #
 
-privateKeyCredentialId=CredenialId of the signing key
-stepName=The name of the step
-supplyChainIdentifier=Supply Chain Identifier (<label>.<label>:<supplyChainName>)
-runId=Run ID
+@ignore
+Feature: using __arg
+
+  Background:
+    * url karate.properties['server.baseurl']
+    * def supplyChainName = __arg.supplyChainName
+
+  Scenario: create a supplychain
+    * def labelResult = call read('classpath:feature/label/create-label.feature') {name: label}
+    * call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: #(supplyChainName), parentLabelId: #(labelResult.response.id)}

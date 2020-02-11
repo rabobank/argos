@@ -25,7 +25,7 @@ Feature: Verification template
     * def layoutSigningKey = __arg.layoutSigningKey
     * call read('classpath:feature/reset.feature')
     * call read('classpath:feature/key/insert-test-key-pairs.feature')
-    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { name: 'name'}
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
     * call read('classpath:feature/key/create-key.feature')
     * def supplyChainPath = '/api/supplychain/'+ supplyChain.response.id
