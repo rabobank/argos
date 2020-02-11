@@ -16,10 +16,12 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
 import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.MatchFilter;
+import com.rabobank.argos.domain.layout.PublicKey;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.domain.key.KeyPairRepository;
@@ -30,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
@@ -84,14 +87,32 @@ class LayoutValidatorServiceTest {
     @Mock
     private MatchFilter matchFilter2;
 
+    @Mock
+    private KeyIdProvider keyIdProvider;
+
+    @Mock
+    private PublicKey publicKey1;
+
+    @Mock
+    private PublicKey publicKey2;
+
+    @Mock
+    private java.security.PublicKey key1;
+
+    @Mock
+    private java.security.PublicKey key2;
+
     @BeforeEach
     void setUp() {
         service = new LayoutValidatorService(supplyChainRepository, signatureValidatorService, keyPairRepository);
+        ReflectionTestUtils.setField(service, "keyIdProvider", keyIdProvider);
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
     }
 
     @Test
     void validateAllOkay() {
+        mockPublicKeys();
+
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
         when(layoutMetaBlock.getSignatures()).thenReturn(singletonList(signature));
@@ -113,8 +134,21 @@ class LayoutValidatorServiceTest {
         verify(signatureValidatorService).validateSignature(layout, signature);
     }
 
+    private void mockPublicKeys() {
+        when(publicKey1.getId()).thenReturn(KEY_ID_1);
+        when(publicKey2.getId()).thenReturn(KEY_ID_2);
+        when(publicKey1.getKey()).thenReturn(key1);
+        when(publicKey2.getKey()).thenReturn(key2);
+        when(layout.getKeys()).thenReturn(List.of(publicKey1, publicKey2));
+
+        when(keyIdProvider.computeKeyId(key1)).thenReturn(KEY_ID_1);
+        when(keyIdProvider.computeKeyId(key2)).thenReturn(KEY_ID_2);
+    }
+
     @Test
     void validateDuplicateKeyId() {
+
+        mockPublicKeys();
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
         when(signature.getKeyId()).thenReturn(KEY_ID_1);
@@ -131,6 +165,76 @@ class LayoutValidatorServiceTest {
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
         assertThat(responseStatusException.getReason(), is("layout can't be signed more than one time with the same keyId"));
+    }
+
+    @Test
+    void validateMissingPublicKey() {
+
+        when(publicKey1.getId()).thenReturn(KEY_ID_1);
+        when(publicKey1.getKey()).thenReturn(key1);
+        when(layout.getKeys()).thenReturn(List.of(publicKey1));
+
+        when(keyIdProvider.computeKeyId(key1)).thenReturn(KEY_ID_1);
+        when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
+        when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
+
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(singletonList(step));
+        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
+
+        when(keyPairRepository.exists(KEY_ID_1)).thenReturn(true);
+        when(keyPairRepository.exists(KEY_ID_2)).thenReturn(true);
+
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
+        assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
+        assertThat(responseStatusException.getReason(), is("authorizedKeyIds not match keys"));
+    }
+
+    @Test
+    void validateOtherPublicKey() {
+
+        when(publicKey1.getId()).thenReturn(KEY_ID_1);
+        when(publicKey1.getKey()).thenReturn(key1);
+        when(layout.getKeys()).thenReturn(List.of(publicKey1));
+
+        when(keyIdProvider.computeKeyId(key1)).thenReturn(KEY_ID_1);
+        when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
+        when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
+
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(singletonList(step));
+        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
+
+        when(keyPairRepository.exists(KEY_ID_2)).thenReturn(true);
+
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
+        assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
+        assertThat(responseStatusException.getReason(), is("authorizedKeyIds not match keys"));
+    }
+
+    @Test
+    void validateInvalidPublicKeyId() {
+
+        when(publicKey1.getId()).thenReturn(KEY_ID_1);
+        when(publicKey1.getKey()).thenReturn(key1);
+        when(layout.getKeys()).thenReturn(List.of(publicKey1));
+
+        when(keyIdProvider.computeKeyId(key1)).thenReturn("otherKeyId");
+        when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
+        when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
+
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
+        when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(singletonList(step));
+        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
+
+        when(keyPairRepository.exists(KEY_ID_1)).thenReturn(true);
+
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
+        assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
+        assertThat(responseStatusException.getReason(), is("key with id keyId1 not matched computed key id from public key"));
     }
 
     @Test

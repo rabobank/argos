@@ -14,24 +14,13 @@
 # limitations under the License.
 #
 
-argos-service {
-  rest-api {
-    base-url = "http://localhost:8080"
-  }
-}
-argos-integration-test-service {
-  rest-api {
-    base-url = "http://localhost:2877"
-  }
-}
-argos-test-app {
-  branch = "master"
-}
-jenkins {
-    base-url = "http://localhost:9080"
-}
+@ignore
+Feature: using __arg
 
-nexus {
-    war-snapshot-url = "http://localhost:8081/nexus/service/local/artifact/maven/redirect?r=snapshots&g=com.rabobank.argos&a=argos-test-app&v=1.0-SNAPSHOT&e=war"
-    dar-snapshot-url = "http://localhost:8081/nexus/service/local/artifact/maven/redirect?r=snapshots&g=com.rabobank.argos&a=argos-test-app&v=1.0-SNAPSHOT&e=dar"
-}
+  Background:
+    * url karate.properties['server.baseurl']
+    * def supplyChainName = __arg.supplyChainName
+
+  Scenario: create a supplychain
+    * def labelResult = call read('classpath:feature/label/create-label.feature') {name: label}
+    * call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: #(supplyChainName), parentLabelId: #(labelResult.response.id)}

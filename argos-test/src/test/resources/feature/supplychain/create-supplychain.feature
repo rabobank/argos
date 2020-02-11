@@ -19,10 +19,12 @@ Feature: using __arg
 
   Background:
     * url karate.properties['server.baseurl']
+    * def parentLabelId = __arg.parentLabelId
+    * def supplyChainName = __arg.supplyChainName
 
   Scenario: create a supplychain
     Given path '/api/supplychain'
-    And request __arg
+    And request { name: #(supplyChainName), parentLabelId: #(parentLabelId)}
     And header Content-Type = 'application/json'
     When method POST
     Then status 201
