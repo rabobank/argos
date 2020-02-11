@@ -64,7 +64,6 @@ class LinkMetaBlockSignatureVerificationTest {
     @Mock
     private LayoutMetaBlock layoutMetaBlock;
 
-    @Mock
     private Layout layout;
 
     @Mock
@@ -97,11 +96,11 @@ class LinkMetaBlockSignatureVerificationTest {
     @Test
     void verifyKeyNotFound() {
         when(context.getLayoutMetaBlock()).thenReturn(layoutMetaBlock);
-        when(layoutMetaBlock.getLayout()).thenReturn(layout);
         when(context.getLinkMetaBlocks()).thenReturn(List.of(linkMetaBlock));
         when(linkMetaBlock.getSignature()).thenReturn(signature);
         when(signature.getKeyId()).thenReturn(KEY_ID);
-        when(layout.getKeys()).thenReturn(Collections.emptyList());
+        layout = Layout.builder().keys(Collections.emptyList()).build();
+        when(layoutMetaBlock.getLayout()).thenReturn(layout);
         assertThat(verification.verify(context).isRunIsValid(), is(true));
         verify(context).removeLinkMetaBlocks(List.of(linkMetaBlock));
     }
@@ -114,7 +113,7 @@ class LinkMetaBlockSignatureVerificationTest {
         when(signature.getSignature()).thenReturn(SIG);
         when(domainPublicKey.getId()).thenReturn(KEY_ID);
         when(domainPublicKey.getKey()).thenReturn(publicKey);
-        when(layout.getKeys()).thenReturn(List.of(domainPublicKey));
+        layout = Layout.builder().keys(List.of(domainPublicKey)).build();
         when(context.getLayoutMetaBlock()).thenReturn(layoutMetaBlock);
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
         when(signatureValidator.isValid(link, SIG, publicKey)).thenReturn(valid);

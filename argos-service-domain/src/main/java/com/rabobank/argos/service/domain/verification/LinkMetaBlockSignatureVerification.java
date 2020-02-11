@@ -56,13 +56,11 @@ public class LinkMetaBlockSignatureVerification implements Verification {
     }
 
     private Optional<PublicKey> getPublicKey(LayoutMetaBlock layoutMetaBlock, String keyId) {
-        Optional<PublicKey> publicKeyOptional = layoutMetaBlock.getLayout().getKeys().stream()
-                .filter(publicKey -> publicKey.getId().equals(keyId))
-                .map(com.rabobank.argos.domain.layout.PublicKey::getKey).findFirst();
-        if (publicKeyOptional.isEmpty()) {
+        Optional<com.rabobank.argos.domain.layout.PublicKey> keyOptional = layoutMetaBlock.getLayout().getKeyById(keyId);
+        if (keyOptional.isEmpty()) {
             log.info("key with id: {} not found in layout", keyId);
         }
-        return publicKeyOptional;
+        return keyOptional.map(com.rabobank.argos.domain.layout.PublicKey::getKey);
     }
 
 }

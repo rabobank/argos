@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -29,4 +30,8 @@ public class Layout {
     private List<String> authorizedKeyIds;
     private List<MatchFilter> expectedEndProducts;
     private List<LayoutSegment> layoutSegments;
+
+    public Optional<PublicKey> getKeyById(String keyId) {
+        return keys.stream().filter(publicKey -> publicKey.getId().equals(keyId)).findFirst();
+    }
 }
