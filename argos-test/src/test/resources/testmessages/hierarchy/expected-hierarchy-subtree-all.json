@@ -2,6 +2,7 @@
   "name": "root1",
   "type": "LABEL",
   "referenceId": "#uuid",
+  "hasChildren": true,
   "children": [
     {
       "name": "childaroot1",
@@ -14,12 +15,15 @@
           "referenceId": "#uuid",
           "children": []
         }
-      ]
+      ],
+      "hasChildren": false
+
     },
     {
       "name": "childbroot1",
       "type": "LABEL",
       "referenceId": "#uuid",
+      "hasChildren": false,
       "children": []
     }
   ]

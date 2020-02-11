@@ -208,6 +208,7 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
                 .type(TreeNode.Type.valueOf(hierarchyItem.getType().name()))
                 .pathToRoot(hierarchyItem.getPathToRoot())
                 .parentLabelId(hierarchyItem.getParentLabelId())
+                .hasChildren(hierarchyItem.isHasChildren())
                 .build();
     }
 
@@ -229,15 +230,14 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
 
     @Getter
     @Setter
-
     static class HierarchyItem {
         enum Type {LABEL, SUPPLY_CHAIN}
-
         private String referenceId;
         private String name;
         private String parentLabelId;
         private Type type;
         private List<String> pathToRoot;
+        private boolean hasChildren;
         private List<HierarchyItem> descendants;
         private int depth;
     }

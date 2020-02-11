@@ -97,6 +97,7 @@ class HierarchyRepositoryImplIT {
         List<TreeNode> result = hierarchyRepository.getRootNodes(HierarchyMode.NONE, 0);
         assertThat(result, hasSize(1));
         assertThat(result.iterator().next().getName(), is("nl"));
+        assertThat(result.iterator().next().isHasChildren(), is(true));
     }
 
     @Test

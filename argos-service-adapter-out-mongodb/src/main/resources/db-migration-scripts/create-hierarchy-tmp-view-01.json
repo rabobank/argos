@@ -28,12 +28,31 @@
         ],
         "labelsprojected": [
           {
+            "$graphLookup": {
+              "from": "labels",
+              "startWith": "$labelId",
+              "connectFromField": "labelId",
+              "connectToField": "parentLabelId",
+              "as": "children",
+              "maxDepth": 0,
+              "depthField": "depth"
+            }
+          },
+          {
             "$project": {
               "_id": 1,
               "referenceId": "$labelId",
               "name": 1.0,
               "type": "LABEL",
-              "parentLabelId": 1.0
+              "parentLabelId": 1.0,
+              "hasChildren": {
+                "$gt": [
+                  {
+                    "$size": "$children"
+                  },
+                  0
+                ]
+              }
             }
           }
         ]
