@@ -1040,6 +1040,7 @@ components:
           enum:
             - LABEL
             - SUPPLY_CHAIN
+            - NON_PERSONAL_ACCOUNT
         referenceId:
           type: string
         hasChildren:
