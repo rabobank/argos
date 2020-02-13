@@ -607,10 +607,11 @@ components:
     VerifyCommand:
       type: object
       required:
-        - productsToVerify
+        - expectedProducts
       properties:
         expectedProducts:
           type: array
+          minItems: 1
           items:
             $ref: "#/components/schemas/Artifact"
 
@@ -741,6 +742,7 @@ components:
         id:
           type: string
         signatures:
+          minItems: 1
           type: array
           items:
             $ref: "#/components/schemas/Signature"
@@ -763,7 +765,11 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/KeyId'
+            type: string
+            description: key id is a hash of the public key
+            minLength: 64
+            maxLength: 64
+            pattern: '^[0-9a-f]*$'
         expectedEndProducts:
           type: array
           minItems: 1
