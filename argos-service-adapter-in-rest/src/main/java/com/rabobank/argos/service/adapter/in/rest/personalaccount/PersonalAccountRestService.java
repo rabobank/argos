@@ -69,6 +69,15 @@ public class PersonalAccountRestService implements PersonalAccountApi {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @Override
+    public ResponseEntity<RestKeyPair> getKeyPair() {
+        Account account = accountSecurityContext
+                .getAuthenticatedAccount().orElseThrow(this::profileNotFound);
+        KeyPair keyPair = personalAccountRepository.findActiveKeyPair(account.getAccountId()).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "no active keypair found for account: " + account.getName()));
+        return new ResponseEntity<>(keyPairMapper.convertToRestKeyPair(keyPair), HttpStatus.OK);
+    }
+
     private void validateKeyId(KeyPair keyPair) {
         if (!keyPair.getKeyId().equals(keyIdProvider.computeKeyId(keyPair.getPublicKey()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid key id : " + keyPair.getKeyId());

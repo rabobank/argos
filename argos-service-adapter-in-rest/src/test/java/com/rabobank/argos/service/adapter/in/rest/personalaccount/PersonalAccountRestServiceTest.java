@@ -53,6 +53,7 @@ class PersonalAccountRestServiceTest {
     private static final String KEY_ID = "keyId";
     private static final String KEY_ID_PROVIDER = "keyIdProvider";
     private static final String PERSONAL_ACCOUNT_NOT_FOUND = "404 NOT_FOUND \"personal account not found\"";
+    public static final String ACTIVE_KEYPAIR_NOT_FOUND = "404 NOT_FOUND \"no active keypair found for account: name\"";
 
     private PersonalAccountRestService service;
     @Mock
@@ -73,7 +74,6 @@ class PersonalAccountRestServiceTest {
     void setUp() {
         service = new PersonalAccountRestService(accountSecurityContext, personalAccountRepository, keyPairMapper);
     }
-
 
     @Test
     void getCurrentUserNotFound() {
@@ -123,5 +123,24 @@ class PersonalAccountRestServiceTest {
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.createKey(restKeyPair));
         assertThat(exception.getStatus().value(), is(404));
         assertThat(exception.getMessage(), is(PERSONAL_ACCOUNT_NOT_FOUND));
+    }
+
+    @Test
+    void getKeyPairShouldReturnOK() {
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
+        when(keyPairMapper.convertToRestKeyPair(keyPair)).thenReturn(restKeyPair);
+        when(personalAccountRepository.findActiveKeyPair(any())).thenReturn(Optional.of(keyPair));
+        ResponseEntity<RestKeyPair> responseEntity = service.getKeyPair();
+        assertThat(responseEntity.getStatusCodeValue(), Matchers.is(200));
+        assertThat(responseEntity.getBody(), sameInstance(restKeyPair));
+    }
+
+    @Test
+    void getKeyPairShouldReturnNotFound() {
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
+        when(personalAccountRepository.findActiveKeyPair(any())).thenReturn(Optional.empty());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getKeyPair());
+        assertThat(exception.getStatus().value(), is(404));
+        assertThat(exception.getMessage(), is(ACTIVE_KEYPAIR_NOT_FOUND));
     }
 }

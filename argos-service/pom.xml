@@ -38,6 +38,7 @@
 		<swagger-annotations.version>1.5.23</swagger-annotations.version>
 		<swagger-ui.version>3.24.3</swagger-ui.version>
 		<pitest.version>1.4.10</pitest.version>
+		<io.jsonwebtoken.version>0.10.7</io.jsonwebtoken.version>
 	</properties>
 
 	<licenses>
@@ -122,18 +123,18 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.10.7</version>
+			<version>${io.jsonwebtoken.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>0.10.7</version>
+			<version>${io.jsonwebtoken.version}</version>
             <scope>runtime</scope>
         </dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
-			<version>0.10.7</version>
+			<version>${io.jsonwebtoken.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>

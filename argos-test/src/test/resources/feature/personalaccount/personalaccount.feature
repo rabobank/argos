@@ -40,7 +40,27 @@ Feature: Personal Account
   Scenario: createKey with invalid key should return 400
     Given path '/api/personalaccount/me/key'
     And header Authorization = headerAuthorization
-    And request read('classpath:testmessages/key/keypair1.json')
+    And request {"keyId": "invalidkeyid","publicKey": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC/Ldm84IhBvssdweZOZSPcx87J0Xy63g0JhlOYlr66aKmbXz5YD+J+b4NlIIbvaa5sEg4FS0+gkOPgexqCzgRUqHK5coLchpuLFggmDiL4ShqGIvqb/HPq7Aauk8Ss+0TaHfkJjd2kEBPRgWLII1gytjKkqlRGD/LxRtsppnleQwIDAQAB","encryptedPrivateKey": null}
+    And header Content-Type = 'application/json'
+    When method POST
+    Then status 400
+
+  Scenario: getKey should return 200
+    * def keyPair = read('classpath:testmessages/key/keypair1.json')
+    Given path '/api/personalaccount/me/key'
+    And header Authorization = headerAuthorization
+    And request keyPair
     And header Content-Type = 'application/json'
     When method POST
     Then status 204
+    Given path '/api/personalaccount/me/key'
+    And header Authorization = headerAuthorization
+    When method GET
+    Then status 200
+    Then match response ==  keyPair
+
+  Scenario: getKey should with no active keypair should return 404
+    Given path '/api/personalaccount/me/key'
+    And header Authorization = headerAuthorization
+    When method GET
+    Then status 404
