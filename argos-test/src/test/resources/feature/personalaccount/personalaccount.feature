@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-Feature: User
+Feature: Personal Account
 
   Background:
     * url karate.properties['server.baseurl']
@@ -22,9 +22,25 @@ Feature: User
     * def result = call read('classpath:feature/authenticate.feature')
     * def headerAuthorization = 'Bearer ' + result.response.token
 
-  Scenario: get user profile
+  Scenario: get Personal Account profile should return 200
     Given path '/api/personalaccount/me'
     And header Authorization = headerAuthorization
     When method GET
     Then status 200
     Then match response contains {"name":"Luke Skywalker","email":"luke@skywalker.imp"}
+
+  Scenario: createKey should return 204
+    Given path '/api/personalaccount/me/key'
+    And header Authorization = headerAuthorization
+    And request read('classpath:testmessages/key/keypair1.json')
+    And header Content-Type = 'application/json'
+    When method POST
+    Then status 204
+
+  Scenario: createKey with invalid key should return 400
+    Given path '/api/personalaccount/me/key'
+    And header Authorization = headerAuthorization
+    And request read('classpath:testmessages/key/keypair1.json')
+    And header Content-Type = 'application/json'
+    When method POST
+    Then status 204

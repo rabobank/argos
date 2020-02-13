@@ -30,8 +30,8 @@ public class CustomUserDetailsService {
     private final PersonalAccountRepository personalAccountRepository;
 
     public UserDetails loadUserById(String id) {
-        PersonalAccount personalAccount = personalAccountRepository.findByUserId(id)
-                .orElseThrow(() -> new ArgosError("User with id " + id + " not found"));
+        PersonalAccount personalAccount = personalAccountRepository.findByAccountId(id)
+                .orElseThrow(() -> new ArgosError("Personal account with id " + id + " not found"));
         return new AccountUserDetailsAdapter(personalAccount);
     }
 

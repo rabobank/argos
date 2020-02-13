@@ -67,7 +67,7 @@ public class ArgosServiceTestIT {
 
     @Karate.Test
     Karate personalaccount() {
-        return new Karate().feature("classpath:feature/user/personalaccount.feature");
+        return new Karate().feature("classpath:feature/personalaccount/personalaccount.feature");
     }
 
     @Karate.Test

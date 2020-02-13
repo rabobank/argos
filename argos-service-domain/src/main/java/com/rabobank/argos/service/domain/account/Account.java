@@ -21,7 +21,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -31,6 +34,14 @@ public abstract class Account implements Serializable {
     private String accountId;
     private String name;
     private String email;
-    private KeyPair activeKey;
-    private List<KeyPair> inactiveKeys;
+    private KeyPair activeKeyPair;
+    private List<KeyPair> inactiveKeyPairs;
+
+    public void deactivateKeyPair() {
+        Optional.ofNullable(activeKeyPair).ifPresent(keyPair -> {
+            inactiveKeyPairs = new ArrayList<>(Optional.ofNullable(inactiveKeyPairs).orElse(Collections.emptyList()));
+            inactiveKeyPairs.add(activeKeyPair);
+            activeKeyPair = null;
+        });
+    }
 }

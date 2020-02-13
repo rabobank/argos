@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.out.mongodb.user;
+package com.rabobank.argos.service.adapter.out.mongodb.personalaccount;
 
 import com.mongodb.client.result.UpdateResult;
+import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.domain.account.PersonalAccount;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +33,7 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Optional;
 
-import static com.rabobank.argos.service.adapter.out.mongodb.user.PersonalAccountRepositoryImpl.COLLECTION;
+import static com.rabobank.argos.service.adapter.out.mongodb.personalaccount.PersonalAccountRepositoryImpl.COLLECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,6 +52,9 @@ class PersonalAccountRepositoryImplTest {
 
     @Mock
     private PersonalAccount personalAccount;
+
+    @Mock
+    private KeyPair keyPair;
 
     @Captor
     private ArgumentCaptor<Query> queryArgumentCaptor;
@@ -78,9 +82,9 @@ class PersonalAccountRepositoryImplTest {
     @Test
     void findByUserId() {
         when(template.findOne(any(), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(personalAccount);
-        assertThat(repository.findByUserId("userId"), is(Optional.of(personalAccount)));
+        assertThat(repository.findByAccountId("userId"), is(Optional.of(personalAccount)));
         verify(template).findOne(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
-        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"userId\" : \"userId\"}, Fields: {}, Sort: {}"));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"accountId\" : \"userId\"}, Fields: {}, Sort: {}"));
     }
 
     @Test
@@ -97,10 +101,18 @@ class PersonalAccountRepositoryImplTest {
         when(template.getConverter()).thenReturn(converter);
         when(template.updateFirst(any(Query.class), any(Update.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(updateResult);
         repository.update(personalAccount);
-
         verify(template).updateFirst(queryArgumentCaptor.capture(), updateArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
-        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"userId\" : \"userId\"}, Fields: {}, Sort: {}"));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"accountId\" : \"userId\"}, Fields: {}, Sort: {}"));
         assertThat(updateArgumentCaptor.getValue().toString(), is("{}"));
         verify(converter).write(eq(personalAccount), any(Document.class));
+    }
+
+    @Test
+    void findActiveKeyPair() {
+        when(template.findOne(any(), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(personalAccount);
+        when(personalAccount.getActiveKeyPair()).thenReturn(keyPair);
+        assertThat(repository.findByAccountId("userId"), is(Optional.of(personalAccount)));
+        verify(template).findOne(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
+        assertThat(repository.findActiveKeyPair("userId"), is(Optional.of(keyPair)));
     }
 }

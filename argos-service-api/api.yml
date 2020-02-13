@@ -550,15 +550,10 @@ paths:
     post:
       summary: creates a new active public and private key pair
       operationId: createKey
+      security:
+        - bearerAuth: []
       tags:
         - personal account
-      parameters:
-        - name: accountid
-          in: path
-          description: account id
-          required: true
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
@@ -567,6 +562,8 @@ paths:
       responses:
         '204':
           description: no content
+        '404':
+          description: personal account not found
         '400':
           $ref: '#/components/responses/ValidationError'
         '500':
@@ -575,24 +572,10 @@ paths:
     get:
       summary: gets the currently active a key pair
       operationId: getKeyPair
+      security:
+        - bearerAuth: []
       tags:
         - personal account
-      parameters:
-        - name: keyId
-          in: path
-          description: key pair id
-          required: true
-          schema:
-            type: string
-            minLength: 64
-            maxLength: 64
-            pattern: '^[0-9a-f]*$'
-        - name: accountid
-          in: path
-          description: account id
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: Key pair
@@ -600,6 +583,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/KeyPair"
+        '404':
+          description: personal account not found
         '400':
           $ref: '#/components/responses/ValidationError'
         '500':
@@ -619,27 +604,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PersonalAccount'
-        '500':
-          $ref: '#/components/responses/Error'
-    put:
-      summary: updates the personal account profile returns the personal account profile of the authenticated personal account based on the bearer token
-      operationId: updateUserProfile
-      security:
-        - bearerAuth: []
-      tags:
-        - personal account
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PersonalAccount"
-      responses:
-        '200':
-          description: Updated User Profile
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PersonalAccount'
+        '404':
+          description: personal account not found
         '500':
           $ref: '#/components/responses/Error'
 components:

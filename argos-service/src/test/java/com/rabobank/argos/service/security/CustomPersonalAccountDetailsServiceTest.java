@@ -49,7 +49,7 @@ class CustomPersonalAccountDetailsServiceTest {
 
     @Test
     void loadUserById() {
-        when(personalAccountRepository.findByUserId("id")).thenReturn(Optional.of(personalAccount));
+        when(personalAccountRepository.findByAccountId("id")).thenReturn(Optional.of(personalAccount));
         when(personalAccount.getName()).thenReturn("name");
         UserDetails userDetails = customUserDetailsService.loadUserById("id");
         assertThat(userDetails.getUsername(), is("name"));
@@ -57,8 +57,8 @@ class CustomPersonalAccountDetailsServiceTest {
 
     @Test
     void loadUserByIdNotFound() {
-        when(personalAccountRepository.findByUserId("id")).thenReturn(Optional.empty());
+        when(personalAccountRepository.findByAccountId("id")).thenReturn(Optional.empty());
         ArgosError argosError = assertThrows(ArgosError.class, () -> customUserDetailsService.loadUserById("id"));
-        assertThat(argosError.getMessage(), is("User with id id not found"));
+        assertThat(argosError.getMessage(), is("Personal account with id id not found"));
     }
 }

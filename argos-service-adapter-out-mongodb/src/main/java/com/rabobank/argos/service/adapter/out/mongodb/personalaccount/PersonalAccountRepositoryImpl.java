@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.out.mongodb.user;
+package com.rabobank.argos.service.adapter.out.mongodb.personalaccount;
 
+import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.service.domain.account.Account;
 import com.rabobank.argos.service.domain.account.PersonalAccount;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +34,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @RequiredArgsConstructor
 public class PersonalAccountRepositoryImpl implements PersonalAccountRepository {
 
-    static final String COLLECTION = "users";
-    static final String USER_ID = "userId";
+    static final String COLLECTION = "personalaccounts";
+    static final String ACCOUNT_ID = "accountId";
     static final String EMAIL = "email";
     private final MongoTemplate template;
 
@@ -43,8 +45,8 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     }
 
     @Override
-    public Optional<PersonalAccount> findByUserId(String userId) {
-        return Optional.ofNullable(template.findOne(getPrimaryQuery(userId), PersonalAccount.class, COLLECTION));
+    public Optional<PersonalAccount> findByAccountId(String accountId) {
+        return Optional.ofNullable(template.findOne(getPrimaryQuery(accountId), PersonalAccount.class, COLLECTION));
     }
 
     @Override
@@ -60,7 +62,12 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
         template.updateFirst(query, Update.fromDocument(document), PersonalAccount.class, COLLECTION);
     }
 
+    @Override
+    public Optional<KeyPair> findActiveKeyPair(String accountId) {
+        return findByAccountId(accountId).map(Account::getActiveKeyPair);
+    }
+
     private Query getPrimaryQuery(String userId) {
-        return new Query(where(USER_ID).is(userId));
+        return new Query(where(ACCOUNT_ID).is(userId));
     }
 }

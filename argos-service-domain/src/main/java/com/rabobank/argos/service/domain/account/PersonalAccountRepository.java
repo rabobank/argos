@@ -15,6 +15,8 @@
  */
 package com.rabobank.argos.service.domain.account;
 
+import com.rabobank.argos.domain.key.KeyPair;
+
 import java.util.Optional;
 
 
@@ -22,9 +24,11 @@ public interface PersonalAccountRepository {
 
     Optional<PersonalAccount> findByEmail(String email);
 
-    Optional<PersonalAccount> findByUserId(String userId);
+    Optional<PersonalAccount> findByAccountId(String accountId);
 
     void save(PersonalAccount personalAccount);
 
     void update(PersonalAccount existingPersonalAccount);
+
+    Optional<KeyPair> findActiveKeyPair(String accountId);
 }

@@ -31,20 +31,20 @@ import static java.util.UUID.randomUUID;
 @EqualsAndHashCode(callSuper = true)
 public class PersonalAccount extends Account {
     @Builder
-    public PersonalAccount(String accountId,
-                           String name,
-                           String email,
-                           KeyPair activeKey,
-                           List<KeyPair> inactiveKeys,
-                           AuthenticationProvider provider,
-                           String providerId
+    public PersonalAccount(
+            String name,
+            String email,
+            KeyPair activeKeyPair,
+            List<KeyPair> inactiveKeyPairs,
+            AuthenticationProvider provider,
+            String providerId
 
     ) {
-        super(accountId == null ? randomUUID().toString() : accountId,
+        super(randomUUID().toString(),
                 name,
                 email,
-                activeKey,
-                inactiveKeys == null ? emptyList() : inactiveKeys);
+                activeKeyPair,
+                inactiveKeyPairs == null ? emptyList() : inactiveKeyPairs);
         this.provider = provider;
         this.providerId = providerId;
     }
