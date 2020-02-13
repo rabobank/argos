@@ -29,13 +29,13 @@ import static com.rabobank.argos.service.adapter.out.mongodb.personalaccount.Per
 @ChangeLog
 public class PersonalAccountDatabaseChangelog {
 
-    @ChangeSet(order = "001", id = "UserDatabaseChangelog-1", author = "bart")
+    @ChangeSet(order = "001", id = "PersonalAccountDatabaseChangelog-1", author = "bart")
     public void addIndex(MongoTemplate template) {
         template.indexOps(COLLECTION).ensureIndex(new Index(ACCOUNT_ID, Sort.Direction.ASC).unique());
         template.indexOps(COLLECTION).ensureIndex(new Index(EMAIL, Sort.Direction.ASC).unique());
     }
 
-    @ChangeSet(order = "002", id = "personalaccountDatabaseChangelog-1", author = "michel")
+    @ChangeSet(order = "002", id = "PersonalAccountDatabaseChangelog-2", author = "michel")
     public void addIndexToNewCollection(MongoTemplate template) {
         template.indexOps(COLLECTION).ensureIndex(new Index(EMAIL, Sort.Direction.ASC).unique());
         template.indexOps(COLLECTION).ensureIndex(new Index(ACCOUNT_ID, Sort.Direction.ASC).unique());
