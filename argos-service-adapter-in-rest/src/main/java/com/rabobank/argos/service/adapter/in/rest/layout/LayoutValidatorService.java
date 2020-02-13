@@ -16,10 +16,13 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
 import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.key.KeyIdProvider;
+import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.MatchFilter;
+import com.rabobank.argos.domain.layout.PublicKey;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.domain.key.KeyPairRepository;
@@ -32,6 +35,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -46,6 +50,8 @@ public class LayoutValidatorService {
 
     private final KeyPairRepository keyPairRepository;
 
+    private KeyIdProvider keyIdProvider = new KeyIdProviderImpl();
+
     public void validate(LayoutMetaBlock layoutMetaBlock) {
         validateSegmentNamesUnique(layoutMetaBlock.getLayout());
         validateStepNamesUnique(layoutMetaBlock.getLayout());
@@ -53,7 +59,34 @@ public class LayoutValidatorService {
         validateExpectedProductsHaveSameSegmentName(layoutMetaBlock.getLayout());
         validateSupplyChain(layoutMetaBlock);
         validateAutorizationKeyIds(layoutMetaBlock.getLayout());
+        validatePublicKeys(layoutMetaBlock.getLayout());
         validateSignatures(layoutMetaBlock);
+    }
+
+    private void validatePublicKeys(Layout layout) {
+        validatePublicKeyIds(layout);
+        validateAuthorizedKeysWithPublicKeys(layout);
+    }
+
+    private void validatePublicKeyIds(Layout layout) {
+        layout.getKeys().forEach(this::validatePublicKeyId);
+    }
+
+    private void validatePublicKeyId(PublicKey publicKey) {
+        if (!publicKey.getId().equals(keyIdProvider.computeKeyId(publicKey.getKey()))) {
+            throwValidationException("key with id " + publicKey.getId() + " not matched computed key id from public key");
+        }
+    }
+
+    private void validateAuthorizedKeysWithPublicKeys(Layout layout) {
+        Set<String> publicKeyIds = layout.getKeys().stream().map(PublicKey::getId).collect(toSet());
+        Set<String> authorizedKeyIds = Stream.concat(layout.getAuthorizedKeyIds().stream(), layout.getLayoutSegments()
+                .stream().map(LayoutSegment::getSteps).flatMap(List::stream).map(Step::getAuthorizedKeyIds)
+                .flatMap(List::stream)).collect(toSet());
+
+        if (publicKeyIds.size() != authorizedKeyIds.size() || !publicKeyIds.containsAll(authorizedKeyIds)) {
+            throwValidationException("authorizedKeyIds not match keys");
+        }
     }
 
     private void validateExpectedProductsHaveSameSegmentName(Layout layout) {
@@ -62,7 +95,7 @@ public class LayoutValidatorService {
                 .map(MatchFilter::getDestinationSegmentName)
                 .collect(Collectors.toSet());
         if (sameSegmentNames.size() > 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "segment names for expectedProducts should all be the same");
+            throwValidationException("segment names for expectedProducts should all be the same");
         }
     }
 
@@ -74,7 +107,7 @@ public class LayoutValidatorService {
         Set<String> stepNameSet = layoutSegment.getSteps().stream().map(Step::getStepName).collect(toSet());
         List<String> stepNameList = layoutSegment.getSteps().stream().map(Step::getStepName).collect(toList());
         if (stepNameSet.size() != stepNameList.size()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "step names are not unique");
+            throwValidationException("step names are not unique");
         }
     }
 
@@ -82,13 +115,13 @@ public class LayoutValidatorService {
         Set<String> segmentNameSet = layout.getLayoutSegments().stream().map(LayoutSegment::getName).collect(toSet());
         List<String> segmentNameList = layout.getLayoutSegments().stream().map(LayoutSegment::getName).collect(toList());
         if (segmentNameSet.size() != segmentNameList.size()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "segment names are not unique");
+            throwValidationException("segment names are not unique");
         }
     }
 
     private void validateMatchFilterDestinations(Layout layout) {
         if (!layout.getExpectedEndProducts().stream().allMatch(matchFilter -> hasFilterDestination(matchFilter, layout))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "expected product destination step name not found");
+            throwValidationException("expected product destination step name not found");
         }
     }
 
@@ -105,14 +138,14 @@ public class LayoutValidatorService {
 
     private void validateSupplyChain(LayoutMetaBlock layoutMetaBlock) {
         if (!supplyChainRepository.exists(layoutMetaBlock.getSupplyChainId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "supply chain not found : " + layoutMetaBlock.getSupplyChainId());
+            throwValidationException("supply chain not found : " + layoutMetaBlock.getSupplyChainId());
         }
     }
 
     private void validateSignatures(LayoutMetaBlock layoutMetaBlock) {
         Set<String> uniqueKeyIds = layoutMetaBlock.getSignatures().stream().map(Signature::getKeyId).collect(toSet());
         if (layoutMetaBlock.getSignatures().size() != uniqueKeyIds.size()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "layout can't be signed more than one time with the same keyId");
+            throwValidationException("layout can't be signed more than one time with the same keyId");
         }
 
         layoutMetaBlock.getSignatures().forEach(signature -> signatureValidatorService.validateSignature(layoutMetaBlock.getLayout(), signature));
@@ -125,7 +158,12 @@ public class LayoutValidatorService {
 
     private void keyExists(String keyId) {
         if (!keyPairRepository.exists(keyId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "keyId " + keyId + " not found");
+            throwValidationException("keyId " + keyId + " not found");
         }
     }
+
+    private void throwValidationException(String message) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
+    }
+
 }

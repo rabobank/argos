@@ -43,10 +43,7 @@ public class StepAuthorizedKeyIdVerification implements Verification {
                 .collect(Collectors.toList());
 
         if (!failedLinkAuthorizedKeyIdVerifications.isEmpty()) {
-            log.info("the following links were invalid and will be removed from the context: ",
-                    failedLinkAuthorizedKeyIdVerifications
-            );
-
+            log.info("the following links were invalid and will be removed from the context: {}", failedLinkAuthorizedKeyIdVerifications);
             context.removeLinkMetaBlocks(failedLinkAuthorizedKeyIdVerifications);
         }
 

@@ -16,8 +16,7 @@
 package com.rabobank.argos.service.adapter.in.rest.supplychain;
 
 import com.rabobank.argos.domain.supplychain.SupplyChain;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestCreateSupplyChainCommand;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChainItem;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -30,6 +29,7 @@ class SupplyChainMapperTest {
 
     private static final String NAME = "name";
     private static final String ID = "ID";
+    private static final String PARENT_LABEL_ID = "parentLabelId";
     private SupplyChainMapper supplyChainMapper;
 
     @BeforeEach
@@ -39,18 +39,21 @@ class SupplyChainMapperTest {
 
     @Test
     void convertFromRestSupplyChainCommand_Should_Return_SupplyChain() {
-        RestCreateSupplyChainCommand restCreateSupplyChainCommand = new RestCreateSupplyChainCommand();
+        RestSupplyChain restCreateSupplyChainCommand = new RestSupplyChain();
         restCreateSupplyChainCommand.name(NAME);
+        restCreateSupplyChainCommand.setParentLabelId(PARENT_LABEL_ID);
         SupplyChain supplyChain = supplyChainMapper.convertFromRestSupplyChainCommand(restCreateSupplyChainCommand);
         assertThat(supplyChain.getName(), is(NAME));
+        assertThat(supplyChain.getParentLabelId(), is(PARENT_LABEL_ID));
         assertThat(supplyChain.getSupplyChainId(), hasLength(36));
     }
 
     @Test
     void convertToRestRestSupplyChainItem_Should_Return_RestSupplyChainItem() {
-        SupplyChain supplyChain = SupplyChain.builder().name(NAME).supplyChainId(ID).build();
-        RestSupplyChainItem restSupplyChainItem = supplyChainMapper.convertToRestRestSupplyChainItem(supplyChain);
+        SupplyChain supplyChain = SupplyChain.builder().name(NAME).supplyChainId(ID).parentLabelId(PARENT_LABEL_ID).build();
+        RestSupplyChain restSupplyChainItem = supplyChainMapper.convertToRestRestSupplyChainItem(supplyChain);
         assertThat(restSupplyChainItem.getName(), is(NAME));
         assertThat(restSupplyChainItem.getId(), is(ID));
+        assertThat(restSupplyChainItem.getParentLabelId(), is(PARENT_LABEL_ID));
     }
 }

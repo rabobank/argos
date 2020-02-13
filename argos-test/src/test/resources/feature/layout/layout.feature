@@ -20,7 +20,7 @@ Feature: Layout
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
     * call read('classpath:feature/key/insert-test-key-pairs.feature')
-    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { name: 'name'}
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
     * call read('classpath:feature/key/create-key.feature')
     * def validLayout = 'classpath:testmessages/layout/valid-layout.json'

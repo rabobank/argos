@@ -16,10 +16,13 @@
 package com.rabobank.argos.domain.signing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutSegment;
@@ -27,6 +30,9 @@ import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
 import org.mapstruct.factory.Mappers;
+
+import java.io.IOException;
+import java.security.PublicKey;
 
 import static java.util.Comparator.comparing;
 
@@ -53,11 +59,28 @@ public class JsonSigningSerializer implements SigningSerializer {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
         SimpleModule module = new SimpleModule();
+        module.addSerializer(PublicKey.class, new PublicKeySerializer());
         objectMapper.registerModule(module);
         try {
             return objectMapper.writeValueAsString(signable);
         } catch (JsonProcessingException e) {
             throw new ArgosError(e.getMessage(), e);
+        }
+    }
+
+    private class PublicKeySerializer extends StdSerializer<PublicKey> {
+
+        public PublicKeySerializer() {
+            this(null);
+        }
+
+        public PublicKeySerializer(Class<PublicKey> t) {
+            super(t);
+        }
+
+        @Override
+        public void serialize(PublicKey value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeBinary(value.getEncoded());
         }
     }
 

@@ -17,14 +17,17 @@ package com.rabobank.argos.service.adapter.out.mongodb.supplychain;
 
 import com.github.mongobee.changeset.ChangeLog;
 import com.github.mongobee.changeset.ChangeSet;
-import org.springframework.data.domain.Sort;
+import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.HashedIndex;
-import org.springframework.data.mongodb.core.index.Index;
+
+import java.util.Map;
 
 import static com.rabobank.argos.service.adapter.out.mongodb.supplychain.SupplyChainRepositoryImpl.COLLECTION;
+import static com.rabobank.argos.service.adapter.out.mongodb.supplychain.SupplyChainRepositoryImpl.PARENT_LABEL_ID_FIELD;
 import static com.rabobank.argos.service.adapter.out.mongodb.supplychain.SupplyChainRepositoryImpl.SUPPLY_CHAIN_ID_FIELD;
-import static com.rabobank.argos.service.adapter.out.mongodb.supplychain.SupplyChainRepositoryImpl.SUPPLY_CHAIN_NAME;
+import static com.rabobank.argos.service.adapter.out.mongodb.supplychain.SupplyChainRepositoryImpl.SUPPLY_CHAIN_NAME_FIELD;
 
 
 @ChangeLog
@@ -33,7 +36,9 @@ public class SupplyChainDatabaseChangelog {
     @ChangeSet(order = "001", id = "SupplyChainDatabaseChangelog-1", author = "bart")
     public void addIndex(MongoTemplate template) {
         template.indexOps(COLLECTION).ensureIndex(HashedIndex.hashed(SUPPLY_CHAIN_ID_FIELD));
-        template.indexOps(COLLECTION).ensureIndex(new Index().on(SUPPLY_CHAIN_NAME, Sort.Direction.ASC));
+        template.indexOps(COLLECTION)
+                .ensureIndex(new CompoundIndexDefinition(new Document(Map.of(PARENT_LABEL_ID_FIELD, 1, SUPPLY_CHAIN_NAME_FIELD, 1)))
+                        .named(PARENT_LABEL_ID_FIELD + "_" + SUPPLY_CHAIN_NAME_FIELD).unique());
     }
 
 }

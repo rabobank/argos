@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
+import com.rabobank.argos.domain.layout.PublicKey;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,6 +57,9 @@ class StepAuthorizedKeyIdVerificationTest {
 
     @Captor
     ArgumentCaptor<List<LinkMetaBlock>> listArgumentCaptor;
+
+    @Mock
+    private PublicKey publicKey;
 
     @BeforeEach
     void setup() {
