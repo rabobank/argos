@@ -30,23 +30,22 @@ public class NonPersonalAccountAuthenticationToken extends UsernamePasswordAuthe
 
 
     private final UserDetails principal;
-    private final Credentials credentials;
+    private final NonPersonalAccountCredentials nonPersonalAccountCredentials;
 
-    public NonPersonalAccountAuthenticationToken(Credentials credentials, UserDetails principal) {
-        super(principal, credentials);
+    public NonPersonalAccountAuthenticationToken(NonPersonalAccountCredentials nonPersonalAccountCredentials, UserDetails principal) {
+        super(principal, nonPersonalAccountCredentials);
         this.principal = principal;
-        this.credentials = credentials;
+        this.nonPersonalAccountCredentials = nonPersonalAccountCredentials;
     }
 
-    public NonPersonalAccountAuthenticationToken(Credentials credentials, UserDetails principal, Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, authorities);
+    public NonPersonalAccountAuthenticationToken(NonPersonalAccountCredentials nonPersonalAccountCredentials, UserDetails principal, Collection<? extends GrantedAuthority> authorities) {
+        super(principal, nonPersonalAccountCredentials, authorities);
         this.principal = principal;
-        this.credentials = credentials;
+        this.nonPersonalAccountCredentials = nonPersonalAccountCredentials;
     }
 
-    @Override
-    public Credentials getCredentials() {
-        return credentials;
+    public NonPersonalAccountCredentials getNonPersonalAccountCredentials() {
+        return nonPersonalAccountCredentials;
     }
 
     @Override
@@ -56,7 +55,7 @@ public class NonPersonalAccountAuthenticationToken extends UsernamePasswordAuthe
 
     @Builder
     @Getter
-    public static class Credentials implements Serializable {
+    public static class NonPersonalAccountCredentials implements Serializable {
         private String keyId;
         private String password;
     }

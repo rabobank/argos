@@ -33,6 +33,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationConverter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
@@ -60,15 +61,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final NonPersonalAccountUserDetailsService nonPersonalAccountUserDetailsService;
 
-
-    @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+    private TokenAuthenticationFilter tokenAuthenticationFilter() {
         return new TokenAuthenticationFilter(tokenProvider);
     }
 
-    @Bean
-    public KeyIdBasicAuthenticationFilter keyIdBasicAuthenticationFilter() throws Exception {
-        return new KeyIdBasicAuthenticationFilter(authenticationManagerBean());
+    private KeyIdBasicAuthenticationFilter keyIdBasicAuthenticationFilter() throws Exception {
+        return new KeyIdBasicAuthenticationFilter(new BasicAuthenticationConverter());
     }
     /*
       By default, Spring OAuth2 uses HttpSessionOAuth2AuthorizationRequestRepository to save

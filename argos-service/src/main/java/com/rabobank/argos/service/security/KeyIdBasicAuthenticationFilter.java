@@ -1,9 +1,24 @@
+/*
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.rabobank.argos.service.security;
 
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationConverter;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -11,30 +26,31 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.rabobank.argos.service.security.NonPersonalAccountAuthenticationToken.Credentials;
+import static com.rabobank.argos.service.security.NonPersonalAccountAuthenticationToken.NonPersonalAccountCredentials;
 
-public class KeyIdBasicAuthenticationFilter extends BasicAuthenticationFilter {
-    public KeyIdBasicAuthenticationFilter(AuthenticationManager authenticationManager) {
-        super(authenticationManager);
+public class KeyIdBasicAuthenticationFilter extends OncePerRequestFilter {
+    private final BasicAuthenticationConverter authenticationConverter;
+
+    public KeyIdBasicAuthenticationFilter(BasicAuthenticationConverter authenticationConverter) {
+        this.authenticationConverter = authenticationConverter;
     }
 
-    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        super.doFilterInternal(request, response, chain);
-        /*  if super call is successfull we get a UsernamePasswordAuthenticationToken in
-            security context with username and password from basic auth header
-        */
-        if (SecurityContextHolder.getContext().getAuthentication() instanceof UsernamePasswordAuthenticationToken) {
-            UsernamePasswordAuthenticationToken parsedTokenFromBasicHeader = (UsernamePasswordAuthenticationToken) SecurityContextHolder
-                    .getContext()
-                    .getAuthentication();
-            NonPersonalAccountAuthenticationToken nonPersonalAccountAuthenticationToken = new NonPersonalAccountAuthenticationToken(Credentials
+        UsernamePasswordAuthenticationToken parsedTokenFromBasicHeader = authenticationConverter.convert(request);
+        if (parsedTokenFromBasicHeader != null) {
+
+            NonPersonalAccountCredentials nonPersonalAccountCredentials = NonPersonalAccountCredentials
                     .builder()
                     .keyId((String) parsedTokenFromBasicHeader.getPrincipal())
                     .password((String) parsedTokenFromBasicHeader.getCredentials())
-                    .build(), null, null);
+                    .build();
+
+            NonPersonalAccountAuthenticationToken nonPersonalAccountAuthenticationToken = new NonPersonalAccountAuthenticationToken(nonPersonalAccountCredentials
+                    , null, null);
             SecurityContextHolder.getContext().setAuthentication(nonPersonalAccountAuthenticationToken);
+
         }
+        chain.doFilter(request, response);
     }
 
 }
