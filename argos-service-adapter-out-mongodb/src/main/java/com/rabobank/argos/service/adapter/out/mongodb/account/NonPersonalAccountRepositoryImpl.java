@@ -37,6 +37,7 @@ public class NonPersonalAccountRepositoryImpl implements NonPersonalAccountRepos
     static final String COLLECTION = "nonPersonalAccounts";
     static final String ACCOUNT_ID_FIELD = "accountId";
     static final String ACCOUNT_NAME_FIELD = "name";
+    static final String ACTIVE_KEY_ID_FIELD = "activeKeyPair.keyId";
     static final String PARENT_LABEL_ID_FIELD = "parentLabelId";
     private final MongoTemplate template;
 
@@ -52,6 +53,15 @@ public class NonPersonalAccountRepositoryImpl implements NonPersonalAccountRepos
     @Override
     public Optional<NonPersonalAccount> findById(String id) {
         return Optional.ofNullable(template.findOne(getPrimaryKeyQuery(id), NonPersonalAccount.class, COLLECTION));
+    }
+
+    @Override
+    public Optional<NonPersonalAccount> findByActiveKeyId(String activekeyId) {
+        return Optional.ofNullable(template
+                .findOne(new Query(Criteria.where(ACCOUNT_ID_FIELD).is(activekeyId)),
+                        NonPersonalAccount.class,
+                        COLLECTION)
+        );
     }
 
     @Override

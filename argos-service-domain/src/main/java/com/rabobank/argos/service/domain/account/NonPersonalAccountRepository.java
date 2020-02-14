@@ -24,5 +24,6 @@ public interface NonPersonalAccountRepository {
 
     Optional<NonPersonalAccount> findById(String accountId);
 
+    Optional<NonPersonalAccount> findByActiveKeyId(String activekeyId);
     Optional<NonPersonalAccount> update(String accountId, NonPersonalAccount nonPersonalAccount);
 }

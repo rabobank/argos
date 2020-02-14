@@ -1,0 +1,55 @@
+/*
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.rabobank.argos.service.security;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+
+
+@Slf4j
+public class NonPersonalAccountAuthenticationProvider implements AuthenticationProvider {
+
+    private final NonPersonalAccountUserDetailsService nonPersonalAccountUserDetailsService;
+
+    public NonPersonalAccountAuthenticationProvider(NonPersonalAccountUserDetailsService nonPersonalAccountUserDetailsService) {
+        this.nonPersonalAccountUserDetailsService = nonPersonalAccountUserDetailsService;
+    }
+
+    @Override
+    public Authentication authenticate(Authentication notAuthenticatedNonPersonalAccount) {
+        NonPersonalAccountAuthenticationToken nonPersonalAccountAuthenticationToken = (NonPersonalAccountAuthenticationToken) notAuthenticatedNonPersonalAccount;
+        try {
+            UserDetails userDetails = nonPersonalAccountUserDetailsService
+                    .loadUserById(nonPersonalAccountAuthenticationToken.getCredentials().getKeyId());
+
+            Authentication authenticatedNonPersonalAccount = new NonPersonalAccountAuthenticationToken(nonPersonalAccountAuthenticationToken.getCredentials(),
+                    userDetails,
+                    userDetails.getAuthorities());
+            authenticatedNonPersonalAccount.setAuthenticated(true);
+            return authenticatedNonPersonalAccount;
+        } catch (Exception ex) {
+            log.error("Could not set user authentication in security context", ex);
+        }
+        return notAuthenticatedNonPersonalAccount;
+    }
+
+    @Override
+    public boolean supports(Class<?> authenticationTokenClass) {
+        return authenticationTokenClass.equals(NonPersonalAccountAuthenticationToken.class);
+    }
+}

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.out.mongodb.personalaccount;
+package com.rabobank.argos.service.adapter.out.mongodb.account;
 
 import com.github.mongobee.changeset.ChangeLog;
 import com.github.mongobee.changeset.ChangeSet;
@@ -21,9 +21,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 
-import static com.rabobank.argos.service.adapter.out.mongodb.personalaccount.PersonalAccountRepositoryImpl.ACCOUNT_ID;
-import static com.rabobank.argos.service.adapter.out.mongodb.personalaccount.PersonalAccountRepositoryImpl.COLLECTION;
-import static com.rabobank.argos.service.adapter.out.mongodb.personalaccount.PersonalAccountRepositoryImpl.EMAIL;
+import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.ACCOUNT_ID;
+import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.COLLECTION;
+import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.EMAIL;
 
 
 @ChangeLog

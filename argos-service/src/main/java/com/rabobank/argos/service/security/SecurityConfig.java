@@ -56,11 +56,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final PersonalAccountUserDetailsService personalAccountUserDetailsService;
 
+    private final NonPersonalAccountUserDetailsService nonPersonalAccountUserDetailsService;
+
+
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
         return new TokenAuthenticationFilter(tokenProvider);
     }
 
+    @Bean
+    public KeyIdBasicAuthenticationFilter keyIdBasicAuthenticationFilter() throws Exception {
+        return new KeyIdBasicAuthenticationFilter(authenticationManagerBean());
+    }
     /*
       By default, Spring OAuth2 uses HttpSessionOAuth2AuthorizationRequestRepository to save
       the authorization request. But, since our service is stateless, we can't save it in
@@ -85,7 +92,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authenticationProvider(new PersonalAccountAuthenticationProvider(personalAccountUserDetailsService));
-
+        http.authenticationProvider(new NonPersonalAccountAuthenticationProvider(nonPersonalAccountUserDetailsService));
         http
                 .cors()
                 .and()
@@ -129,5 +136,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureHandler(oAuth2AuthenticationFailureHandler);
 
         http.addFilterBefore(tokenAuthenticationFilter(), BasicAuthenticationFilter.class);
+        http.addFilterBefore(keyIdBasicAuthenticationFilter(), BasicAuthenticationFilter.class);
     }
 }
