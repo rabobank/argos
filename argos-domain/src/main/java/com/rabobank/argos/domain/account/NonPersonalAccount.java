@@ -16,20 +16,23 @@
 package com.rabobank.argos.domain.account;
 
 import com.rabobank.argos.domain.key.KeyPair;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
+
+import static java.util.Collections.emptyList;
 
 @Getter
 @Setter
-@AllArgsConstructor
-public abstract class Account implements Serializable {
-    private String accountId;
-    private String name;
-    private String email;
-    private KeyPair activeKeyPair;
-    private List<KeyPair> inactiveKeyPairs;
+public class NonPersonalAccount extends Account {
+    private String parentLabelId;
+
+    @Builder
+    public NonPersonalAccount(String name, KeyPair activeKeyPair, List<KeyPair> inactiveKeyPairs, String parentLabelId) {
+        super(UUID.randomUUID().toString(), name, null, activeKeyPair, inactiveKeyPairs == null ? emptyList() : inactiveKeyPairs);
+        this.parentLabelId = parentLabelId;
+    }
 }

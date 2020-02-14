@@ -28,6 +28,9 @@ Feature: Hierarchy
     * def supplyChain1Response = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: supply-chain-1, parentLabelId: #(root1ChildResponse.response.id)}
     * def supplyChain2Response = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: supply-chain-2, parentLabelId: #(root2ChildResponse.response.id)}
     * def supplyChain3Response = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: supply-chain-3, parentLabelId: #(root3ChildResponse.response.id)}
+    * def nonPersonalAccount1Response = call read('classpath:feature/account/create-non-personal-account.feature') {name: npa-1, parentLabelId: #(root1ChildResponse.response.id)}
+    * def nonPersonalAccount2Response = call read('classpath:feature/account/create-non-personal-account.feature') {name: npa-2, parentLabelId: #(root2ChildResponse.response.id)}
+    * def nonPersonalAccount3Response = call read('classpath:feature/account/create-non-personal-account.feature') {name: npa-3, parentLabelId: #(root3ChildResponse.response.id)}
     * def root1Child2Response = call read('classpath:feature/label/create-label.feature') { name: 'childbroot1',parentLabelId:#(root1.response.id)}
     * def root2Child2Response = call read('classpath:feature/label/create-label.feature') { name: 'childbroot2',parentLabelId:#(root2.response.id)}
     * def root3Child2Response = call read('classpath:feature/label/create-label.feature') { name: 'childbroot3',parentLabelId:#(root3.response.id)}

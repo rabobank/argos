@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.account;
+package com.rabobank.argos.service.domain.account;
 
-import com.rabobank.argos.domain.key.KeyPair;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import com.rabobank.argos.domain.account.NonPersonalAccount;
 
-import java.io.Serializable;
-import java.util.List;
+import java.util.Optional;
 
-@Getter
-@Setter
-@AllArgsConstructor
-public abstract class Account implements Serializable {
-    private String accountId;
-    private String name;
-    private String email;
-    private KeyPair activeKeyPair;
-    private List<KeyPair> inactiveKeyPairs;
+public interface NonPersonalAccountRepository {
+    void save(NonPersonalAccount nonPersonalAccount);
+
+    Optional<NonPersonalAccount> findById(String accountId);
+
+    Optional<NonPersonalAccount> update(String accountId, NonPersonalAccount nonPersonalAccount);
 }

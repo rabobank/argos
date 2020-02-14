@@ -79,4 +79,9 @@ public class ArgosServiceTestIT {
     Karate hierarchy() {
         return new Karate().feature("classpath:feature/hierarchy/hierarchy.feature");
     }
+
+    @Karate.Test
+    Karate nonPersonalAccount() {
+        return new Karate().feature("classpath:feature/account/non-personal-account.feature");
+    }
 }
