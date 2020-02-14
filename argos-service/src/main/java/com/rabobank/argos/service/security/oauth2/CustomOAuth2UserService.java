@@ -16,8 +16,8 @@
 package com.rabobank.argos.service.security.oauth2;
 
 import com.rabobank.argos.domain.ArgosError;
-import com.rabobank.argos.service.domain.account.AuthenticationProvider;
-import com.rabobank.argos.service.domain.account.PersonalAccount;
+import com.rabobank.argos.domain.account.AuthenticationProvider;
+import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import com.rabobank.argos.service.security.oauth2.user.OAuth2UserInfo;
 import com.rabobank.argos.service.security.oauth2.user.OAuth2UserInfoFactory;

@@ -16,8 +16,8 @@
 package com.rabobank.argos.service.adapter.out.mongodb.personalaccount;
 
 import com.mongodb.client.result.UpdateResult;
+import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyPair;
-import com.rabobank.argos.service.domain.account.PersonalAccount;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

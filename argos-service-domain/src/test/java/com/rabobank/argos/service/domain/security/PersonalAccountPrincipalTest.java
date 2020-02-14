@@ -15,7 +15,7 @@
  */
 package com.rabobank.argos.service.domain.security;
 
-import com.rabobank.argos.service.domain.account.PersonalAccount;
+import com.rabobank.argos.domain.account.PersonalAccount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

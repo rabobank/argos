@@ -15,31 +15,31 @@
  */
 package com.rabobank.argos.domain.account;
 
-
 import com.rabobank.argos.domain.key.KeyPair;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.Collections.emptyList;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class Account {
+public abstract class Account implements Serializable {
 
     private String accountId;
     private String name;
+    private String email;
     private KeyPair activeKeyPair;
     private List<KeyPair> inactiveKeyPairs;
 
     public void deactivateKeyPair() {
         Optional.ofNullable(activeKeyPair).ifPresent(keyPair -> {
-            inactiveKeyPairs = new ArrayList<>(Optional.ofNullable(inactiveKeyPairs).orElse(emptyList()));
+            inactiveKeyPairs = new ArrayList<>(Optional.ofNullable(inactiveKeyPairs).orElse(Collections.emptyList()));
             inactiveKeyPairs.add(activeKeyPair);
             activeKeyPair = null;
         });

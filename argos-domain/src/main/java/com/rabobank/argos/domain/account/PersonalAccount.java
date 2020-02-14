@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.account;
+package com.rabobank.argos.domain.account;
 
 import com.rabobank.argos.domain.key.KeyPair;
 import lombok.Builder;

@@ -30,7 +30,7 @@ public class NonPersonalAccount extends Account {
 
     @Builder
     public NonPersonalAccount(String name, KeyPair activeKeyPair, List<KeyPair> inactiveKeyPairs, String parentLabelId) {
-        super(UUID.randomUUID().toString(), name, activeKeyPair, inactiveKeyPairs);
+        super(UUID.randomUUID().toString(), name, null, activeKeyPair, inactiveKeyPairs);
         this.parentLabelId = parentLabelId;
     }
 }

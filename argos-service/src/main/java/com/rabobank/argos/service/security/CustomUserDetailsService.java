@@ -16,7 +16,7 @@
 package com.rabobank.argos.service.security;
 
 import com.rabobank.argos.domain.ArgosError;
-import com.rabobank.argos.service.domain.account.PersonalAccount;
+import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import com.rabobank.argos.service.domain.security.AccountUserDetailsAdapter;
 import lombok.RequiredArgsConstructor;
