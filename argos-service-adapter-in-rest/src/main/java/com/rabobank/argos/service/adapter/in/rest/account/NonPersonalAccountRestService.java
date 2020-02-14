@@ -17,9 +17,8 @@ package com.rabobank.argos.service.adapter.in.rest.account;
 
 import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.NonPersonalAccountApi;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestNonPersonalAccount;
-import com.rabobank.argos.service.adapter.in.rest.key.KeyPairMapper;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestNonPersonalAccountKeyPair;
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.account.NonPersonalAccountRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
@@ -45,7 +44,7 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
 
     private final LabelRepository labelRepository;
 
-    private final KeyPairMapper keyPairMapper;
+    private final AccountKeyPairMapper keyPairMapper;
 
     private final AccountService accountService;
 
@@ -63,9 +62,9 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     }
 
     @Override
-    public ResponseEntity<RestKeyPair> createNonPersonalAccountKeyById(String nonPersonalAccountId, RestKeyPair restKeyPair) {
+    public ResponseEntity<RestNonPersonalAccountKeyPair> createNonPersonalAccountKeyById(String nonPersonalAccountId, RestNonPersonalAccountKeyPair restKeyPair) {
         NonPersonalAccount account = accountRepository.findById(nonPersonalAccountId).orElseThrow(() -> accountNotFound(nonPersonalAccountId));
-        accountService.activateNewKey(account, keyPairMapper.convertFromRestKeyPair(restKeyPair));
+        NonPersonalAccount updatedAccount = accountService.activateNewKey(account, keyPairMapper.convertFromRestKeyPair(restKeyPair));
 
         accountRepository.update(nonPersonalAccountId, account);
         URI location = ServletUriComponentsBuilder
@@ -73,11 +72,11 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
                 .path("/{nonPersonalAccountId}/key")
                 .buildAndExpand(nonPersonalAccountId)
                 .toUri();
-        return ResponseEntity.created(location).body(restKeyPair);
+        return ResponseEntity.created(location).body(keyPairMapper.convertToRestKeyPair(updatedAccount.getActiveKeyPair()));
     }
 
     @Override
-    public ResponseEntity<RestKeyPair> getNonPersonalAccountKeyById(String nonPersonalAccountId) {
+    public ResponseEntity<RestNonPersonalAccountKeyPair> getNonPersonalAccountKeyById(String nonPersonalAccountId) {
         return accountRepository.findById(nonPersonalAccountId)
                 .map(account -> Optional.ofNullable(account.getActiveKeyPair()))
                 .filter(Optional::isPresent)

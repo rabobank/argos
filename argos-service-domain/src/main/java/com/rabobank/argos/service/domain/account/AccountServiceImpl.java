@@ -21,24 +21,26 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
 
     @Override
-    public Account activateNewKey(Account account, KeyPair newKeyPair) {
+    public <T extends Account<K>, K extends KeyPair> T activateNewKey(T account, K newKeyPair) {
         deactivateKeyPair(account);
         account.setActiveKeyPair(newKeyPair);
         return account;
     }
 
-    private void deactivateKeyPair(Account account) {
+    private <T extends KeyPair> void deactivateKeyPair(Account<T> account) {
         Optional.ofNullable(account.getActiveKeyPair()).ifPresent(keyPair -> {
-            ArrayList<KeyPair> inactiveKeyPairs = new ArrayList<>(Optional.ofNullable(account.getInactiveKeyPairs()).orElse(Collections.emptyList()));
+            List<T> inactiveKeyPairs = new ArrayList<>(Optional.ofNullable(account.getInactiveKeyPairs()).orElse(Collections.emptyList()));
             inactiveKeyPairs.add(keyPair);
             account.setActiveKeyPair(null);
             account.setInactiveKeyPairs(inactiveKeyPairs);
         });
     }
+
 }

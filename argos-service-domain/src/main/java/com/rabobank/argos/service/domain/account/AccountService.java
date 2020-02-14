@@ -19,5 +19,5 @@ import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.key.KeyPair;
 
 public interface AccountService {
-    Account activateNewKey(Account account, KeyPair newKeyPair);
+    <T extends Account<K>, K extends KeyPair> T activateNewKey(T account, K newKeyPair);
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.out.mongodb.personalaccount;
+package com.rabobank.argos.service.adapter.out.mongodb.account;
 
 import com.mongodb.client.result.UpdateResult;
 import com.rabobank.argos.domain.account.PersonalAccount;
@@ -33,7 +33,7 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Optional;
 
-import static com.rabobank.argos.service.adapter.out.mongodb.personalaccount.PersonalAccountRepositoryImpl.COLLECTION;
+import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.COLLECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.out.mongodb.personalaccount;
+package com.rabobank.argos.service.adapter.out.mongodb.account;
 
 import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.account.PersonalAccount;

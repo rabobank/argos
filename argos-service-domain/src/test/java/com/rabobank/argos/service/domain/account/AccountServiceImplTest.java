@@ -33,9 +33,9 @@ class AccountServiceImplTest {
     private static final String ACCOUNT_ID = "accountId";
     private static final String ACCOUNT_NAME = "accountName";
 
-    private KeyPair activeKeyPair = KeyPair.builder().build();
-    private KeyPair inactiveKeyPair = KeyPair.builder().build();
-    private KeyPair newKeyPair = KeyPair.builder().build();
+    private KeyPair activeKeyPair = new KeyPair();
+    private KeyPair inactiveKeyPair = new KeyPair();
+    private KeyPair newKeyPair = new KeyPair();
     private AccountServiceImpl accountService;
 
     @BeforeEach
@@ -45,7 +45,7 @@ class AccountServiceImplTest {
 
     @Test
     void deactivateKeyPairNoActiveKeyAndNoInactiveKeys() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, null, null, null, null);
+        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, null, null, null, null);
         accountService.activateNewKey(account, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), emptyCollectionOf(KeyPair.class));
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
@@ -53,7 +53,7 @@ class AccountServiceImplTest {
 
     @Test
     void deactivateKeyPairNoActiveKey() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, null, null, null);
+        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, null, null, null);
         accountService.activateNewKey(account, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(activeKeyPair));
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
@@ -61,7 +61,7 @@ class AccountServiceImplTest {
 
     @Test
     void deactivateKeyPairNoActiveKeyAndEmptyList() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.emptyList(), null, null);
+        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.emptyList(), null, null);
         accountService.activateNewKey(account, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(activeKeyPair));
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
@@ -69,7 +69,7 @@ class AccountServiceImplTest {
 
     @Test
     void deactivateKeyPairNoActiveKeyAndInactiveKeyPair() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.singletonList(inactiveKeyPair), null, null);
+        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.singletonList(inactiveKeyPair), null, null);
         accountService.activateNewKey(account, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(inactiveKeyPair, activeKeyPair));
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));

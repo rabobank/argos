@@ -63,17 +63,17 @@ Feature: Non Personal Account
   Scenario: create a non personal account key should return a 201
     * def createResult = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
     * def accountId = createResult.response.id
-    * def keyPair = read('classpath:testmessages/key/keypair1.json')
+    * def keyPair = read('classpath:testmessages/key/npa-keypair1.json')
     * def result = call read('create-non-personal-account-key.feature') { accountId: #(accountId), key: #(keyPair)}
-    * match result.response == keyPair
+    * match result.response == {keyId: #(keyPair.keyId), publicKey: #(keyPair.publicKey), encryptedPrivateKey: #(keyPair.encryptedPrivateKey)}
 
   Scenario: get a active non personal account key should return a 200
     * def createResult = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
     * def accountId = createResult.response.id
-    * def keyPair = read('classpath:testmessages/key/keypair1.json')
+    * def keyPair = read('classpath:testmessages/key/npa-keypair1.json')
     * call read('create-non-personal-account-key.feature') { accountId: #(accountId), key: #(keyPair)}
     * def restPath = '/api/nonpersonalaccount/'+accountId+'/key'
     Given path restPath
     When method GET
     Then status 200
-    And match response == keyPair
+    And match response == {keyId: #(keyPair.keyId), publicKey: #(keyPair.publicKey), encryptedPrivateKey: #(keyPair.encryptedPrivateKey)}
