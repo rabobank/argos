@@ -13,45 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.security;
+package com.rabobank.argos.service.security.oauth2.user;
 
-import com.rabobank.argos.service.domain.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class UserPrincipalTest {
+class AzureOAuth2PersonalAccountInfoTest {
 
-    @Mock
-    private User user;
+    private final static String ID = "id";
+    private static final String DISPLAY_NAME = "diplayName";
+    private static final String USER_PRINCIPAL_NAME = "userPrincipalName";
+    private AzureOAuth2UserInfo userInfo;
 
     @BeforeEach
     void setUp() {
-        when(user.getName()).thenReturn("name");
+        Map<String, Object> attributes = Map.of("id", ID, "displayName", DISPLAY_NAME, "userPrincipalName", USER_PRINCIPAL_NAME);
+        userInfo = new AzureOAuth2UserInfo(attributes);
     }
 
     @Test
     void getId() {
-        when(user.getUserId()).thenReturn("id");
-        assertThat(new UserPrincipal(user).getId(), is("id"));
+        assertThat(userInfo.getId(), is(ID));
     }
 
     @Test
-    void getPassword() {
-        assertThat(new UserPrincipal(user).getPassword(), is(""));
+    void getName() {
+        assertThat(userInfo.getName(), is(DISPLAY_NAME));
     }
 
     @Test
-    void getAuthorities() {
-        assertThat(new UserPrincipal(user).getAuthorities(), contains(new SimpleGrantedAuthority("ROLE_USER")));
+    void getEmail() {
+        assertThat(userInfo.getEmail(), is(USER_PRINCIPAL_NAME.toLowerCase()));
     }
 }

@@ -16,8 +16,8 @@
 package com.rabobank.argos.service.security;
 
 import com.rabobank.argos.domain.ArgosError;
-import com.rabobank.argos.service.domain.user.User;
-import com.rabobank.argos.service.domain.user.UserRepository;
+import com.rabobank.argos.domain.account.PersonalAccount;
+import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,32 +33,32 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CustomUserDetailsServiceTest {
+class CustomPersonalAccountDetailsServiceTest {
 
     @Mock
-    private UserRepository userRepository;
+    private PersonalAccountRepository personalAccountRepository;
     private CustomUserDetailsService customUserDetailsService;
 
     @Mock
-    private User user;
+    private PersonalAccount personalAccount;
 
     @BeforeEach
     void setUp() {
-        customUserDetailsService = new CustomUserDetailsService(userRepository);
+        customUserDetailsService = new CustomUserDetailsService(personalAccountRepository);
     }
 
     @Test
     void loadUserById() {
-        when(userRepository.findByUserId("id")).thenReturn(Optional.of(user));
-        when(user.getName()).thenReturn("name");
+        when(personalAccountRepository.findByAccountId("id")).thenReturn(Optional.of(personalAccount));
+        when(personalAccount.getName()).thenReturn("name");
         UserDetails userDetails = customUserDetailsService.loadUserById("id");
         assertThat(userDetails.getUsername(), is("name"));
     }
 
     @Test
     void loadUserByIdNotFound() {
-        when(userRepository.findByUserId("id")).thenReturn(Optional.empty());
+        when(personalAccountRepository.findByAccountId("id")).thenReturn(Optional.empty());
         ArgosError argosError = assertThrows(ArgosError.class, () -> customUserDetailsService.loadUserById("id"));
-        assertThat(argosError.getMessage(), is("User with id id not found"));
+        assertThat(argosError.getMessage(), is("Personal account with id id not found"));
     }
 }

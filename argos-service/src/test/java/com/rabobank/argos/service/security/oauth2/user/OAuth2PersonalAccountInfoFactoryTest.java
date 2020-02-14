@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.key;
+package com.rabobank.argos.service.security.oauth2.user;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import com.rabobank.argos.domain.account.AuthenticationProvider;
+import org.junit.jupiter.api.Test;
 
-import java.io.Serializable;
-import java.security.PublicKey;
+import java.util.Collections;
 
-@Builder
-@Getter
-@Setter
-public class KeyPair implements Serializable {
-    private String keyId;
-    private byte[] encryptedPrivateKey;
-    private PublicKey publicKey;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+
+class OAuth2PersonalAccountInfoFactoryTest {
+
+    @Test
+    void getOAuth2UserInfoAzure() {
+        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(AuthenticationProvider.AZURE, Collections.emptyMap());
+        assertThat(userInfo, instanceOf(AzureOAuth2UserInfo.class));
+    }
 }
