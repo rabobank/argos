@@ -21,6 +21,7 @@ import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.adapter.in.rest.key.KeyPairMapper;
+import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContextImpl;
 import org.hamcrest.Matchers;
@@ -70,9 +71,12 @@ class PersonalAccountRestServiceTest {
     private KeyIdProvider keyIdProvider;
     private PersonalAccount personalAccount = PersonalAccount.builder().name(NAME).email(EMAIL).build();
 
+    @Mock
+    private AccountService accountService;
+
     @BeforeEach
     void setUp() {
-        service = new PersonalAccountRestService(accountSecurityContext, personalAccountRepository, keyPairMapper);
+        service = new PersonalAccountRestService(accountSecurityContext, personalAccountRepository, keyPairMapper, accountService);
     }
 
     @Test
@@ -103,7 +107,7 @@ class PersonalAccountRestServiceTest {
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
         ReflectionTestUtils.setField(service, KEY_ID_PROVIDER, keyIdProvider);
         assertThat(service.createKey(restKeyPair).getStatusCodeValue(), is(204));
-        assertThat(personalAccount.getActiveKeyPair(), sameInstance(keyPair));
+        verify(accountService).activateNewKey(personalAccount, keyPair);
         verify(personalAccountRepository).update(personalAccount);
     }
 
