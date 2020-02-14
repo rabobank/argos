@@ -97,7 +97,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authenticationProvider(new PersonalAccountAuthenticationProvider(personalAccountUserDetailsService));
-        http.authenticationProvider(new NonPersonalAccountAuthenticationProvider(nonPersonalAccountUserDetailsService));
+        http.authenticationProvider(new NonPersonalAccountAuthenticationProvider(nonPersonalAccountUserDetailsService, passwordEncoder()));
         http
                 .cors()
                 .and()

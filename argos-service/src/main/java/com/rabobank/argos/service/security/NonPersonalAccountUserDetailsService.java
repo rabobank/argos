@@ -20,7 +20,6 @@ import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.service.domain.account.NonPersonalAccountRepository;
 import com.rabobank.argos.service.domain.security.AccountUserDetailsAdapter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,7 +28,7 @@ public class NonPersonalAccountUserDetailsService {
 
     private final NonPersonalAccountRepository nonPersonalAccountRepository;
 
-    public UserDetails loadUserById(String id) {
+    public AccountUserDetailsAdapter loadUserById(String id) {
         NonPersonalAccount nonPersonalAccount = nonPersonalAccountRepository.findByActiveKeyId(id)
                 .orElseThrow(() -> new ArgosError("Non personal account with keyid " + id + " not found"));
         return new AccountUserDetailsAdapter(nonPersonalAccount);

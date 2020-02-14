@@ -20,14 +20,18 @@ import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyPair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.emptyCollectionOf;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.sameInstance;
 
+@ExtendWith(MockitoExtension.class)
 class AccountServiceImplTest {
 
     private static final String ACCOUNT_ID = "accountId";
@@ -38,22 +42,28 @@ class AccountServiceImplTest {
     private KeyPair newKeyPair = new KeyPair();
     private AccountServiceImpl accountService;
 
+    @Mock
+    private NonPersonalAccountRepository nonPersonalAccountRepository;
+
+    @Mock
+    private PersonalAccountRepository personalAccountRepository;
+
     @BeforeEach
     void setUp() {
-        accountService = new AccountServiceImpl();
+        accountService = new AccountServiceImpl(nonPersonalAccountRepository, personalAccountRepository);
     }
 
     @Test
     void deactivateKeyPairNoActiveKeyAndNoInactiveKeys() {
-        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, null, null, null, null);
+        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, null, null, null, null);
         accountService.activateNewKey(account, newKeyPair);
-        assertThat(account.getInactiveKeyPairs(), emptyCollectionOf(KeyPair.class));
+        assertThat(account.getInactiveKeyPairs(), empty());
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
     }
 
     @Test
     void deactivateKeyPairNoActiveKey() {
-        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, null, null, null);
+        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, null, null, null);
         accountService.activateNewKey(account, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(activeKeyPair));
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
@@ -61,7 +71,7 @@ class AccountServiceImplTest {
 
     @Test
     void deactivateKeyPairNoActiveKeyAndEmptyList() {
-        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.emptyList(), null, null);
+        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.emptyList(), null, null);
         accountService.activateNewKey(account, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(activeKeyPair));
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
@@ -69,7 +79,7 @@ class AccountServiceImplTest {
 
     @Test
     void deactivateKeyPairNoActiveKeyAndInactiveKeyPair() {
-        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.singletonList(inactiveKeyPair), null, null);
+        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.singletonList(inactiveKeyPair), null, null);
         accountService.activateNewKey(account, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(inactiveKeyPair, activeKeyPair));
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));

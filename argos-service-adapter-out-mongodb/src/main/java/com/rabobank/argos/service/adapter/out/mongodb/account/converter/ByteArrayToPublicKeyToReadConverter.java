@@ -13,15 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.out.mongodb.key.converter;
+package com.rabobank.argos.service.adapter.out.mongodb.account.converter;
 
+import com.rabobank.argos.service.adapter.out.mongodb.MongoDbException;
+import org.bson.types.Binary;
 import org.springframework.core.convert.converter.Converter;
 
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 
-public class PublicKeyToByteArrayWriteConverter implements Converter<PublicKey, byte[]> {
+import static com.rabobank.argos.domain.key.RSAPublicKeyFactory.instance;
+
+public class ByteArrayToPublicKeyToReadConverter implements Converter<Binary, PublicKey> {
+
     @Override
-    public byte[] convert(PublicKey publicKey) {
-        return publicKey.getEncoded();
+    public PublicKey convert(Binary bytes) {
+        try {
+            return instance(bytes.getData());
+        } catch (GeneralSecurityException e) {
+            throw new MongoDbException(e);
+        }
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.out.mongodb.key.converter;
+package com.rabobank.argos.service.adapter.out.mongodb.account.converter;
 
 import com.rabobank.argos.domain.key.RSAPublicKeyFactory;
 import org.apache.commons.io.IOUtils;

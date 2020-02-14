@@ -26,10 +26,10 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public abstract class Account<T extends KeyPair> implements Serializable {
+public abstract class Account implements Serializable {
     private String accountId;
     private String name;
     private String email;
-    private T activeKeyPair;
-    private List<T> inactiveKeyPairs;
+    private KeyPair activeKeyPair;
+    private List<? extends KeyPair> inactiveKeyPairs;
 }

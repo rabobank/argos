@@ -169,6 +169,9 @@ paths:
       operationId: createLink
       tags:
         - link
+      security:
+        - basicAuth: []
+        - bearerAuth: []
       parameters:
         - name: supplyChainId
           in: path
@@ -184,51 +187,6 @@ paths:
       responses:
         '204':
           description: no content
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/Error'
-  /key:
-    post:
-      summary: stores a public and private key pair
-      operationId: storeKey
-      tags:
-        - key
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/KeyPair"
-      responses:
-        '204':
-          description: no content
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/Error'
-  /key/{keyId}:
-    get:
-      summary: get a key pair by id
-      operationId: getKey
-      tags:
-        - key
-      parameters:
-        - name: keyId
-          in: path
-          description: key pair id
-          required: true
-          schema:
-            type: string
-            minLength: 64
-            maxLength: 64
-            pattern: '^[0-9a-f]*$'
-      responses:
-        '200':
-          description: Key pair
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/KeyPair"
         '400':
           $ref: '#/components/responses/ValidationError'
         '500':
@@ -260,6 +218,8 @@ paths:
     post:
       summary: Create a layout
       operationId: createLayout
+      security:
+        - bearerAuth: []
       tags:
         - layout
       parameters:
@@ -323,6 +283,8 @@ paths:
     put:
       summary: update a layout
       operationId: updateLayout
+      security:
+        - bearerAuth: []
       tags:
         - layout
       parameters:
@@ -636,6 +598,25 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
+  /nonpersonalaccount/me/activekey:
+    get:
+      summary: return the active key pair
+      operationId: getNonPersonalAccountKey
+      security:
+        - basicAuth: []
+      tags:
+        - non personal account
+      responses:
+        '200':
+          description: active key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonPersonalAccountKeyPair"
+        '404':
+          description: no active key exists
+        '500':
+          $ref: '#/components/responses/Error'
   /nonpersonalaccount/{nonPersonalAccountId}:
     get:
       summary: find non personal account by id
@@ -742,10 +723,14 @@ paths:
           $ref: '#/components/responses/Error'
 components:
   securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    basicAuth:
+      type: http
+      scheme: basic
+
   responses:
     ValidationError:
       description: validation error

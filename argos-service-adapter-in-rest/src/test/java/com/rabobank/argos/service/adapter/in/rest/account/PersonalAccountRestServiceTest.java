@@ -20,7 +20,6 @@ import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
-import com.rabobank.argos.service.adapter.in.rest.key.KeyPairMapper;
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContextImpl;
@@ -50,7 +49,6 @@ class PersonalAccountRestServiceTest {
 
     private static final String NAME = "name";
     private static final String EMAIL = "email";
-    private static final String ID = "id";
     private static final String KEY_ID = "keyId";
     private static final String KEY_ID_PROVIDER = "keyIdProvider";
     private static final String PERSONAL_ACCOUNT_NOT_FOUND = "404 NOT_FOUND \"personal account not found\"";
@@ -62,7 +60,7 @@ class PersonalAccountRestServiceTest {
     @Mock
     private PersonalAccountRepository personalAccountRepository;
     @Mock
-    private KeyPairMapper keyPairMapper;
+    private AccountKeyPairMapper keyPairMapper;
     @Mock
     private RestKeyPair restKeyPair;
     @Mock
@@ -133,7 +131,7 @@ class PersonalAccountRestServiceTest {
     void getKeyPairShouldReturnOK() {
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
         when(keyPairMapper.convertToRestKeyPair(keyPair)).thenReturn(restKeyPair);
-        when(personalAccountRepository.findActiveKeyPair(any())).thenReturn(Optional.of(keyPair));
+        personalAccount.setActiveKeyPair(keyPair);
         ResponseEntity<RestKeyPair> responseEntity = service.getKeyPair();
         assertThat(responseEntity.getStatusCodeValue(), Matchers.is(200));
         assertThat(responseEntity.getBody(), sameInstance(restKeyPair));
@@ -142,7 +140,7 @@ class PersonalAccountRestServiceTest {
     @Test
     void getKeyPairShouldReturnNotFound() {
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
-        when(personalAccountRepository.findActiveKeyPair(any())).thenReturn(Optional.empty());
+        personalAccount.setActiveKeyPair(null);
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getKeyPair());
         assertThat(exception.getStatus().value(), is(404));
         assertThat(exception.getMessage(), is(ACTIVE_KEYPAIR_NOT_FOUND));

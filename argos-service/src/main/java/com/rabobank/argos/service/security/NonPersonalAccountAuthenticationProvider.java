@@ -15,33 +15,39 @@
  */
 package com.rabobank.argos.service.security;
 
+import com.rabobank.argos.domain.account.NonPersonalAccountKeyPair;
+import com.rabobank.argos.service.domain.security.AccountUserDetailsAdapter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 @Slf4j
+@RequiredArgsConstructor
 public class NonPersonalAccountAuthenticationProvider implements AuthenticationProvider {
 
     private final NonPersonalAccountUserDetailsService nonPersonalAccountUserDetailsService;
 
-    public NonPersonalAccountAuthenticationProvider(NonPersonalAccountUserDetailsService nonPersonalAccountUserDetailsService) {
-        this.nonPersonalAccountUserDetailsService = nonPersonalAccountUserDetailsService;
-    }
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication notAuthenticatedNonPersonalAccount) {
         NonPersonalAccountAuthenticationToken nonPersonalAccountAuthenticationToken = (NonPersonalAccountAuthenticationToken) notAuthenticatedNonPersonalAccount;
         try {
-            UserDetails userDetails = nonPersonalAccountUserDetailsService
+            AccountUserDetailsAdapter userDetails = nonPersonalAccountUserDetailsService
                     .loadUserById(nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials().getKeyId());
 
-            Authentication authenticatedNonPersonalAccount = new NonPersonalAccountAuthenticationToken(nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials(),
-                    userDetails,
-                    userDetails.getAuthorities());
-            authenticatedNonPersonalAccount.setAuthenticated(true);
-            return authenticatedNonPersonalAccount;
+
+            String password = nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials().getPassword();
+            NonPersonalAccountKeyPair nonPersonalAccountKeyPair = (NonPersonalAccountKeyPair) userDetails.getAccount().getActiveKeyPair();
+            if (passwordEncoder.matches(password, nonPersonalAccountKeyPair.getEncryptedHashedKeyPassphrase())) {
+                return new NonPersonalAccountAuthenticationToken(nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials(),
+                        userDetails,
+                        userDetails.getAuthorities());
+            }
+            return nonPersonalAccountAuthenticationToken;
         } catch (Exception ex) {
             log.error("Could not set user authentication in security context", ex);
         }

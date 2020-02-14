@@ -69,7 +69,7 @@ public class Argos4jIT {
         RestLabel childLabel = getHierarchyApi().createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
         String supplyChainId = getSupplychainApi().createSupplyChain(new RestSupplyChain().name("test-supply-chain").parentLabelId(childLabel.getId())).getId();
 
-        keyPair = createAndStoreKeyPair("test");
+        keyPair = createAndStoreKeyPair("test", childLabel.getId());
 
         RestLayoutMetaBlock layout = new RestLayoutMetaBlock().layout(createLayout());
         signAndStoreLayout(supplyChainId, layout, keyPair.getKeyId(), "test");

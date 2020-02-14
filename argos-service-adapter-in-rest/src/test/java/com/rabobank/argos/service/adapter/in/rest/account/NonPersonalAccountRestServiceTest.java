@@ -22,6 +22,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.model.RestNonPersonalAccou
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.account.NonPersonalAccountRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
+import com.rabobank.argos.service.domain.security.AccountSecurityContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -80,9 +81,12 @@ class NonPersonalAccountRestServiceTest {
     @Mock
     private AccountService accountService;
 
+    @Mock
+    private AccountSecurityContext accountSecurityContext;
+
     @BeforeEach
     void setUp() {
-        service = new NonPersonalAccountRestService(accountRepository, accountMapper, labelRepository, keyPairMapper, accountService);
+        service = new NonPersonalAccountRestService(accountRepository, accountMapper, labelRepository, keyPairMapper, accountService, accountSecurityContext);
     }
 
     @Test

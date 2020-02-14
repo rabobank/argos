@@ -55,6 +55,7 @@ public class NonPersonalAccountAuthenticationToken extends UsernamePasswordAuthe
 
     @Builder
     @Getter
+    @EqualsAndHashCode
     public static class NonPersonalAccountCredentials implements Serializable {
         private String keyId;
         private String password;

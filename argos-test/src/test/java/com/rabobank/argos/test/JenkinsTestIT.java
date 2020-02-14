@@ -25,10 +25,13 @@ import com.offbytwo.jenkins.model.Job;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
+import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
+import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccount;
+import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +50,7 @@ import java.util.stream.Stream;
 
 import static com.rabobank.argos.test.NexusHelper.getWarSnapshotHash;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
-import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getNonPersonalAccountApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.isValidEndProduct;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
@@ -58,7 +61,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 public class JenkinsTestIT {
@@ -86,18 +90,30 @@ public class JenkinsTestIT {
         clearDatabase();
         RestLabel rootLabel = getHierarchyApi().createLabel(new RestLabel().name("root_label"));
         RestLabel childLabel = getHierarchyApi().createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
+
         RestSupplyChain restSupplyChainItem = getSupplychainApi().createSupplyChain(new RestSupplyChain().name("argos-test-app").parentLabelId(childLabel.getId()));
         this.supplyChainId = restSupplyChainItem.getId();
         RestKeyPair restKeyPair = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair1.json"), RestKeyPair.class);
         keyIdBob = restKeyPair.getKeyId();
-        getKeyApi().storeKey(restKeyPair);
+        createNpaWithActiveKey(restKeyPair, childLabel.getId(), "npa1");
         RestKeyPair restKeyPairExt = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair2.json"), RestKeyPair.class);
-        getKeyApi().storeKey(restKeyPairExt);
+        createNpaWithActiveKey(restKeyPairExt, childLabel.getId(), "npa2");
         restKeyPairExt = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair3.json"), RestKeyPair.class);
-        getKeyApi().storeKey(restKeyPairExt);
+        createNpaWithActiveKey(restKeyPairExt, childLabel.getId(), "npa3");
         createLayout();
         jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
     }
+
+    private void createNpaWithActiveKey(RestKeyPair restKeyPair, String parentLabelId, String name) {
+        NonPersonalAccountApi nonPersonalAccountApi = getNonPersonalAccountApi();
+        RestNonPersonalAccount npa = nonPersonalAccountApi.createNonPersonalAccount(new RestNonPersonalAccount().parentLabelId(parentLabelId).name(name));
+        nonPersonalAccountApi.createNonPersonalAccountKeyById(npa.getId(), new RestNonPersonalAccountKeyPair()
+                .keyId(restKeyPair.getKeyId())
+                .encryptedPrivateKey(restKeyPair.getEncryptedPrivateKey())
+                .publicKey(restKeyPair.getPublicKey())
+                .hashedKeyPassphrase("test"));
+    }
+
 
     private static void waitForJenkinsToStart() {
         log.info("Waiting for jenkins start");

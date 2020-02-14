@@ -15,13 +15,13 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.account;
 
-import com.rabobank.argos.domain.account.Account;
+import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.account.PersonalAccount;
-import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
@@ -36,6 +36,7 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
 
     static final String COLLECTION = "personalaccounts";
     static final String ACCOUNT_ID = "accountId";
+    static final String ACTIVE_KEY_ID_FIELD = "activeKeyPair.keyId";
     static final String EMAIL = "email";
     private final MongoTemplate template;
 
@@ -63,8 +64,17 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     }
 
     @Override
-    public Optional<KeyPair> findActiveKeyPair(String accountId) {
-        return findByAccountId(accountId).map(Account::getActiveKeyPair);
+    public Optional<PersonalAccount> findByActiveKeyId(String activeKeyId) {
+        return Optional.ofNullable(template.findOne(getActiveKeyQuery(activeKeyId), PersonalAccount.class, COLLECTION));
+    }
+
+    @Override
+    public boolean activeKeyExists(String activeKeyId) {
+        return template.exists(getActiveKeyQuery(activeKeyId), NonPersonalAccount.class, COLLECTION);
+    }
+
+    private Query getActiveKeyQuery(String activeKeyId) {
+        return new Query(Criteria.where(ACTIVE_KEY_ID_FIELD).is(activeKeyId));
     }
 
     private Query getPrimaryQuery(String userId) {

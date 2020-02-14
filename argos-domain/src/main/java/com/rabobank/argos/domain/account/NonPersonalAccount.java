@@ -16,6 +16,7 @@
 package com.rabobank.argos.domain.account;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,7 +27,8 @@ import static java.util.Collections.emptyList;
 
 @Getter
 @Setter
-public class NonPersonalAccount extends Account<NonPersonalAccountKeyPair> {
+@EqualsAndHashCode(callSuper = true)
+public class NonPersonalAccount extends Account {
     private String parentLabelId;
 
     @Builder

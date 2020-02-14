@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.in.rest.key;
+package com.rabobank.argos.service.adapter.in.rest.account;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class KeyPairMapperTest {
 
-    private KeyPairMapper converter;
+    private AccountKeyPairMapper converter;
     private ObjectMapper mapper;
     private String keyPairJson;
     private byte[] bytePublicKey;
@@ -43,7 +43,7 @@ class KeyPairMapperTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        converter = Mappers.getMapper(KeyPairMapper.class);
+        converter = Mappers.getMapper(AccountKeyPairMapper.class);
         mapper = new ObjectMapper();
         keyPairJson = IOUtils.toString(getClass().getResourceAsStream("/keypair.json"), "UTF-8");
         base64EncodedPublicKey = IOUtils.toString(getClass().getResourceAsStream("/testkey.pub"), "UTF-8");

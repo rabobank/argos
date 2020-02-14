@@ -24,7 +24,6 @@ import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.PersonalAccountApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
-import com.rabobank.argos.service.adapter.in.rest.key.KeyPairMapper;
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContext;
@@ -37,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,7 +45,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
 
     private final AccountSecurityContext accountSecurityContext;
     private final PersonalAccountRepository personalAccountRepository;
-    private final KeyPairMapper keyPairMapper;
+    private final AccountKeyPairMapper keyPairMapper;
     private final KeyIdProvider keyIdProvider = new KeyIdProviderImpl();
     private final AccountService accountService;
 
@@ -74,7 +74,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     public ResponseEntity<RestKeyPair> getKeyPair() {
         Account account = accountSecurityContext
                 .getAuthenticatedAccount().orElseThrow(this::profileNotFound);
-        KeyPair keyPair = personalAccountRepository.findActiveKeyPair(account.getAccountId()).orElseThrow(() ->
+        KeyPair keyPair = Optional.ofNullable(account.getActiveKeyPair()).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "no active keypair found for account: " + account.getName()));
         return new ResponseEntity<>(keyPairMapper.convertToRestKeyPair(keyPair), HttpStatus.OK);
     }

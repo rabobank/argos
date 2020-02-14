@@ -17,30 +17,23 @@ package com.rabobank.argos.test;
 
 import com.rabobank.argos.argos4j.rest.api.ApiClient;
 import com.rabobank.argos.argos4j.rest.api.client.HierarchyApi;
-import com.rabobank.argos.argos4j.rest.api.client.KeyApi;
 import com.rabobank.argos.argos4j.rest.api.client.LayoutApi;
 import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
+import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
 import com.rabobank.argos.argos4j.rest.api.client.VerificationApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.security.MessageDigest;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 public class ServiceStatusHelper {
@@ -65,8 +58,6 @@ public class ServiceStatusHelper {
 
         log.info("argos service started");
     }
-
-
 
 
     public static void waitForArgosIntegrationTestServiceToStart() {
@@ -100,12 +91,12 @@ public class ServiceStatusHelper {
         return getApiClient().buildClient(HierarchyApi.class);
     }
 
-    public static KeyApi getKeyApi() {
-        return getApiClient().buildClient(KeyApi.class);
-    }
-
     public static boolean isValidEndProduct(String supplyChainId, RestVerifyCommand verifyCommand) {
         return getVerificationApi().performVerification(supplyChainId, verifyCommand).getRunIsValid();
+    }
+
+    public static NonPersonalAccountApi getNonPersonalAccountApi() {
+        return getApiClient().buildClient(NonPersonalAccountApi.class);
     }
 
     public static VerificationApi getVerificationApi() {

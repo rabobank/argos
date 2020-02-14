@@ -22,6 +22,10 @@ import java.util.Optional;
 public interface NonPersonalAccountRepository {
     void save(NonPersonalAccount nonPersonalAccount);
     Optional<NonPersonalAccount> findById(String accountId);
-    Optional<NonPersonalAccount> findByActiveKeyId(String activekeyId);
+
+    Optional<NonPersonalAccount> findByActiveKeyId(String activeKeyId);
+
     Optional<NonPersonalAccount> update(String accountId, NonPersonalAccount nonPersonalAccount);
+
+    boolean activeKeyExists(String activeKeyId);
 }

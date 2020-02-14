@@ -56,12 +56,8 @@ public class NonPersonalAccountRepositoryImpl implements NonPersonalAccountRepos
     }
 
     @Override
-    public Optional<NonPersonalAccount> findByActiveKeyId(String activekeyId) {
-        return Optional.ofNullable(template
-                .findOne(new Query(Criteria.where(ACCOUNT_ID_FIELD).is(activekeyId)),
-                        NonPersonalAccount.class,
-                        COLLECTION)
-        );
+    public Optional<NonPersonalAccount> findByActiveKeyId(String activeKeyId) {
+        return Optional.ofNullable(template.findOne(getActiveKeyQuery(activeKeyId), NonPersonalAccount.class, COLLECTION));
     }
 
     @Override
@@ -80,6 +76,15 @@ public class NonPersonalAccountRepositoryImpl implements NonPersonalAccountRepos
         } catch (DuplicateKeyException e) {
             throw duplicateKeyException(account, e);
         }
+    }
+
+    @Override
+    public boolean activeKeyExists(String activeKeyId) {
+        return template.exists(getActiveKeyQuery(activeKeyId), NonPersonalAccount.class, COLLECTION);
+    }
+
+    private Query getActiveKeyQuery(String activekeyId) {
+        return new Query(Criteria.where(ACTIVE_KEY_ID_FIELD).is(activekeyId));
     }
 
     private Query getPrimaryKeyQuery(String id) {

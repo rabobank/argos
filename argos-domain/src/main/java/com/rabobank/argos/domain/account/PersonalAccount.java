@@ -29,7 +29,7 @@ import static java.util.UUID.randomUUID;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-public class PersonalAccount extends Account<KeyPair> {
+public class PersonalAccount extends Account {
     @Builder
     public PersonalAccount(
             String name,

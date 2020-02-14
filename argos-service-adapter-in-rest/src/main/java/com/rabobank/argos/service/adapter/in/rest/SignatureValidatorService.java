@@ -20,7 +20,7 @@ import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.signing.SignatureValidator;
-import com.rabobank.argos.service.domain.key.KeyPairRepository;
+import com.rabobank.argos.service.domain.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ public class SignatureValidatorService {
 
     private final SignatureValidator signatureValidator;
 
-    private final KeyPairRepository keyPairRepository;
+    private final AccountService accountService;
 
     public void validateSignature(Layout layout, Signature signature) {
         if (!signatureValidator.isValid(layout, signature.getSignature(), getKeyPair(signature).getPublicKey())) {
@@ -51,7 +51,7 @@ public class SignatureValidatorService {
     }
 
     private KeyPair getKeyPair(Signature signature) {
-        return keyPairRepository.findByKeyId(signature.getKeyId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "signature with keyId " + signature.getKeyId() + " not found"));
+        return accountService.findKeyPairByKeyId(signature.getKeyId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "signature with keyId " + signature.getKeyId() + " not found"));
     }
 
 }

@@ -17,7 +17,6 @@ package com.rabobank.argos.service.adapter.out.mongodb.account;
 
 import com.mongodb.client.result.UpdateResult;
 import com.rabobank.argos.domain.account.PersonalAccount;
-import com.rabobank.argos.domain.key.KeyPair;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,9 +51,6 @@ class PersonalAccountRepositoryImplTest {
 
     @Mock
     private PersonalAccount personalAccount;
-
-    @Mock
-    private KeyPair keyPair;
 
     @Captor
     private ArgumentCaptor<Query> queryArgumentCaptor;
@@ -107,12 +103,4 @@ class PersonalAccountRepositoryImplTest {
         verify(converter).write(eq(personalAccount), any(Document.class));
     }
 
-    @Test
-    void findActiveKeyPair() {
-        when(template.findOne(any(), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(personalAccount);
-        when(personalAccount.getActiveKeyPair()).thenReturn(keyPair);
-        assertThat(repository.findByAccountId("userId"), is(Optional.of(personalAccount)));
-        verify(template).findOne(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
-        assertThat(repository.findActiveKeyPair("userId"), is(Optional.of(keyPair)));
-    }
 }
