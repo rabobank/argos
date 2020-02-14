@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.domain.account;
 
+import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyPair;
 
 import java.util.Optional;

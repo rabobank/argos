@@ -15,12 +15,12 @@
  */
 package com.rabobank.argos.service.adapter.in.rest.personalaccount;
 
+import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.adapter.in.rest.key.KeyPairMapper;
-import com.rabobank.argos.service.domain.account.PersonalAccount;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContextImpl;
 import org.hamcrest.Matchers;

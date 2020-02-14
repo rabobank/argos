@@ -15,7 +15,7 @@
  */
 package com.rabobank.argos.service.security.oauth2.user;
 
-import com.rabobank.argos.service.domain.account.AuthenticationProvider;
+import com.rabobank.argos.domain.account.AuthenticationProvider;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;

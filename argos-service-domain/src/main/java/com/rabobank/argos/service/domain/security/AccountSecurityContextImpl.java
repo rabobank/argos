@@ -15,7 +15,7 @@
  */
 package com.rabobank.argos.service.domain.security;
 
-import com.rabobank.argos.service.domain.account.Account;
+import com.rabobank.argos.domain.account.Account;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

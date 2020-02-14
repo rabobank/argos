@@ -16,8 +16,8 @@
 package com.rabobank.argos.service.domain.security;
 
 
-import com.rabobank.argos.service.domain.account.Account;
-import com.rabobank.argos.service.domain.account.PersonalAccount;
+import com.rabobank.argos.domain.account.Account;
+import com.rabobank.argos.domain.account.PersonalAccount;
 import lombok.EqualsAndHashCode;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
