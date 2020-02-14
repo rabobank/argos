@@ -23,6 +23,7 @@ import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.nullValue;
 
 class AccountTest {
@@ -39,15 +40,15 @@ class AccountTest {
 
     @Test
     void deactivateKeyPairNoActiveKeyAndNoInactiveKeys() {
-        Account account = new Account(ACCOUNT_ID, ACCOUNT_NAME, null, null);
+        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, null, null, null, null);
         account.deactivateKeyPair();
-        assertThat(account.getInactiveKeyPairs(), nullValue());
+        assertThat(account.getInactiveKeyPairs(), emptyCollectionOf(KeyPair.class));
         assertThat(account.getActiveKeyPair(), nullValue());
     }
 
     @Test
     void deactivateKeyPairNoActiveKey() {
-        Account account = new Account(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, null);
+        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, null, null, null);
         account.deactivateKeyPair();
         assertThat(account.getInactiveKeyPairs(), contains(activeKeyPair));
         assertThat(account.getActiveKeyPair(), nullValue());
@@ -55,7 +56,7 @@ class AccountTest {
 
     @Test
     void deactivateKeyPairNoActiveKeyAndEmptyList() {
-        Account account = new Account(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.emptyList());
+        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.emptyList(), null, null);
         account.deactivateKeyPair();
         assertThat(account.getInactiveKeyPairs(), contains(activeKeyPair));
         assertThat(account.getActiveKeyPair(), nullValue());
@@ -63,7 +64,7 @@ class AccountTest {
 
     @Test
     void deactivateKeyPairNoActiveKeyAndInactiveKeyPair() {
-        Account account = new Account(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.singletonList(inactiveKeyPair));
+        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.singletonList(inactiveKeyPair), null, null);
         account.deactivateKeyPair();
         assertThat(account.getInactiveKeyPairs(), contains(inactiveKeyPair, activeKeyPair));
         assertThat(account.getActiveKeyPair(), nullValue());

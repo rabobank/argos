@@ -23,6 +23,8 @@ import lombok.Setter;
 import java.util.List;
 import java.util.UUID;
 
+import static java.util.Collections.emptyList;
+
 @Getter
 @Setter
 public class NonPersonalAccount extends Account {
@@ -30,7 +32,7 @@ public class NonPersonalAccount extends Account {
 
     @Builder
     public NonPersonalAccount(String name, KeyPair activeKeyPair, List<KeyPair> inactiveKeyPairs, String parentLabelId) {
-        super(UUID.randomUUID().toString(), name, null, activeKeyPair, inactiveKeyPairs);
+        super(UUID.randomUUID().toString(), name, null, activeKeyPair, inactiveKeyPairs == null ? emptyList() : inactiveKeyPairs);
         this.parentLabelId = parentLabelId;
     }
 }
