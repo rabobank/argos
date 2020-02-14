@@ -33,32 +33,32 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CustomPersonalAccountDetailsServiceTest {
+class PersonalAccountUserDetailsServiceTest {
 
     @Mock
     private PersonalAccountRepository personalAccountRepository;
-    private CustomUserDetailsService customUserDetailsService;
+    private PersonalAccountUserDetailsService personalAccountUserDetailsService;
 
     @Mock
     private PersonalAccount personalAccount;
 
     @BeforeEach
     void setUp() {
-        customUserDetailsService = new CustomUserDetailsService(personalAccountRepository);
+        personalAccountUserDetailsService = new PersonalAccountUserDetailsService(personalAccountRepository);
     }
 
     @Test
     void loadUserById() {
         when(personalAccountRepository.findByAccountId("id")).thenReturn(Optional.of(personalAccount));
         when(personalAccount.getName()).thenReturn("name");
-        UserDetails userDetails = customUserDetailsService.loadUserById("id");
+        UserDetails userDetails = personalAccountUserDetailsService.loadUserById("id");
         assertThat(userDetails.getUsername(), is("name"));
     }
 
     @Test
     void loadUserByIdNotFound() {
         when(personalAccountRepository.findByAccountId("id")).thenReturn(Optional.empty());
-        ArgosError argosError = assertThrows(ArgosError.class, () -> customUserDetailsService.loadUserById("id"));
+        ArgosError argosError = assertThrows(ArgosError.class, () -> personalAccountUserDetailsService.loadUserById("id"));
         assertThat(argosError.getMessage(), is("Personal account with id id not found"));
     }
 }

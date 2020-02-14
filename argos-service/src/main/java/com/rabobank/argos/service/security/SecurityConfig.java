@@ -54,11 +54,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final TokenProvider tokenProvider;
 
-    private final CustomUserDetailsService customUserDetailsService;
+    private final PersonalAccountUserDetailsService personalAccountUserDetailsService;
 
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter(tokenProvider, customUserDetailsService);
+        return new TokenAuthenticationFilter(tokenProvider);
     }
 
     /*
@@ -84,6 +84,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.authenticationProvider(new PersonalAccountAuthenticationProvider(personalAccountUserDetailsService));
+
         http
                 .cors()
                 .and()
