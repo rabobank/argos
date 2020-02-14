@@ -18,28 +18,28 @@
 
 title Argos Server oauth2 authorization flow for azure
 
-actor user
+actor personalAccount
 participant browser
 participant "argos service" as argos
 participant "external authorization service" as auth
-participant "user profile service (external resource server)" as up
+participant "personalAccount profile service (external resource server)" as up
 database "database"
 
-user -> browser: signup / signin
+personalAccount -> browser: signup / signin
 
 browser -> argos: get oauth2/authorize/azure
 argos --> browser: redirect to authorization service
 
 browser -> auth: get /oauth2/v2.0/authorize
 auth --> browser: login page
-browser --> user: show login page
+browser --> personalAccount: show login page
 
-user -> browser: enter credentials
+personalAccount -> browser: enter credentials
 browser -> auth: post credentials
-auth --> browser: user consent page
-browser --> user: show user consent page
+auth --> browser: personalAccount consent page
+browser --> personalAccount: show personalAccount consent page
 
-user -> browser: user agrees
+personalAccount -> browser: personalAccount agrees
 browser -> auth: post agree
 auth --> browser: redirect to argos service /oauth2/callback/azure
 browser -> argos: get /oauth2/callback/azure
@@ -47,7 +47,7 @@ argos -> auth: post /oauth2/v2.0/token
 auth --> argos: returns token
 argos -> up: get userprofile
 up --> argos: returns userprofile
-argos -> database: store / update user profile
+argos -> database: store / update personalAccount profile
 argos --> browser: redirect to argos frontend
-browser --> user: show argos frontend
+browser --> personalAccount: show argos frontend
 @enduml

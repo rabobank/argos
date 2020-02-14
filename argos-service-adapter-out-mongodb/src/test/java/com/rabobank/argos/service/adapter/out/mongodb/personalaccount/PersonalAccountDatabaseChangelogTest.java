@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.out.mongodb.user;
+package com.rabobank.argos.service.adapter.out.mongodb.personalaccount;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,13 +22,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 
-import static com.rabobank.argos.service.adapter.out.mongodb.user.UserRepositoryImpl.COLLECTION;
+import static com.rabobank.argos.service.adapter.out.mongodb.personalaccount.PersonalAccountRepositoryImpl.COLLECTION;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserDatabaseChangelogTest {
+class PersonalAccountDatabaseChangelogTest {
 
     @Mock
     private MongoTemplate template;
@@ -39,7 +39,7 @@ class UserDatabaseChangelogTest {
     @Test
     void addIndex() {
         when(template.indexOps(COLLECTION)).thenReturn(indexOperations);
-        new UserDatabaseChangelog().addIndex(template);
+        new PersonalAccountDatabaseChangelog().addIndex(template);
         verify(template, times(2)).indexOps(COLLECTION);
     }
 

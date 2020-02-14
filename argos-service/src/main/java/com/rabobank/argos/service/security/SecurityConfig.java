@@ -22,6 +22,7 @@ import com.rabobank.argos.service.security.oauth2.OAuth2AuthenticationSuccessHan
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -39,6 +40,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
         jsr250Enabled = true,
         prePostEnabled = true
 )
+@EnableAspectJAutoProxy
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 

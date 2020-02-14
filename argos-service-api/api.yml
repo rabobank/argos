@@ -546,42 +546,66 @@ paths:
           description: label deleted
         '500':
           $ref: '#/components/responses/Error'
-  /user/me:
-    get:
-      summary: returns the user profile
-      operationId: getUserProfile
+  /personalaccount/me/key:
+    post:
+      summary: creates a new active public and private key pair
+      operationId: createKey
       security:
         - bearerAuth: []
       tags:
-        - user
-      responses:
-        '200':
-          description: User Profile
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserProfile'
-        '500':
-          $ref: '#/components/responses/Error'
-    put:
-      summary: updates the user profile
-      operationId: updateUserProfile
-      security:
-        - bearerAuth: []
-      tags:
-        - user
+        - personal account
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserProfile"
+              $ref: "#/components/schemas/KeyPair"
+      responses:
+        '204':
+          description: no content
+        '404':
+          description: personal account not found
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+
+    get:
+      summary: gets the currently active a key pair
+      operationId: getKeyPair
+      security:
+        - bearerAuth: []
+      tags:
+        - personal account
       responses:
         '200':
-          description: Updated User Profile
+          description: Key pair
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfile'
+                $ref: "#/components/schemas/KeyPair"
+        '404':
+          description: personal account not found
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+  /personalaccount/me:
+    get:
+      summary: returns the personal account profile of the authenticated personal account based on the bearer token
+      operationId: getPersonalAccountOfAuthenticatedUser
+      security:
+        - bearerAuth: []
+      tags:
+        - personal account
+      responses:
+        '200':
+          description: Personal Account Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalAccount'
+        '404':
+          description: personal account not found
         '500':
           $ref: '#/components/responses/Error'
   /nonpersonalaccount:
@@ -1057,7 +1081,7 @@ components:
         - MAX_DEPTH
       default: NONE
       description: The mode of the returned descendants in a tree node hierarchy. ALL returns all descendants, NONE returns nodes without any descendants , MAX_DEPTH returns descendants up to a specified depth
-    UserProfile:
+    PersonalAccount:
       type: object
       properties:
         id:
@@ -1093,4 +1117,3 @@ components:
       properties:
         message:
           type: string
-

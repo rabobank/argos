@@ -23,7 +23,7 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-class AzureOAuth2UserInfoTest {
+class AzureOAuth2PersonalAccountInfoTest {
 
     private final static String ID = "id";
     private static final String DISPLAY_NAME = "diplayName";

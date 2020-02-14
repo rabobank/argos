@@ -13,29 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.user;
+package com.rabobank.argos.service.domain.account;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
+import com.rabobank.argos.domain.key.KeyPair;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import static java.util.UUID.randomUUID;
+import java.util.Optional;
 
 @Getter
 @Setter
-@Builder
-@EqualsAndHashCode
-public class User implements Serializable {
+@AllArgsConstructor
+public abstract class Account implements Serializable {
 
-    @Builder.Default
-    private String userId = randomUUID().toString();
+    private String accountId;
     private String name;
     private String email;
-    private AuthenticationProvider provider;
-    private String providerId;
-    private List<String> keyIds;
+    private KeyPair activeKeyPair;
+    private List<KeyPair> inactiveKeyPairs;
+
+    public void deactivateKeyPair() {
+        Optional.ofNullable(activeKeyPair).ifPresent(keyPair -> {
+            inactiveKeyPairs = new ArrayList<>(Optional.ofNullable(inactiveKeyPairs).orElse(Collections.emptyList()));
+            inactiveKeyPairs.add(activeKeyPair);
+            activeKeyPair = null;
+        });
+    }
 }

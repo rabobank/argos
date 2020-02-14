@@ -16,9 +16,9 @@
 package com.rabobank.argos.service.security;
 
 import com.rabobank.argos.domain.ArgosError;
-import com.rabobank.argos.service.domain.security.UserPrincipal;
-import com.rabobank.argos.service.domain.user.User;
-import com.rabobank.argos.service.domain.user.UserRepository;
+import com.rabobank.argos.service.domain.account.PersonalAccount;
+import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
+import com.rabobank.argos.service.domain.security.AccountUserDetailsAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -27,12 +27,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService {
 
-    private final UserRepository userRepository;
+    private final PersonalAccountRepository personalAccountRepository;
 
     public UserDetails loadUserById(String id) {
-        User user = userRepository.findByUserId(id)
-                .orElseThrow(() -> new ArgosError("User with id " + id + " not found"));
-        return new UserPrincipal(user);
+        PersonalAccount personalAccount = personalAccountRepository.findByAccountId(id)
+                .orElseThrow(() -> new ArgosError("Personal account with id " + id + " not found"));
+        return new AccountUserDetailsAdapter(personalAccount);
     }
 
 }
