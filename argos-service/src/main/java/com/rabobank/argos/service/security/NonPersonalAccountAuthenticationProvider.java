@@ -48,6 +48,7 @@ public class NonPersonalAccountAuthenticationProvider implements AuthenticationP
         return notAuthenticatedNonPersonalAccount;
     }
 
+
     @Override
     public boolean supports(Class<?> authenticationTokenClass) {
         return authenticationTokenClass.equals(NonPersonalAccountAuthenticationToken.class);

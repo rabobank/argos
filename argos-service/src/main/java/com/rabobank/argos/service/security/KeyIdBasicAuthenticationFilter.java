@@ -37,8 +37,8 @@ public class KeyIdBasicAuthenticationFilter extends OncePerRequestFilter {
 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         UsernamePasswordAuthenticationToken parsedTokenFromBasicHeader = authenticationConverter.convert(request);
-        if (parsedTokenFromBasicHeader != null) {
 
+        if (parsedTokenFromBasicHeader != null) {
             NonPersonalAccountCredentials nonPersonalAccountCredentials = NonPersonalAccountCredentials
                     .builder()
                     .keyId((String) parsedTokenFromBasicHeader.getPrincipal())
@@ -50,6 +50,7 @@ public class KeyIdBasicAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(nonPersonalAccountAuthenticationToken);
 
         }
+
         chain.doFilter(request, response);
     }
 
