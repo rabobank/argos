@@ -700,14 +700,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/KeyPair"
+              $ref: "#/components/schemas/NonPersonalAccountKeyPair"
       responses:
         '201':
           description: created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/KeyPair"
+                $ref: "#/components/schemas/NonPersonalAccountKeyPair"
           headers:
             Location:
               schema:
@@ -735,7 +735,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/KeyPair"
+                $ref: "#/components/schemas/NonPersonalAccountKeyPair"
         '404':
           description: no active key exists
         '500':
@@ -763,10 +763,11 @@ components:
     VerifyCommand:
       type: object
       required:
-        - productsToVerify
+        - expectedProducts
       properties:
         expectedProducts:
           type: array
+          minItems: 1
           items:
             $ref: "#/components/schemas/Artifact"
 
@@ -859,6 +860,26 @@ components:
         encryptedPrivateKey:
           type: string
           format: byte
+    NonPersonalAccountKeyPair:
+      type: object
+      required:
+        - keyId
+        - publicKey
+        - hashedKeyPassphrase
+        - encryptedPrivateKey
+      properties:
+        keyId:
+          $ref: '#/components/schemas/KeyId'
+        publicKey:
+          type: string
+          format: byte
+        hashedKeyPassphrase:
+          type: string
+          writeOnly: true
+          description: used for authentication of a non personal account via http basic authentication
+        encryptedPrivateKey:
+          type: string
+          format: byte
     SupplyChain:
       type: object
       required:
@@ -868,6 +889,7 @@ components:
         id:
           type: string
           maxLength: 36
+          readOnly: true
         name:
           type: string
           maxLength: 256
@@ -896,7 +918,9 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         signatures:
+          minItems: 1
           type: array
           items:
             $ref: "#/components/schemas/Signature"
@@ -919,7 +943,11 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/KeyId'
+            type: string
+            description: key id is a hash of the public key
+            minLength: 64
+            maxLength: 64
+            pattern: '^[0-9a-f]*$'
         expectedEndProducts:
           type: array
           minItems: 1
@@ -1040,6 +1068,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
           minLength: 1
@@ -1086,6 +1115,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
         email:
@@ -1103,6 +1133,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
         parentLabelId:

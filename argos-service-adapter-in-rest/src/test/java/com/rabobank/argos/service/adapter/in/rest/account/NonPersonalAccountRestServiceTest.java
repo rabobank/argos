@@ -16,10 +16,10 @@
 package com.rabobank.argos.service.adapter.in.rest.account;
 
 import com.rabobank.argos.domain.account.NonPersonalAccount;
-import com.rabobank.argos.domain.key.KeyPair;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
+import com.rabobank.argos.domain.account.NonPersonalAccountKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestNonPersonalAccount;
-import com.rabobank.argos.service.adapter.in.rest.key.KeyPairMapper;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestNonPersonalAccountKeyPair;
+import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.account.NonPersonalAccountRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +58,7 @@ class NonPersonalAccountRestServiceTest {
     private LabelRepository labelRepository;
 
     @Mock
-    private KeyPairMapper keyPairMapper;
+    private AccountKeyPairMapper keyPairMapper;
 
     @Mock
     private RestNonPersonalAccount restNonPersonalAccount;
@@ -72,14 +72,17 @@ class NonPersonalAccountRestServiceTest {
     private NonPersonalAccount nonPersonalAccount;
 
     @Mock
-    private RestKeyPair restKeyPair;
+    private RestNonPersonalAccountKeyPair restKeyPair;
 
     @Mock
-    private KeyPair keyPair;
+    private NonPersonalAccountKeyPair keyPair;
+
+    @Mock
+    private AccountService accountService;
 
     @BeforeEach
     void setUp() {
-        service = new NonPersonalAccountRestService(accountRepository, accountMapper, labelRepository, keyPairMapper);
+        service = new NonPersonalAccountRestService(accountRepository, accountMapper, labelRepository, keyPairMapper, accountService);
     }
 
     @Test
@@ -107,17 +110,19 @@ class NonPersonalAccountRestServiceTest {
 
     @Test
     void createNonPersonalAccountKeyById() {
+        when(accountService.activateNewKey(nonPersonalAccount, keyPair)).thenReturn(nonPersonalAccount);
+        when(nonPersonalAccount.getActiveKeyPair()).thenReturn(keyPair);
+        when(keyPairMapper.convertToRestKeyPair(keyPair)).thenReturn(restKeyPair);
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(nonPersonalAccount));
         when(keyPairMapper.convertFromRestKeyPair(restKeyPair)).thenReturn(keyPair);
         ServletRequestAttributes servletRequestAttributes = new ServletRequestAttributes(httpServletRequest);
         RequestContextHolder.setRequestAttributes(servletRequestAttributes);
-        ResponseEntity<RestKeyPair> response = service.createNonPersonalAccountKeyById(ACCOUNT_ID, restKeyPair);
+        ResponseEntity<RestNonPersonalAccountKeyPair> response = service.createNonPersonalAccountKeyById(ACCOUNT_ID, restKeyPair);
         assertThat(response.getStatusCodeValue(), is(201));
         assertThat(response.getBody(), sameInstance(restKeyPair));
         assertThat(response.getHeaders().getLocation(), notNullValue());
         verify(accountRepository).update(ACCOUNT_ID, nonPersonalAccount);
-        verify(nonPersonalAccount).deactivateKeyPair();
-        verify(nonPersonalAccount).setActiveKeyPair(keyPair);
+        verify(accountService).activateNewKey(nonPersonalAccount, keyPair);
     }
 
     @Test
@@ -132,7 +137,7 @@ class NonPersonalAccountRestServiceTest {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(nonPersonalAccount));
         when(nonPersonalAccount.getActiveKeyPair()).thenReturn(keyPair);
         when(keyPairMapper.convertToRestKeyPair(keyPair)).thenReturn(restKeyPair);
-        ResponseEntity<RestKeyPair> response = service.getNonPersonalAccountKeyById(ACCOUNT_ID);
+        ResponseEntity<RestNonPersonalAccountKeyPair> response = service.getNonPersonalAccountKeyById(ACCOUNT_ID);
         assertThat(response.getStatusCodeValue(), is(200));
         assertThat(response.getBody(), sameInstance(restKeyPair));
     }

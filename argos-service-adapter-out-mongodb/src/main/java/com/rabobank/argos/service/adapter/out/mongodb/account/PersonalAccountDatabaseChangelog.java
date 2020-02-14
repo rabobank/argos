@@ -35,9 +35,4 @@ public class PersonalAccountDatabaseChangelog {
         template.indexOps(COLLECTION).ensureIndex(new Index(EMAIL, Sort.Direction.ASC).unique());
     }
 
-    @ChangeSet(order = "002", id = "PersonalAccountDatabaseChangelog-2", author = "michel")
-    public void addIndexToNewCollection(MongoTemplate template) {
-        template.indexOps(COLLECTION).ensureIndex(new Index(EMAIL, Sort.Direction.ASC).unique());
-        template.indexOps(COLLECTION).ensureIndex(new Index(ACCOUNT_ID, Sort.Direction.ASC).unique());
-    }
 }

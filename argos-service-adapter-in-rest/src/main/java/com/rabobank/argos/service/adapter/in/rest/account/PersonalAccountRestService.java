@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.in.rest.personalaccount;
+package com.rabobank.argos.service.adapter.in.rest.account;
 
 
 import com.rabobank.argos.domain.account.Account;
@@ -25,6 +25,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.handler.PersonalAccountApi
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.adapter.in.rest.key.KeyPairMapper;
+import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContext;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     private final PersonalAccountRepository personalAccountRepository;
     private final KeyPairMapper keyPairMapper;
     private final KeyIdProvider keyIdProvider = new KeyIdProviderImpl();
+    private final AccountService accountService;
 
 
     @PreAuthorize("hasRole('USER')")
@@ -63,8 +65,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
                 .getAuthenticatedAccount().orElseThrow(this::profileNotFound);
         KeyPair keyPair = keyPairMapper.convertFromRestKeyPair(restKeyPair);
         validateKeyId(keyPair);
-        account.deactivateKeyPair();
-        account.setActiveKeyPair(keyPair);
+        accountService.activateNewKey(account, keyPair);
         personalAccountRepository.update((PersonalAccount) account);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

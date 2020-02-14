@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.account;
+package com.rabobank.argos.service.domain.account;
 
+import com.rabobank.argos.domain.account.Account;
+import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyPair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,49 +26,52 @@ import java.util.Collections;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyCollectionOf;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 
-class AccountTest {
+class AccountServiceImplTest {
 
     private static final String ACCOUNT_ID = "accountId";
     private static final String ACCOUNT_NAME = "accountName";
 
-    private KeyPair activeKeyPair = KeyPair.builder().build();
-    private KeyPair inactiveKeyPair = KeyPair.builder().build();
+    private KeyPair activeKeyPair = new KeyPair();
+    private KeyPair inactiveKeyPair = new KeyPair();
+    private KeyPair newKeyPair = new KeyPair();
+    private AccountServiceImpl accountService;
 
     @BeforeEach
     void setUp() {
+        accountService = new AccountServiceImpl();
     }
 
     @Test
     void deactivateKeyPairNoActiveKeyAndNoInactiveKeys() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, null, null, null, null);
-        account.deactivateKeyPair();
+        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, null, null, null, null);
+        accountService.activateNewKey(account, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), emptyCollectionOf(KeyPair.class));
-        assertThat(account.getActiveKeyPair(), nullValue());
+        assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
     }
 
     @Test
     void deactivateKeyPairNoActiveKey() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, null, null, null);
-        account.deactivateKeyPair();
+        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, null, null, null);
+        accountService.activateNewKey(account, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(activeKeyPair));
-        assertThat(account.getActiveKeyPair(), nullValue());
+        assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
     }
 
     @Test
     void deactivateKeyPairNoActiveKeyAndEmptyList() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.emptyList(), null, null);
-        account.deactivateKeyPair();
+        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.emptyList(), null, null);
+        accountService.activateNewKey(account, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(activeKeyPair));
-        assertThat(account.getActiveKeyPair(), nullValue());
+        assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
     }
 
     @Test
     void deactivateKeyPairNoActiveKeyAndInactiveKeyPair() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.singletonList(inactiveKeyPair), null, null);
-        account.deactivateKeyPair();
+        Account<KeyPair> account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.singletonList(inactiveKeyPair), null, null);
+        accountService.activateNewKey(account, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(inactiveKeyPair, activeKeyPair));
-        assertThat(account.getActiveKeyPair(), nullValue());
+        assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
     }
 }

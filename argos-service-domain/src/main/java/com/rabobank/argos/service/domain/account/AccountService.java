@@ -13,22 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.key;
+package com.rabobank.argos.service.domain.account;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.rabobank.argos.domain.account.Account;
+import com.rabobank.argos.domain.key.KeyPair;
 
-import java.io.Serializable;
-import java.security.PublicKey;
-
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class KeyPair implements Serializable {
-    private String keyId;
-    private byte[] encryptedPrivateKey;
-    private PublicKey publicKey;
+public interface AccountService {
+    <T extends Account<K>, K extends KeyPair> T activateNewKey(T account, K newKeyPair);
 }
