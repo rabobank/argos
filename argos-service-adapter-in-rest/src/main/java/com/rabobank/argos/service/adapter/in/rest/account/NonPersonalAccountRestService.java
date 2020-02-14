@@ -20,6 +20,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.handler.NonPersonalAccount
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestNonPersonalAccount;
 import com.rabobank.argos.service.adapter.in.rest.key.KeyPairMapper;
+import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.account.NonPersonalAccountRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,8 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
 
     private final KeyPairMapper keyPairMapper;
 
+    private final AccountService accountService;
+
     @Override
     public ResponseEntity<RestNonPersonalAccount> createNonPersonalAccount(RestNonPersonalAccount restNonPersonalAccount) {
         verifyParentLabelExists(restNonPersonalAccount.getParentLabelId());
@@ -62,8 +65,7 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     @Override
     public ResponseEntity<RestKeyPair> createNonPersonalAccountKeyById(String nonPersonalAccountId, RestKeyPair restKeyPair) {
         NonPersonalAccount account = accountRepository.findById(nonPersonalAccountId).orElseThrow(() -> accountNotFound(nonPersonalAccountId));
-        account.deactivateKeyPair();
-        account.setActiveKeyPair(keyPairMapper.convertFromRestKeyPair(restKeyPair));
+        accountService.activateNewKey(account, keyPairMapper.convertFromRestKeyPair(restKeyPair));
 
         accountRepository.update(nonPersonalAccountId, account);
         URI location = ServletUriComponentsBuilder

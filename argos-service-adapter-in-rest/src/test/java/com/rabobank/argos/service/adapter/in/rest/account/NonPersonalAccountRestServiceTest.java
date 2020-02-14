@@ -20,6 +20,7 @@ import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestNonPersonalAccount;
 import com.rabobank.argos.service.adapter.in.rest.key.KeyPairMapper;
+import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.account.NonPersonalAccountRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,9 +78,12 @@ class NonPersonalAccountRestServiceTest {
     @Mock
     private KeyPair keyPair;
 
+    @Mock
+    private AccountService accountService;
+
     @BeforeEach
     void setUp() {
-        service = new NonPersonalAccountRestService(accountRepository, accountMapper, labelRepository, keyPairMapper);
+        service = new NonPersonalAccountRestService(accountRepository, accountMapper, labelRepository, keyPairMapper, accountService);
     }
 
     @Test
@@ -116,8 +120,7 @@ class NonPersonalAccountRestServiceTest {
         assertThat(response.getBody(), sameInstance(restKeyPair));
         assertThat(response.getHeaders().getLocation(), notNullValue());
         verify(accountRepository).update(ACCOUNT_ID, nonPersonalAccount);
-        verify(nonPersonalAccount).deactivateKeyPair();
-        verify(nonPersonalAccount).setActiveKeyPair(keyPair);
+        verify(accountService).activateNewKey(nonPersonalAccount, keyPair);
     }
 
     @Test
