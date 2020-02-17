@@ -20,10 +20,14 @@ import com.github.mongobee.changeset.ChangeSet;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
+import org.springframework.data.mongodb.core.index.PartialIndexFilter;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.ACCOUNT_ID;
+import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.ACTIVE_KEY_ID_FIELD;
 import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.COLLECTION;
 import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.EMAIL;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
 
 @ChangeLog
@@ -33,6 +37,12 @@ public class PersonalAccountDatabaseChangelog {
     public void addIndex(MongoTemplate template) {
         template.indexOps(COLLECTION).ensureIndex(new Index(ACCOUNT_ID, Sort.Direction.ASC).unique());
         template.indexOps(COLLECTION).ensureIndex(new Index(EMAIL, Sort.Direction.ASC).unique());
+    }
+
+    @ChangeSet(order = "002", id = "PersonalAccountDatabaseChangelog-2", author = "bart")
+    public void addActiveKeyIndex(MongoTemplate template) {
+        template.indexOps(COLLECTION).ensureIndex(new Index(ACTIVE_KEY_ID_FIELD, ASC)
+                .partial(PartialIndexFilter.of(new Criteria(ACTIVE_KEY_ID_FIELD).exists(true))).unique());
     }
 
 }

@@ -17,22 +17,35 @@ package com.rabobank.argos.service.adapter.in.rest.account;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabobank.argos.domain.account.NonPersonalAccountKeyPair;
 import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestNonPersonalAccountKeyPair;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 import java.security.PublicKey;
 import java.util.Base64;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
-class KeyPairMapperTest {
+@ExtendWith(MockitoExtension.class)
+class AccountKeyPairMapperTest {
 
     private AccountKeyPairMapper converter;
     private ObjectMapper mapper;
@@ -40,14 +53,32 @@ class KeyPairMapperTest {
     private byte[] bytePublicKey;
     private String base64EncodedPublicKey;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
 
     @BeforeEach
     void setUp() throws IOException {
         converter = Mappers.getMapper(AccountKeyPairMapper.class);
+        ReflectionTestUtils.setField(converter, "passwordEncoder", passwordEncoder);
         mapper = new ObjectMapper();
-        keyPairJson = IOUtils.toString(getClass().getResourceAsStream("/keypair.json"), "UTF-8");
-        base64EncodedPublicKey = IOUtils.toString(getClass().getResourceAsStream("/testkey.pub"), "UTF-8");
+        keyPairJson = IOUtils.toString(getClass().getResourceAsStream("/keypair.json"), UTF_8);
+        base64EncodedPublicKey = IOUtils.toString(getClass().getResourceAsStream("/testkey.pub"), UTF_8);
         bytePublicKey = Base64.getDecoder().decode(base64EncodedPublicKey);
+    }
+
+    @Test
+    void nonPersonalAccountKeyPair() throws IOException, JSONException {
+        when(passwordEncoder.encode("hashedKeyPassphrase")).thenReturn("encodedHashedKeyPassphrase");
+        String npaPairJson = IOUtils.toString(getClass().getResourceAsStream("/npa-keypair.json"), UTF_8);
+        RestNonPersonalAccountKeyPair restNpaKeyPair = mapper.readValue(npaPairJson, RestNonPersonalAccountKeyPair.class);
+        NonPersonalAccountKeyPair npaKeyPair = converter.convertFromRestKeyPair(restNpaKeyPair);
+        assertThat(npaKeyPair.getEncryptedHashedKeyPassphrase(), is("encodedHashedKeyPassphrase"));
+        RestNonPersonalAccountKeyPair restNonPersonalAccountKeyPair = converter.convertToRestKeyPair(npaKeyPair);
+        assertThat(restNonPersonalAccountKeyPair.getHashedKeyPassphrase(), nullValue());
+        restNonPersonalAccountKeyPair.setHashedKeyPassphrase("hashedKeyPassphrase");
+        JSONAssert.assertEquals(npaPairJson, mapper.writeValueAsString(restNonPersonalAccountKeyPair), true);
+
     }
 
     @Test

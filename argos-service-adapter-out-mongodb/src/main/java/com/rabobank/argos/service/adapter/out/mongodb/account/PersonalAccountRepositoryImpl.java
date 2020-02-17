@@ -15,7 +15,6 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.account;
 
-import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -70,7 +69,7 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
 
     @Override
     public boolean activeKeyExists(String activeKeyId) {
-        return template.exists(getActiveKeyQuery(activeKeyId), NonPersonalAccount.class, COLLECTION);
+        return template.exists(getActiveKeyQuery(activeKeyId), PersonalAccount.class, COLLECTION);
     }
 
     private Query getActiveKeyQuery(String activeKeyId) {

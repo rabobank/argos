@@ -117,7 +117,7 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
                 .map(Account::getActiveKeyPair).filter(Objects::nonNull)
                 .map(keyPair -> (NonPersonalAccountKeyPair) keyPair)
                 .map(keyPairMapper::convertToRestKeyPair)
-                .map(ResponseEntity::ok).orElseThrow(() -> keyNotFound(""));
+                .map(ResponseEntity::ok).orElseThrow(() -> keyNotFound());
     }
 
     private void verifyParentLabelExists(String parentLabelId) {
@@ -126,12 +126,16 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
         }
     }
 
+    private ResponseStatusException keyNotFound() {
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "no active non personal account key found");
+    }
+
     private ResponseStatusException keyNotFound(String accountId) {
-        return new ResponseStatusException(HttpStatus.NOT_FOUND, "no active personal account key with id : " + accountId + " not found");
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "no active non personal account key with id : " + accountId + " found");
     }
 
     private ResponseStatusException accountNotFound(String accountId) {
-        return new ResponseStatusException(HttpStatus.NOT_FOUND, "no personal account with id : " + accountId + " not found");
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "no non personal account with id : " + accountId + " found");
     }
 
     private ResponseStatusException parentLabelNotFound(String parentLabelId) {

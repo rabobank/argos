@@ -133,7 +133,7 @@ class NonPersonalAccountRestServiceTest {
     void createNonPersonalAccountKeyByIdAccountNotFound() {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.createNonPersonalAccountKeyById(ACCOUNT_ID, restKeyPair));
-        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no personal account with id : accountId not found\""));
+        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no non personal account with id : accountId found\""));
     }
 
     @Test
@@ -150,7 +150,7 @@ class NonPersonalAccountRestServiceTest {
     void getNonPersonalAccountKeyByIdAccountNotFound() {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getNonPersonalAccountKeyById(ACCOUNT_ID));
-        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no active personal account key with id : accountId not found\""));
+        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no active non personal account key with id : accountId found\""));
     }
 
     @Test
@@ -158,7 +158,7 @@ class NonPersonalAccountRestServiceTest {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(nonPersonalAccount));
         when(nonPersonalAccount.getActiveKeyPair()).thenReturn(null);
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getNonPersonalAccountKeyById(ACCOUNT_ID));
-        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no active personal account key with id : accountId not found\""));
+        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no active non personal account key with id : accountId found\""));
     }
 
     @Test
@@ -174,7 +174,7 @@ class NonPersonalAccountRestServiceTest {
     void getNonPersonalAccountByIdAccountNotFound() {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getNonPersonalAccountById(ACCOUNT_ID));
-        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no personal account with id : accountId not found\""));
+        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no non personal account with id : accountId found\""));
     }
 
     @Test
@@ -196,7 +196,7 @@ class NonPersonalAccountRestServiceTest {
         when(accountMapper.convertFromRestNonPersonalAccount(restNonPersonalAccount)).thenReturn(nonPersonalAccount);
         when(accountRepository.update(ACCOUNT_ID, nonPersonalAccount)).thenReturn(Optional.empty());
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.updateNonPersonalAccountById(ACCOUNT_ID, restNonPersonalAccount));
-        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no personal account with id : accountId not found\""));
+        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no non personal account with id : accountId found\""));
     }
 
     @Test
@@ -205,5 +205,30 @@ class NonPersonalAccountRestServiceTest {
         when(labelRepository.exists(PARENT_LABEL_ID)).thenReturn(false);
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.updateNonPersonalAccountById(ACCOUNT_ID, restNonPersonalAccount));
         assertThat(exception.getMessage(), is("400 BAD_REQUEST \"parent label id not found : parentLabelId\""));
+    }
+
+    @Test
+    void getNonPersonalAccountKey() {
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(nonPersonalAccount));
+        when(nonPersonalAccount.getActiveKeyPair()).thenReturn(keyPair);
+        when(keyPairMapper.convertToRestKeyPair(keyPair)).thenReturn(restKeyPair);
+        ResponseEntity<RestNonPersonalAccountKeyPair> response = service.getNonPersonalAccountKey();
+        assertThat(response.getStatusCodeValue(), is(200));
+        assertThat(response.getBody(), sameInstance(restKeyPair));
+    }
+
+    @Test
+    void getNonPersonalAccountKeyNotFound() {
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.empty());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getNonPersonalAccountKey());
+        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no active non personal account key found\""));
+    }
+
+    @Test
+    void getNonPersonalAccountKeyNoActiveKey() {
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(nonPersonalAccount));
+        when(nonPersonalAccount.getActiveKeyPair()).thenReturn(null);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getNonPersonalAccountKey());
+        assertThat(exception.getMessage(), is("404 NOT_FOUND \"no active non personal account key found\""));
     }
 }
