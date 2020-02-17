@@ -24,6 +24,7 @@ import com.rabobank.argos.test.rest.api.ApiClient;
 import com.rabobank.argos.test.rest.api.client.IntegrationTestServiceApi;
 import com.rabobank.argos.test.rest.api.model.TestKeyPair;
 import com.rabobank.argos.test.rest.api.model.TestLayoutMetaBlock;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.mapstruct.factory.Mappers;
 
 import static com.rabobank.argos.test.ServiceStatusHelper.getLayoutApi;
@@ -54,7 +55,7 @@ public class TestServiceHelper {
                 .keyId(restKeyPair.getKeyId())
                 .encryptedPrivateKey(restKeyPair.getEncryptedPrivateKey())
                 .publicKey(restKeyPair.getPublicKey())
-                .hashedKeyPassphrase(password));
+                .hashedKeyPassphrase(DigestUtils.sha256Hex(password)));
         return restKeyPair;
     }
 
