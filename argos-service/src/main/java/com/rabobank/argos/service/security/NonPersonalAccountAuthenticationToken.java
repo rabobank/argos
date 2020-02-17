@@ -25,26 +25,25 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serializable;
 import java.util.Collection;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public class NonPersonalAccountAuthenticationToken extends UsernamePasswordAuthenticationToken {
-
 
     private final UserDetails principal;
     private final NonPersonalAccountCredentials nonPersonalAccountCredentials;
 
-    public NonPersonalAccountAuthenticationToken(NonPersonalAccountCredentials nonPersonalAccountCredentials, UserDetails principal) {
+    NonPersonalAccountAuthenticationToken(NonPersonalAccountCredentials nonPersonalAccountCredentials, UserDetails principal) {
         super(principal, nonPersonalAccountCredentials);
         this.principal = principal;
         this.nonPersonalAccountCredentials = nonPersonalAccountCredentials;
     }
 
-    public NonPersonalAccountAuthenticationToken(NonPersonalAccountCredentials nonPersonalAccountCredentials, UserDetails principal, Collection<? extends GrantedAuthority> authorities) {
+    NonPersonalAccountAuthenticationToken(NonPersonalAccountCredentials nonPersonalAccountCredentials, UserDetails principal, Collection<? extends GrantedAuthority> authorities) {
         super(principal, nonPersonalAccountCredentials, authorities);
         this.principal = principal;
         this.nonPersonalAccountCredentials = nonPersonalAccountCredentials;
     }
 
-    public NonPersonalAccountCredentials getNonPersonalAccountCredentials() {
+    NonPersonalAccountCredentials getNonPersonalAccountCredentials() {
         return nonPersonalAccountCredentials;
     }
 
@@ -56,7 +55,7 @@ public class NonPersonalAccountAuthenticationToken extends UsernamePasswordAuthe
     @Builder
     @Getter
     @EqualsAndHashCode
-    public static class NonPersonalAccountCredentials implements Serializable {
+    static class NonPersonalAccountCredentials implements Serializable {
         private String keyId;
         private String password;
     }

@@ -36,7 +36,7 @@ public class NonPersonalAccountAuthenticationProvider implements AuthenticationP
     public Authentication authenticate(Authentication notAuthenticatedNonPersonalAccount) {
         NonPersonalAccountAuthenticationToken nonPersonalAccountAuthenticationToken = (NonPersonalAccountAuthenticationToken) notAuthenticatedNonPersonalAccount;
         try {
-            AccountUserDetailsAdapter userDetails = nonPersonalAccountUserDetailsService
+            AccountUserDetailsAdapter userDetails = (AccountUserDetailsAdapter) nonPersonalAccountUserDetailsService
                     .loadUserById(nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials().getKeyId());
 
             String password = nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials().getPassword();
