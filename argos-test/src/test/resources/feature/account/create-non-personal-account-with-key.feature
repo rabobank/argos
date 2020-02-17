@@ -15,21 +15,15 @@
 #
 
 @ignore
-Feature: create a valid public key
+Feature: using __arg
 
   Background:
     * url karate.properties['server.baseurl']
+    * def accountName = __arg.accountName
+    * def parentLabelId = __arg.parentLabelId;
+    * def keyFile = __arg.keyFile;
 
-  Scenario: store public key for links
-    Given path '/api/key'
-    And request read('classpath:testmessages/key/valid-key.json')
-    And header Content-Type = 'application/json'
-    When method POST
-    Then status 204
-
-  Scenario: store public key for layouts
-    Given path '/api/key'
-    And request read('classpath:testmessages/key/valid-layout-key.json')
-    And header Content-Type = 'application/json'
-    When method POST
-    Then status 204
+  Scenario: create a supplychain
+    * def accountResponse = call read('classpath:feature/account/create-non-personal-account.feature') {name: #(accountName), parentLabelId: #(parentLabelId)}
+    * def key = read('classpath:testmessages/key/'+keyFile+'.json')
+    * call read('classpath:feature/account/create-non-personal-account-key.feature') {accountId: #(accountResponse.response.id),key: #(key)}

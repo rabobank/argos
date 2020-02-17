@@ -19,8 +19,8 @@ Feature: Link
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * call read('classpath:feature/key/insert-test-key-pairs.feature')
     * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
+    * call read('classpath:feature/account/insert-test-key-pairs.feature') {parentLabelId: #(supplyChain.response.parentLabelId)}
     * def linkPath = '/api/supplychain/'+ supplyChain.response.id + '/link'
     * def validLink = 'classpath:testmessages/link/valid-link.json'
 

@@ -19,10 +19,9 @@ Feature: Layout
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * call read('classpath:feature/key/insert-test-key-pairs.feature')
     * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
+    * call read('classpath:feature/account/insert-test-key-pairs.feature') {parentLabelId: #(supplyChain.response.parentLabelId)}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
-    * call read('classpath:feature/key/create-key.feature')
     * def validLayout = 'classpath:testmessages/layout/valid-layout.json'
 
   Scenario: store layout with valid specifications should return a 200

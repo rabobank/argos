@@ -24,10 +24,9 @@ Feature: Verification template
     * def steps = __arg.steps
     * def layoutSigningKey = __arg.layoutSigningKey
     * call read('classpath:feature/reset.feature')
-    * call read('classpath:feature/key/insert-test-key-pairs.feature')
     * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
+    * call read('classpath:feature/account/insert-test-key-pairs.feature') {parentLabelId: #(supplyChain.response.parentLabelId)}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
-    * call read('classpath:feature/key/create-key.feature')
     * def supplyChainPath = '/api/supplychain/'+ supplyChain.response.id
     * def supplyChainId = supplyChain.response.id
 

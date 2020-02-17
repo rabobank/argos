@@ -39,7 +39,6 @@ public class NonPersonalAccountAuthenticationProvider implements AuthenticationP
             AccountUserDetailsAdapter userDetails = nonPersonalAccountUserDetailsService
                     .loadUserById(nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials().getKeyId());
 
-
             String password = nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials().getPassword();
             NonPersonalAccountKeyPair nonPersonalAccountKeyPair = (NonPersonalAccountKeyPair) userDetails.getAccount().getActiveKeyPair();
             if (passwordEncoder.matches(password, nonPersonalAccountKeyPair.getEncryptedHashedKeyPassphrase())) {
@@ -47,7 +46,6 @@ public class NonPersonalAccountAuthenticationProvider implements AuthenticationP
                         userDetails,
                         userDetails.getAuthorities());
             }
-            return nonPersonalAccountAuthenticationToken;
         } catch (Exception ex) {
             log.error("Could not set user authentication in security context", ex);
         }

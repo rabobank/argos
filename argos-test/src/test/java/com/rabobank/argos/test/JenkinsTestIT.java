@@ -27,7 +27,6 @@ import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
-import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccount;
@@ -93,25 +92,21 @@ public class JenkinsTestIT {
 
         RestSupplyChain restSupplyChainItem = getSupplychainApi().createSupplyChain(new RestSupplyChain().name("argos-test-app").parentLabelId(childLabel.getId()));
         this.supplyChainId = restSupplyChainItem.getId();
-        RestKeyPair restKeyPair = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair1.json"), RestKeyPair.class);
+        RestNonPersonalAccountKeyPair restKeyPair = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair1.json"), RestNonPersonalAccountKeyPair.class);
         keyIdBob = restKeyPair.getKeyId();
         createNpaWithActiveKey(restKeyPair, childLabel.getId(), "npa1");
-        RestKeyPair restKeyPairExt = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair2.json"), RestKeyPair.class);
+        RestNonPersonalAccountKeyPair restKeyPairExt = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair2.json"), RestNonPersonalAccountKeyPair.class);
         createNpaWithActiveKey(restKeyPairExt, childLabel.getId(), "npa2");
-        restKeyPairExt = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair3.json"), RestKeyPair.class);
+        restKeyPairExt = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair3.json"), RestNonPersonalAccountKeyPair.class);
         createNpaWithActiveKey(restKeyPairExt, childLabel.getId(), "npa3");
         createLayout();
         jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
     }
 
-    private void createNpaWithActiveKey(RestKeyPair restKeyPair, String parentLabelId, String name) {
+    private void createNpaWithActiveKey(RestNonPersonalAccountKeyPair restKeyPair, String parentLabelId, String name) {
         NonPersonalAccountApi nonPersonalAccountApi = getNonPersonalAccountApi();
         RestNonPersonalAccount npa = nonPersonalAccountApi.createNonPersonalAccount(new RestNonPersonalAccount().parentLabelId(parentLabelId).name(name));
-        nonPersonalAccountApi.createNonPersonalAccountKeyById(npa.getId(), new RestNonPersonalAccountKeyPair()
-                .keyId(restKeyPair.getKeyId())
-                .encryptedPrivateKey(restKeyPair.getEncryptedPrivateKey())
-                .publicKey(restKeyPair.getPublicKey())
-                .hashedKeyPassphrase("test"));
+        nonPersonalAccountApi.createNonPersonalAccountKeyById(npa.getId(), restKeyPair);
     }
 
 
