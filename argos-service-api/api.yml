@@ -576,6 +576,8 @@ paths:
       operationId: createNonPersonalAccount
       tags:
         - non personal account
+      security:
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
@@ -623,6 +625,8 @@ paths:
       operationId: getNonPersonalAccountById
       tags:
         - non personal account
+      security:
+        - bearerAuth: []
       parameters:
         - name: nonPersonalAccountId
           in: path
@@ -643,6 +647,8 @@ paths:
       operationId: updateNonPersonalAccountById
       tags:
         - non personal account
+    security:
+      - bearerAuth: []
       parameters:
         - name: nonPersonalAccountId
           in: path
@@ -671,6 +677,8 @@ paths:
       operationId: createNonPersonalAccountKeyById
       tags:
         - non personal account
+      security:
+        - bearerAuth: []
       parameters:
         - name: nonPersonalAccountId
           in: path
@@ -704,6 +712,8 @@ paths:
       operationId: getNonPersonalAccountKeyById
       tags:
         - non personal account
+      security:
+        - bearerAuth: []
       parameters:
         - name: nonPersonalAccountId
           in: path

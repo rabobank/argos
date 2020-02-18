@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -29,6 +30,7 @@ import java.io.IOException;
 
 import static com.rabobank.argos.service.security.NonPersonalAccountAuthenticationToken.NonPersonalAccountCredentials;
 
+@Slf4j
 public class KeyIdBasicAuthenticationFilter extends OncePerRequestFilter {
     private final BasicAuthenticationConverter authenticationConverter;
 
@@ -50,7 +52,7 @@ public class KeyIdBasicAuthenticationFilter extends OncePerRequestFilter {
                     , null);
             nonPersonalAccountAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(nonPersonalAccountAuthenticationToken);
-
+            log.debug("successfully resolved basic token  {}", parsedTokenFromBasicHeader);
         }
 
         chain.doFilter(request, response);

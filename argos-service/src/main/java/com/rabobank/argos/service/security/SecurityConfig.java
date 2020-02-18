@@ -65,7 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new TokenAuthenticationFilter(tokenProvider);
     }
 
-    private KeyIdBasicAuthenticationFilter keyIdBasicAuthenticationFilter() throws Exception {
+    private KeyIdBasicAuthenticationFilter keyIdBasicAuthenticationFilter() {
         return new KeyIdBasicAuthenticationFilter(new BasicAuthenticationConverter());
     }
     /*
@@ -118,8 +118,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/supplychain", "/api/supplychain/**",
                         "/api/key", "/api/key/**", "/actuator/**",
                         "/api/label", "/api/label/*",
-                        "/api/hierarchy", "/api/hierarchy/*",
-                        "/api/nonpersonalaccount", "/api/nonpersonalaccount/*", "/api/nonpersonalaccount/*/key")
+                        "/api/hierarchy", "/api/hierarchy/*"
+                )
                 .permitAll()
                 .antMatchers("/api/auth/**", "/api/oauth2/**")
                 .permitAll()

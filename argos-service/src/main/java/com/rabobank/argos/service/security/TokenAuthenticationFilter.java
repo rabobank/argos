@@ -40,7 +40,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 PersonalAccountAuthenticationToken authentication = new PersonalAccountAuthenticationToken(accountId, null, null);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.debug("successfully resolved bearer token for account {}", accountId);
             });
+
         } catch (Exception ex) {
             log.error("Could not set user authentication in security context", ex);
         }

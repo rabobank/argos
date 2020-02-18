@@ -21,10 +21,12 @@ Feature: using __arg
     * url karate.properties['server.baseurl']
     * def accountId = __arg.accountId
     * def key = __arg.key;
+    * def headerAuthorization = __arg.authorization
 
   Scenario: create non personal account
     Given path '/api/nonpersonalaccount/'+accountId+'/key'
     And request key
     And header Content-Type = 'application/json'
+    And header Authorization = headerAuthorization
     When method POST
     Then status 201

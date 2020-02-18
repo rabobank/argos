@@ -37,6 +37,7 @@ public class PersonalAccountAuthenticationProvider implements AuthenticationProv
             UserDetails userDetails = personalAccountUserDetailsService.loadUserById(personalAccountAuthenticationToken.getCredentials());
             Authentication authenticatedPersonalAccount = new PersonalAccountAuthenticationToken(personalAccountAuthenticationToken.getCredentials(), userDetails, userDetails.getAuthorities());
             authenticatedPersonalAccount.setAuthenticated(true);
+            log.debug("successfully authenticated personal account {}", userDetails.getUsername());
             return authenticatedPersonalAccount;
         } catch (Exception ex) {
             log.error("Could not set user authentication in security context", ex);
