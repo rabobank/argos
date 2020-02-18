@@ -647,8 +647,8 @@ paths:
       operationId: updateNonPersonalAccountById
       tags:
         - non personal account
-    security:
-      - bearerAuth: []
+      security:
+        - bearerAuth: []
       parameters:
         - name: nonPersonalAccountId
           in: path
