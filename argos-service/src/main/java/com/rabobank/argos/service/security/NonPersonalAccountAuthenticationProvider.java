@@ -38,7 +38,7 @@ public class NonPersonalAccountAuthenticationProvider implements AuthenticationP
         try {
             AccountUserDetailsAdapter userDetails = (AccountUserDetailsAdapter) nonPersonalAccountUserDetailsService
                     .loadUserById(nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials().getKeyId());
-
+            log.debug("successfully found non personal account by key id {}", userDetails.getUsername());
             String password = nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials().getPassword();
             NonPersonalAccountKeyPair nonPersonalAccountKeyPair = (NonPersonalAccountKeyPair) userDetails.getAccount().getActiveKeyPair();
             if (passwordEncoder.matches(password, nonPersonalAccountKeyPair.getEncryptedHashedKeyPassphrase())) {

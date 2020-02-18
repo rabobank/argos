@@ -111,13 +111,13 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_NONPERSONAL')")
+    @PreAuthorize("hasRole('NONPERSONAL')")
     public ResponseEntity<RestNonPersonalAccountKeyPair> getNonPersonalAccountKey() {
         return accountSecurityContext.getAuthenticatedAccount()
                 .map(Account::getActiveKeyPair).filter(Objects::nonNull)
                 .map(keyPair -> (NonPersonalAccountKeyPair) keyPair)
                 .map(keyPairMapper::convertToRestKeyPair)
-                .map(ResponseEntity::ok).orElseThrow(() -> keyNotFound());
+                .map(ResponseEntity::ok).orElseThrow(this::keyNotFound);
     }
 
     private void verifyParentLabelExists(String parentLabelId) {

@@ -23,7 +23,7 @@ Feature: using __arg
     * def parentLabelId = __arg.parentLabelId;
     * def keyFile = __arg.keyFile;
 
-  Scenario: create a supplychain
+  Scenario: create an npa account with active key
     * def accountResponse = call read('classpath:feature/account/create-non-personal-account.feature') {name: #(accountName), parentLabelId: #(parentLabelId)}
     * def key = read('classpath:testmessages/key/'+keyFile+'.json')
     * call read('classpath:feature/account/create-non-personal-account-key.feature') {accountId: #(accountResponse.response.id),key: #(key)}
