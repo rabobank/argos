@@ -19,81 +19,61 @@ Feature: Non Personal Account
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
+    * def tokenResponse = callonce read('classpath:feature/authenticate.feature')
+    * configure headers = call read('classpath:headers.js') { token: #(tokenResponse.response.token)}
     * def rootLabel = call read('classpath:feature/label/create-label.feature') { name: 'root1'}
 
-  @michel
   Scenario: store a non personal account with valid name should return a 201
-    * def result = call read('classpath:feature/authenticate.feature')
-    * def headerAuthorization = 'Bearer ' + result.response.token
-    * def result = call read('create-non-personal-account.feature') {authorization:#(headerAuthorization),request:{ name: 'npa 1', parentLabelId: #(rootLabel.response.id)}}
+    * def result = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
     * match result.response == { name: 'npa 1', id: '#uuid', parentLabelId: '#uuid' }
 
   Scenario: store a non personal account with a non existing parent label id should return a 400
-    * def result = call read('classpath:feature/authenticate.feature')
-    * def headerAuthorization = 'Bearer ' + result.response.token
     Given path '/api/nonpersonalaccount'
     And request { name: 'label', parentLabelId: '940935f6-22bc-4d65-8c5b-a0599dedb510'}
-    And header Content-Type = 'application/json'
-    And header Authorization = headerAuthorization
     When method POST
     Then status 400
     And match response.message == 'parent label id not found : 940935f6-22bc-4d65-8c5b-a0599dedb510'
 
   Scenario: store two non personal accounts with the same name should return a 400
-    * def result = call read('classpath:feature/authenticate.feature')
-    * def headerAuthorization = 'Bearer ' + result.response.token
-    * call read('create-non-personal-account.feature') {authorization:#(headerAuthorization),request:{ name: 'npa 1', parentLabelId: #(rootLabel.response.id)}}
+    * call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
     Given path '/api/nonpersonalaccount'
     And request { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
-    And header Content-Type = 'application/json'
-    And header Authorization = headerAuthorization
     When method POST
     Then status 400
     And match response.message contains 'non personal account with name: npa 1 and parentLabelId'
 
   Scenario: retrieve non personal account should return a 200
-    * def result = call read('classpath:feature/authenticate.feature')
-    * def headerAuthorization = 'Bearer ' + result.response.token
-    * def result = call read('create-non-personal-account.feature') {authorization:#(headerAuthorization),request:{ name: 'npa 1', parentLabelId: #(rootLabel.response.id)}}
+    * def result = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
     * def restPath = '/api/nonpersonalaccount/'+result.response.id
     Given path restPath
-    And header Authorization = headerAuthorization
     When method GET
     Then status 200
     And match response == { name: 'npa 1', id: '#(result.response.id)', parentLabelId: #(rootLabel.response.id)}
 
   Scenario: update a non personal account should return a 200
-    * def result = call read('classpath:feature/authenticate.feature')
-    * def headerAuthorization = 'Bearer ' + result.response.token
-    * def createResult = call read('create-non-personal-account.feature') {authorization:#(headerAuthorization),request:{ name: 'npa 1', parentLabelId: #(rootLabel.response.id)}}
+    * def createResult = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
     * def accountId = createResult.response.id
     * def restPath = '/api/nonpersonalaccount/'+accountId
     Given path restPath
-    And header Authorization = headerAuthorization
     And request { name: 'npa 2', parentLabelId: #(rootLabel.response.id)}
     When method PUT
     Then status 200
     And match response == { name: 'npa 2', id: '#(accountId)', parentLabelId: #(rootLabel.response.id)}
 
   Scenario: create a non personal account key should return a 201
-    * def result = call read('classpath:feature/authenticate.feature')
-    * def headerAuthorization = 'Bearer ' + result.response.token
-    * def createResult = call read('create-non-personal-account.feature') {authorization:#(headerAuthorization),request:{ name: 'npa 1', parentLabelId: #(rootLabel.response.id)}}
+    * def createResult = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
     * def accountId = createResult.response.id
     * def keyPair = read('classpath:testmessages/key/npa-keypair1.json')
-    * def result = call read('create-non-personal-account-key.feature') { authorization:#(headerAuthorization), accountId: #(accountId), key: #(keyPair)}
+    * def result = call read('create-non-personal-account-key.feature') {accountId: #(accountId), key: #(keyPair)}
     * match result.response == {keyId: #(keyPair.keyId), publicKey: #(keyPair.publicKey), encryptedPrivateKey: #(keyPair.encryptedPrivateKey)}
 
   Scenario: get a active non personal account key should return a 200
-    * def result = call read('classpath:feature/authenticate.feature')
-    * def headerAuthorization = 'Bearer ' + result.response.token
-    * def createResult = call read('create-non-personal-account.feature') {authorization:#(headerAuthorization),request:{ name: 'npa 1', parentLabelId: #(rootLabel.response.id)}}
+    * def createResult = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
     * def accountId = createResult.response.id
     * def keyPair = read('classpath:testmessages/key/npa-keypair1.json')
-    * call read('create-non-personal-account-key.feature') { authorization:#(headerAuthorization), accountId: #(accountId), key: #(keyPair)}
+    * call read('create-non-personal-account-key.feature') {accountId: #(accountId), key: #(keyPair)}
     * def restPath = '/api/nonpersonalaccount/'+accountId+'/key'
     Given path restPath
-    And header Authorization = headerAuthorization
     When method GET
     Then status 200
     And match response == {keyId: #(keyPair.keyId), publicKey: #(keyPair.publicKey), encryptedPrivateKey: #(keyPair.encryptedPrivateKey)}

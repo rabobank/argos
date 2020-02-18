@@ -17,6 +17,9 @@
 Feature: Verification
 
   Background:
+    * call read('classpath:feature/reset.feature')
+    * def tokenResponse = callonce read('classpath:feature/authenticate.feature')
+    * configure headers = call read('classpath:headers.js') { token: #(tokenResponse.response.token)}
     * def defaultVerificationRequest = {expectedProducts: [{uri: 'target/argos-test-0.0.1-SNAPSHOT.jar',hash: '49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162'}] }
     * def defaultSteps = [{link:'build-step-link.json', signingKey:2},{link:'test-step-link.json', signingKey:3}]
 

@@ -22,8 +22,6 @@ Feature: using __arg
 
   Scenario: create non personal account
     Given path '/api/nonpersonalaccount'
-    And request __arg.request
-    And header Authorization = __arg.authorization
-    And header Content-Type = 'application/json'
+    And request __arg
     When method POST
     Then status 201

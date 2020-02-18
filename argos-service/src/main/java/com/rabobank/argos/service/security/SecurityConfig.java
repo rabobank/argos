@@ -114,14 +114,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(new RestAuthenticationEntryPoint())
                 .and()
                 .authorizeRequests()
-                .antMatchers("/swagger/**",
-                        "/api/supplychain", "/api/supplychain/**",
-                        "/api/key", "/api/key/**", "/actuator/**",
-                        "/api/label", "/api/label/*",
-                        "/api/hierarchy", "/api/hierarchy/*"
-                )
-                .permitAll()
-                .antMatchers("/api/auth/**", "/api/oauth2/**")
+                .antMatchers("/swagger/**", "/actuator/**", "/api/auth/**", "/api/oauth2/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

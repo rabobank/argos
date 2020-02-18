@@ -39,6 +39,7 @@ import java.io.File;
 import java.util.List;
 
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getOauth2Api;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getVerificationApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
@@ -65,14 +66,15 @@ public class Argos4jIT {
     @Test
     void postLinkMetaBlockWithSignatureValidationAndVerify() {
 
-        RestLabel rootLabel = getHierarchyApi().createLabel(new RestLabel().name("root_label"));
-        RestLabel childLabel = getHierarchyApi().createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
-        String supplyChainId = getSupplychainApi().createSupplyChain(new RestSupplyChain().name("test-supply-chain").parentLabelId(childLabel.getId())).getId();
+        String token = getOauth2Api().authorize("azure", "/authenticated").getToken();
+        RestLabel rootLabel = getHierarchyApi(token).createLabel(new RestLabel().name("root_label"));
+        RestLabel childLabel = getHierarchyApi(token).createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
+        String supplyChainId = getSupplychainApi(token).createSupplyChain(new RestSupplyChain().name("test-supply-chain").parentLabelId(childLabel.getId())).getId();
 
-        keyPair = createAndStoreKeyPair("test", childLabel.getId());
+        keyPair = createAndStoreKeyPair(token, "test", childLabel.getId());
 
         RestLayoutMetaBlock layout = new RestLayoutMetaBlock().layout(createLayout());
-        signAndStoreLayout(supplyChainId, layout, keyPair.getKeyId(), "test");
+        signAndStoreLayout(token, supplyChainId, layout, keyPair.getKeyId(), "test");
 
 
         Argos4jSettings settings = Argos4jSettings.builder()
@@ -89,7 +91,7 @@ public class Argos4jIT {
         argos4j.collectMaterials(new File("."));
         argos4j.store("test".toCharArray());
 
-        RestVerificationResult verificationResult = getVerificationApi().performVerification(supplyChainId, new RestVerifyCommand()
+        RestVerificationResult verificationResult = getVerificationApi(token).performVerification(supplyChainId, new RestVerifyCommand()
                 .addExpectedProductsItem(new RestArtifact().uri("src/test/resources/karate-config.js").hash("9b33afe5598c5ea4cc702b231b2a98a906bc2fdcd10ebab103bbb20596db07a2")));
         assertThat(verificationResult.getRunIsValid(), Matchers.is(true));
     }

@@ -46,12 +46,12 @@ public class TestServiceHelper {
         return new ApiClient().setBasePath(properties.getIntegrationTestServiceBaseUrl() + "/integration-test");
     }
 
-    public static RestKeyPair createAndStoreKeyPair(String password, String parentLabelId) {
+    public static RestKeyPair createAndStoreKeyPair(String token, String password, String parentLabelId) {
         RestMapper mapper = Mappers.getMapper(RestMapper.class);
         TestKeyPair layoutKeyPair = getTestApi().createKeyPair(password);
         RestKeyPair restKeyPair = mapper.mapTestKeyPair(layoutKeyPair);
-        RestNonPersonalAccount npa = getNonPersonalAccountApi().createNonPersonalAccount(new RestNonPersonalAccount().name("npa").parentLabelId(parentLabelId));
-        getNonPersonalAccountApi().createNonPersonalAccountKeyById(npa.getId(), new RestNonPersonalAccountKeyPair()
+        RestNonPersonalAccount npa = getNonPersonalAccountApi(token).createNonPersonalAccount(new RestNonPersonalAccount().name("npa").parentLabelId(parentLabelId));
+        getNonPersonalAccountApi(token).createNonPersonalAccountKeyById(npa.getId(), new RestNonPersonalAccountKeyPair()
                 .keyId(restKeyPair.getKeyId())
                 .encryptedPrivateKey(restKeyPair.getEncryptedPrivateKey())
                 .publicKey(restKeyPair.getPublicKey())
@@ -59,11 +59,11 @@ public class TestServiceHelper {
         return restKeyPair;
     }
 
-    public static void signAndStoreLayout(String supplyChainId, RestLayoutMetaBlock restLayout, String keyId, String password) {
+    public static void signAndStoreLayout(String token, String supplyChainId, RestLayoutMetaBlock restLayout, String keyId, String password) {
         RestMapper mapper = Mappers.getMapper(RestMapper.class);
         TestLayoutMetaBlock testLayout = mapper.mapRestLayout(restLayout);
         TestLayoutMetaBlock signed = getTestApi().signLayout(password, keyId, testLayout);
-        getLayoutApi().createLayout(supplyChainId, mapper.mapTestLayout(signed));
+        getLayoutApi(token).createLayout(supplyChainId, mapper.mapTestLayout(signed));
     }
 
 }

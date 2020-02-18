@@ -24,6 +24,35 @@ servers:
   - url: /api
 
 paths:
+  /oauth2/authorize/{provider}:
+    get:
+      summary: do oauth2 authorize
+      operationId: authorize
+      tags:
+        - oauth2
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: redirect_uri
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: redirect url to the authentication provider (test only)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '301':
+          description: redirect to oauth2 provider
   /supplychain:
     post:
       summary: create a supplychain

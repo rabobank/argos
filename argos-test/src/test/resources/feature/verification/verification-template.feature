@@ -23,7 +23,6 @@ Feature: Verification template
     * def testFilesDir = __arg.testDir
     * def steps = __arg.steps
     * def layoutSigningKey = __arg.layoutSigningKey
-    * call read('classpath:feature/reset.feature')
     * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
     * call read('classpath:feature/account/insert-test-key-pairs.feature') {parentLabelId: #(supplyChain.response.parentLabelId)}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
@@ -41,6 +40,5 @@ Feature: Verification template
     * call read('classpath:feature/link/create-link.feature') stepLinksJson
     Given path supplyChainPath + '/verification'
     And request  verificationRequest
-    And header Content-Type = 'application/json'
     When method POST
     Then status 200

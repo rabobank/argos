@@ -19,6 +19,8 @@ Feature: Layout
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
+    * def tokenResponse = callonce read('classpath:feature/authenticate.feature')
+    * configure headers = call read('classpath:headers.js') { token: #(tokenResponse.response.token)}
     * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
     * call read('classpath:feature/account/insert-test-key-pairs.feature') {parentLabelId: #(supplyChain.response.parentLabelId)}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
@@ -30,7 +32,6 @@ Feature: Layout
   Scenario: store link with invalid specifications should return a 400 error
     Given path layoutPath
     And request read('classpath:testmessages/layout/invalid-layout.json')
-    And header Content-Type = 'application/json'
     When method POST
     Then status 400
     And match response contains read('classpath:testmessages/layout/invalid-layout-response.json')
@@ -51,7 +52,6 @@ Feature: Layout
     * def requestBody = call read('sign-layout.feature') {json:#(layoutToBeSigned),keyNumber:3}
     Given path layoutPath + '/' + layoutId
     And request requestBody.response
-    And header Content-Type = 'application/json'
     When method PUT
     Then status 200
     * def layoutId = layoutResponse.response.id

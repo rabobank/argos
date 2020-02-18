@@ -19,6 +19,8 @@ Feature: Label
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
+    * def tokenResponse = callonce read('classpath:feature/authenticate.feature')
+    * configure headers = call read('classpath:headers.js') { token: #(tokenResponse.response.token)}
 
   Scenario: store a root label with valid name should return a 201
     * def result = call read('create-label.feature') { name: 'label1'}
@@ -27,7 +29,6 @@ Feature: Label
   Scenario: store a root label with invalid name should return a 400
     Given path '/api/label'
     And request { name: '1label'}
-    And header Content-Type = 'application/json'
     When method POST
     Then status 400
     And match response.message == 'name:must match "^([a-z]{1}[a-z0-9_]*)?$"'
@@ -37,7 +38,6 @@ Feature: Label
     * match result.response == { name: 'label1', id: '#uuid' }
     Given path '/api/label'
     And request { name: 'label1'}
-    And header Content-Type = 'application/json'
     When method POST
     Then status 400
     And match response.message == 'label with name: label1 and parentLabelId: null already exists'

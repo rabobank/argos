@@ -20,6 +20,7 @@ import com.rabobank.argos.argos4j.rest.api.client.HierarchyApi;
 import com.rabobank.argos.argos4j.rest.api.client.LayoutApi;
 import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
+import com.rabobank.argos.argos4j.rest.api.client.Oauth2Api;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
 import com.rabobank.argos.argos4j.rest.api.client.VerificationApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
@@ -79,32 +80,43 @@ public class ServiceStatusHelper {
         log.info("argos integration test service started");
     }
 
-    public static LinkApi getLinkApi() {
-        return getApiClient().buildClient(LinkApi.class);
+    public static LinkApi getLinkApi(String bearerToken) {
+        return getApiClient(bearerToken).buildClient(LinkApi.class);
     }
 
-    public static SupplychainApi getSupplychainApi() {
-        return getApiClient().buildClient(SupplychainApi.class);
+    public static SupplychainApi getSupplychainApi(String bearerToken) {
+        return getApiClient(bearerToken).buildClient(SupplychainApi.class);
     }
 
-    public static HierarchyApi getHierarchyApi() {
-        return getApiClient().buildClient(HierarchyApi.class);
+    public static Oauth2Api getOauth2Api() {
+        ApiClient apiClient = getApiClient();
+        return apiClient.buildClient(Oauth2Api.class);
     }
 
-    public static boolean isValidEndProduct(String supplyChainId, RestVerifyCommand verifyCommand) {
-        return getVerificationApi().performVerification(supplyChainId, verifyCommand).getRunIsValid();
+    public static HierarchyApi getHierarchyApi(String bearerToken) {
+        return getApiClient(bearerToken).buildClient(HierarchyApi.class);
     }
 
-    public static NonPersonalAccountApi getNonPersonalAccountApi() {
-        return getApiClient().buildClient(NonPersonalAccountApi.class);
+    public static boolean isValidEndProduct(String bearerToken, String supplyChainId, RestVerifyCommand verifyCommand) {
+        return getVerificationApi(bearerToken).performVerification(supplyChainId, verifyCommand).getRunIsValid();
     }
 
-    public static VerificationApi getVerificationApi() {
-        return getApiClient().buildClient(VerificationApi.class);
+    public static NonPersonalAccountApi getNonPersonalAccountApi(String bearerToken) {
+        return getApiClient(bearerToken).buildClient(NonPersonalAccountApi.class);
     }
 
-    public static LayoutApi getLayoutApi() {
-        return getApiClient().buildClient(LayoutApi.class);
+    public static VerificationApi getVerificationApi(String bearerToken) {
+        return getApiClient(bearerToken).buildClient(VerificationApi.class);
+    }
+
+    public static LayoutApi getLayoutApi(String bearerToken) {
+        return getApiClient(bearerToken).buildClient(LayoutApi.class);
+    }
+
+    private static ApiClient getApiClient(String bearerToken) {
+        ApiClient apiClient = new ApiClient("bearerAuth").setBasePath(properties.getApiBaseUrl() + "/api");
+        apiClient.setBearerToken(bearerToken);
+        return apiClient;
     }
 
     private static ApiClient getApiClient() {

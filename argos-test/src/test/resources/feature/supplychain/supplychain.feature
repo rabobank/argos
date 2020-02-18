@@ -19,6 +19,8 @@ Feature: SupplyChain
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
+    * def tokenResponse = callonce read('classpath:feature/authenticate.feature')
+    * configure headers = call read('classpath:headers.js') { token: #(tokenResponse.response.token)}
 
   Scenario: store supplychain with valid name should return a 201
     Given path '/api/supplychain'
@@ -31,7 +33,6 @@ Feature: SupplyChain
     * def supplyChainResponse = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
     Given path '/api/supplychain'
     And request  {"name":"name", parentLabelId: "#(supplyChainResponse.response.parentLabelId)"}
-    And header Content-Type = 'application/json'
     When method POST
     Then status 400
     And match response.message contains 'supply chain with name: name and parentLabelId'
@@ -41,7 +42,6 @@ Feature: SupplyChain
     * def labelResult = call read('classpath:feature/label/create-label.feature') {name: otherlabel}
     Given path '/api/supplychain/'+supplyChainResponse.response.id
     And request  {"name":"supply-chain-name", parentLabelId: "#(labelResult.response.id)"}
-    And header Content-Type = 'application/json'
     When method PUT
     Then status 200
     And match response == { name: 'supply-chain-name', id: '#(supplyChainResponse.response.id)', parentLabelId: '#(labelResult.response.id)' }

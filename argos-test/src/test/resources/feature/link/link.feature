@@ -19,6 +19,8 @@ Feature: Link
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
+    * def tokenResponse = callonce read('classpath:feature/authenticate.feature')
+    * configure headers = call read('classpath:headers.js') { token: #(tokenResponse.response.token)}
     * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
     * call read('classpath:feature/account/insert-test-key-pairs.feature') {parentLabelId: #(supplyChain.response.parentLabelId)}
     * def linkPath = '/api/supplychain/'+ supplyChain.response.id + '/link'
@@ -30,7 +32,6 @@ Feature: Link
   Scenario: store link with invalid specifications should return a 400 error
     Given path linkPath
     And request read('classpath:testmessages/link/invalid-link.json')
-    And header Content-Type = 'application/json'
     When method POST
     Then status 400
     And match response contains read('classpath:testmessages/link/invalid-link-response.json')
