@@ -34,6 +34,7 @@ import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,6 +107,7 @@ public class JenkinsTestIT {
     private void createNpaWithActiveKey(RestNonPersonalAccountKeyPair restKeyPair, String parentLabelId, String name) {
         NonPersonalAccountApi nonPersonalAccountApi = getNonPersonalAccountApi();
         RestNonPersonalAccount npa = nonPersonalAccountApi.createNonPersonalAccount(new RestNonPersonalAccount().parentLabelId(parentLabelId).name(name));
+        restKeyPair.setHashedKeyPassphrase(DigestUtils.sha256Hex(restKeyPair.getHashedKeyPassphrase()));
         nonPersonalAccountApi.createNonPersonalAccountKeyById(npa.getId(), restKeyPair);
     }
 

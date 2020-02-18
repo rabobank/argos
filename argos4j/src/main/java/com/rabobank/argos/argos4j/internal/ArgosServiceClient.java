@@ -28,6 +28,7 @@ import com.rabobank.argos.argos4j.rest.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import feign.FeignException;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.mapstruct.factory.Mappers;
 
 
@@ -40,7 +41,7 @@ public class ArgosServiceClient {
         this.settings = settings;
         apiClient = new ApiClient("basicAuth").setBasePath(settings.getArgosServerBaseUrl());
 
-        apiClient.setCredentials(settings.getSigningKeyId(), new String(signingKeyPassphrase));
+        apiClient.setCredentials(settings.getSigningKeyId(), DigestUtils.sha256Hex(new String(signingKeyPassphrase)));
         apiClient.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 

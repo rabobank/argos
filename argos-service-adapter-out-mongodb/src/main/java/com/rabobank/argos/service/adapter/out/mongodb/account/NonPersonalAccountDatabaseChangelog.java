@@ -21,23 +21,32 @@ import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
+import org.springframework.data.mongodb.core.index.PartialIndexFilter;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.Map;
 
 import static com.rabobank.argos.service.adapter.out.mongodb.account.NonPersonalAccountRepositoryImpl.ACCOUNT_ID_FIELD;
 import static com.rabobank.argos.service.adapter.out.mongodb.account.NonPersonalAccountRepositoryImpl.ACCOUNT_NAME_FIELD;
+import static com.rabobank.argos.service.adapter.out.mongodb.account.NonPersonalAccountRepositoryImpl.ACTIVE_KEY_ID_FIELD;
 import static com.rabobank.argos.service.adapter.out.mongodb.account.NonPersonalAccountRepositoryImpl.COLLECTION;
 import static com.rabobank.argos.service.adapter.out.mongodb.account.NonPersonalAccountRepositoryImpl.PARENT_LABEL_ID_FIELD;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @ChangeLog
-public class NonPersonalAccountChangelog {
+public class NonPersonalAccountDatabaseChangelog {
 
-    @ChangeSet(order = "001", id = "NonPersonalAccountChangelog-1", author = "bart")
+    @ChangeSet(order = "001", id = "NonPersonalAccountDatabaseChangelog-1", author = "bart")
     public void addIndex(MongoTemplate template) {
         template.indexOps(COLLECTION).ensureIndex(new Index(ACCOUNT_ID_FIELD, ASC).unique());
         template.indexOps(COLLECTION)
                 .ensureIndex(new CompoundIndexDefinition(new Document(Map.of(PARENT_LABEL_ID_FIELD, 1, ACCOUNT_NAME_FIELD, 1)))
                         .named(PARENT_LABEL_ID_FIELD + "_" + ACCOUNT_NAME_FIELD).unique());
+    }
+
+    @ChangeSet(order = "002", id = "NonPersonalAccountDatabaseChangelog-2", author = "bart")
+    public void addActiveKeyIndex(MongoTemplate template) {
+        template.indexOps(COLLECTION).ensureIndex(new Index(ACTIVE_KEY_ID_FIELD, ASC)
+                .partial(PartialIndexFilter.of(new Criteria(ACTIVE_KEY_ID_FIELD).exists(true))).unique());
     }
 }

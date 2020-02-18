@@ -39,7 +39,14 @@ class NonPersonalAccountDatabaseChangelogTest {
     @Test
     void addIndex() {
         when(template.indexOps(COLLECTION)).thenReturn(indexOperations);
-        new NonPersonalAccountChangelog().addIndex(template);
+        new NonPersonalAccountDatabaseChangelog().addIndex(template);
         verify(template, times(2)).indexOps(COLLECTION);
+    }
+
+    @Test
+    void addActiveKeyIndex() {
+        when(template.indexOps(COLLECTION)).thenReturn(indexOperations);
+        new NonPersonalAccountDatabaseChangelog().addActiveKeyIndex(template);
+        verify(template, times(1)).indexOps(COLLECTION);
     }
 }

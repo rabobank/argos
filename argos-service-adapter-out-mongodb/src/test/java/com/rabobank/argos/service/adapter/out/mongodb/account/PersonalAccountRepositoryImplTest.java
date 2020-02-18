@@ -18,6 +18,7 @@ package com.rabobank.argos.service.adapter.out.mongodb.account;
 import com.mongodb.client.result.UpdateResult;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import org.bson.Document;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,7 @@ import java.util.Optional;
 
 import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.COLLECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -44,6 +46,7 @@ import static org.mockito.Mockito.when;
 class PersonalAccountRepositoryImplTest {
 
 
+    private static final String ACTIVE_KEY_ID = "activeKeyId";
     @Mock
     private MongoTemplate template;
 
@@ -101,6 +104,22 @@ class PersonalAccountRepositoryImplTest {
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"accountId\" : \"userId\"}, Fields: {}, Sort: {}"));
         assertThat(updateArgumentCaptor.getValue().toString(), is("{}"));
         verify(converter).write(eq(personalAccount), any(Document.class));
+    }
+
+    @Test
+    void activeKeyExists() {
+        when(template.exists(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(true);
+        assertThat(repository.activeKeyExists(ACTIVE_KEY_ID), Matchers.is(true));
+        verify(template).exists(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"activeKeyPair.keyId\" : \"activeKeyId\"}, Fields: {}, Sort: {}"));
+    }
+
+    @Test
+    void findByActiveKeyId() {
+        when(template.findOne(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(personalAccount);
+        assertThat(repository.findByActiveKeyId(ACTIVE_KEY_ID), equalTo(Optional.of(personalAccount)));
+        verify(template).findOne(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"activeKeyPair.keyId\" : \"activeKeyId\"}, Fields: {}, Sort: {}"));
     }
 
 }
