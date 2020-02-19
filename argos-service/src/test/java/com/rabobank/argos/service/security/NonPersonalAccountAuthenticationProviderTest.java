@@ -25,14 +25,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +43,7 @@ class NonPersonalAccountAuthenticationProviderTest {
     private static final String KEYID = "keyid";
     private static final String PASSWORD = "password";
     private static final String ENCRYPTEDPASSWORD = "encryptedpassword";
+    private static final String NOT_AUTHENTICATED = "not authenticated";
     @Mock
     private NonPersonalAccountUserDetailsService nonPersonalAccountUserDetailsService;
     @Mock
@@ -76,18 +78,16 @@ class NonPersonalAccountAuthenticationProviderTest {
     @Test
     void authenticateWithInValidIdShouldReturnUnAuthenticated() {
         when(nonPersonalAccountUserDetailsService.loadUserById(eq(KEYID))).thenThrow(new ArgosError("non personal account not found"));
-        Authentication authenticatedAccount = nonPersonalAccountAuthenticationProvider.authenticate(authentication);
-        assertThat(authenticatedAccount.getPrincipal(), nullValue());
-        assertThat(authenticatedAccount.isAuthenticated(), is(false));
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> nonPersonalAccountAuthenticationProvider.authenticate(authentication));
+        assertThat(exception.getMessage(), is(NOT_AUTHENTICATED));
     }
 
     @Test
-    void authenticateWithInValidPasswordShouldReturnUnAuthenticated() {
+    void authenticateWithInValidPasswordShouldThrowBadCredentials() {
         when(nonPersonalAccountUserDetailsService.loadUserById(eq(KEYID))).thenReturn(userDetails);
         when(passwordEncoder.matches(eq(PASSWORD), eq(ENCRYPTEDPASSWORD))).thenReturn(false);
-        Authentication authenticatedAccount = nonPersonalAccountAuthenticationProvider.authenticate(authentication);
-        assertThat(authenticatedAccount.getPrincipal(), nullValue());
-        assertThat(authenticatedAccount.isAuthenticated(), is(false));
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> nonPersonalAccountAuthenticationProvider.authenticate(authentication));
+        assertThat(exception.getMessage(), is(NOT_AUTHENTICATED));
     }
 
     @Test

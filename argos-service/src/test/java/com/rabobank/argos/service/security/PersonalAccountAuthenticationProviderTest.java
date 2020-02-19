@@ -23,13 +23,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +40,7 @@ class PersonalAccountAuthenticationProviderTest {
     @Mock
     private PersonalAccountUserDetailsService personalAccountUserDetailsService;
     private PersonalAccountAuthenticationProvider personalAccountAuthenticationProvider;
-
+    private static final String NOT_AUTHENTICATED = "not authenticated";
     private UserDetails userDetails = new AccountUserDetailsAdapter(PersonalAccount.builder().name("test").build());
 
 
@@ -62,9 +63,8 @@ class PersonalAccountAuthenticationProviderTest {
     @Test
     void testAuthenticateWithInValidCredentials() {
         when(personalAccountUserDetailsService.loadUserById(eq("id"))).thenThrow(new ArgosError("Personal account with id  not found"));
-        Authentication unauthorized = personalAccountAuthenticationProvider.authenticate(authentication);
-        assertThat(unauthorized.isAuthenticated(), is(false));
-        assertThat(unauthorized.getPrincipal(), nullValue());
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> personalAccountAuthenticationProvider.authenticate(authentication));
+        assertThat(exception.getMessage(), is(NOT_AUTHENTICATED));
     }
 
     @Test

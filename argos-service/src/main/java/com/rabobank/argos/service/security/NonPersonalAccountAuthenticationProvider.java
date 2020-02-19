@@ -20,6 +20,7 @@ import com.rabobank.argos.service.domain.security.AccountUserDetailsAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -28,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class NonPersonalAccountAuthenticationProvider implements AuthenticationProvider {
 
+    private static final String NOT_AUTHENTICATED = "not authenticated";
     private final NonPersonalAccountUserDetailsService nonPersonalAccountUserDetailsService;
 
     private final PasswordEncoder passwordEncoder;
@@ -46,12 +48,14 @@ public class NonPersonalAccountAuthenticationProvider implements AuthenticationP
                 return new NonPersonalAccountAuthenticationToken(nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials(),
                         userDetails,
                         userDetails.getAuthorities());
-
+            } else {
+                log.warn("invalid access attempt {}", nonPersonalAccountAuthenticationToken);
+                throw new BadCredentialsException(NOT_AUTHENTICATED);
             }
         } catch (Exception ex) {
-            log.error("Could not set user authentication in security context", ex);
+            log.warn("invalid access attempt {}", nonPersonalAccountAuthenticationToken);
+            throw new BadCredentialsException(NOT_AUTHENTICATED);
         }
-        return notAuthenticatedNonPersonalAccount;
     }
 
 

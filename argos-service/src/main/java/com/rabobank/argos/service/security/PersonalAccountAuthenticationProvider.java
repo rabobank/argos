@@ -17,6 +17,7 @@ package com.rabobank.argos.service.security;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -24,6 +25,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Slf4j
 public class PersonalAccountAuthenticationProvider implements AuthenticationProvider {
 
+    private static final String NOT_AUTHENTICATED = "not authenticated";
     private final PersonalAccountUserDetailsService personalAccountUserDetailsService;
 
     public PersonalAccountAuthenticationProvider(PersonalAccountUserDetailsService personalAccountUserDetailsService) {
@@ -40,9 +42,9 @@ public class PersonalAccountAuthenticationProvider implements AuthenticationProv
             log.debug("successfully authenticated personal account {}", userDetails.getUsername());
             return authenticatedPersonalAccount;
         } catch (Exception ex) {
-            log.error("Could not set user authentication in security context", ex);
+            log.warn("invalid access attempt  {}", personalAccountAuthenticationToken);
+            throw new BadCredentialsException(NOT_AUTHENTICATED);
         }
-        return notAuthenticatedPersonalAccount;
     }
 
     @Override

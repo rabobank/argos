@@ -51,7 +51,6 @@ class RestAuthenticationEntryPointTest {
     @Test
     void commence() throws IOException {
         when(e.getMessage()).thenReturn("message");
-        when(httpServletRequest.getRequestURI()).thenReturn("/somewhere");
         entryPoint.commence(httpServletRequest, httpServletResponse, e);
         verify(httpServletResponse).sendError(401, "message");
     }

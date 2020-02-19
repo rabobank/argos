@@ -19,7 +19,7 @@ Feature: Non Personal Account
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def tokenResponse = call read('classpath:feature/authenticate.feature')
+    * def tokenResponse = callonce read('classpath:feature/authenticate.feature')
     * configure headers = call read('classpath:headers.js') { token: #(tokenResponse.response.token)}
     * def rootLabel = call read('classpath:feature/label/create-label.feature') { name: 'root1'}
 
@@ -80,8 +80,18 @@ Feature: Non Personal Account
 
   Scenario: get active key of authenticated npa a should return a 200
     * def keypairResponse = call read('classpath:feature/account/create-non-personal-account-with-key.feature') {accountName: 'npa1', parentLabelId: #(rootLabel.response.id), keyFile: 'keypair1'}
-    * def basicAuthHeader =  call read('classpath:basic-auth.js') { username: #(keypairResponse.response.keyId),password:test}
-    * configure headers = {Authorization: #(basicAuthHeader)}
+    * def keyPair = keypairResponse.response
+    * configure headers =  call read('classpath:headers.js') { username: #(keyPair.keyId),password:test}
     Given path '/api/nonpersonalaccount/me/activekey'
     When method GET
     Then status 200
+    And match response == {keyId: #(keyPair.keyId), publicKey: #(keyPair.publicKey), encryptedPrivateKey: #(keyPair.encryptedPrivateKey)}
+
+  Scenario: retrieve non personal account with invalid credentials should return a 401
+    * def result = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
+    * configure headers =  call read('classpath:headers.js') { username:fake,password:fake}
+    * def restPath = '/api/nonpersonalaccount/'+result.response.id
+    Given path restPath
+    When method GET
+    Then status 401
+    And match response == {"timestamp":"#string","status":401,"error":"Unauthorized","message":"not authorized","path":"#(restPath)"}
