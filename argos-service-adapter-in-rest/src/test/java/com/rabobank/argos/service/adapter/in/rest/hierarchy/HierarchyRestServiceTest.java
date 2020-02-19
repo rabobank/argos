@@ -147,6 +147,7 @@ class HierarchyRestServiceTest {
         ResponseEntity<RestLabel> response = service.updateLabelById(LABEL_ID, restLabel);
         assertThat(response.getStatusCodeValue(), is(200));
         assertThat(response.getBody(), sameInstance(restLabel));
+        verify(label).setLabelId(LABEL_ID);
     }
 
     @Test
