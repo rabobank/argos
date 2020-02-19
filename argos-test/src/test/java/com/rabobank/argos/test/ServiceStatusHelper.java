@@ -15,16 +15,21 @@
  */
 package com.rabobank.argos.test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabobank.argos.argos4j.rest.api.ApiClient;
 import com.rabobank.argos.argos4j.rest.api.client.HierarchyApi;
 import com.rabobank.argos.argos4j.rest.api.client.LayoutApi;
 import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
-import com.rabobank.argos.argos4j.rest.api.client.Oauth2Api;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
 import com.rabobank.argos.argos4j.rest.api.client.VerificationApi;
+import com.rabobank.argos.argos4j.rest.api.model.RestInlineResponse200;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
 import java.net.URI;
@@ -35,6 +40,7 @@ import java.net.http.HttpResponse;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 public class ServiceStatusHelper {
@@ -88,9 +94,15 @@ public class ServiceStatusHelper {
         return getApiClient(bearerToken).buildClient(SupplychainApi.class);
     }
 
-    public static Oauth2Api getOauth2Api() {
-        ApiClient apiClient = getApiClient();
-        return apiClient.buildClient(Oauth2Api.class);
+    public static String getToken() {
+        HttpGet request = new HttpGet(properties.getApiBaseUrl() + "/api/oauth2/authorize/azure?redirect_uri=/authenticated");
+        try (CloseableHttpClient httpClient = HttpClients.createDefault();
+             CloseableHttpResponse response = httpClient.execute(request)) {
+            return new ObjectMapper().readValue(response.getEntity().getContent(), RestInlineResponse200.class).getToken();
+        } catch (IOException e) {
+            fail(e.getMessage());
+            return null;
+        }
     }
 
     public static HierarchyApi getHierarchyApi(String bearerToken) {

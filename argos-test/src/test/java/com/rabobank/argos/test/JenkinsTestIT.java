@@ -51,8 +51,8 @@ import java.util.stream.Stream;
 import static com.rabobank.argos.test.NexusHelper.getWarSnapshotHash;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getNonPersonalAccountApi;
-import static com.rabobank.argos.test.ServiceStatusHelper.getOauth2Api;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getToken;
 import static com.rabobank.argos.test.ServiceStatusHelper.isValidEndProduct;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
@@ -90,7 +90,7 @@ public class JenkinsTestIT {
     @BeforeEach
     void setUp() throws URISyntaxException, IOException {
         clearDatabase();
-        token = getOauth2Api().authorize("azure", "/authenticated").getToken();
+        token = getToken();
         RestLabel rootLabel = getHierarchyApi(token).createLabel(new RestLabel().name("root_label"));
         RestLabel childLabel = getHierarchyApi(token).createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
 

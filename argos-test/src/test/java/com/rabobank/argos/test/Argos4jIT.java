@@ -36,11 +36,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
-import static com.rabobank.argos.test.ServiceStatusHelper.getOauth2Api;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getToken;
 import static com.rabobank.argos.test.ServiceStatusHelper.getVerificationApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
@@ -64,9 +65,10 @@ public class Argos4jIT {
     }
 
     @Test
-    void postLinkMetaBlockWithSignatureValidationAndVerify() {
+    void postLinkMetaBlockWithSignatureValidationAndVerify() throws IOException {
 
-        String token = getOauth2Api().authorize("azure", "/authenticated").getToken();
+
+        String token = getToken();
         RestLabel rootLabel = getHierarchyApi(token).createLabel(new RestLabel().name("root_label"));
         RestLabel childLabel = getHierarchyApi(token).createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
         String supplyChainId = getSupplychainApi(token).createSupplyChain(new RestSupplyChain().name("test-supply-chain").parentLabelId(childLabel.getId())).getId();
