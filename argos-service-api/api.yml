@@ -107,7 +107,7 @@ paths:
         '500':
           $ref: '#/components/responses/Error'
     put:
-      summary: update label by id
+      summary: update supplychain by id
       operationId: updateSupplyChain
       tags:
         - supplychain
@@ -119,6 +119,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -270,6 +271,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -339,6 +341,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -369,6 +372,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -514,6 +518,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -555,6 +560,7 @@ paths:
       tags:
         - personal account
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -589,6 +595,7 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
+
   /personalaccount/me:
     get:
       summary: returns the personal account profile of the authenticated personal account based on the bearer token
@@ -610,14 +617,34 @@ paths:
           $ref: '#/components/responses/Error'
 
   /permissions/global/role:
+    get:
+      summary: gets all roles
+      operationId: getRoles
+      tags:
+        - global permission
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: list of roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Role"
+        '500':
+          $ref: '#/components/responses/Error'
+
     post:
-      summary: creates a global role
+      summary: creates a role
       operationId: createRole
       security:
         - bearerAuth: []
       tags:
         - global permission
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -639,6 +666,65 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
+
+  /permissions/global/role/{roleId}:
+    get:
+      summary: returns a role
+      operationId: getRole
+      security:
+        - bearerAuth: []
+      tags:
+        - global permission
+      parameters:
+        - name: roleId
+          in: path
+          description: role id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '404':
+          description: role not found
+        '500':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: updates a role
+      operationId: updateRole
+      security:
+        - bearerAuth: []
+      tags:
+        - global permission
+      parameters:
+        - name: roleId
+          in: path
+          description: role id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        '200':
+          description: updated role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+
 components:
   securitySchemes:
     bearerAuth:            # arbitrary name for the security scheme
@@ -997,11 +1083,16 @@ components:
           format: email
     Role:
       type: object
+      required:
+        - name
       properties:
         id:
           type: string
+          maxLength: 36
         name:
           type: string
+          minLength: 1
+          pattern: '^([a-z]{1}[a-z0-9_]*)?$'
         permissions:
           type: array
           minItems: 1
