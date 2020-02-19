@@ -36,6 +36,14 @@ Feature: Layout
     Then status 400
     And match response contains read('classpath:testmessages/layout/invalid-layout-response.json')
 
+  Scenario: store link without authorization should return a 401 error
+    * configure headers = null
+    Given path layoutPath
+    And header Content-Type = 'application/json'
+    And request read(validLayout)
+    When method POST
+    Then status 401
+
   Scenario: find layout with valid supplychainid should return a 200
     * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
     Given path layoutPath
@@ -44,6 +52,14 @@ Feature: Layout
     * def layoutId = layoutResponse.response.id
     * def response = read('classpath:testmessages/layout/valid-layout-response.json')
     And match response[*] contains response
+
+  Scenario: find layout without authorization should return a 401 error
+    * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
+    * configure headers = null
+    Given path layoutPath
+    And header Content-Type = 'application/json'
+    When method GET
+    Then status 401
 
   Scenario: update a layout should return a 200
     * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
@@ -57,3 +73,15 @@ Feature: Layout
     * def layoutId = layoutResponse.response.id
     * def expectedResponse = read('classpath:testmessages/layout/valid-update-layout-response.json')
     And match response contains expectedResponse
+
+  Scenario: update a layout without authorization should return a 401 error
+    * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
+    * def layoutId = layoutResponse.response.id
+    * def layoutToBeSigned = read('classpath:testmessages/layout/valid-update-layout.json')
+    * def requestBody = call read('sign-layout.feature') {json:#(layoutToBeSigned),keyNumber:3}
+    * configure headers = null
+    Given path layoutPath + '/' + layoutId
+    And request requestBody.response
+    And header Content-Type = 'application/json'
+    When method PUT
+    Then status 401

@@ -113,4 +113,12 @@ Feature: Verification
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'multiple-verification-contexts',steps:#(steps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":true}
 
-
+  Scenario: verification without authorization should return a 401 error
+    * url karate.properties['server.baseurl']
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
+    * def supplyChainPath = '/api/supplychain/'+ supplyChain.response.id
+    * configure headers = null
+    Given path supplyChainPath + '/verification'
+    And request defaultVerificationRequest
+    When method POST
+    Then status 401
