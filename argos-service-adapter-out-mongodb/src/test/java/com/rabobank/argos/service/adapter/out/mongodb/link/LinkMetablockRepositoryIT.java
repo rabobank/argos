@@ -33,9 +33,10 @@ import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.runtime.Network;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.io.IOException;
@@ -48,6 +49,7 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class LinkMetablockRepositoryIT {
 
     private static final String STEP_NAME = "stepName";
@@ -61,7 +63,7 @@ public class LinkMetablockRepositoryIT {
     private MongodExecutable mongodExecutable;
     private LinkMetaBlockRepository linkMetaBlockRepository;
 
-    @BeforeEach
+    @BeforeAll
     void setup() throws IOException, MongobeeException {
         String ip = "localhost";
         int port = Network.getFreeServerPort();
@@ -80,52 +82,46 @@ public class LinkMetablockRepositoryIT {
         runner.setMongoTemplate(mongoTemplate);
         runner.setDbName("test");
         runner.execute();
-
+        loadData();
     }
 
-    @AfterEach
+    @AfterAll
     void clean() {
         mongodExecutable.stop();
     }
 
     @Test
     void findByRunIdShouldRetreive() {
-        loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, RUN_ID);
         assertThat(links, hasSize(1));
     }
 
     @Test
     void findByRunIdWithSegmentNameAndResolvedStepShouldNotRetreive() {
-        loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, singletonList(STEP_NAME));
         assertThat(links, hasSize(0));
     }
 
     @Test
     void findByRunIdWithSegmentNameShouldRetreive() {
-        loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, new ArrayList<>());
         assertThat(links, hasSize(1));
     }
 
     @Test
     void findBySupplyChainAndStepNameAndProductHashesShouldRetreive() {
-        loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1));
         assertThat(links, hasSize(1));
     }
 
     @Test
     void findBySupplyChainAndStepNameAndMultipleProductHashesShouldRetreive() {
-        loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1, HASH_2));
         assertThat(links, hasSize(1));
     }
 
     @Test
     void findBySupplyChainAndStepNameAndProductHashesShouldNotRetreive() {
-        loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1, "INCORRECT_HASH"));
         assertThat(links, hasSize(0));
     }
@@ -133,21 +129,18 @@ public class LinkMetablockRepositoryIT {
 
     @Test
     void findBySupplyChainAndStepNameAndMaterialsHashesShouldRetreive() {
-        loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1));
         assertThat(links, hasSize(1));
     }
 
     @Test
     void findBySupplyChainAndStepNameAndMultipleMaterialsHashesShouldRetreive() {
-        loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1, HASH_2));
         assertThat(links, hasSize(1));
     }
 
     @Test
     void findBySupplyChainAndStepNameAndMaterialsHashesShouldNotRetreive() {
-        loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1, "INCORRECT_HASH"));
         assertThat(links, hasSize(0));
     }

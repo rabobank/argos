@@ -19,8 +19,8 @@ Feature: Non Personal Account
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def tokenResponse = callonce read('classpath:feature/authenticate.feature')
-    * configure headers = call read('classpath:headers.js') { token: #(tokenResponse.response.token)}
+    * def token = karate.properties['bearer.token']
+    * configure headers = call read('classpath:headers.js') { token: #(token)}
     * def rootLabel = call read('classpath:feature/label/create-label.feature') { name: 'root1'}
 
   Scenario: store a non personal account with valid name should return a 201

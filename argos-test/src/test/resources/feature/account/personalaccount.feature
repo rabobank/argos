@@ -19,8 +19,8 @@ Feature: Personal Account
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def tokenResponse = callonce read('classpath:feature/authenticate.feature')
-    * configure headers = call read('classpath:headers.js') { token: #(tokenResponse.response.token)}
+    * def token = karate.properties['bearer.token']
+    * configure headers = call read('classpath:headers.js') { token: #(token)}
 
   Scenario: get Personal Account profile should return 200
     Given path '/api/personalaccount/me'
