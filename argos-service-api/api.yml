@@ -608,6 +608,37 @@ paths:
           description: personal account not found
         '500':
           $ref: '#/components/responses/Error'
+
+  /permissions/global/role:
+    post:
+      summary: creates a global role
+      operationId: createRole
+      security:
+        - bearerAuth: []
+      tags:
+        - global permission
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        '201':
+          description: created role
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: location where the created role can be found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
 components:
   securitySchemes:
     bearerAuth:            # arbitrary name for the security scheme
@@ -964,6 +995,23 @@ components:
         email:
           type: string
           format: email
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        permissions:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/GlobalPermission"
+    GlobalPermission:
+      type: string
+      enum:
+        - EDIT_GLOBAL_PERMISSIONS
+        - READ
     Error:
       type: object
       required:
