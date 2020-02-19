@@ -28,7 +28,7 @@ public class RepositoryResetProviderImpl implements RepositoryResetProvider {
 
     private final MongoTemplate template;
 
-    private static final Set<String> IGNORED_COLLECTIONS = Set.of("dbchangelog", "mongobeelock", "hierarchy", "hierarchy_tmp", "system.views");
+    private static final Set<String> IGNORED_COLLECTIONS = Set.of("dbchangelog", "mongobeelock", "hierarchy", "hierarchy_tmp", "system.views", "personalaccounts");
 
     @Override
     public void resetAllRepositories() {

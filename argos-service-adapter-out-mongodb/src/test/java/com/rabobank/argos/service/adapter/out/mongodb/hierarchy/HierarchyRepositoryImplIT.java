@@ -18,11 +18,14 @@ package com.rabobank.argos.service.adapter.out.mongodb.hierarchy;
 import com.github.mongobee.Mongobee;
 import com.github.mongobee.exception.MongobeeException;
 import com.mongodb.client.MongoClients;
+import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.hierarchy.HierarchyMode;
 import com.rabobank.argos.domain.hierarchy.Label;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
 import com.rabobank.argos.domain.supplychain.SupplyChain;
+import com.rabobank.argos.service.adapter.out.mongodb.account.NonPersonalAccountRepositoryImpl;
 import com.rabobank.argos.service.adapter.out.mongodb.supplychain.SupplyChainRepositoryImpl;
+import com.rabobank.argos.service.domain.account.NonPersonalAccountRepository;
 import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
@@ -36,9 +39,10 @@ import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.runtime.Network;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.io.IOException;
@@ -50,6 +54,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HierarchyRepositoryImplIT {
     private static final String MONGODB_LOCALHOST = "mongodb://localhost:";
     private static final String MONGO_DB = "test";
@@ -60,10 +65,11 @@ class HierarchyRepositoryImplIT {
     private HierarchyRepository hierarchyRepository;
     private LabelRepository labelRepository;
     private SupplyChainRepository supplyChainRepository;
+    private NonPersonalAccountRepository nonPersonalAccountRepository;
 
     private MongoTemplate mongoTemplate;
 
-    @BeforeEach
+    @BeforeAll
     void setup() throws IOException, MongobeeException {
         String ip = LOCALHOST;
         int port = Network.getFreeServerPort();
@@ -79,21 +85,22 @@ class HierarchyRepositoryImplIT {
         hierarchyRepository = new HierarchyRepositoryImpl(mongoTemplate);
         labelRepository = new LabelRepositoryImpl(mongoTemplate);
         supplyChainRepository = new SupplyChainRepositoryImpl(mongoTemplate);
+        nonPersonalAccountRepository = new NonPersonalAccountRepositoryImpl(mongoTemplate);
         Mongobee runner = new Mongobee(connectionString);
         runner.setChangeLogsScanPackage(SCAN_PACKAGE);
         runner.setMongoTemplate(mongoTemplate);
         runner.setDbName(MONGO_DB);
         runner.execute();
+        createDataSet();
     }
 
-    @AfterEach
+    @AfterAll
     void clean() {
         mongodExecutable.stop();
     }
 
     @Test
     void testGetRootNodes() {
-        createDataSet();
         List<TreeNode> result = hierarchyRepository.getRootNodes(HierarchyMode.NONE, 0);
         assertThat(result, hasSize(1));
         assertThat(result.iterator().next().getName(), is("nl"));
@@ -102,7 +109,6 @@ class HierarchyRepositoryImplIT {
 
     @Test
     void testFindByNamePathToRootAndType() {
-        createDataSet();
         List<String> pathToRoot = List.of("team 1", "department 1", "company 1", "nl");
         Optional<TreeNode> optionalSubTree = hierarchyRepository
                 .findByNamePathToRootAndType("team 1 supply chain", pathToRoot, TreeNode.Type.SUPPLY_CHAIN);
@@ -113,7 +119,6 @@ class HierarchyRepositoryImplIT {
 
     @Test
     void testGetSubTree() {
-        createDataSet();
         List<TreeNode> result = hierarchyRepository.getRootNodes(HierarchyMode.NONE, 0);
         String referenceId = result.iterator().next().getReferenceId();
         Optional<TreeNode> optionalSubTree = hierarchyRepository.getSubTree(referenceId, HierarchyMode.ALL, 0);
@@ -125,6 +130,12 @@ class HierarchyRepositoryImplIT {
         assertThat(company1.getChildren(), hasSize(1));
         TreeNode department1 = company1.getChildren().iterator().next();
         assertThat(department1.getChildren(), hasSize(3));
+        TreeNode team1 = department1.getChildren().iterator().next();
+        assertThat(team1.getName(), is("team 1"));
+        assertThat(team1.getChildren(), hasSize(3));
+        TreeNode npa = team1.getChildren().iterator().next();
+        assertThat(npa.getName(), is("team 1 npa 1"));
+        assertThat(npa.getType(), is(TreeNode.Type.NON_PERSONAL_ACCOUNT));
     }
 
     void createDataSet() {
@@ -135,7 +146,12 @@ class HierarchyRepositoryImplIT {
         createLabel("team 2", department1.getLabelId());
         Label team1 = createLabel("team 1", department1.getLabelId());
         createLabel("team 1 supply chain", team1.getLabelId());
+        createNonPersonalAccount("team 1 npa 1", team1.getLabelId());
         createSupplyChain("team 1 supply chain", team1.getLabelId());
+    }
+
+    private void createNonPersonalAccount(String name, String parentLabelId) {
+        nonPersonalAccountRepository.save(NonPersonalAccount.builder().name(name).parentLabelId(parentLabelId).build());
     }
 
     private Label createLabel(String name, String parentId) {

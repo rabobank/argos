@@ -22,7 +22,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,7 +31,6 @@ import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,9 +39,6 @@ class TokenAuthenticationFilterTest {
 
     @Mock
     private TokenProvider tokenProvider;
-
-    @Mock
-    private CustomUserDetailsService customUserDetailsService;
 
     @Mock
     private HttpServletRequest request;
@@ -56,25 +51,20 @@ class TokenAuthenticationFilterTest {
 
     private TokenAuthenticationFilter filter;
 
-    @Mock
-    private UserDetails user;
-
     @BeforeEach
     void setUp() {
         SecurityContextHolder.getContext().setAuthentication(null);
-        filter = new TokenAuthenticationFilter(tokenProvider, customUserDetailsService);
+        filter = new TokenAuthenticationFilter(tokenProvider);
     }
 
     @Test
     void doFilterInternal() throws ServletException, IOException {
         when(tokenProvider.getUserIdFromToken("jwtToken")).thenReturn("id");
         when(request.getHeader("Authorization")).thenReturn("Bearer jwtToken");
-        when(customUserDetailsService.loadUserById("id")).thenReturn(user);
         when(tokenProvider.validateToken("jwtToken")).thenReturn(true);
         filter.doFilterInternal(request, response, filterChain);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         assertThat(authentication.getDetails() != null, is(true));
-        assertThat(authentication.getPrincipal(), sameInstance(user));
         verify(filterChain).doFilter(request, response);
     }
 

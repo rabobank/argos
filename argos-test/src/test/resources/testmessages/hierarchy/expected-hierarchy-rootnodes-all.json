@@ -12,6 +12,13 @@
         "hasChildren": true,
         "children": [
           {
+            "name": "npa-1",
+            "type": "NON_PERSONAL_ACCOUNT",
+            "referenceId": "#uuid",
+            "hasChildren": false,
+            "children": []
+          },
+          {
             "name": "supply-chain-1",
             "type": "SUPPLY_CHAIN",
             "referenceId": "#uuid",
@@ -42,6 +49,13 @@
         "hasChildren": true,
         "children": [
           {
+            "name": "npa-2",
+            "type": "NON_PERSONAL_ACCOUNT",
+            "referenceId": "#uuid",
+            "hasChildren": false,
+            "children": []
+          },
+          {
             "name": "supply-chain-2",
             "type": "SUPPLY_CHAIN",
             "referenceId": "#uuid",
@@ -70,6 +84,13 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "children": [
+          {
+            "name": "npa-3",
+            "type": "NON_PERSONAL_ACCOUNT",
+            "referenceId": "#uuid",
+            "hasChildren": false,
+            "children": []
+          },
           {
             "name": "supply-chain-3",
             "type": "SUPPLY_CHAIN",

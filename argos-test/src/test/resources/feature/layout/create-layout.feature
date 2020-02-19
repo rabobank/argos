@@ -27,6 +27,5 @@ Feature: create a valid layout
     * def signedLayout = call read('classpath:feature/layout/sign-layout.feature') {json:#(layoutToBeSigned),keyNumber:#(keyNumber)}
     Given path layoutPath
     And request signedLayout.response
-    And header Content-Type = 'application/json'
     When method POST
     Then status 201

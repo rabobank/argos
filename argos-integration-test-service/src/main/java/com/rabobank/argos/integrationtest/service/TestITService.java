@@ -27,7 +27,7 @@ import com.rabobank.argos.integrationtest.argos.service.api.model.RestLayoutMeta
 import com.rabobank.argos.integrationtest.argos.service.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.integrationtest.service.layout.LayoutMetaBlockMapper;
 import com.rabobank.argos.integrationtest.service.link.LinkMetaBlockMapper;
-import com.rabobank.argos.service.domain.key.KeyPairRepository;
+import com.rabobank.argos.service.domain.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
@@ -76,7 +76,7 @@ public class TestITService implements IntegrationTestServiceApi {
 
     private final LinkMetaBlockMapper linkMetaBlockMapper;
 
-    private final KeyPairRepository keyPairRepository;
+    private final AccountService accountService;
 
     @PostConstruct
     public void init() {
@@ -120,7 +120,7 @@ public class TestITService implements IntegrationTestServiceApi {
     }
 
     private PrivateKey getPrivateKey(String password, String keyId) {
-        return decryptPrivateKey(keyPairRepository.findByKeyId(keyId).orElseThrow().getEncryptedPrivateKey(), password.toCharArray());
+        return decryptPrivateKey(accountService.findKeyPairByKeyId(keyId).orElseThrow().getEncryptedPrivateKey(), password.toCharArray());
     }
 
     private KeyPair generateKeyPair() {
