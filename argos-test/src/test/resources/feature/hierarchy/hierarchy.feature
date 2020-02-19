@@ -19,8 +19,8 @@ Feature: Hierarchy
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def tokenResponse = callonce read('classpath:feature/authenticate.feature')
-    * configure headers = call read('classpath:headers.js') { token: #(tokenResponse.response.token)}
+    * def token = karate.properties['bearer.token']
+    * configure headers = call read('classpath:headers.js') { token: #(token)}
     * def root1 = call read('classpath:feature/label/create-label.feature') { name: 'root1'}
     * def root2 = call read('classpath:feature/label/create-label.feature') { name: 'root2'}
     * def root3 = call read('classpath:feature/label/create-label.feature') { name: 'root3'}

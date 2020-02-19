@@ -86,7 +86,6 @@ class HierarchyRepositoryImplIT {
         labelRepository = new LabelRepositoryImpl(mongoTemplate);
         supplyChainRepository = new SupplyChainRepositoryImpl(mongoTemplate);
         nonPersonalAccountRepository = new NonPersonalAccountRepositoryImpl(mongoTemplate);
-
         Mongobee runner = new Mongobee(connectionString);
         runner.setChangeLogsScanPackage(SCAN_PACKAGE);
         runner.setMongoTemplate(mongoTemplate);
