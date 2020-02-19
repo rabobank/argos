@@ -39,9 +39,10 @@ import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.runtime.Network;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.io.IOException;
@@ -53,6 +54,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HierarchyRepositoryImplIT {
     private static final String MONGODB_LOCALHOST = "mongodb://localhost:";
     private static final String MONGO_DB = "test";
@@ -67,7 +69,7 @@ class HierarchyRepositoryImplIT {
 
     private MongoTemplate mongoTemplate;
 
-    @BeforeEach
+    @BeforeAll
     void setup() throws IOException, MongobeeException {
         String ip = LOCALHOST;
         int port = Network.getFreeServerPort();
@@ -90,16 +92,16 @@ class HierarchyRepositoryImplIT {
         runner.setMongoTemplate(mongoTemplate);
         runner.setDbName(MONGO_DB);
         runner.execute();
+        createDataSet();
     }
 
-    @AfterEach
+    @AfterAll
     void clean() {
         mongodExecutable.stop();
     }
 
     @Test
     void testGetRootNodes() {
-        createDataSet();
         List<TreeNode> result = hierarchyRepository.getRootNodes(HierarchyMode.NONE, 0);
         assertThat(result, hasSize(1));
         assertThat(result.iterator().next().getName(), is("nl"));
@@ -108,7 +110,6 @@ class HierarchyRepositoryImplIT {
 
     @Test
     void testFindByNamePathToRootAndType() {
-        createDataSet();
         List<String> pathToRoot = List.of("team 1", "department 1", "company 1", "nl");
         Optional<TreeNode> optionalSubTree = hierarchyRepository
                 .findByNamePathToRootAndType("team 1 supply chain", pathToRoot, TreeNode.Type.SUPPLY_CHAIN);
@@ -119,7 +120,6 @@ class HierarchyRepositoryImplIT {
 
     @Test
     void testGetSubTree() {
-        createDataSet();
         List<TreeNode> result = hierarchyRepository.getRootNodes(HierarchyMode.NONE, 0);
         String referenceId = result.iterator().next().getReferenceId();
         Optional<TreeNode> optionalSubTree = hierarchyRepository.getSubTree(referenceId, HierarchyMode.ALL, 0);
