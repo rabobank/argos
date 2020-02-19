@@ -94,4 +94,4 @@ Feature: Non Personal Account
     Given path restPath
     When method GET
     Then status 401
-    And match response == {"timestamp":"#string","status":401,"error":"Unauthorized","message":"not authorized","path":"#(restPath)"}
+    And match response == {"timestamp":"#string","status":401,"error":"Unauthorized","message":"not authenticated","path":"#(restPath)"}
