@@ -45,7 +45,7 @@ Feature: Hierarchy
     * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-rootnodes-all.json')
     And match response == expectedResponse
 
-  Scenario: get root nodes without athentication should return a 401 error
+  Scenario: get root nodes without authorization should return a 401 error
     * configure headers = null
     Given path '/api/hierarchy'
     And param HierarchyMode = 'ALL'

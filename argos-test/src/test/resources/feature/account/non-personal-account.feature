@@ -27,6 +27,13 @@ Feature: Non Personal Account
     * def result = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
     * match result.response == { name: 'npa 1', id: '#uuid', parentLabelId: '#uuid' }
 
+  Scenario: store a non personal account without authorization should return a 401 error
+    * configure headers = null
+    Given path '/api/nonpersonalaccount'
+    And request { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
+    When method POST
+    Then status 401
+
   Scenario: store a non personal account with a non existing parent label id should return a 400
     Given path '/api/nonpersonalaccount'
     And request { name: 'label', parentLabelId: '940935f6-22bc-4d65-8c5b-a0599dedb510'}
@@ -60,12 +67,22 @@ Feature: Non Personal Account
     Then status 200
     And match response == { name: 'npa 2', id: '#(accountId)', parentLabelId: #(rootLabel.response.id)}
 
-  Scenario: create a non personal account key should return a 201
+  Scenario: create a non personal account key should return a 200
     * def createResult = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
     * def accountId = createResult.response.id
     * def keyPair = read('classpath:testmessages/key/npa-keypair1.json')
     * def result = call read('create-non-personal-account-key.feature') {accountId: #(accountId), key: #(keyPair)}
     * match result.response == {keyId: #(keyPair.keyId), publicKey: #(keyPair.publicKey), encryptedPrivateKey: #(keyPair.encryptedPrivateKey)}
+
+  Scenario: create a non personal account key should without authorization should return a 401 error
+    * def createResult = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
+    * def accountId = createResult.response.id
+    * def keyPair = read('classpath:testmessages/key/npa-keypair1.json')
+    * configure headers = null
+    Given path '/api/nonpersonalaccount/'+accountId+'/key'
+    And request keyPair
+    When method POST
+    Then status 401
 
   Scenario: get a active non personal account key should return a 200
     * def createResult = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
@@ -78,7 +95,18 @@ Feature: Non Personal Account
     Then status 200
     And match response == {keyId: #(keyPair.keyId), publicKey: #(keyPair.publicKey), encryptedPrivateKey: #(keyPair.encryptedPrivateKey)}
 
-  Scenario: get active key of authenticated npa a should return a 200
+  Scenario: get a active non personal account key without authorization should return a 401 error
+    * def createResult = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
+    * def accountId = createResult.response.id
+    * def keyPair = read('classpath:testmessages/key/npa-keypair1.json')
+    * call read('create-non-personal-account-key.feature') {accountId: #(accountId), key: #(keyPair)}
+    * def restPath = '/api/nonpersonalaccount/'+accountId+'/key'
+    * configure headers = null
+    Given path restPath
+    When method GET
+    Then status 401
+
+  Scenario: get active key of authenticated npa should return a 200
     * def keypairResponse = call read('classpath:feature/account/create-non-personal-account-with-key.feature') {accountName: 'npa1', parentLabelId: #(rootLabel.response.id), keyFile: 'keypair1'}
     * def keyPair = keypairResponse.response
     * configure headers =  call read('classpath:headers.js') { username: #(keyPair.keyId),password:test}
@@ -87,11 +115,11 @@ Feature: Non Personal Account
     Then status 200
     And match response == {keyId: #(keyPair.keyId), publicKey: #(keyPair.publicKey), encryptedPrivateKey: #(keyPair.encryptedPrivateKey)}
 
-  Scenario: retrieve non personal account with invalid credentials should return a 401
-    * def result = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
-    * configure headers =  call read('classpath:headers.js') { username:fake,password:fake}
-    * def restPath = '/api/nonpersonalaccount/'+result.response.id
-    Given path restPath
+  Scenario: get active key of authenticated npa with invalid credentials should return a 401
+    * def keypairResponse = call read('classpath:feature/account/create-non-personal-account-with-key.feature') {accountName: 'npa1', parentLabelId: #(rootLabel.response.id), keyFile: 'keypair1'}
+    * def keyPair = keypairResponse.response
+    * configure headers =  call read('classpath:headers.js') { username: fake,password:fake}
+    Given path '/api/nonpersonalaccount/me/activekey'
     When method GET
     Then status 401
-    And match response == {"timestamp":"#string","status":401,"error":"Unauthorized","message":"not authenticated","path":"#(restPath)"}
+
