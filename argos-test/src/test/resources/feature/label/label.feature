@@ -50,6 +50,14 @@ Feature: Label
     Then status 200
     And match response == { name: 'label2', id: '#(result.response.id)' }
 
+  Scenario:  retrieve root label without authentication should return a 401 error
+    * def result = call read('create-label.feature') { name: 'label2'}
+    * def restPath = '/api/label/'+result.response.id
+    * configure headers = null
+    Given path restPath
+    When method GET
+    Then status 401
+
   Scenario: update a root label should return a 200
     * def createResult = call read('create-label.feature') { name: 'label3'}
     * def labelId = createResult.response.id
@@ -88,3 +96,6 @@ Feature: Label
     When method PUT
     Then status 200
     And match response == { name: 'label4', id: '#(childId)', parentLabelId: '#(rootId)' }
+
+
+

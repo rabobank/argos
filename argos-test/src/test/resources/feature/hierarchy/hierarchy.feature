@@ -45,6 +45,13 @@ Feature: Hierarchy
     * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-rootnodes-all.json')
     And match response == expectedResponse
 
+  Scenario: get root nodes without athentication should return a 401 error
+    * configure headers = null
+    Given path '/api/hierarchy'
+    And param HierarchyMode = 'ALL'
+    When method GET
+    Then status 401
+
   Scenario: get root nodes with HierarchyMode none should return root entries only
     Given path '/api/hierarchy'
     And param HierarchyMode = 'NONE'
@@ -54,7 +61,6 @@ Feature: Hierarchy
     And match response == expectedResponse
 
   Scenario: get root nodes with HierarchyMode maxdepth should return maxdepth descendant entries only
-
     * call read('classpath:feature/label/create-label.feature') { name: 'subchild1root1',parentLabelId:#(root1ChildResponse.response.id)}
     Given path '/api/hierarchy'
     And param HierarchyMode = 'MAX_DEPTH'
