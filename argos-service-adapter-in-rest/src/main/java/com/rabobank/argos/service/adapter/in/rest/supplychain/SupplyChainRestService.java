@@ -84,7 +84,9 @@ public class SupplyChainRestService implements SupplychainApi {
     @Override
     public ResponseEntity<RestSupplyChain> updateSupplyChain(String supplyChainId, RestSupplyChain restSupplyChain) {
         verifyParentLabelExists(restSupplyChain.getParentLabelId());
-        return supplyChainRepository.update(supplyChainId, converter.convertFromRestSupplyChainCommand(restSupplyChain))
+        SupplyChain supplyChain = converter.convertFromRestSupplyChainCommand(restSupplyChain);
+        supplyChain.setSupplyChainId(supplyChainId);
+        return supplyChainRepository.update(supplyChainId, supplyChain)
                 .map(converter::convertToRestRestSupplyChainItem)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> supplyChainNotFound(supplyChainId));
