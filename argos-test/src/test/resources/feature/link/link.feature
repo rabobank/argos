@@ -36,12 +36,28 @@ Feature: Link
     Then status 400
     And match response contains read('classpath:testmessages/link/invalid-link-response.json')
 
+  Scenario: store link without authorization should return a 401 error
+    * configure headers = null
+    Given path linkPath
+    And request read(validLink)
+    And header Content-Type = 'application/json'
+    When method POST
+    Then status 401
+
   Scenario: find link with valid supplychainid should return a 200
     * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}
     Given path linkPath
     When method GET
     Then status 200
     And match response[*] contains read('classpath:testmessages/link/valid-link-response.json')
+
+  Scenario: find link without authorization should return a 401 error
+    * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}
+    * configure headers = null
+    Given path linkPath
+    And header Content-Type = 'application/json'
+    When method GET
+    Then status 401
 
   Scenario: find link with valid supplychainid and optionalHash should return a 200
     * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}

@@ -22,37 +22,10 @@ info:
     name: Apache License 2.0
 servers:
   - url: /api
+security:
+  - bearerAuth: []
 
 paths:
-  /oauth2/authorize/{provider}:
-    get:
-      summary: do oauth2 authorize
-      operationId: authorize
-      tags:
-        - oauth2
-      parameters:
-        - name: provider
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: redirect_uri
-          required: true
-          in: query
-          schema:
-            type: string
-      responses:
-        '200':
-          description: redirect url to the authentication provider (test only)
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-        '301':
-          description: redirect to oauth2 provider
   /supplychain:
     post:
       summary: create a supplychain
@@ -247,8 +220,6 @@ paths:
     post:
       summary: Create a layout
       operationId: createLayout
-      security:
-        - bearerAuth: []
       tags:
         - layout
       parameters:
@@ -312,8 +283,6 @@ paths:
     put:
       summary: update a layout
       operationId: updateLayout
-      security:
-        - bearerAuth: []
       tags:
         - layout
       parameters:
@@ -352,6 +321,9 @@ paths:
       operationId: performVerification
       tags:
         - verification
+      security:
+        - basicAuth: []
+        - bearerAuth: []
       parameters:
         - name: supplyChainId
           in: path
@@ -541,8 +513,6 @@ paths:
     post:
       summary: creates a new active public and private key pair
       operationId: createKey
-      security:
-        - bearerAuth: []
       tags:
         - personal account
       requestBody:
@@ -563,8 +533,6 @@ paths:
     get:
       summary: gets the currently active a key pair
       operationId: getKeyPair
-      security:
-        - bearerAuth: []
       tags:
         - personal account
       responses:
@@ -584,8 +552,6 @@ paths:
     get:
       summary: returns the personal account profile of the authenticated personal account based on the bearer token
       operationId: getPersonalAccountOfAuthenticatedUser
-      security:
-        - bearerAuth: []
       tags:
         - personal account
       responses:
@@ -605,8 +571,6 @@ paths:
       operationId: createNonPersonalAccount
       tags:
         - non personal account
-      security:
-        - bearerAuth: []
       requestBody:
         content:
           application/json:
@@ -654,8 +618,6 @@ paths:
       operationId: getNonPersonalAccountById
       tags:
         - non personal account
-      security:
-        - bearerAuth: []
       parameters:
         - name: nonPersonalAccountId
           in: path
@@ -676,8 +638,6 @@ paths:
       operationId: updateNonPersonalAccountById
       tags:
         - non personal account
-      security:
-        - bearerAuth: []
       parameters:
         - name: nonPersonalAccountId
           in: path
@@ -706,8 +666,6 @@ paths:
       operationId: createNonPersonalAccountKeyById
       tags:
         - non personal account
-      security:
-        - bearerAuth: []
       parameters:
         - name: nonPersonalAccountId
           in: path
@@ -741,8 +699,6 @@ paths:
       operationId: getNonPersonalAccountKeyById
       tags:
         - non personal account
-      security:
-        - bearerAuth: []
       parameters:
         - name: nonPersonalAccountId
           in: path

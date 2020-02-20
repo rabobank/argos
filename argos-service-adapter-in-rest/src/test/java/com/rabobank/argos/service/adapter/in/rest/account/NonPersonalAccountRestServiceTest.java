@@ -187,6 +187,7 @@ class NonPersonalAccountRestServiceTest {
         ResponseEntity<RestNonPersonalAccount> response = service.updateNonPersonalAccountById(ACCOUNT_ID, restNonPersonalAccount);
         assertThat(response.getStatusCodeValue(), is(200));
         assertThat(response.getBody(), sameInstance(restNonPersonalAccount));
+        verify(nonPersonalAccount).setAccountId(ACCOUNT_ID);
     }
 
     @Test
