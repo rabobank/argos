@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabobank.argos.argos4j.rest.api.ApiClient;
 import com.rabobank.argos.argos4j.rest.api.client.HierarchyApi;
@@ -23,7 +24,6 @@ import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
 import com.rabobank.argos.argos4j.rest.api.client.VerificationApi;
-import com.rabobank.argos.argos4j.rest.api.model.RestInlineResponse200;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -98,7 +98,7 @@ public class ServiceStatusHelper {
         HttpGet request = new HttpGet(properties.getApiBaseUrl() + "/api/oauth2/authorize/azure?redirect_uri=/authenticated");
         try (CloseableHttpClient httpClient = HttpClients.createDefault();
              CloseableHttpResponse response = httpClient.execute(request)) {
-            return new ObjectMapper().readValue(response.getEntity().getContent(), RestInlineResponse200.class).getToken();
+            return new ObjectMapper().readValue(response.getEntity().getContent(), JsonNode.class).get("token").asText();
         } catch (IOException e) {
             fail(e.getMessage());
             return null;

@@ -105,7 +105,9 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     @Override
     public ResponseEntity<RestNonPersonalAccount> updateNonPersonalAccountById(String nonPersonalAccountId, RestNonPersonalAccount restNonPersonalAccount) {
         verifyParentLabelExists(restNonPersonalAccount.getParentLabelId());
-        return accountRepository.update(nonPersonalAccountId, accountMapper.convertFromRestNonPersonalAccount(restNonPersonalAccount))
+        NonPersonalAccount nonPersonalAccount = accountMapper.convertFromRestNonPersonalAccount(restNonPersonalAccount);
+        nonPersonalAccount.setAccountId(nonPersonalAccountId);
+        return accountRepository.update(nonPersonalAccountId, nonPersonalAccount)
                 .map(accountMapper::convertToRestNonPersonalAccount)
                 .map(ResponseEntity::ok).orElseThrow(() -> accountNotFound(nonPersonalAccountId));
     }
