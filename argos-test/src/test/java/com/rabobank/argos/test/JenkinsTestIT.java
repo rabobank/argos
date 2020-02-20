@@ -26,10 +26,10 @@ import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
-import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
+import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
-import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChainItem;
+import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.rabobank.argos.test.NexusHelper.getWarSnapshotHash;
+import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.isValidEndProduct;
@@ -83,7 +84,9 @@ public class JenkinsTestIT {
     @BeforeEach
     void setUp() throws URISyntaxException, IOException {
         clearDatabase();
-        RestSupplyChainItem restSupplyChainItem = getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("argos-test-app"));
+        RestLabel rootLabel = getHierarchyApi().createLabel(new RestLabel().name("root_label"));
+        RestLabel childLabel = getHierarchyApi().createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
+        RestSupplyChain restSupplyChainItem = getSupplychainApi().createSupplyChain(new RestSupplyChain().name("argos-test-app").parentLabelId(childLabel.getId()));
         this.supplyChainId = restSupplyChainItem.getId();
         RestKeyPair restKeyPair = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair1.json"), RestKeyPair.class);
         keyIdBob = restKeyPair.getKeyId();
@@ -142,7 +145,7 @@ public class JenkinsTestIT {
         int buildNumber = runBuild(jobs.get(TEST_APP_BRANCH));
 
         verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
-        
+
         // a number of times to create a lot of link objects
         verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
         verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
@@ -163,7 +166,7 @@ public class JenkinsTestIT {
 
         log.info("build number {}", buildNumber);
 
-        await().atMost(2, MINUTES).until(() -> !build.details().isBuilding());
+        await().atMost(4, MINUTES).until(() -> !build.details().isBuilding());
         return buildNumber;
     }
 
@@ -177,7 +180,7 @@ public class JenkinsTestIT {
 
     public void verifyEndProducts() {
         String hash = getWarSnapshotHash();
-        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("target/argos-test-app.war").hash(hash))));        
+        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("target/argos-test-app.war").hash(hash))));
     }
 
     private JobWithDetails getJob(String name) throws IOException {

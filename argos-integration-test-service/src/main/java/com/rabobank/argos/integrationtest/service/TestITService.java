@@ -60,7 +60,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequestMapping("/integration-test")
 @RestController
@@ -100,11 +101,11 @@ public class TestITService implements IntegrationTestServiceApi {
     @Override
     public ResponseEntity<RestLayoutMetaBlock> signLayout(String password, String keyId, RestLayoutMetaBlock restLayoutMetaBlock) {
         LayoutMetaBlock layoutMetaBlock = layoutMetaBlockMapper.convertFromRestLayoutMetaBlock(restLayoutMetaBlock);
-
-
-        layoutMetaBlock.getLayout().setAuthorizedKeyIds(Collections.singletonList(keyId));
         String signature = createSignature(getPrivateKey(password, keyId), new JsonSigningSerializer().serialize(layoutMetaBlock.getLayout()));
-        layoutMetaBlock.setSignatures(Collections.singletonList(Signature.builder().signature(signature).keyId(keyId).build()));
+
+        List<Signature> signatures = new ArrayList<>(layoutMetaBlock.getSignatures());
+        signatures.add(Signature.builder().signature(signature).keyId(keyId).build());
+        layoutMetaBlock.setSignatures(signatures);
         return ResponseEntity.ok(layoutMetaBlockMapper.convertToRestLayoutMetaBlock(layoutMetaBlock));
     }
 

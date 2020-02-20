@@ -15,16 +15,17 @@
  */
 package com.rabobank.argos.service.adapter.in.rest.supplychain;
 
+import com.rabobank.argos.domain.hierarchy.TreeNode;
 import com.rabobank.argos.domain.supplychain.SupplyChain;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.SupplychainApi;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestCreateSupplyChainCommand;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChainItem;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChain;
+import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
+import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,7 +33,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -41,13 +42,14 @@ import java.util.stream.Collectors;
 public class SupplyChainRestService implements SupplychainApi {
 
     private final SupplyChainRepository supplyChainRepository;
+    private final HierarchyRepository hierarchyRepository;
     private final SupplyChainMapper converter;
+    private final LabelRepository labelRepository;
 
     @Override
-    public ResponseEntity<RestSupplyChainItem> createSupplyChain(RestCreateSupplyChainCommand restCreateSupplyChainCommand) {
-        validateIsUnique(restCreateSupplyChainCommand);
-        SupplyChain supplyChain = converter
-                .convertFromRestSupplyChainCommand(restCreateSupplyChainCommand);
+    public ResponseEntity<RestSupplyChain> createSupplyChain(RestSupplyChain restSupplyChain) {
+        verifyParentLabelExists(restSupplyChain.getParentLabelId());
+        SupplyChain supplyChain = converter.convertFromRestSupplyChainCommand(restSupplyChain);
 
         supplyChainRepository.save(supplyChain);
         URI location = ServletUriComponentsBuilder
@@ -61,31 +63,51 @@ public class SupplyChainRestService implements SupplychainApi {
     }
 
     @Override
-    public ResponseEntity<RestSupplyChainItem> getSupplyChain(String supplyChainId) {
+    public ResponseEntity<RestSupplyChain> getSupplyChain(String supplyChainId) {
         SupplyChain supplyChain = supplyChainRepository
                 .findBySupplyChainId(supplyChainId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId));
+                .orElseThrow(() -> supplyChainNotFound(supplyChainId));
         return ResponseEntity.ok(converter.convertToRestRestSupplyChainItem(supplyChain));
     }
 
+
     @Override
-    public ResponseEntity<List<RestSupplyChainItem>> searchSupplyChains(String name) {
-        List<SupplyChain> supplyChains;
-        if (StringUtils.isEmpty(name)) {
-            supplyChains = supplyChainRepository.findAll();
-        } else {
-            supplyChains = supplyChainRepository.findByName(name);
-        }
-        List<RestSupplyChainItem> supplyChainItems = supplyChains
-                .stream()
+    public ResponseEntity<RestSupplyChain> getSupplyChainByPathToRoot(String supplyChainName, List<String> pathToRoot) {
+        return hierarchyRepository.findByNamePathToRootAndType(supplyChainName, pathToRoot, TreeNode.Type.SUPPLY_CHAIN)
+                .map(TreeNode::getReferenceId)
+                .map(supplyChainRepository::findBySupplyChainId).filter(Optional::isPresent).map(Optional::get)
                 .map(converter::convertToRestRestSupplyChainItem)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(supplyChainItems);
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> supplyChainNotFound(supplyChainName, pathToRoot));
     }
 
-    private void validateIsUnique(RestCreateSupplyChainCommand restCreateSupplyChainCommand) {
-        if (!supplyChainRepository.findByName(restCreateSupplyChainCommand.getName()).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "supply chain name must be unique");
+    @Override
+    public ResponseEntity<RestSupplyChain> updateSupplyChain(String supplyChainId, RestSupplyChain restSupplyChain) {
+        verifyParentLabelExists(restSupplyChain.getParentLabelId());
+        SupplyChain supplyChain = converter.convertFromRestSupplyChainCommand(restSupplyChain);
+        supplyChain.setSupplyChainId(supplyChainId);
+        return supplyChainRepository.update(supplyChainId, supplyChain)
+                .map(converter::convertToRestRestSupplyChainItem)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> supplyChainNotFound(supplyChainId));
+    }
+
+    private void verifyParentLabelExists(String parentLabelId) {
+        if(!labelRepository.exists(parentLabelId)) {
+            throw parentLabelNotFound(parentLabelId);
         }
     }
+
+    private ResponseStatusException parentLabelNotFound(String labelId) {
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, "parent label not found : " + labelId);
+    }
+
+    private ResponseStatusException supplyChainNotFound(String supplyChainId) {
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId);
+    }
+
+    private ResponseStatusException supplyChainNotFound(String supplyChainName, List<String> pathToRoot) {
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainName + " with path to root " + String.join(",", pathToRoot));
+    }
+
 }

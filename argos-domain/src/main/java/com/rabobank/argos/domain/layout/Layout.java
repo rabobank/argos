@@ -21,13 +21,19 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
 @Builder
 @ToString
 public class Layout {
+    private List<PublicKey> keys;
     private List<String> authorizedKeyIds;
     private List<MatchFilter> expectedEndProducts;
     private List<LayoutSegment> layoutSegments;
+
+    public Optional<PublicKey> getKeyById(String keyId) {
+        return keys.stream().filter(publicKey -> publicKey.getId().equals(keyId)).findFirst();
+    }
 }

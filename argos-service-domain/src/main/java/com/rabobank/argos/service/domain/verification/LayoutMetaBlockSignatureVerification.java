@@ -17,13 +17,14 @@ package com.rabobank.argos.service.domain.verification;
 
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.signing.SignatureValidator;
-import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import static com.rabobank.argos.service.domain.verification.Verification.Priority.LAYOUT_METABLOCK_SIGNATURE;
+import java.security.PublicKey;
+import java.util.Optional;
 
+import static com.rabobank.argos.service.domain.verification.Verification.Priority.LAYOUT_METABLOCK_SIGNATURE;
 
 @Component
 @Slf4j
@@ -31,8 +32,6 @@ import static com.rabobank.argos.service.domain.verification.Verification.Priori
 public class LayoutMetaBlockSignatureVerification implements Verification {
 
     private final SignatureValidator signatureValidator;
-
-    private final KeyPairRepository keyPairRepository;
 
     @Override
     public Priority getPriority() {
@@ -48,11 +47,8 @@ public class LayoutMetaBlockSignatureVerification implements Verification {
         boolean isValid = layoutMetaBlock
                 .getSignatures()
                 .stream()
-                .allMatch(signature -> keyPairRepository.findByKeyId(signature.getKeyId())
-                        .map(
-                                keyPair -> signatureValidator
-                                        .isValid(layoutMetaBlock.getLayout(), signature.getSignature(), keyPair
-                                                .getPublicKey()))
+                .allMatch(signature -> getPublicKey(layoutMetaBlock, signature.getKeyId())
+                        .map(publicKey -> signatureValidator.isValid(layoutMetaBlock.getLayout(), signature.getSignature(), publicKey))
                         .orElse(false));
         if (!isValid) {
             log.info("failed LayoutMetaBlockSignatureVerification ");
@@ -61,5 +57,11 @@ public class LayoutMetaBlockSignatureVerification implements Verification {
                 .runIsValid(isValid)
                 .build();
 
+    }
+
+    private Optional<PublicKey> getPublicKey(LayoutMetaBlock layoutMetaBlock, String keyId) {
+        return layoutMetaBlock.getLayout().getKeys().stream()
+                .filter(publicKey -> publicKey.getId().equals(keyId))
+                .map(com.rabobank.argos.domain.layout.PublicKey::getKey).findFirst();
     }
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "name": "root1",
+    "type": "LABEL",
+    "referenceId": "#uuid",
+    "hasChildren": true,
+    "children": [
+    ]
+  },
+  {
+    "name": "root2",
+    "type": "LABEL",
+    "referenceId": "#uuid",
+    "hasChildren": true,
+    "children": [
+    ]
+  },
+  {
+    "name": "root3",
+    "type": "LABEL",
+    "referenceId": "#uuid",
+    "hasChildren": true,
+    "children": [
+    ]
+  }
+]

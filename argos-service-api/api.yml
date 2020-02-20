@@ -34,52 +34,59 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateSupplyChainCommand"
+              $ref: "#/components/schemas/SupplyChain"
       responses:
         '201':
           description: created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SupplyChainItem"
           headers:
             Location:
               schema:
                 type: string
                 format: uri
               description: location where the created supplychain can be found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupplyChain"
         '400':
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
-
     get:
-      summary: search a supplychain
-      operationId: searchSupplyChains
+      summary: get supply chain by path to root
+      operationId: getSupplyChainByPathToRoot
       tags:
         - supplychain
       parameters:
-        - name: name
+        - name: supplyChainName
           in: query
-          description: name of the supplychain
-          required: false
+          required: true
           schema:
             type: string
+        - name: pathToRoot
+          in: query
+          style: simple
+          explode: true
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
-          description: array of supply chain items
+          description: the supply chain
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/SupplyChainItem"
+                $ref: "#/components/schemas/SupplyChain"
+        '404':
+          description: not found
         '500':
           $ref: '#/components/responses/Error'
-
   /supplychain/{supplyChainId}:
     get:
-      summary: get a supplychain item
+      summary: get a supplychain
       operationId: getSupplyChain
       tags:
         - supplychain
@@ -96,10 +103,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SupplyChainItem"
+                $ref: "#/components/schemas/SupplyChain"
         '500':
           $ref: '#/components/responses/Error'
-
+    put:
+      summary: update label by id
+      operationId: updateSupplyChain
+      tags:
+        - supplychain
+      parameters:
+        - name: supplyChainId
+          in: path
+          description: supply chain id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupplyChain"
+      responses:
+        '200':
+          description: updated supply chain
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplyChain'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
   /supplychain/{supplyChainId}/link:
     get:
       summary: find link
@@ -350,42 +384,228 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
-  /user/me:
+  /hierarchy:
     get:
-      summary: returns the user profile
-      operationId: getUserProfile
-      security:
-        - bearerAuth: []
+      summary: get all root nodes
+      operationId: getRootNodes
       tags:
-        - user
+        - hierarchy
+      parameters:
+        - name: HierarchyMode
+          in: query
+          schema:
+            $ref: "#/components/schemas/HierarchyMode"
+        - name: maxDepth
+          in: query
+          required: false
+          description: positive integer specifying the maximum levels of descendants that are returned in a search. This parameter is ignored in case of HierarchyhMode ALL and NONE
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            default: 1
       responses:
         '200':
-          description: User Profile
+          description: list of nodes
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfile'
+                type: array
+                items:
+                  $ref: "#/components/schemas/TreeNode"
         '500':
           $ref: '#/components/responses/Error'
-    put:
-      summary: updates the user profile
-      operationId: updateUserProfile
-      security:
-        - bearerAuth: []
+
+  /hierarchy/{referenceId}:
+    get:
+      summary: get a subtree
+      operationId: getSubTree
       tags:
-        - user
+        - hierarchy
+      parameters:
+        - name: HierarchyMode
+          in: query
+          schema:
+            $ref: "#/components/schemas/HierarchyMode"
+        - name: maxDepth
+          in: query
+          required: false
+          description: positive integer specifying the maximum levels of descendants that are retured this parameter is ignored in case of HierarchyhMode ALL and NONE
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            default: 1
+        - name: referenceId
+          in: path
+          required: true
+          description: this will be the root id of the returned sub tree
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TreeNode"
+        '500':
+          $ref: '#/components/responses/Error'
+  /label:
+    post:
+      summary: create a new label
+      operationId: createLabel
+      tags:
+        - hierarchy
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserProfile"
+              $ref: "#/components/schemas/Label"
       responses:
-        '200':
-          description: Updated User Profile
+        '201':
+          description: created label
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: location where the created label can be found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfile'
+                $ref: '#/components/schemas/Label'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+  /label/{labelId}:
+    get:
+      summary: get label by id
+      operationId: getLabelById
+      tags:
+        - hierarchy
+      parameters:
+        - name: labelId
+          in: path
+          description: label id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: label
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Label'
+        '500':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: update label by id
+      operationId: updateLabelById
+      tags:
+        - hierarchy
+      parameters:
+        - name: labelId
+          in: path
+          description: label id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Label"
+      responses:
+        '200':
+          description: created label
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Label'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+    delete:
+      summary: delete label by id
+      operationId: deleteLabelById
+      tags:
+        - hierarchy
+      parameters:
+        - name: labelId
+          in: path
+          description: label id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: label deleted
+        '500':
+          $ref: '#/components/responses/Error'
+  /personalaccount/me/key:
+    post:
+      summary: creates a new active public and private key pair
+      operationId: createKey
+      security:
+        - bearerAuth: []
+      tags:
+        - personal account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KeyPair"
+      responses:
+        '204':
+          description: no content
+        '404':
+          description: personal account not found
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+
+    get:
+      summary: gets the currently active a key pair
+      operationId: getKeyPair
+      security:
+        - bearerAuth: []
+      tags:
+        - personal account
+      responses:
+        '200':
+          description: Key pair
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KeyPair"
+        '404':
+          description: personal account not found
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+  /personalaccount/me:
+    get:
+      summary: returns the personal account profile of the authenticated personal account based on the bearer token
+      operationId: getPersonalAccountOfAuthenticatedUser
+      security:
+        - bearerAuth: []
+      tags:
+        - personal account
+      responses:
+        '200':
+          description: Personal Account Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalAccount'
+        '404':
+          description: personal account not found
         '500':
           $ref: '#/components/responses/Error'
 components:
@@ -411,10 +631,11 @@ components:
     VerifyCommand:
       type: object
       required:
-        - productsToVerify
+        - expectedProducts
       properties:
         expectedProducts:
           type: array
+          minItems: 1
           items:
             $ref: "#/components/schemas/Artifact"
 
@@ -507,20 +728,11 @@ components:
         encryptedPrivateKey:
           type: string
           format: byte
-    CreateSupplyChainCommand:
+    SupplyChain:
       type: object
       required:
         - name
-      properties:
-        name:
-          type: string
-          maxLength: 256
-          description: name of the supply chain must be unique
-    SupplyChainItem:
-      type: object
-      required:
-        - id
-        - name
+        - parentLabelId
       properties:
         id:
           type: string
@@ -528,6 +740,23 @@ components:
         name:
           type: string
           maxLength: 256
+          pattern: '^([a-z]{1}[a-z0-9-]*)?$'
+        parentLabelId:
+          type: string
+          minLength: 36
+          maxLength: 36
+          pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
+    PublicKey:
+      type: object
+      required:
+        - id
+        - key
+      properties:
+        id:
+          $ref: '#/components/schemas/KeyId'
+        key:
+          type: string
+          format: byte
     LayoutMetaBlock:
       type: object
       required:
@@ -537,6 +766,7 @@ components:
         id:
           type: string
         signatures:
+          minItems: 1
           type: array
           items:
             $ref: "#/components/schemas/Signature"
@@ -545,15 +775,25 @@ components:
     Layout:
       type: object
       required:
+        - keys
         - authorizedKeyIds
         - expectedEndProducts
         - layoutSegments
       properties:
+        keys:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PublicKey'
         authorizedKeyIds:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/KeyId'
+            type: string
+            description: key id is a hash of the public key
+            minLength: 64
+            maxLength: 64
+            pattern: '^[0-9a-f]*$'
         expectedEndProducts:
           type: array
           minItems: 1
@@ -667,7 +907,54 @@ components:
             - MATERIALS
         destinationStepName:
           type: string
-    UserProfile:
+    Label:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          minLength: 1
+          pattern: '^([a-z]{1}[a-z0-9_]*)?$'
+        parentLabelId:
+          type: string
+          minLength: 36
+          maxLength: 36
+          pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
+    TreeNode:
+      type: object
+      required:
+        - name
+        - type
+        - referenceId
+        - children
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - LABEL
+            - SUPPLY_CHAIN
+        referenceId:
+          type: string
+        hasChildren:
+          type: boolean
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/TreeNode"
+    HierarchyMode:
+      type: string
+      enum:
+        - ALL
+        - NONE
+        - MAX_DEPTH
+      default: NONE
+      description: The mode of the returned descendants in a tree node hierarchy. ALL returns all descendants, NONE returns nodes without any descendants , MAX_DEPTH returns descendants up to a specified depth
+    PersonalAccount:
       type: object
       properties:
         id:
@@ -677,10 +964,6 @@ components:
         email:
           type: string
           format: email
-        keyIds:
-          type: array
-          items:
-            type: string
     Error:
       type: object
       required:

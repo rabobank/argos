@@ -19,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Builder
 @Getter
@@ -36,6 +37,7 @@ public class Argos4jSettings implements Serializable {
     private final boolean normalizeLineEndings = false;
 
     private final String supplyChainName;
+    private final List<String> pathToLabelRoot;
     private final String runId;
     private final String layoutSegmentName;
     private final String stepName;

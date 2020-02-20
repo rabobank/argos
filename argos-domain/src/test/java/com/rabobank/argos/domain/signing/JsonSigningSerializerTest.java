@@ -18,9 +18,11 @@ package com.rabobank.argos.domain.signing;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabobank.argos.domain.layout.ArtifactType;
+import com.rabobank.argos.domain.key.RSAPublicKeyFactory;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.MatchFilter;
+import com.rabobank.argos.domain.layout.PublicKey;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.MatchRule;
 import com.rabobank.argos.domain.layout.rule.Rule;
@@ -30,7 +32,9 @@ import com.rabobank.argos.domain.link.Link;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
+import java.util.Base64;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,6 +42,7 @@ import static org.hamcrest.core.Is.is;
 
 class JsonSigningSerializerTest {
 
+    private final static String PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoDIw5p3LYjFLr+JFvWOz0KQ22x538O2BoQO4e4EorYYkSMHn00pabqAQ9z6+nA+l43+Jxb5eJrHoroV4YZN8WDMsjY0eB1Q1K6hl3SHgeqTvA2i2GlpDg7zLRnP9YWbUwbWP+UWtRFK0x1lCCkSmxsP2HAom/T11/MMd/kitVt0rGsq8wQH7PLsOZ8zPh4sQ0iyCVLil6+VF6zsT83dKFocdfZWAywkQ6sVZbuzFCe+pLQktwTz1Ir8mMQi6sPh57b5yyFCSVstK1lKf+OQTtuuQzYz2bvpr9zkXr0O80IdTXOnoO1vM1lJuRPT3J0Zcr2nYdbmIskp4ZQyezXMqawIDAQAB";
 
     @Test
     void serializeLink() throws IOException {
@@ -57,8 +62,14 @@ class JsonSigningSerializerTest {
     }
 
     @Test
-    void serializeLayout() throws IOException {
+    void serializeLayout() throws IOException, GeneralSecurityException {
+
+
+        java.security.PublicKey publicKey = RSAPublicKeyFactory.instance(Base64.getDecoder().decode(PUBLIC_KEY));
+
+
         String serialized = new JsonSigningSerializer().serialize(Layout.builder()
+                .keys(Arrays.asList(PublicKey.builder().id("keyId").key(publicKey).build()))
                 .expectedEndProducts(singletonList(MatchFilter.builder()
                         .destinationSegmentName("destinationSegmentName")
                         .destinationType(ArtifactType.PRODUCTS)

@@ -27,9 +27,8 @@ import static java.util.UUID.randomUUID;
 @Builder
 @ToString
 public class SupplyChain {
-
     @Builder.Default
     private String supplyChainId = randomUUID().toString();
-
     private String name;
+    private String parentLabelId;
 }

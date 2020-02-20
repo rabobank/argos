@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.adapter.in.rest;
 
+import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +52,9 @@ class RestServiceExceptionHandlerTest {
     @Mock
     private ResponseStatusException responseStatusException;
 
+    @Mock
+    private ArgosError argosError;
+
     @BeforeEach
     void setUp() {
         handler = new RestServiceExceptionHandler();
@@ -81,5 +85,23 @@ class RestServiceExceptionHandlerTest {
         ResponseEntity<RestError> response = handler.handleResponseStatusException(responseStatusException);
         assertThat(response.getStatusCodeValue(), is(404));
         assertThat(response.getBody().getMessage(), is("reason"));
+    }
+
+    @Test
+    void handleArgosErrorERROR() {
+        when(argosError.getLevel()).thenReturn(ArgosError.Level.ERROR);
+        when(argosError.getMessage()).thenReturn("message");
+        ResponseEntity<RestError> response = handler.handleArgosError(argosError);
+        assertThat(response.getStatusCodeValue(), is(500));
+        assertThat(response.getBody().getMessage(), is("message"));
+    }
+
+    @Test
+    void handleArgosErrorWARNING() {
+        when(argosError.getLevel()).thenReturn(ArgosError.Level.WARNING);
+        when(argosError.getMessage()).thenReturn("message");
+        ResponseEntity<RestError> response = handler.handleArgosError(argosError);
+        assertThat(response.getStatusCodeValue(), is(400));
+        assertThat(response.getBody().getMessage(), is("message"));
     }
 }

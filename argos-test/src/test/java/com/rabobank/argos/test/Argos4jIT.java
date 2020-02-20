@@ -17,31 +17,28 @@ package com.rabobank.argos.test;
 
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jSettings;
-import com.rabobank.argos.argos4j.rest.api.client.KeyApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
-import com.rabobank.argos.argos4j.rest.api.model.RestCreateSupplyChainCommand;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
+import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayout;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutSegment;
 import com.rabobank.argos.argos4j.rest.api.model.RestMatchRule;
+import com.rabobank.argos.argos4j.rest.api.model.RestPublicKey;
 import com.rabobank.argos.argos4j.rest.api.model.RestRule;
 import com.rabobank.argos.argos4j.rest.api.model.RestStep;
+import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerificationResult;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
-import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PublicKey;
+import java.util.List;
 
-import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getVerificationApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
@@ -53,7 +50,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class Argos4jIT {
 
     private static Properties properties = Properties.getInstance();
-    private RestKeyPair restKeyPair;
+    private RestKeyPair keyPair;
 
     @BeforeAll
     static void setUp() {
@@ -66,23 +63,16 @@ public class Argos4jIT {
     }
 
     @Test
-    void postLinkMetaBlockWithSignatureValidationAndVerify() throws GeneralSecurityException {
+    void postLinkMetaBlockWithSignatureValidationAndVerify() {
 
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        generator.initialize(2048);
-        KeyPair keyPair = generator.generateKeyPair();
+        RestLabel rootLabel = getHierarchyApi().createLabel(new RestLabel().name("root_label"));
+        RestLabel childLabel = getHierarchyApi().createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
+        String supplyChainId = getSupplychainApi().createSupplyChain(new RestSupplyChain().name("test-supply-chain").parentLabelId(childLabel.getId())).getId();
 
-        PublicKey publicKey = keyPair.getPublic();
-        String keyId = new KeyIdProviderImpl().computeKeyId(publicKey);
+        keyPair = createAndStoreKeyPair("test");
 
-        KeyApi keyApiApi = getKeyApi();
-        keyApiApi.storeKey(new RestKeyPair().keyId(keyId).publicKey(publicKey.getEncoded()));
-        String supplyChainId = getSupplychainApi().createSupplyChain(new RestCreateSupplyChainCommand().name("test-supply-chain")).getId();
-
-        restKeyPair = createAndStoreKeyPair("test");
-
-        RestLayoutMetaBlock layout = new RestLayoutMetaBlock().layout(createLayout(restKeyPair.getKeyId(), keyId));
-        signAndStoreLayout(supplyChainId, layout, restKeyPair.getKeyId(), "test");
+        RestLayoutMetaBlock layout = new RestLayoutMetaBlock().layout(createLayout());
+        signAndStoreLayout(supplyChainId, layout, keyPair.getKeyId(), "test");
 
 
         Argos4jSettings settings = Argos4jSettings.builder()
@@ -91,7 +81,8 @@ public class Argos4jIT {
                 .stepName("build")
                 .runId("runId")
                 .supplyChainName("test-supply-chain")
-                .signingKeyId(restKeyPair.getKeyId())
+                .pathToLabelRoot(List.of("child_label", "root_label"))
+                .signingKeyId(keyPair.getKeyId())
                 .build();
         Argos4j argos4j = new Argos4j(settings);
         argos4j.collectProducts(new File("."));
@@ -103,8 +94,10 @@ public class Argos4jIT {
         assertThat(verificationResult.getRunIsValid(), Matchers.is(true));
     }
 
-    private RestLayout createLayout(String layoutKeyId, String linkKeyId) {
-        return new RestLayout().addAuthorizedKeyIdsItem(layoutKeyId)
+    private RestLayout createLayout() {
+        return new RestLayout()
+                .addKeysItem(new RestPublicKey().id(keyPair.getKeyId()).key(keyPair.getPublicKey()))
+                .addAuthorizedKeyIdsItem(keyPair.getKeyId())
                 .addExpectedEndProductsItem(new RestMatchRule()
                         .destinationSegmentName("layoutSegmentName")
                         .destinationStepName("build")
@@ -112,9 +105,9 @@ public class Argos4jIT {
                         .pattern("**/karate-config.js"))
                 .addLayoutSegmentsItem(new RestLayoutSegment().name("layoutSegmentName")
                         .addStepsItem(new RestStep().requiredNumberOfLinks(1)
-                                .addAuthorizedKeyIdsItem(restKeyPair.getKeyId())
+                                .addAuthorizedKeyIdsItem(keyPair.getKeyId())
                                 .addExpectedProductsItem(new RestRule().ruleType(RestRule.RuleTypeEnum.ALLOW).pattern("**"))
                                 .addExpectedMaterialsItem(new RestRule().ruleType(RestRule.RuleTypeEnum.ALLOW).pattern("**"))
-                                .addAuthorizedKeyIdsItem(linkKeyId).name("build")));
+                                .name("build")));
     }
 }

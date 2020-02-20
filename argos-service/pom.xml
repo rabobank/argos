@@ -38,6 +38,7 @@
 		<swagger-annotations.version>1.5.23</swagger-annotations.version>
 		<swagger-ui.version>3.24.3</swagger-ui.version>
 		<pitest.version>1.4.10</pitest.version>
+		<io.jsonwebtoken.version>0.10.7</io.jsonwebtoken.version>
 	</properties>
 
 	<licenses>
@@ -96,15 +97,19 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 			<exclusions>
 				<exclusion>
 					<artifactId>jackson-databind</artifactId>
 					<groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+				</exclusion>
+			</exclusions>
+		</dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -118,18 +123,18 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.10.7</version>
+			<version>${io.jsonwebtoken.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>0.10.7</version>
+			<version>${io.jsonwebtoken.version}</version>
             <scope>runtime</scope>
         </dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
-			<version>0.10.7</version>
+			<version>${io.jsonwebtoken.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>

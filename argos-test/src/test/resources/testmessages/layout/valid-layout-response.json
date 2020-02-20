@@ -1,24 +1,28 @@
 [
   {
     "id": "##(layoutId)",
-    "signatures": [
-      {
-        "keyId": "#string",
-        "signature": "#string"
-      }
-    ],
-    "expectedEndProducts": [
-      {
-        "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
-        "destinationType": "PRODUCTS",
-        "destinationStepName": "build",
-        "destinationSegmentName": "segment 1"
-      }
-    ],
     "layout": {
+      "keys": [
+        {
+          "id": "c8df0a497ab0df7136c4f97892f17914e6e5e021fdc039f0ea7c27d5a95c1254",
+          "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnB7t5WVvXmbwKo7vn49tDyigfZF+wqB68v4i2fgv+/625yVomAKrtQDX8ANTCbZ6UQEkXNQhI9muPo8hhYb2zEaEdEckslSQ9lFJgDHCHekC2EYwXmc4VnwLzyiITtlXSSveav5qUpGVb7t7AK4f9yueojwqUjgQGkXgmeDrg8r15G/nVuYq5WyIS3OKxXKQmm2mJTr5A+kt8SiYPmDQoJwkK6ezZU7qsobY5jloU5SdIiGn2d8KHioj5ekki9kgBszuwHHqg94Ml6JT28EWRKdfBVA2P7PRLzl3V8qdA0srkTsuy4+emEI+NAeNQkeMsucfW4xIVBMQZ28GIFmJcwIDAQAB"
+        },
+        {
+          "id": "b91bec49e7aaaeeda162970c03193baef561c10337483a8bc0741d514dc63b9c",
+          "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwhHPSza/Vx1VVzlXAXByXk4z13Q4JZI6fphr0LK5mdFlckHzqNOP9FtXzDxbJawQdDkFQAIvmBRBZHOP78z7jtSGhQLY3qpIJ82ztyBT/WAH9eyX+z4eZ5vur42jLsvrn9qKcXtUXcuiMNLUzBT251aoJcgsG6+fN7J1t5bcSLfwlWNrbe4VK2kjVu3Ep6YUKXmzJQvJ97YlLsVKTfod+3IrFOJBmHbrUJUDJh09mJ5Conkp44IYNy3zwuPqaJphuiVVszlaAnO2OUnwRdJJ8qs0BNJa+n3No9CTdEU6IvirZ1j/Bjmrl6t6Lc9PhZxNQeAriHRBeFufGTvvWmS9WwIDAQAB"
+        }
+      ],
       "authorizedKeyIds": [
-        "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09",
-        "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
+        "c8df0a497ab0df7136c4f97892f17914e6e5e021fdc039f0ea7c27d5a95c1254",
+        "b91bec49e7aaaeeda162970c03193baef561c10337483a8bc0741d514dc63b9c"
+      ],
+      "expectedEndProducts": [
+        {
+          "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
+          "destinationType": "PRODUCTS",
+          "destinationStepName": "build",
+          "destinationSegmentName": "segment 1"
+        }
       ],
       "layoutSegments": [
         {
@@ -27,7 +31,7 @@
             {
               "name": "build",
               "authorizedKeyIds": [
-                "9e2518abf1cce869a9839cd81cecb00c16bef51c8af2a927700582d914dce2d7"
+                "c8df0a497ab0df7136c4f97892f17914e6e5e021fdc039f0ea7c27d5a95c1254"
               ],
               "requiredNumberOfLinks": 3,
               "expectedCommand": [
@@ -67,7 +71,7 @@
             {
               "name": "stepName2",
               "authorizedKeyIds": [
-                "30af4282a269639cf72e2903d43cd7510d06c32df37a349c7fa4157373e63f09"
+                "b91bec49e7aaaeeda162970c03193baef561c10337483a8bc0741d514dc63b9c"
               ],
               "requiredNumberOfLinks": 45,
               "expectedCommand": [
@@ -80,9 +84,8 @@
                   "sourcePathPrefix": "sourcePathPrefix",
                   "destinationPathPrefix": "destinationPathPrefix",
                   "destinationType": "MATERIALS",
-                  "destinationSegmentName": "segment 1",
-                  "destinationStepName": "destinationStepName"
-
+                  "destinationStepName": "destinationStepName",
+                  "destinationSegmentName": "segment 1"
                 }
               ],
               "expectedProducts": [
