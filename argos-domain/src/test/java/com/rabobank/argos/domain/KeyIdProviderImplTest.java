@@ -15,7 +15,7 @@
  */
 package com.rabobank.argos.domain;
 
-import com.rabobank.argos.domain.key.KeyIdProviderImpl;
+import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.key.RSAPublicKeyFactory;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ class KeyIdProviderImplTest {
     @Test
     void computeKeyId() throws IOException, GeneralSecurityException {
         byte[] decode = Base64.getDecoder().decode(IOUtils.toByteArray(this.getClass().getResourceAsStream("/publickey")));
-        String keyId = new KeyIdProviderImpl().computeKeyId(RSAPublicKeyFactory.instance(decode));
+        String keyId = KeyIdProvider.computeKeyId(RSAPublicKeyFactory.instance(decode));
         assertThat(keyId, is("1aaf91a3f8e540cfd9ebbacd6147d43c76abefc535feefd85592197055bea1c8"));
     }
 }

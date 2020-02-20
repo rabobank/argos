@@ -151,7 +151,7 @@
               {
                 "ruleType": "MATCH",
                 "pattern": "target/*.war",
-                "destinationType": "MATERIALS",
+                "destinationType": "PRODUCTS",
                 "destinationStepName": "deploy",
                 "destinationSegmentName": "segment 3"
               },

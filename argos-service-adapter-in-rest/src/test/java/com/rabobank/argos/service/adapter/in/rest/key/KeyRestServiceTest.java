@@ -17,22 +17,25 @@ package com.rabobank.argos.service.adapter.in.rest.key;
 
 import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.service.adapter.in.rest.ArgosKeyHelper;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.domain.key.KeyPairRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+
+import java.security.PublicKey;
 
 @ExtendWith(MockitoExtension.class)
 class KeyRestServiceTest {
@@ -45,8 +48,10 @@ class KeyRestServiceTest {
     private KeyPairRepository keyPairRepository;
     @Mock
     private RestKeyPair restKeyPair;
+    
+    private KeyPair keyPair = ArgosKeyHelper.generateKeyPair();
     @Mock
-    private KeyPair keyPair;
+    private PublicKey publicKey;
     @Mock
     private KeyIdProvider keyIdProvider;
 
@@ -68,20 +73,15 @@ class KeyRestServiceTest {
 
     @Test
     void storeKeyShouldReturnSuccess() {
-        when(keyIdProvider.computeKeyId(any())).thenReturn(KEY_ID);
-        when(keyPair.getKeyId()).thenReturn(KEY_ID);
         when(converter.convertFromRestKeyPair(restKeyPair)).thenReturn(keyPair);
-        ReflectionTestUtils.setField(restService, KEY_ID_PROVIDER, keyIdProvider);
         assertThat(restService.storeKey(restKeyPair).getStatusCodeValue(), is(204));
         verify(keyPairRepository).save(keyPair);
     }
 
     @Test
     void storeKeyShouldReturnBadRequest() {
-        when(keyIdProvider.computeKeyId(any())).thenReturn(KEY_ID);
-        when(keyPair.getKeyId()).thenReturn("incorrect key");
+        keyPair.setKeyId("incorrect key");
         when(converter.convertFromRestKeyPair(restKeyPair)).thenReturn(keyPair);
-        ReflectionTestUtils.setField(restService, KEY_ID_PROVIDER, keyIdProvider);
         assertThrows(ResponseStatusException.class, () -> restService.storeKey(restKeyPair));
     }
 
@@ -90,4 +90,6 @@ class KeyRestServiceTest {
         assertThrows(ResponseStatusException.class, () -> restService.getKey(KEY_ID));
         verify(keyPairRepository).findByKeyId(KEY_ID);
     }
+    
+
 }

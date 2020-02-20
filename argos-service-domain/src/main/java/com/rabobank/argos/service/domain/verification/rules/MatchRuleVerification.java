@@ -33,6 +33,7 @@ import static com.rabobank.argos.domain.layout.ArtifactType.PRODUCTS;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -49,9 +50,10 @@ public class MatchRuleVerification implements RuleVerification {
         
         String destinationSegmentName = rule.getDestinationSegmentName() != null ? rule.getDestinationSegmentName() : context.getSegmentName();
 
-        Link link = context.getLinkBySegmentNameAndStepName(destinationSegmentName, rule.getDestinationStepName());
+        Optional<Link> optionalLink = context.getLinkBySegmentNameAndStepName(destinationSegmentName, rule.getDestinationStepName());
         
-        if (link != null) {
+        if (optionalLink.isPresent()) {
+            Link link = optionalLink.get();
             Set<Artifact> destinationArtifacts = null;
             if (rule.getDestinationType() == PRODUCTS) {
                 destinationArtifacts = new HashSet<>(link.getProducts());
@@ -68,7 +70,7 @@ public class MatchRuleVerification implements RuleVerification {
                 return Boolean.FALSE;
             }
         } else {
-            log.warn("no link for destination step {}", rule.getDestinationStepName());
+            log.warn("no link for match rule {}", rule);
             return Boolean.FALSE;
         }
     }

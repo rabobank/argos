@@ -36,11 +36,9 @@ public interface RuleVerification {
     }
     
     public default void logErrors(Logger log, Set<Artifact> artifacts, RuleType type) {
-        artifacts.stream().forEach(artifact -> {
-            log.info("On rule type {} not consumed artifact: {}", 
+        artifacts.stream().forEach(artifact -> log.info("On rule type {} not consumed artifact: {}", 
                     getRuleType(),
-                    artifact);
-        });
+                    artifact));
     }
 
 }

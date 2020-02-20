@@ -19,7 +19,6 @@ package com.rabobank.argos.service.adapter.in.rest.personalaccount;
 import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyIdProvider;
-import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.PersonalAccountApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
@@ -45,7 +44,6 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     private final AccountSecurityContext accountSecurityContext;
     private final PersonalAccountRepository personalAccountRepository;
     private final KeyPairMapper keyPairMapper;
-    private final KeyIdProvider keyIdProvider = new KeyIdProviderImpl();
 
 
     @PreAuthorize("hasRole('USER')")
@@ -79,7 +77,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     }
 
     private void validateKeyId(KeyPair keyPair) {
-        if (!keyPair.getKeyId().equals(keyIdProvider.computeKeyId(keyPair.getPublicKey()))) {
+        if (!keyPair.getKeyId().equals(KeyIdProvider.computeKeyId(keyPair.getPublicKey()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid key id : " + keyPair.getKeyId());
         }
     }

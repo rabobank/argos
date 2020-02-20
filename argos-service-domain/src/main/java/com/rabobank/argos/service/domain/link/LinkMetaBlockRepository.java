@@ -16,9 +16,13 @@
 package com.rabobank.argos.service.domain.link;
 
 
+import com.rabobank.argos.domain.layout.ArtifactType;
+import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Set;
 
 public interface LinkMetaBlockRepository {
     List<LinkMetaBlock> findBySupplyChainId(String supplyChainId);
@@ -29,7 +33,9 @@ public interface LinkMetaBlockRepository {
 
     List<LinkMetaBlock> findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(String supplyChainId, String segmentName, String stepName, List<String> hashes);
 
+    List<LinkMetaBlock> findBySupplyChainAndSegmentNameAndStepNameAndArtifactTypesAndArtifactHashes(String supplyChainId, String segmentName, String stepName, EnumMap<ArtifactType, Set<Artifact>> artifactTypeHashes);
+
     List<LinkMetaBlock> findByRunId(String supplyChainId, String runId);
 
-    List<LinkMetaBlock> findByRunId(String supplyChainId, String segmentName, String runId, List<String> resolvedSteps);
+    List<LinkMetaBlock> findByRunId(String supplyChainId, String segmentName, String runId, Set<String> resolvedSteps);
 }

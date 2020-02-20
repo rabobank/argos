@@ -18,6 +18,7 @@ package com.rabobank.argos.service.adapter.in.rest.personalaccount;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.service.adapter.in.rest.ArgosKeyHelper;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.adapter.in.rest.key.KeyPairMapper;
@@ -50,8 +51,7 @@ class PersonalAccountRestServiceTest {
     private static final String NAME = "name";
     private static final String EMAIL = "email";
     private static final String ID = "id";
-    private static final String KEY_ID = "keyId";
-    private static final String KEY_ID_PROVIDER = "keyIdProvider";
+    
     private static final String PERSONAL_ACCOUNT_NOT_FOUND = "404 NOT_FOUND \"personal account not found\"";
     public static final String ACTIVE_KEYPAIR_NOT_FOUND = "404 NOT_FOUND \"no active keypair found for account: name\"";
 
@@ -64,10 +64,9 @@ class PersonalAccountRestServiceTest {
     private KeyPairMapper keyPairMapper;
     @Mock
     private RestKeyPair restKeyPair;
-    @Mock
-    private KeyPair keyPair;
-    @Mock
-    private KeyIdProvider keyIdProvider;
+    
+    private KeyPair keyPair = ArgosKeyHelper.generateKeyPair();
+    
     private PersonalAccount personalAccount = PersonalAccount.builder().name(NAME).email(EMAIL).build();
 
     @BeforeEach
@@ -97,11 +96,8 @@ class PersonalAccountRestServiceTest {
 
     @Test
     void storeKeyShouldReturnSuccess() {
-        when(keyIdProvider.computeKeyId(any())).thenReturn(KEY_ID);
-        when(keyPair.getKeyId()).thenReturn(KEY_ID);
         when(keyPairMapper.convertFromRestKeyPair(restKeyPair)).thenReturn(keyPair);
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
-        ReflectionTestUtils.setField(service, KEY_ID_PROVIDER, keyIdProvider);
         assertThat(service.createKey(restKeyPair).getStatusCodeValue(), is(204));
         assertThat(personalAccount.getActiveKeyPair(), sameInstance(keyPair));
         verify(personalAccountRepository).update(personalAccount);
@@ -109,11 +105,9 @@ class PersonalAccountRestServiceTest {
 
     @Test
     void storeKeyShouldReturnBadRequest() {
-        when(keyIdProvider.computeKeyId(any())).thenReturn(KEY_ID);
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
-        when(keyPair.getKeyId()).thenReturn("incorrect key");
+        keyPair.setKeyId("incorrect key");
         when(keyPairMapper.convertFromRestKeyPair(restKeyPair)).thenReturn(keyPair);
-        ReflectionTestUtils.setField(service, KEY_ID_PROVIDER, keyIdProvider);
         assertThrows(ResponseStatusException.class, () -> service.createKey(restKeyPair));
     }
 

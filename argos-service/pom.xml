@@ -39,6 +39,7 @@
 		<swagger-ui.version>3.24.3</swagger-ui.version>
 		<pitest.version>1.4.10</pitest.version>
 		<io.jsonwebtoken.version>0.10.7</io.jsonwebtoken.version>
+        <bouncycastle.version>1.64</bouncycastle.version>
 	</properties>
 
 	<licenses>
@@ -110,6 +111,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>${bouncycastle.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

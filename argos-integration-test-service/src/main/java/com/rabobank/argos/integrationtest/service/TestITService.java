@@ -17,7 +17,7 @@ package com.rabobank.argos.integrationtest.service;
 
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.Signature;
-import com.rabobank.argos.domain.key.KeyIdProviderImpl;
+import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.domain.signing.JsonSigningSerializer;
@@ -93,7 +93,7 @@ public class TestITService implements IntegrationTestServiceApi {
     @Override
     public ResponseEntity<RestKeyPair> createKeyPair(String password) {
         KeyPair keyPair = generateKeyPair();
-        String keyId = new KeyIdProviderImpl().computeKeyId(keyPair.getPublic());
+        String keyId = KeyIdProvider.computeKeyId(keyPair.getPublic());
         byte[] privateKey = addPassword(keyPair.getPrivate().getEncoded(), password);
         return ResponseEntity.ok(new RestKeyPair().keyId(keyId).encryptedPrivateKey(privateKey).publicKey(keyPair.getPublic().getEncoded()));
     }

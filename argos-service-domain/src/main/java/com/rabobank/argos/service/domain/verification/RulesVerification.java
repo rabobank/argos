@@ -107,9 +107,7 @@ public class RulesVerification implements Verification {
     private Boolean verifyArtifactsByType(Map<String, Map<String, Link>> linksMap, String segmentName, Step step,
             Set<Artifact> artifacts, Link link, ArtifactType type) {
         ArtifactsVerificationContext artifactsContext = ArtifactsVerificationContext.builder()
-                .type(type)
                 .segmentName(segmentName)
-                .step(step)
                 .link(link)
                 .notConsumedArtifacts(artifacts)
                 .linksMap(linksMap)
@@ -155,13 +153,9 @@ public class RulesVerification implements Verification {
     }
     
     private Boolean validateNotConsumedArtifacts(ArtifactsVerificationContext artifactsContext) {
-        Link link = artifactsContext.getLink();
         if (!artifactsContext.getNotConsumedArtifacts().isEmpty()) {
             artifactsContext.getNotConsumedArtifacts().stream().forEach(artifact -> {
-                log.info("Link with name {} with run id {} has not consumed artifact on {}: {}", 
-                        link.getStepName(),
-                        link.getRunId(),
-                        artifactsContext.getType(),
+                log.info("Not consumed artifact [{}]",
                         artifact);
             });
             return Boolean.FALSE;

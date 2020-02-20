@@ -39,12 +39,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static de.flapdoodle.embed.process.config.io.ProcessOutput.getDefaultInstanceSilent;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.singleton;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -98,14 +98,14 @@ public class LinkMetablockRepositoryIT {
     @Test
     void findByRunIdWithSegmentNameAndResolvedStepShouldNotRetreive() {
         loadData();
-        List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, singletonList(STEP_NAME));
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, singleton(STEP_NAME));
         assertThat(links, hasSize(0));
     }
 
     @Test
     void findByRunIdWithSegmentNameShouldRetreive() {
         loadData();
-        List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, new ArrayList<>());
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, new HashSet<>());
         assertThat(links, hasSize(1));
     }
 

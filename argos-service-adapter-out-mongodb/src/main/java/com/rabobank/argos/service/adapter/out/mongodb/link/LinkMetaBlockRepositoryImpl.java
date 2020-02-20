@@ -15,6 +15,8 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.link;
 
+import com.rabobank.argos.domain.layout.ArtifactType;
+import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -93,6 +97,29 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
     }
 
     @Override
+    public List<LinkMetaBlock> findBySupplyChainAndSegmentNameAndStepNameAndArtifactTypesAndArtifactHashes(
+            String supplyChainId, String segmentName, String stepName, EnumMap<ArtifactType, Set<Artifact>> artifactTypeHashes) {
+        if (artifactTypeHashes.isEmpty() || 
+                (artifactTypeHashes.containsKey(ArtifactType.MATERIALS) && artifactTypeHashes.get(ArtifactType.MATERIALS).isEmpty()
+                && artifactTypeHashes.containsKey(ArtifactType.PRODUCTS) && artifactTypeHashes.get(ArtifactType.PRODUCTS).isEmpty())) {
+            List.of();
+        }
+        Criteria rootCriteria = Criteria.where(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId);
+        List<Criteria> andCriteria = new ArrayList<>();
+        andCriteria.add(Criteria.where(SEGMENT_NAME_FIELD).is(segmentName));
+        andCriteria.add(Criteria.where(STEP_NAME_FIELD).is(stepName));
+        if (artifactTypeHashes.containsKey(ArtifactType.MATERIALS)) {
+            artifactTypeHashes.get(ArtifactType.MATERIALS).forEach(hash -> andCriteria.add(Criteria.where(LINK_MATERIALS_HASH_FIELD).is(hash)));
+        }
+        if (artifactTypeHashes.containsKey(ArtifactType.MATERIALS)) {
+            artifactTypeHashes.get(ArtifactType.MATERIALS).forEach(hash -> andCriteria.add(Criteria.where(LINK_PRODUCTS_HASH_FIELD).is(hash)));
+        }
+        rootCriteria.andOperator(andCriteria.toArray(new Criteria[andCriteria.size()]));
+        Query query = new Query(rootCriteria);
+        return template.find(query, LinkMetaBlock.class, COLLECTION);
+    }
+
+    @Override
     public List<LinkMetaBlock> findByRunId(String supplyChainId, String runId) {
         Query query = new Query(new Criteria(SUPPLY_CHAIN_ID_FIELD).is(supplyChainId)
                 .andOperator(new Criteria(RUN_ID_FIELD).is(runId)));
@@ -100,7 +127,7 @@ public class LinkMetaBlockRepositoryImpl implements LinkMetaBlockRepository {
     }
 
     @Override
-    public List<LinkMetaBlock> findByRunId(String supplyChainId, String segmentName, String runId, List<String> resolvedSteps) {
+    public List<LinkMetaBlock> findByRunId(String supplyChainId, String segmentName, String runId, Set<String> resolvedSteps) {
         Query query = new Query(new Criteria(SUPPLY_CHAIN_ID_FIELD)
                 .is(supplyChainId)
                 .and(RUN_ID_FIELD).is(runId)

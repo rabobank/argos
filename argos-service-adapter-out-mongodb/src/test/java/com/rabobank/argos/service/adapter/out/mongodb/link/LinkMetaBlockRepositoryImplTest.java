@@ -30,6 +30,7 @@ import java.util.List;
 
 import static com.rabobank.argos.service.adapter.out.mongodb.link.LinkMetaBlockRepositoryImpl.COLLECTION;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singleton;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.sameInstance;
@@ -108,7 +109,7 @@ class LinkMetaBlockRepositoryImplTest {
     @Test
     void findByRunId() {
         when(template.find(any(), eq(LinkMetaBlock.class), eq(COLLECTION))).thenReturn(singletonList(linkMetaBlock));
-        List<LinkMetaBlock> blocks = repository.findByRunId(SUPPLY_CHAIN_ID, "layoutSegmentName", "runId", singletonList("resolvedStep"));
+        List<LinkMetaBlock> blocks = repository.findByRunId(SUPPLY_CHAIN_ID, "layoutSegmentName", "runId", singleton("resolvedStep"));
         assertThat(blocks, hasSize(1));
         assertThat(blocks.get(0), sameInstance(linkMetaBlock));
         verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION));
