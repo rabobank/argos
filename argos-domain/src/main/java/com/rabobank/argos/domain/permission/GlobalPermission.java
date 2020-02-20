@@ -13,21 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.permission;
+package com.rabobank.argos.domain.permission;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.util.List;
-import java.util.UUID;
-
-@Getter
-@Setter
-@Builder
-public class Role {
-    @Builder.Default
-    private String roleId = UUID.randomUUID().toString();
-    private String name;
-    private List<GlobalPermission> permissions;
+public enum GlobalPermission {
+    EDIT_GLOBAL_PERMISSIONS, READ
 }

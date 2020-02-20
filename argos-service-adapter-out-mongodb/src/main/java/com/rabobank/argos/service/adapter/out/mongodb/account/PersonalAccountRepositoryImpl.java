@@ -25,6 +25,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -42,6 +43,12 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     @Override
     public Optional<PersonalAccount> findByEmail(String email) {
         return Optional.ofNullable(template.findOne(new Query(where(EMAIL).is(email)), PersonalAccount.class, COLLECTION));
+    }
+
+
+    @Override
+    public List<PersonalAccount> findAll() {
+        return template.findAll(PersonalAccount.class, COLLECTION);
     }
 
     @Override

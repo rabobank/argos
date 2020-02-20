@@ -785,6 +785,9 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Role"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
         '500':
           $ref: '#/components/responses/Error'
 
@@ -814,6 +817,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Role'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
         '400':
           $ref: '#/components/responses/ValidationError'
         '500':
@@ -841,6 +847,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Role'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
         '404':
           description: role not found
         '500':
@@ -872,10 +881,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Role'
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
         '400':
           $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/Error'
+
+
 
 components:
   securitySchemes:
@@ -900,6 +915,8 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: unauthorized access
   schemas:
     VerifyCommand:
       type: object

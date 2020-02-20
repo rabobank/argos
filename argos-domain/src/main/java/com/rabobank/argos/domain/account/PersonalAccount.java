@@ -50,4 +50,5 @@ public class PersonalAccount extends Account {
     }
     private AuthenticationProvider provider;
     private String providerId;
+    private List<String> roleIds;
 }

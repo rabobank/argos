@@ -23,6 +23,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.model.RestLabel;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestTreeNode;
 import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
+import com.rabobank.argos.service.domain.security.LabelIdCheckParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -85,8 +86,9 @@ public class HierarchyRestService implements HierarchyApi {
                 .orElseThrow(() -> labelNotFound(labelId));
     }
 
+
     @Override
-    public ResponseEntity<RestLabel> updateLabelById(String labelId, RestLabel restLabel) {
+    public ResponseEntity<RestLabel> updateLabelById(@LabelIdCheckParam() String labelId, @LabelIdCheckParam(propertyPath = "parentLabelId") RestLabel restLabel) {
         verifyParentLabelIsDifferent(labelId, restLabel.getParentLabelId());
         verifyParentLabelExists(restLabel.getParentLabelId());
         return labelRepository.update(labelId, labelMapper.convertFromRestLabel(restLabel))

@@ -17,12 +17,15 @@ package com.rabobank.argos.service.domain.account;
 
 import com.rabobank.argos.domain.account.PersonalAccount;
 
+import java.util.List;
 import java.util.Optional;
 
 
 public interface PersonalAccountRepository {
 
     Optional<PersonalAccount> findByEmail(String email);
+
+    List<PersonalAccount> findAll();
 
     Optional<PersonalAccount> findByAccountId(String accountId);
 

@@ -15,8 +15,8 @@
  */
 package com.rabobank.argos.service.adapter.in.rest.permission;
 
+import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
-import com.rabobank.argos.service.domain.permission.Role;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

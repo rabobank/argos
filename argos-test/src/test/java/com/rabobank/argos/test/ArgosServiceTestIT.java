@@ -41,6 +41,7 @@ public class ArgosServiceTestIT {
         waitForArgosServiceToStart();
         waitForArgosIntegrationTestServiceToStart();
         System.setProperty(BEARER_TOKEN, getToken());
+        log.info(System.getProperty(BEARER_TOKEN));
     }
 
     @Karate.Test

@@ -15,20 +15,27 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.permission;
 
-import com.rabobank.argos.service.domain.permission.Role;
+import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class RoleRepositoryImpl implements RoleRepository {
+    static final String COLLECTION = "roles";
+    static final String ROLE_ID_FIELD = "roleId";
     private final MongoTemplate template;
 
     @Override
     public void save(Role role) {
-
+        template.save(role, COLLECTION);
     }
 
     @Override
@@ -37,7 +44,23 @@ public class RoleRepositoryImpl implements RoleRepository {
     }
 
     @Override
-    public Role findById(String roleId) {
-        return null;
+    public Optional<Role> findById(String roleId) {
+        Query query = getPrimaryQuery(roleId);
+        return Optional.ofNullable(template.findOne(query, Role.class, COLLECTION));
+    }
+
+    @Override
+    public List<Role> findAll() {
+        return template.findAll(Role.class, COLLECTION);
+    }
+
+    @Override
+    public List<Role> findByIds(List<String> roleIds) {
+        Query query = new Query(Criteria.where(ROLE_ID_FIELD).is(roleIds));
+        return template.find(query, Role.class, COLLECTION);
+    }
+
+    private static Query getPrimaryQuery(String roleId) {
+        return new Query(Criteria.where(ROLE_ID_FIELD).is(roleId));
     }
 }

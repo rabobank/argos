@@ -15,10 +15,18 @@
  */
 package com.rabobank.argos.service.domain.permission;
 
+import com.rabobank.argos.domain.permission.Role;
+
+import java.util.List;
+import java.util.Optional;
+
 public interface RoleRepository {
     void save(Role role);
-
     void update(Role role);
 
-    Role findById(String roleId);
+    Optional<Role> findById(String roleId);
+
+    List<Role> findAll();
+
+    List<Role> findByIds(List<String> roleIds);
 }

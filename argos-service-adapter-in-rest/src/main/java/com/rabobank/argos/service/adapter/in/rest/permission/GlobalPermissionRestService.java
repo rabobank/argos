@@ -15,18 +15,24 @@
  */
 package com.rabobank.argos.service.adapter.in.rest.permission;
 
+import com.rabobank.argos.domain.permission.GlobalPermission;
+import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.GlobalPermissionApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
-import com.rabobank.argos.service.domain.permission.Role;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
+import com.rabobank.argos.service.domain.security.PermissionCheck;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,5 +53,32 @@ public class GlobalPermissionRestService implements GlobalPermissionApi {
                 .toUri();
         return ResponseEntity
                 .created(location).body(converter.convertToRestRole(role));
+    }
+
+    @PermissionCheck(globalPermissions = {GlobalPermission.READ})
+    @Override
+    public ResponseEntity<RestRole> getRole(String roleId) {
+        return roleRepository.findById(roleId)
+                .map(converter::convertToRestRole)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> roleNotFound(roleId));
+    }
+
+    @Override
+    public ResponseEntity<List<RestRole>> getRoles() {
+        List<RestRole> roles = roleRepository.findAll()
+                .stream()
+                .map(converter::convertToRestRole)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(roles);
+    }
+
+    @Override
+    public ResponseEntity<RestRole> updateRole(String roleId, @Valid RestRole restRole) {
+        return null;
+    }
+
+    private static ResponseStatusException roleNotFound(String roleId) {
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "role not found : " + roleId);
     }
 }
