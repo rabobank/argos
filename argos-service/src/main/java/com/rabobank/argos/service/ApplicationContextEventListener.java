@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019 - 2020 Rabobank Nederland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.rabobank.argos.service;
 
 import com.rabobank.argos.domain.account.PersonalAccount;
@@ -34,7 +49,7 @@ public class ApplicationContextEventListener {
         Role role;
         if (numberOfUsers == 1) {
             log.info("Found one user ");
-            if (roleRepository.findAll().size() == 0) {
+            if (roleRepository.findAll().isEmpty()) {
                 role = Role.builder()
                         .name("administrator")
                         .permissions(asList(GlobalPermission.values()))
@@ -44,10 +59,10 @@ public class ApplicationContextEventListener {
                 role = roleRepository.findAll().iterator().next();
             }
             PersonalAccount personalAccount = personalAccountRepository.findAll().iterator().next();
-            if (personalAccount.getRoleIds().size() == 0) {
+            if (personalAccount.getRoleIds().isEmpty()) {
                 personalAccount.setRoleIds(singletonList(role)
                         .stream()
-                        .map(r -> r.getRoleId())
+                        .map(Role::getRoleId)
                         .collect(Collectors.toList()));
                 personalAccountRepository.update(personalAccount);
                 log.info("Assigned administrator role to personal account ");
