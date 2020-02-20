@@ -16,6 +16,7 @@
 package com.rabobank.argos.service.adapter.in.rest.permission;
 
 import com.rabobank.argos.domain.permission.GlobalPermission;
+import com.rabobank.argos.domain.permission.LabelPermission;
 import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.GlobalPermissionApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
@@ -55,7 +56,8 @@ public class GlobalPermissionRestService implements GlobalPermissionApi {
                 .created(location).body(converter.convertToRestRole(role));
     }
 
-    @PermissionCheck(globalPermissions = {GlobalPermission.READ})
+    @PermissionCheck(globalPermissions = {GlobalPermission.READ},
+            labelPermissions = {LabelPermission.READ})
     @Override
     public ResponseEntity<RestRole> getRole(String roleId) {
         return roleRepository.findById(roleId)

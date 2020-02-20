@@ -4,14 +4,16 @@ import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.permission.LabelPermission;
 import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.Set;
 
 @Component
+@Qualifier("moveLabelCheckStrategy")
 @RequiredArgsConstructor
-public class DefaultLabelCheckStrategy implements LabelCheckStrategy {
+public class MoveLabelCheckStrategy implements LabelCheckStrategy {
 
     private final HierarchyRepository hierarchyRepository;
 

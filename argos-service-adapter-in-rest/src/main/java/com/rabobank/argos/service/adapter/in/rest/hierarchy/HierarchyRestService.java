@@ -17,6 +17,8 @@ package com.rabobank.argos.service.adapter.in.rest.hierarchy;
 
 import com.rabobank.argos.domain.hierarchy.HierarchyMode;
 import com.rabobank.argos.domain.hierarchy.Label;
+import com.rabobank.argos.domain.permission.GlobalPermission;
+import com.rabobank.argos.domain.permission.LabelPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.HierarchyApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestHierarchyMode;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLabel;
@@ -24,6 +26,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.model.RestTreeNode;
 import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import com.rabobank.argos.service.domain.security.LabelIdCheckParam;
+import com.rabobank.argos.service.domain.security.PermissionCheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -88,7 +91,7 @@ public class HierarchyRestService implements HierarchyApi {
 
 
     @Override
-    public ResponseEntity<RestLabel> updateLabelById(@LabelIdCheckParam() String labelId, @LabelIdCheckParam(propertyPath = "parentLabelId") RestLabel restLabel) {
+    public ResponseEntity<RestLabel> updateLabelById(String labelId, RestLabel restLabel) {
         verifyParentLabelIsDifferent(labelId, restLabel.getParentLabelId());
         verifyParentLabelExists(restLabel.getParentLabelId());
         return labelRepository.update(labelId, labelMapper.convertFromRestLabel(restLabel))
@@ -102,8 +105,10 @@ public class HierarchyRestService implements HierarchyApi {
                 .map(treeNodeMapper::convertToRestTreeNode).collect(Collectors.toList()));
     }
 
+    @PermissionCheck(globalPermissions = {GlobalPermission.READ},
+            labelPermissions = {LabelPermission.READ})
     @Override
-    public ResponseEntity<RestTreeNode> getSubTree(String referenceId, RestHierarchyMode hierarchyMode, Integer maxDepth) {
+    public ResponseEntity<RestTreeNode> getSubTree(@LabelIdCheckParam String referenceId, RestHierarchyMode hierarchyMode, Integer maxDepth) {
         return hierarchyRepository.getSubTree(referenceId, HierarchyMode.valueOf(hierarchyMode.name()), maxDepth)
                 .map(treeNodeMapper::convertToRestTreeNode).map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "subtree with referenceId: " + referenceId + " not found"));

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Aspect
 @Component
@@ -44,18 +45,24 @@ public class PermissionCheckAdvisor {
                 permissionCheck.labelPermissions()
         );
 
+        checkLabelPermissions(joinPoint, permissionCheck, account);
+
+    }
+
+    private void checkLabelPermissions(JoinPoint joinPoint, PermissionCheck permissionCheck, Account account) {
+
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        Object[] argumentValues = joinPoint.getArgs();
+
         LabelCheckDataExtractor labelCheckDataExtractor = applicationContext
                 .getBean(permissionCheck.labelPermissionDataExtractorBean(), LabelCheckDataExtractor.class);
 
         LabelCheckStrategy labelCheckStrategy = applicationContext.getBean(permissionCheck
                 .labelCheckStrategyBean(), LabelCheckStrategy.class);
 
-        LabelCheckData labelCheckData = labelCheckDataExtractor.extractLabelCheckData(method,
-                new HashSet<>(List.of(permissionCheck.labelPermissions())), account
-        );
-        labelCheckStrategy.checkLabelPermissions(labelCheckData);
-        //roleRepository.findByIds()
-        // Access
+        Optional<LabelCheckData> labelCheckData = labelCheckDataExtractor.extractLabelCheckData(method, argumentValues);
+        labelCheckStrategy.checkLabelPermissions(labelCheckData,
+                new HashSet<>(List.of(permissionCheck.labelPermissions())),
+                account);
     }
 }
