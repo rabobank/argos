@@ -94,7 +94,9 @@ public class HierarchyRestService implements HierarchyApi {
     public ResponseEntity<RestLabel> updateLabelById(String labelId, RestLabel restLabel) {
         verifyParentLabelIsDifferent(labelId, restLabel.getParentLabelId());
         verifyParentLabelExists(restLabel.getParentLabelId());
-        return labelRepository.update(labelId, labelMapper.convertFromRestLabel(restLabel))
+        Label label = labelMapper.convertFromRestLabel(restLabel);
+        label.setLabelId(labelId);
+        return labelRepository.update(labelId, label)
                 .map(labelMapper::convertToRestLabel).map(ResponseEntity::ok)
                 .orElseThrow(() -> labelNotFound(labelId));
     }

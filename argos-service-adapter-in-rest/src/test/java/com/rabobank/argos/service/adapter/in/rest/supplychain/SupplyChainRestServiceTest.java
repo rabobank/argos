@@ -43,6 +43,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -131,6 +132,7 @@ class SupplyChainRestServiceTest {
         ResponseEntity<RestSupplyChain> response = supplyChainRestService.updateSupplyChain(SUPPLY_CHAIN_ID, restSupplyChain);
         assertThat(response.getStatusCodeValue(), is(200));
         assertThat(response.getBody(), sameInstance(restSupplyChain));
+        verify(supplyChain).setSupplyChainId(SUPPLY_CHAIN_ID);
     }
 
     @Test
