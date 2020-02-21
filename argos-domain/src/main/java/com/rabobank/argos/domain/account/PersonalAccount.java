@@ -37,7 +37,8 @@ public class PersonalAccount extends Account {
             KeyPair activeKeyPair,
             List<KeyPair> inactiveKeyPairs,
             AuthenticationProvider provider,
-            String providerId
+            String providerId,
+            List<String> roleIds
 
     ) {
         super(randomUUID().toString(),
@@ -47,6 +48,7 @@ public class PersonalAccount extends Account {
                 inactiveKeyPairs == null ? emptyList() : inactiveKeyPairs);
         this.provider = provider;
         this.providerId = providerId;
+        this.roleIds = roleIds;
     }
     private AuthenticationProvider provider;
     private String providerId;

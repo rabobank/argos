@@ -58,7 +58,7 @@ class TokenProviderTest {
     void createToken() {
         TokenProvider.main(new String[]{});
         when(authentication.getPrincipal()).thenReturn(userPrincipal);
-        when(userPrincipal.getUserId()).thenReturn("id");
+        when(userPrincipal.getAccountId()).thenReturn("id");
         String token = tokenProvider.createToken(authentication);
         assertThat(tokenProvider.validateToken(token), is(true));
         assertThat(tokenProvider.getUserIdFromToken(token), is("id"));
@@ -72,7 +72,7 @@ class TokenProviderTest {
     @Test
     void validateTokenWrongKey() {
         when(authentication.getPrincipal()).thenReturn(userPrincipal);
-        when(userPrincipal.getUserId()).thenReturn("id");
+        when(userPrincipal.getAccountId()).thenReturn("id");
         String token = tokenProvider.createToken(authentication);
         ReflectionTestUtils.setField(tokenProvider, "secretKey", Keys.secretKeyFor(SignatureAlgorithm.HS512));
         assertThat(tokenProvider.validateToken(token), is(false));
@@ -82,7 +82,7 @@ class TokenProviderTest {
     void validateTokenExpired() {
         ReflectionTestUtils.setField(tokenProvider, "timeout", Duration.of(1, ChronoUnit.NANOS));
         when(authentication.getPrincipal()).thenReturn(userPrincipal);
-        when(userPrincipal.getUserId()).thenReturn("id");
+        when(userPrincipal.getAccountId()).thenReturn("id");
         String token = tokenProvider.createToken(authentication);
         assertThat(tokenProvider.validateToken(token), is(false));
     }

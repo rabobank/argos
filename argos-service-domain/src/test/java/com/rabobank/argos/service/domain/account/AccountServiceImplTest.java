@@ -15,9 +15,9 @@
  */
 package com.rabobank.argos.service.domain.account;
 
-import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.service.domain.permission.RoleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,17 +25,20 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceImplTest {
 
-    private static final String ACCOUNT_ID = "accountId";
     private static final String ACCOUNT_NAME = "accountName";
+    private static final String ACCOUNT_ID = "accountId";
 
     private KeyPair activeKeyPair = new KeyPair();
     private KeyPair inactiveKeyPair = new KeyPair();
@@ -48,40 +51,48 @@ class AccountServiceImplTest {
     @Mock
     private PersonalAccountRepository personalAccountRepository;
 
+    @Mock
+    private RoleRepository roleRepository;
+
     @BeforeEach
     void setUp() {
-        accountService = new AccountServiceImpl(nonPersonalAccountRepository, personalAccountRepository);
+        accountService = new AccountServiceImpl(nonPersonalAccountRepository, personalAccountRepository, roleRepository);
     }
 
     @Test
     void deactivateKeyPairNoActiveKeyAndNoInactiveKeys() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, null, null, null, null);
-        accountService.activateNewKey(account, newKeyPair);
+        PersonalAccount account = PersonalAccount.builder().name(ACCOUNT_NAME).build();
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        accountService.activateNewKey(ACCOUNT_ID, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), empty());
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
     }
 
     @Test
     void deactivateKeyPairNoActiveKey() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, null, null, null);
-        accountService.activateNewKey(account, newKeyPair);
+        PersonalAccount account = PersonalAccount.builder().name(ACCOUNT_NAME).activeKeyPair(activeKeyPair).build();
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        accountService.activateNewKey(ACCOUNT_ID, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(activeKeyPair));
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
     }
 
     @Test
     void deactivateKeyPairNoActiveKeyAndEmptyList() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.emptyList(), null, null);
-        accountService.activateNewKey(account, newKeyPair);
+        PersonalAccount account = PersonalAccount.builder().name(ACCOUNT_NAME).activeKeyPair(activeKeyPair).inactiveKeyPairs(Collections.emptyList()).build();
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        accountService.activateNewKey(ACCOUNT_ID, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(activeKeyPair));
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
     }
 
     @Test
     void deactivateKeyPairNoActiveKeyAndInactiveKeyPair() {
-        Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, activeKeyPair, Collections.singletonList(inactiveKeyPair), null, null);
-        accountService.activateNewKey(account, newKeyPair);
+        PersonalAccount account = PersonalAccount.builder().name(ACCOUNT_NAME).activeKeyPair(activeKeyPair).inactiveKeyPairs(Collections.singletonList(inactiveKeyPair)).build();
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        accountService.activateNewKey(ACCOUNT_ID, newKeyPair);
         assertThat(account.getInactiveKeyPairs(), contains(inactiveKeyPair, activeKeyPair));
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
+        verify(personalAccountRepository).update(account);
     }
 }

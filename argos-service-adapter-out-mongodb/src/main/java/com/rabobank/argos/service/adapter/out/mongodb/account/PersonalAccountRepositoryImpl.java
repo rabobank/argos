@@ -38,6 +38,7 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     static final String ACCOUNT_ID = "accountId";
     static final String ACTIVE_KEY_ID_FIELD = "activeKeyPair.keyId";
     static final String EMAIL = "email";
+    static final String ROLE_ID_FIELD = "roleIds";
     private final MongoTemplate template;
 
     @Override
@@ -72,6 +73,16 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     @Override
     public Optional<PersonalAccount> findByActiveKeyId(String activeKeyId) {
         return Optional.ofNullable(template.findOne(getActiveKeyQuery(activeKeyId), PersonalAccount.class, COLLECTION));
+    }
+
+    @Override
+    public long getTotalNumberOfAccounts() {
+        return template.count(new Query(), PersonalAccount.class, COLLECTION);
+    }
+
+    @Override
+    public List<PersonalAccount> findByRoleId(String roleId) {
+        return template.find(new Query(where(ROLE_ID_FIELD).in(roleId)), PersonalAccount.class, COLLECTION);
     }
 
     @Override

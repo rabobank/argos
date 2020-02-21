@@ -107,12 +107,10 @@ class NonPersonalAccountRepositoryImplTest {
 
     @Test
     void updateFound() {
+        when(nonPersonalAccount.getAccountId()).thenReturn(ACCOUNT_ID);
         when(template.getConverter()).thenReturn(converter);
         when(template.updateFirst(any(), any(), eq(NonPersonalAccount.class), eq(COLLECTION))).thenReturn(updateResult);
-        when(updateResult.getMatchedCount()).thenReturn(1L);
-        Optional<NonPersonalAccount> update = repository.update(ACCOUNT_ID, nonPersonalAccount);
-        assertThat(update, is(Optional.of(nonPersonalAccount)));
-        verify(nonPersonalAccount).setAccountId(ACCOUNT_ID);
+        repository.update(nonPersonalAccount);
         verify(template).updateFirst(queryArgumentCaptor.capture(), updateArgumentCaptor.capture(), eq(NonPersonalAccount.class), eq(COLLECTION));
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"accountId\" : \"accountId\"}, Fields: {}, Sort: {}"));
         verify(converter).write(eq(nonPersonalAccount), any());
@@ -120,19 +118,11 @@ class NonPersonalAccountRepositoryImplTest {
     }
 
     @Test
-    void updateNotFound() {
-        when(template.getConverter()).thenReturn(converter);
-        when(template.updateFirst(any(), any(), eq(NonPersonalAccount.class), eq(COLLECTION))).thenReturn(updateResult);
-        when(updateResult.getMatchedCount()).thenReturn(0L);
-        Optional<NonPersonalAccount> update = repository.update(ACCOUNT_ID, nonPersonalAccount);
-        assertThat(update, is(Optional.empty()));
-    }
-
-    @Test
     void updateDuplicateKeyException() {
+        when(nonPersonalAccount.getAccountId()).thenReturn(ACCOUNT_ID);
         when(template.getConverter()).thenReturn(converter);
         when(template.updateFirst(any(), any(), eq(NonPersonalAccount.class), eq(COLLECTION))).thenThrow(duplicateKeyException);
-        ArgosError argosError = assertThrows(ArgosError.class, () -> repository.update(ACCOUNT_ID, nonPersonalAccount));
+        ArgosError argosError = assertThrows(ArgosError.class, () -> repository.update(nonPersonalAccount));
         assertThat(argosError.getCause(), sameInstance(duplicateKeyException));
     }
 

@@ -23,6 +23,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface LabelMapper {
 
+    @Mapping(target = "labelId", ignore = true)
     Label convertFromRestLabel(RestLabel restLabel);
 
     @Mapping(target = "id", source = "labelId")

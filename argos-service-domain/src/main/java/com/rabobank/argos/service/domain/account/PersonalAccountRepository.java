@@ -36,4 +36,8 @@ public interface PersonalAccountRepository {
     boolean activeKeyExists(String activeKeyId);
 
     Optional<PersonalAccount> findByActiveKeyId(String activeKeyId);
+
+    long getTotalNumberOfAccounts();
+
+    List<PersonalAccount> findByRoleId(String roleId);
 }

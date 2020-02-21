@@ -18,7 +18,7 @@ package com.rabobank.argos.service.security.oauth2;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.account.AuthenticationProvider;
 import com.rabobank.argos.domain.account.PersonalAccount;
-import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
+import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.security.oauth2.user.OAuth2UserInfo;
 import com.rabobank.argos.service.security.oauth2.user.OAuth2UserInfoFactory;
 import lombok.RequiredArgsConstructor;
@@ -31,14 +31,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.Optional;
-
 
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    private final PersonalAccountRepository personalAccountRepository;
+    private final AccountService accountService;
 
     private DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
 
@@ -59,32 +57,22 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         AuthenticationProvider authenticationProvider = AuthenticationProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId().toUpperCase());
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(authenticationProvider, oAuth2User.getAttributes());
         if (!StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
-            Optional<PersonalAccount> userOptional = personalAccountRepository.findByEmail(oAuth2UserInfo.getEmail());
-            if (userOptional.isPresent()) {
-                return new ArgosOAuth2User(oAuth2User, updateExistingUser(userOptional.get(), oAuth2UserInfo));
-            } else {
-                return new ArgosOAuth2User(oAuth2User, registerNewUser(authenticationProvider, oAuth2UserInfo));
-            }
+            return accountService.authenticateUser(convertToPersonalAccount(authenticationProvider, oAuth2UserInfo))
+                    .map(account -> new ArgosOAuth2User(oAuth2User, account.getAccountId()))
+                    .orElseThrow(() -> new ArgosError("account not authenticated"));
         } else {
             throw new ArgosError("email address not provided by oauth profile service");
         }
     }
 
-    private String registerNewUser(AuthenticationProvider authenticationProvider, OAuth2UserInfo oAuth2UserInfo) {
-        PersonalAccount personalAccount = PersonalAccount.builder()
+    private PersonalAccount convertToPersonalAccount(AuthenticationProvider authenticationProvider, OAuth2UserInfo oAuth2UserInfo) {
+        return PersonalAccount.builder()
                 .name(oAuth2UserInfo.getName())
                 .email(oAuth2UserInfo.getEmail())
                 .providerId(oAuth2UserInfo.getId())
                 .provider(authenticationProvider)
                 .build();
-        personalAccountRepository.save(personalAccount);
-        return personalAccount.getAccountId();
     }
 
-    private String updateExistingUser(PersonalAccount existingPersonalAccount, OAuth2UserInfo oAuth2UserInfo) {
-        existingPersonalAccount.setName(oAuth2UserInfo.getName());
-        personalAccountRepository.update(existingPersonalAccount);
-        return existingPersonalAccount.getAccountId();
-    }
 
 }

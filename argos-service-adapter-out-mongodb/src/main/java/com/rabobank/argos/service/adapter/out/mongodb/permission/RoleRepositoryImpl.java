@@ -31,16 +31,12 @@ import java.util.Optional;
 public class RoleRepositoryImpl implements RoleRepository {
     static final String COLLECTION = "roles";
     static final String ROLE_ID_FIELD = "roleId";
+    static final String ROLE_NAME_FIELD = "name";
     private final MongoTemplate template;
 
     @Override
     public void save(Role role) {
         template.save(role, COLLECTION);
-    }
-
-    @Override
-    public void update(Role role) {
-
     }
 
     @Override
@@ -56,8 +52,13 @@ public class RoleRepositoryImpl implements RoleRepository {
 
     @Override
     public List<Role> findByIds(List<String> roleIds) {
-        Query query = new Query(Criteria.where(ROLE_ID_FIELD).is(roleIds));
+        Query query = new Query(Criteria.where(ROLE_ID_FIELD).in(roleIds));
         return template.find(query, Role.class, COLLECTION);
+    }
+
+    @Override
+    public Optional<Role> findByName(String name) {
+        return Optional.ofNullable(template.findOne(new Query(Criteria.where(ROLE_NAME_FIELD).is(name)), Role.class, COLLECTION));
     }
 
     private static Query getPrimaryQuery(String roleId) {

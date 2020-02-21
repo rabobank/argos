@@ -23,6 +23,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
 
+    @Mapping(target = "roleId", ignore = true)
     Role convertFromRestRole(RestRole restRole);
 
     @Mapping(source = "roleId", target = "id")

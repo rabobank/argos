@@ -26,6 +26,9 @@ import java.util.UUID;
 @Setter
 @Builder
 public class Role {
+
+    public static final String ADMINISTRATOR_ROLE_NAME = "administrator";
+
     @Builder.Default
     private String roleId = UUID.randomUUID().toString();
     private String name;

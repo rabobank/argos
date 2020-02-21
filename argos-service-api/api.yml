@@ -575,6 +575,80 @@ paths:
           description: personal account not found
         '500':
           $ref: '#/components/responses/Error'
+  /personalaccount:
+    get:
+      summary: search
+      operationId: searchPersonalAccounts
+      tags:
+        - personal account
+      parameters:
+        - name: roleName
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: list of personal accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PersonalAccount"
+  /personalaccount/{accountId}:
+    get:
+      summary: get personal account by id
+      operationId: getPersonalAccountById
+      tags:
+        - personal account
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
+      responses:
+        '200':
+          description: personal account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonalAccount"
+        '500':
+          $ref: '#/components/responses/Error'
+  /personalaccount/{accountId}/role:
+    put:
+      summary: update personal account roles by id
+      operationId: updatePersonalAccountRolesById
+      tags:
+        - personal account
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: role names
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: updated personal account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonalAccount"
+        '500':
+          $ref: '#/components/responses/Error'
   /nonpersonalaccount:
     post:
       summary: create a new non personal account
@@ -726,7 +800,6 @@ paths:
           description: no active key exists
         '500':
           $ref: '#/components/responses/Error'
-
   /permissions/global/role:
     get:
       summary: gets all roles
@@ -749,108 +822,6 @@ paths:
 
         '500':
           $ref: '#/components/responses/Error'
-
-    post:
-      summary: creates a role
-      operationId: createRole
-      security:
-        - bearerAuth: []
-      tags:
-        - global permission
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Role'
-      responses:
-        '201':
-          description: created role
-          headers:
-            Location:
-              schema:
-                type: string
-                format: uri
-              description: location where the created role can be found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Role'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/Error'
-
-  /permissions/global/role/{roleId}:
-    get:
-      summary: returns a role
-      operationId: getRole
-      security:
-        - bearerAuth: []
-      tags:
-        - global permission
-      parameters:
-        - name: roleId
-          in: path
-          description: role id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Role
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Role'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-        '404':
-          description: role not found
-        '500':
-          $ref: '#/components/responses/Error'
-    put:
-      summary: updates a role
-      operationId: updateRole
-      security:
-        - bearerAuth: []
-      tags:
-        - global permission
-      parameters:
-        - name: roleId
-          in: path
-          description: role id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Role'
-      responses:
-        '200':
-          description: updated role
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Role'
-
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/Error'
-
-
-
 components:
   securitySchemes:
     bearerAuth:
@@ -875,7 +846,7 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
     Unauthorized:
-      description: unauthorized access
+      description: unauthorized
   schemas:
     VerifyCommand:
       type: object
@@ -1235,13 +1206,15 @@ components:
           readOnly: true
         name:
           type: string
+          readOnly: true
         email:
           type: string
+          readOnly: true
           format: email
-        keyIds:
+        roles:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/Role"
     NonPersonalAccount:
       type: object
       required:
@@ -1265,6 +1238,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
           maxLength: 36
         name:
           type: string
