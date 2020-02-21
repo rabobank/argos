@@ -10,6 +10,13 @@
       "referenceId": "#uuid",
       "children": [
         {
+          "name": "npa-1",
+          "type": "NON_PERSONAL_ACCOUNT",
+          "referenceId": "#uuid",
+          "hasChildren": false,
+          "children": []
+        },
+        {
           "name": "supply-chain-1",
           "type": "SUPPLY_CHAIN",
           "referenceId": "#uuid",

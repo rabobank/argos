@@ -26,3 +26,4 @@ Feature: authenticate
     When method GET
     Then status 200
 
+

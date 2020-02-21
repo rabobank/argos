@@ -28,6 +28,5 @@ Feature: sign layout
     And param keyId = keyPair.keyId
     And param password = 'test'
     And request layoutToBeSigned
-    And header Content-Type = 'application/json'
     When method POST
     Then status 200

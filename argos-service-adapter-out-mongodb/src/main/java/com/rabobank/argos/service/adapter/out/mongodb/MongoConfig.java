@@ -16,8 +16,8 @@
 package com.rabobank.argos.service.adapter.out.mongodb;
 
 import com.github.mongobee.Mongobee;
-import com.rabobank.argos.service.adapter.out.mongodb.key.converter.ByteArrayToPublicKeyToReadConverter;
-import com.rabobank.argos.service.adapter.out.mongodb.key.converter.PublicKeyToByteArrayWriteConverter;
+import com.rabobank.argos.service.adapter.out.mongodb.account.converter.ByteArrayToPublicKeyToReadConverter;
+import com.rabobank.argos.service.adapter.out.mongodb.account.converter.PublicKeyToByteArrayWriteConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -23,6 +23,5 @@ Feature: using __arg
   Scenario: create a label
     Given path '/api/label'
     And request __arg
-    And header Content-Type = 'application/json'
     When method POST
     Then status 201

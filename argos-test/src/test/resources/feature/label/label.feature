@@ -19,6 +19,8 @@ Feature: Label
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
+    * def token = karate.properties['bearer.token']
+    * configure headers = call read('classpath:headers.js') { token: #(token)}
 
   Scenario: store a root label with valid name should return a 201
     * def result = call read('create-label.feature') { name: 'label1'}
@@ -27,17 +29,22 @@ Feature: Label
   Scenario: store a root label with invalid name should return a 400
     Given path '/api/label'
     And request { name: '1label'}
-    And header Content-Type = 'application/json'
     When method POST
     Then status 400
     And match response.message == 'name:must match "^([a-z]{1}[a-z0-9_]*)?$"'
+
+  Scenario: store a label without authorization should return a 401 error
+    * configure headers = null
+    Given path '/api/label'
+    And request { name: 'label1'}
+    When method POST
+    Then status 401
 
   Scenario: store two root labels with the same name should return a 400
     * def result = call read('create-label.feature') { name: 'label1'}
     * match result.response == { name: 'label1', id: '#uuid' }
     Given path '/api/label'
     And request { name: 'label1'}
-    And header Content-Type = 'application/json'
     When method POST
     Then status 400
     And match response.message == 'label with name: label1 and parentLabelId: null already exists'
@@ -50,6 +57,14 @@ Feature: Label
     Then status 200
     And match response == { name: 'label2', id: '#(result.response.id)' }
 
+  Scenario: retrieve a label without authentication should return a 401 error
+    * def result = call read('create-label.feature') { name: 'label2'}
+    * def restPath = '/api/label/'+result.response.id
+    * configure headers = null
+    Given path restPath
+    When method GET
+    Then status 401
+
   Scenario: update a root label should return a 200
     * def createResult = call read('create-label.feature') { name: 'label3'}
     * def labelId = createResult.response.id
@@ -59,6 +74,16 @@ Feature: Label
     When method PUT
     Then status 200
     And match response == { name: 'label4', id: '#(labelId)' }
+
+  Scenario: update a label without authorization should return a 401 error
+    * def createResult = call read('create-label.feature') { name: 'label3'}
+    * def labelId = createResult.response.id
+    * def restPath = '/api/label/'+labelId
+    * configure headers = null
+    Given path restPath
+    And request { name: 'label4'}
+    When method PUT
+    Then status 401
 
   Scenario: store a child label with valid name should return a 201
     * def rootLabelResponse = call read('create-label.feature') { name: 'parent'}
@@ -88,3 +113,6 @@ Feature: Label
     When method PUT
     Then status 200
     And match response == { name: 'label4', id: '#(childId)', parentLabelId: '#(rootId)' }
+
+
+

@@ -16,12 +16,14 @@
 package com.rabobank.argos.integrationtest.service;
 
 import com.rabobank.argos.service.adapter.out.mongodb.MongoConfig;
+import com.rabobank.argos.service.adapter.out.mongodb.account.NonPersonalAccountRepositoryImpl;
+import com.rabobank.argos.service.domain.account.AccountService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackageClasses = {MongoConfig.class, TestITService.class})
+@ComponentScan(basePackageClasses = {MongoConfig.class, TestITService.class, AccountService.class, NonPersonalAccountRepositoryImpl.class})
 public class ArgosIntegrationtestServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(ArgosIntegrationtestServiceApplication.class, args);
