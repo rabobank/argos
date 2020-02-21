@@ -77,20 +77,20 @@ public class VerificationContext {
                     segment.getSteps().forEach(step -> {
                         stepBySegmentNameAndStepName
                             .get(segment.getName())
-                            .put(step.getStepName(), step);
+                            .put(step.getName(), step);
                         linkMetaBlocksBySegmentNameAndStepName
                             .get(segment.getName())
-                            .putIfAbsent(step.getStepName(), new ArrayList<>());
+                            .putIfAbsent(step.getName(), new ArrayList<>());
                         List<LinkMetaBlock> metaBlocks = linkMetaBlocksBySegmentNameAndStepName
                                 .getOrDefault(segment.getName(), emptyMap())
-                                .getOrDefault(step.getStepName(), emptyList());
+                                .getOrDefault(step.getName(), emptyList());
                         if (!metaBlocks.isEmpty() && metaBlocks.get(0).getLink() != null) {
                             linksBySegmentNameAndStep
                                 .get(segment.getName())
                                 .put(step, metaBlocks.get(0).getLink());
                             linksBySegmentNameAndStepName
                                 .get(segment.getName())
-                                .put(step.getStepName(), metaBlocks.get(0).getLink());
+                                .put(step.getName(), metaBlocks.get(0).getLink());
                         }
                     });
                 });

@@ -24,7 +24,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = {RuleMapper.class})
 public interface StepMapper {
 
-    @Mapping(source = "name", target = "stepName")
     Step mapFromRestStep(RestStep restStep);
 
     @InheritInverseConfiguration

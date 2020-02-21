@@ -115,7 +115,7 @@ class RulesVerificationTest {
     @Test
     void verifyAllowAllRuleWithMaterialAndProductRules() {
         step = Step.builder()
-                .stepName(STEP_NAME)
+                .name(STEP_NAME)
                 .expectedMaterials(List.of(allowAllRule))
                 .expectedProducts(List.of(allowAllRule)).build();
         linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
@@ -131,7 +131,7 @@ class RulesVerificationTest {
     @Test
     void verifyAllowRuleWithNotConsumed() {
         step = Step.builder()
-                .stepName(STEP_NAME)
+                .name(STEP_NAME)
                 .expectedMaterials(List.of(allowRuleWithNotFound))
                 .expectedProducts(List.of(allowRuleWithNotFound)).build();
         linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
@@ -147,7 +147,7 @@ class RulesVerificationTest {
     @Test
     void verifyListOfRules() {
         step = Step.builder()
-                .stepName(STEP_NAME)
+                .name(STEP_NAME)
                 .expectedMaterials(List.of(allowRuleWithNotFound, allowAllRule))
                 .expectedProducts(List.of(allowRuleWithNotFound, allowAllRule)).build();
         linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock.builder()
@@ -164,7 +164,7 @@ class RulesVerificationTest {
     @Test
     void verifyRuleFails() {
         step = Step.builder()
-                .stepName(STEP_NAME)
+                .name(STEP_NAME)
                 .expectedMaterials(List.of(allowRuleWithNotFound, disAllowAllRule))
                 .expectedProducts(List.of(allowRuleWithNotFound, disAllowAllRule)).build();
         linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
@@ -181,7 +181,7 @@ class RulesVerificationTest {
     @Test
     void verifyArtifactsNoRules() {
         step = Step.builder()
-                .stepName(STEP_NAME)
+                .name(STEP_NAME)
                 .expectedMaterials(List.of())
                 .expectedProducts(List.of()).build();
         linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
@@ -198,7 +198,7 @@ class RulesVerificationTest {
     @Test
     void verifyNotImplementedRule() {
         step = Step.builder()
-                .stepName(STEP_NAME)
+                .name(STEP_NAME)
                 .expectedMaterials(List.of(deleteRule))
                 .expectedProducts(List.of(deleteRule)).build();
         linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock

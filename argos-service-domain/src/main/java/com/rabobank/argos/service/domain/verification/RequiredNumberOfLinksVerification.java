@@ -71,7 +71,7 @@ public class RequiredNumberOfLinksVerification implements Verification {
     }
 
     private boolean isValid(List<LinkMetaBlock> linkMetaBlocks, Step step) {
-        log.info("{} links for step {} and should be {}", linkMetaBlocks.size(), step.getStepName(), step.getRequiredNumberOfLinks());
+        log.info("{} links for step {} and should be {}", linkMetaBlocks.size(), step.getName(), step.getRequiredNumberOfLinks());
         return linkMetaBlocks.size() >= step.getRequiredNumberOfLinks();
     }
 }

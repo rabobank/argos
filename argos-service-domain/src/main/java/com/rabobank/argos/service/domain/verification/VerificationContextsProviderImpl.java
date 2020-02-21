@@ -195,7 +195,7 @@ public class VerificationContextsProviderImpl implements VerificationContextsPro
                                                         .matchRule(rule)
                                                         .sourceType(destinationType)
                                                         .sourceSegmentName(segment.getName())
-                                                        .sourceStepName(step.getStepName())
+                                                        .sourceStepName(step.getName())
                                                         .build())
                                                 .collect(Collectors.toList()))
                                 )

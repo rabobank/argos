@@ -297,7 +297,7 @@ class VerificationContextsProviderTest {
         when(layout.getLayoutSegments()).thenReturn(singletonList(layoutSegment1));
         when(layoutSegment1.getName()).thenReturn(SEGMENT_NAME_1);
         when(layoutSegment1.getSteps()).thenReturn(singletonList(step1));
-        when(step1.getStepName()).thenReturn(STEP_NAME_1);
+        when(step1.getName()).thenReturn(STEP_NAME_1);
         when(layoutMetaBlock.expectedEndProducts()).thenReturn(matchFilters);
         when(linkMetaBlockRepository
                 .findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(any(), any(), any(), any()))
@@ -311,7 +311,7 @@ class VerificationContextsProviderTest {
         when(layout.getLayoutSegments()).thenReturn(singletonList(layoutSegment1));
         when(layoutSegment1.getName()).thenReturn(SEGMENT_NAME_1);
         when(layoutSegment1.getSteps()).thenReturn(singletonList(step1));
-        when(step1.getStepName()).thenReturn(STEP_NAME_1);
+        when(step1.getName()).thenReturn(STEP_NAME_1);
         when(layoutMetaBlock.expectedEndProducts()).thenReturn(matchFilters);
         when(linkMetaBlockRepository
                 .findBySupplyChainAndSegmentNameAndStepNameAndProductHashes(any(), any(), any(), any()))
@@ -353,9 +353,9 @@ class VerificationContextsProviderTest {
         when(layoutSegment3.getSteps()).thenReturn(singletonList(step3));
         when(step1.getExpectedProducts()).thenReturn(matchRulesForProductsStep1);
         when(step2.getExpectedProducts()).thenReturn(emptyList());
-        when(step1.getStepName()).thenReturn(STEP_NAME_1);
-        when(step2.getStepName()).thenReturn(STEP_NAME_2);
-        when(step3.getStepName()).thenReturn(STEP_NAME_3);
+        when(step1.getName()).thenReturn(STEP_NAME_1);
+        when(step2.getName()).thenReturn(STEP_NAME_2);
+        when(step3.getName()).thenReturn(STEP_NAME_3);
         when(layoutMetaBlock.expectedEndProducts()).thenReturn(matchFilters);
 
         when(linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(eq(SUPPLY_CHAIN_ID), eq(SEGMENT_NAME_1), eq(STEP_NAME_1), any()))
@@ -421,9 +421,9 @@ class VerificationContextsProviderTest {
 
         when(step1.getExpectedProducts()).thenReturn(matchRulesForProductsStep1);
         when(step2.getExpectedProducts()).thenReturn(matchRulesForProductsStep2);
-        when(step1.getStepName()).thenReturn(STEP_NAME_1);
-        when(step2.getStepName()).thenReturn(STEP_NAME_2);
-        when(step3.getStepName()).thenReturn(STEP_NAME_3);
+        when(step1.getName()).thenReturn(STEP_NAME_1);
+        when(step2.getName()).thenReturn(STEP_NAME_2);
+        when(step3.getName()).thenReturn(STEP_NAME_3);
         when(layoutMetaBlock.expectedEndProducts()).thenReturn(matchFilters);
 
         when(linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(eq(SUPPLY_CHAIN_ID), eq(SEGMENT_NAME_1), eq(STEP_NAME_1), any()))
@@ -475,9 +475,9 @@ class VerificationContextsProviderTest {
         when(layoutSegment3.getName()).thenReturn(SEGMENT_NAME_3);
         when(step1.getExpectedProducts()).thenReturn(matchRulesForProductsStep1);
         when(step2.getExpectedProducts()).thenReturn(matchRulesForProductsStep2);
-        when(step1.getStepName()).thenReturn(STEP_NAME_1);
-        when(step2.getStepName()).thenReturn(STEP_NAME_2);
-        when(step3.getStepName()).thenReturn(STEP_NAME_3);
+        when(step1.getName()).thenReturn(STEP_NAME_1);
+        when(step2.getName()).thenReturn(STEP_NAME_2);
+        when(step3.getName()).thenReturn(STEP_NAME_3);
         when(layoutMetaBlock.expectedEndProducts()).thenReturn(matchFilters);
 
         when(linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(eq(SUPPLY_CHAIN_ID), eq(SEGMENT_NAME_1), eq(STEP_NAME_1), any()))

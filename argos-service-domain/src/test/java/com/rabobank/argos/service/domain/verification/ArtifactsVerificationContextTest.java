@@ -74,12 +74,12 @@ class ArtifactsVerificationContextTest {
     @BeforeEach
     void setUp() {
         link = Link.builder()
-                .stepName(step.getStepName())
+                .stepName(step.getName())
                 .materials(List.of(artifact1, artifact2))
                 .products(List.of(artifact1, artifact2, artifact3, artifact4)).build();
         linksMap = new HashMap<>();
         Map<String, Link> stepmap = new HashMap<>();
-        stepmap.put(step.getStepName(), link);
+        stepmap.put(step.getName(), link);
         linksMap.put(segmentName, stepmap);
         verificationContext1 = ArtifactsVerificationContext.builder()
                 .type(type)
@@ -153,9 +153,9 @@ class ArtifactsVerificationContextTest {
     
     @Test
     void getLinkBySegmentNameAndStepName() {
-        assertEquals(verificationContext1.getLinkBySegmentNameAndStepName(segmentName, step.getStepName()), link);
+        assertEquals(verificationContext1.getLinkBySegmentNameAndStepName(segmentName, step.getName()), link);
         assertNull(verificationContext1.getLinkBySegmentNameAndStepName(segmentName, "foo"));
-        assertNull(verificationContext1.getLinkBySegmentNameAndStepName("foo", step.getStepName()));
+        assertNull(verificationContext1.getLinkBySegmentNameAndStepName("foo", step.getName()));
     }
     
     @Test
