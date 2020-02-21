@@ -35,6 +35,7 @@ import java.util.Collections;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,6 +73,7 @@ class KeyIdBasicAuthenticationFilterTest {
         NonPersonalAccountAuthenticationToken nonPersonalAccountAuthenticationToken = (NonPersonalAccountAuthenticationToken) authentication;
         assertThat(nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials().getKeyId(), is("keyId"));
         assertThat(nonPersonalAccountAuthenticationToken.getNonPersonalAccountCredentials().getPassword(), is("pw"));
+        assertThat(nonPersonalAccountAuthenticationToken.getDetails(), notNullValue());
         verify(filterChain).doFilter(request, response);
     }
 

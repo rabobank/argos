@@ -15,11 +15,9 @@
  */
 package com.rabobank.argos.service.adapter.in.rest.permission;
 
-import com.rabobank.argos.domain.permission.GlobalPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.GlobalPermissionApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
-import com.rabobank.argos.service.domain.security.PermissionCheck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +34,6 @@ public class GlobalPermissionRestService implements GlobalPermissionApi {
     private final RoleRepository roleRepository;
     private final RoleMapper converter;
 
-    @PermissionCheck(globalPermissions = {GlobalPermission.READ})
     @Override
     public ResponseEntity<List<RestRole>> getRoles() {
         List<RestRole> roles = roleRepository.findAll()
