@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
 class VerificationContextTest {
     public static final String STEP_NAME = "stepName";
     public static final String SEGMENT_NAME = "segmentName";
-    public static final Step STEP = Step.builder().stepName(STEP_NAME).build();
+    public static final Step STEP = Step.builder().name(STEP_NAME).build();
     private VerificationContext verificationContext;
 
     private List<LinkMetaBlock> linkMetaBlocks;
@@ -101,7 +101,7 @@ class VerificationContextTest {
     @Test
     void getStepBySegmentNameAndStepName() {
         Step step = verificationContext.getStepBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME);
-        assertThat(step.getStepName(), is(STEP_NAME));
+        assertThat(step.getName(), is(STEP_NAME));
         
         VerificationError error = assertThrows(VerificationError.class, () -> verificationContext.getStepBySegmentNameAndStepName(SEGMENT_NAME, "incorrect"));
         assertThat(error.getMessage(), Is.is("step with name: incorrect could not be found"));

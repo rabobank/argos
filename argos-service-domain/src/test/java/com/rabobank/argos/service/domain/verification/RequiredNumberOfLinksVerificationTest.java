@@ -77,8 +77,8 @@ class RequiredNumberOfLinksVerificationTest {
         linkMetaBlock3 = createLinkMetaBlock(SEGMENT_NAME2, STEP_NAME2);
         linkMetaBlock4 = createLinkMetaBlock(SEGMENT_NAME2, STEP_NAME2);
 
-        step = Step.builder().stepName(STEP_NAME).requiredNumberOfLinks(1).build();
-        step2 = Step.builder().stepName(STEP_NAME2).requiredNumberOfLinks(1).build();
+        step = Step.builder().name(STEP_NAME).requiredNumberOfLinks(1).build();
+        step2 = Step.builder().name(STEP_NAME2).requiredNumberOfLinks(1).build();
         layoutSegment = LayoutSegment.builder().name(SEGMENT_NAME).steps(List.of(step)).build();
         layoutSegment2 = LayoutSegment.builder().name(SEGMENT_NAME2).steps(List.of(step2)).build();
         layout = Layout.builder().layoutSegments(List.of(layoutSegment, layoutSegment2)).build();

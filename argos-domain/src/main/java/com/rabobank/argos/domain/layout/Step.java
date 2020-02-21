@@ -28,7 +28,7 @@ import java.util.List;
 @Setter
 @ToString
 public class Step {
-    private String stepName;
+    private String name;
     private List<String> authorizedKeyIds;
     private int requiredNumberOfLinks;
     private List<String> expectedCommand;

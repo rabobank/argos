@@ -78,7 +78,7 @@ class JsonSigningSerializerTest {
                 .layoutSegments(singletonList(LayoutSegment.builder().name("segment 1")
                         .steps(Arrays.asList(
                                 Step.builder()
-                                        .stepName("step b")
+                                        .name("step b")
                                         .requiredNumberOfLinks(1)
                                         .expectedMaterials(Arrays.asList(
                                                 new Rule(RuleType.ALLOW, "AllowRule"),
@@ -90,7 +90,7 @@ class JsonSigningSerializerTest {
                                         ))
                                         .build(),
                                 Step.builder()
-                                        .stepName("step a")
+                                        .name("step a")
                                         .authorizedKeyIds(Arrays.asList("step a key 2", "step a key 1"))
                                         .requiredNumberOfLinks(23)
                                         .expectedCommand(Arrays.asList("3", "2", "1"))
