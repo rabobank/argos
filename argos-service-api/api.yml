@@ -389,6 +389,9 @@ paths:
       operationId: getSubTree
       tags:
         - hierarchy
+      security:
+        - bearerAuth: []
+
       parameters:
         - name: HierarchyMode
           in: query
