@@ -37,6 +37,7 @@ public class NonPersonalAccountRepositoryImpl implements NonPersonalAccountRepos
     static final String COLLECTION = "nonPersonalAccounts";
     static final String ACCOUNT_ID_FIELD = "accountId";
     static final String ACCOUNT_NAME_FIELD = "name";
+    static final String ACTIVE_KEY_ID_FIELD = "activeKeyPair.keyId";
     static final String PARENT_LABEL_ID_FIELD = "parentLabelId";
     private final MongoTemplate template;
 
@@ -55,6 +56,11 @@ public class NonPersonalAccountRepositoryImpl implements NonPersonalAccountRepos
     }
 
     @Override
+    public Optional<NonPersonalAccount> findByActiveKeyId(String activeKeyId) {
+        return Optional.ofNullable(template.findOne(getActiveKeyQuery(activeKeyId), NonPersonalAccount.class, COLLECTION));
+    }
+
+    @Override
     public Optional<NonPersonalAccount> update(String id, NonPersonalAccount account) {
         Query query = getPrimaryKeyQuery(id);
         Document document = new Document();
@@ -70,6 +76,15 @@ public class NonPersonalAccountRepositoryImpl implements NonPersonalAccountRepos
         } catch (DuplicateKeyException e) {
             throw duplicateKeyException(account, e);
         }
+    }
+
+    @Override
+    public boolean activeKeyExists(String activeKeyId) {
+        return template.exists(getActiveKeyQuery(activeKeyId), NonPersonalAccount.class, COLLECTION);
+    }
+
+    private Query getActiveKeyQuery(String activekeyId) {
+        return new Query(Criteria.where(ACTIVE_KEY_ID_FIELD).is(activekeyId));
     }
 
     private Query getPrimaryKeyQuery(String id) {

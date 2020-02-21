@@ -19,6 +19,8 @@ Feature: Hierarchy
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
+    * def token = karate.properties['bearer.token']
+    * configure headers = call read('classpath:headers.js') { token: #(token)}
     * def root1 = call read('classpath:feature/label/create-label.feature') { name: 'root1'}
     * def root2 = call read('classpath:feature/label/create-label.feature') { name: 'root2'}
     * def root3 = call read('classpath:feature/label/create-label.feature') { name: 'root3'}
@@ -43,6 +45,13 @@ Feature: Hierarchy
     * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-rootnodes-all.json')
     And match response == expectedResponse
 
+  Scenario: get root nodes without authorization should return a 401 error
+    * configure headers = null
+    Given path '/api/hierarchy'
+    And param HierarchyMode = 'ALL'
+    When method GET
+    Then status 401
+
   Scenario: get root nodes with HierarchyMode none should return root entries only
     Given path '/api/hierarchy'
     And param HierarchyMode = 'NONE'
@@ -52,7 +61,6 @@ Feature: Hierarchy
     And match response == expectedResponse
 
   Scenario: get root nodes with HierarchyMode maxdepth should return maxdepth descendant entries only
-
     * call read('classpath:feature/label/create-label.feature') { name: 'subchild1root1',parentLabelId:#(root1ChildResponse.response.id)}
     Given path '/api/hierarchy'
     And param HierarchyMode = 'MAX_DEPTH'

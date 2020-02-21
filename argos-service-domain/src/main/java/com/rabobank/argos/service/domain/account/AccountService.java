@@ -18,6 +18,12 @@ package com.rabobank.argos.service.domain.account;
 import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.key.KeyPair;
 
+import java.util.Optional;
+
 public interface AccountService {
     Account activateNewKey(Account account, KeyPair newKeyPair);
+
+    boolean keyPairExists(String keyId);
+
+    Optional<KeyPair> findKeyPairByKeyId(String keyId);
 }

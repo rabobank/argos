@@ -15,23 +15,27 @@
  */
 package com.rabobank.argos.service.adapter.in.rest.account;
 
+import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.account.NonPersonalAccount;
+import com.rabobank.argos.domain.account.NonPersonalAccountKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.NonPersonalAccountApi;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestNonPersonalAccount;
-import com.rabobank.argos.service.adapter.in.rest.key.KeyPairMapper;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestNonPersonalAccountKeyPair;
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.account.NonPersonalAccountRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
+import com.rabobank.argos.service.domain.security.AccountSecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -45,9 +49,11 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
 
     private final LabelRepository labelRepository;
 
-    private final KeyPairMapper keyPairMapper;
+    private final AccountKeyPairMapper keyPairMapper;
 
     private final AccountService accountService;
+
+    private final AccountSecurityContext accountSecurityContext;
 
     @Override
     public ResponseEntity<RestNonPersonalAccount> createNonPersonalAccount(RestNonPersonalAccount restNonPersonalAccount) {
@@ -63,9 +69,9 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     }
 
     @Override
-    public ResponseEntity<RestKeyPair> createNonPersonalAccountKeyById(String nonPersonalAccountId, RestKeyPair restKeyPair) {
+    public ResponseEntity<RestNonPersonalAccountKeyPair> createNonPersonalAccountKeyById(String nonPersonalAccountId, RestNonPersonalAccountKeyPair restKeyPair) {
         NonPersonalAccount account = accountRepository.findById(nonPersonalAccountId).orElseThrow(() -> accountNotFound(nonPersonalAccountId));
-        accountService.activateNewKey(account, keyPairMapper.convertFromRestKeyPair(restKeyPair));
+        NonPersonalAccount updatedAccount = (NonPersonalAccount) accountService.activateNewKey(account, keyPairMapper.convertFromRestKeyPair(restKeyPair));
 
         accountRepository.update(nonPersonalAccountId, account);
         URI location = ServletUriComponentsBuilder
@@ -73,15 +79,16 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
                 .path("/{nonPersonalAccountId}/key")
                 .buildAndExpand(nonPersonalAccountId)
                 .toUri();
-        return ResponseEntity.created(location).body(restKeyPair);
+        return ResponseEntity.created(location).body(keyPairMapper.convertToRestKeyPair(((NonPersonalAccountKeyPair) updatedAccount.getActiveKeyPair())));
     }
 
     @Override
-    public ResponseEntity<RestKeyPair> getNonPersonalAccountKeyById(String nonPersonalAccountId) {
+    public ResponseEntity<RestNonPersonalAccountKeyPair> getNonPersonalAccountKeyById(String nonPersonalAccountId) {
         return accountRepository.findById(nonPersonalAccountId)
                 .map(account -> Optional.ofNullable(account.getActiveKeyPair()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .map(account -> (NonPersonalAccountKeyPair) account)
                 .map(keyPairMapper::convertToRestKeyPair)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> keyNotFound(nonPersonalAccountId));
@@ -98,9 +105,21 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     @Override
     public ResponseEntity<RestNonPersonalAccount> updateNonPersonalAccountById(String nonPersonalAccountId, RestNonPersonalAccount restNonPersonalAccount) {
         verifyParentLabelExists(restNonPersonalAccount.getParentLabelId());
-        return accountRepository.update(nonPersonalAccountId, accountMapper.convertFromRestNonPersonalAccount(restNonPersonalAccount))
+        NonPersonalAccount nonPersonalAccount = accountMapper.convertFromRestNonPersonalAccount(restNonPersonalAccount);
+        nonPersonalAccount.setAccountId(nonPersonalAccountId);
+        return accountRepository.update(nonPersonalAccountId, nonPersonalAccount)
                 .map(accountMapper::convertToRestNonPersonalAccount)
                 .map(ResponseEntity::ok).orElseThrow(() -> accountNotFound(nonPersonalAccountId));
+    }
+
+    @Override
+    @PreAuthorize("hasRole('NONPERSONAL')")
+    public ResponseEntity<RestNonPersonalAccountKeyPair> getNonPersonalAccountKey() {
+        return accountSecurityContext.getAuthenticatedAccount()
+                .map(Account::getActiveKeyPair).filter(Objects::nonNull)
+                .map(keyPair -> (NonPersonalAccountKeyPair) keyPair)
+                .map(keyPairMapper::convertToRestKeyPair)
+                .map(ResponseEntity::ok).orElseThrow(this::keyNotFound);
     }
 
     private void verifyParentLabelExists(String parentLabelId) {
@@ -109,12 +128,16 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
         }
     }
 
+    private ResponseStatusException keyNotFound() {
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "no active non personal account key found");
+    }
+
     private ResponseStatusException keyNotFound(String accountId) {
-        return new ResponseStatusException(HttpStatus.NOT_FOUND, "no active personal account key with id : " + accountId + " not found");
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "no active non personal account key with id : " + accountId + " found");
     }
 
     private ResponseStatusException accountNotFound(String accountId) {
-        return new ResponseStatusException(HttpStatus.NOT_FOUND, "no personal account with id : " + accountId + " not found");
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "no non personal account with id : " + accountId + " found");
     }
 
     private ResponseStatusException parentLabelNotFound(String parentLabelId) {

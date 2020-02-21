@@ -23,6 +23,5 @@ Feature: using __arg
   Scenario: create non personal account
     Given path '/api/nonpersonalaccount'
     And request __arg
-    And header Content-Type = 'application/json'
     When method POST
     Then status 201

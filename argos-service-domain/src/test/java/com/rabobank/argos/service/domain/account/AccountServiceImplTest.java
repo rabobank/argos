@@ -20,34 +20,44 @@ import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyPair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.emptyCollectionOf;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.sameInstance;
 
+@ExtendWith(MockitoExtension.class)
 class AccountServiceImplTest {
 
     private static final String ACCOUNT_ID = "accountId";
     private static final String ACCOUNT_NAME = "accountName";
 
-    private KeyPair activeKeyPair = KeyPair.builder().build();
-    private KeyPair inactiveKeyPair = KeyPair.builder().build();
-    private KeyPair newKeyPair = KeyPair.builder().build();
+    private KeyPair activeKeyPair = new KeyPair();
+    private KeyPair inactiveKeyPair = new KeyPair();
+    private KeyPair newKeyPair = new KeyPair();
     private AccountServiceImpl accountService;
+
+    @Mock
+    private NonPersonalAccountRepository nonPersonalAccountRepository;
+
+    @Mock
+    private PersonalAccountRepository personalAccountRepository;
 
     @BeforeEach
     void setUp() {
-        accountService = new AccountServiceImpl();
+        accountService = new AccountServiceImpl(nonPersonalAccountRepository, personalAccountRepository);
     }
 
     @Test
     void deactivateKeyPairNoActiveKeyAndNoInactiveKeys() {
         Account account = new PersonalAccount(ACCOUNT_ID, ACCOUNT_NAME, null, null, null, null);
         accountService.activateNewKey(account, newKeyPair);
-        assertThat(account.getInactiveKeyPairs(), emptyCollectionOf(KeyPair.class));
+        assertThat(account.getInactiveKeyPairs(), empty());
         assertThat(account.getActiveKeyPair(), sameInstance(newKeyPair));
     }
 

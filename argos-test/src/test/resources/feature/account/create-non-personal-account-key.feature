@@ -22,9 +22,8 @@ Feature: using __arg
     * def accountId = __arg.accountId
     * def key = __arg.key;
 
-  Scenario: create non personal account
+  Scenario: create non personal account key
     Given path '/api/nonpersonalaccount/'+accountId+'/key'
     And request key
-    And header Content-Type = 'application/json'
     When method POST
     Then status 201

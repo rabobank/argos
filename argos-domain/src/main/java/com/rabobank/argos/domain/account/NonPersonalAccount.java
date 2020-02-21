@@ -15,8 +15,8 @@
  */
 package com.rabobank.argos.domain.account;
 
-import com.rabobank.argos.domain.key.KeyPair;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,11 +27,12 @@ import static java.util.Collections.emptyList;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
 public class NonPersonalAccount extends Account {
     private String parentLabelId;
 
     @Builder
-    public NonPersonalAccount(String name, KeyPair activeKeyPair, List<KeyPair> inactiveKeyPairs, String parentLabelId) {
+    public NonPersonalAccount(String name, NonPersonalAccountKeyPair activeKeyPair, List<NonPersonalAccountKeyPair> inactiveKeyPairs, String parentLabelId) {
         super(UUID.randomUUID().toString(), name, null, activeKeyPair, inactiveKeyPairs == null ? emptyList() : inactiveKeyPairs);
         this.parentLabelId = parentLabelId;
     }

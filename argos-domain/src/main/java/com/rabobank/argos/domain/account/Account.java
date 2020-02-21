@@ -31,5 +31,5 @@ public abstract class Account implements Serializable {
     private String name;
     private String email;
     private KeyPair activeKeyPair;
-    private List<KeyPair> inactiveKeyPairs;
+    private List<? extends KeyPair> inactiveKeyPairs;
 }

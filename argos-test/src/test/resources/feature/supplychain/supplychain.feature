@@ -19,6 +19,8 @@ Feature: SupplyChain
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
+    * def token = karate.properties['bearer.token']
+    * configure headers = call read('classpath:headers.js') { token: #(token)}
 
   Scenario: store supplychain with valid name should return a 201
     Given path '/api/supplychain'
@@ -31,20 +33,37 @@ Feature: SupplyChain
     * def supplyChainResponse = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
     Given path '/api/supplychain'
     And request  {"name":"name", parentLabelId: "#(supplyChainResponse.response.parentLabelId)"}
-    And header Content-Type = 'application/json'
     When method POST
     Then status 400
     And match response.message contains 'supply chain with name: name and parentLabelId'
+
+  Scenario: store supplychain without authorization should return a 401 error
+    * def labelResult = call read('classpath:feature/label/create-label.feature') {name: otherlabel}
+    * configure headers = null
+    Given path '/api/supplychain'
+    And request  {"name":"name", parentLabelId: "#(labelResult.response.id)"}
+    And header Content-Type = 'application/json'
+    When method POST
+    Then status 401
 
   Scenario: update supplychain should return a 200
     * def supplyChainResponse = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
     * def labelResult = call read('classpath:feature/label/create-label.feature') {name: otherlabel}
     Given path '/api/supplychain/'+supplyChainResponse.response.id
     And request  {"name":"supply-chain-name", parentLabelId: "#(labelResult.response.id)"}
-    And header Content-Type = 'application/json'
     When method PUT
     Then status 200
     And match response == { name: 'supply-chain-name', id: '#(supplyChainResponse.response.id)', parentLabelId: '#(labelResult.response.id)' }
+
+  Scenario: update supplychain without authorization should return a 401 error
+    * def supplyChainResponse = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
+    * def labelResult = call read('classpath:feature/label/create-label.feature') {name: otherlabel}
+    * configure headers = null
+    Given path '/api/supplychain/'+supplyChainResponse.response.id
+    And request  {"name":"supply-chain-name", parentLabelId: "#(labelResult.response.id)"}
+    And header Content-Type = 'application/json'
+    When method PUT
+    Then status 401
 
   Scenario: get supplychain with valid id should return a 200
     * def result = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
@@ -53,6 +72,15 @@ Feature: SupplyChain
     When method GET
     Then status 200
     And match response == { name: 'name', id: '#uuid', parentLabelId: '#uuid' }
+
+  Scenario: get supplychain without authorization should return a 401 error
+    * def result = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
+    * def restPath = '/api/supplychain/'+result.response.id
+    * configure headers = null
+    Given path restPath
+    And header Content-Type = 'application/json'
+    When method GET
+    Then status 401
 
   Scenario: get supplychain with invalid id should return a 404
     Given path '/api/supplychain/invalidid'

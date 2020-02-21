@@ -35,6 +35,7 @@ import java.util.Optional;
 
 import static com.rabobank.argos.service.adapter.out.mongodb.account.NonPersonalAccountRepositoryImpl.COLLECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -50,6 +51,7 @@ class NonPersonalAccountRepositoryImplTest {
     private static final String ACCOUNT_ID = "accountId";
     private static final String ACCOUNT_NAME = "accountName";
     private static final String PARENT_LABEL_ID = "parentLabelId";
+    private static final String ACTIVE_KEY_ID = "activeKeyId";
 
     @Mock
     private MongoTemplate template;
@@ -132,5 +134,21 @@ class NonPersonalAccountRepositoryImplTest {
         when(template.updateFirst(any(), any(), eq(NonPersonalAccount.class), eq(COLLECTION))).thenThrow(duplicateKeyException);
         ArgosError argosError = assertThrows(ArgosError.class, () -> repository.update(ACCOUNT_ID, nonPersonalAccount));
         assertThat(argosError.getCause(), sameInstance(duplicateKeyException));
+    }
+
+    @Test
+    void activeKeyExists() {
+        when(template.exists(any(Query.class), eq(NonPersonalAccount.class), eq(COLLECTION))).thenReturn(true);
+        assertThat(repository.activeKeyExists(ACTIVE_KEY_ID), is(true));
+        verify(template).exists(queryArgumentCaptor.capture(), eq(NonPersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"activeKeyPair.keyId\" : \"activeKeyId\"}, Fields: {}, Sort: {}"));
+    }
+
+    @Test
+    void findByActiveKeyId() {
+        when(template.findOne(any(Query.class), eq(NonPersonalAccount.class), eq(COLLECTION))).thenReturn(nonPersonalAccount);
+        assertThat(repository.findByActiveKeyId(ACTIVE_KEY_ID), equalTo(Optional.of(nonPersonalAccount)));
+        verify(template).findOne(queryArgumentCaptor.capture(), eq(NonPersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"activeKeyPair.keyId\" : \"activeKeyId\"}, Fields: {}, Sort: {}"));
     }
 }

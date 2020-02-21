@@ -17,14 +17,20 @@ package com.rabobank.argos.service.domain.account;
 
 import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.key.KeyPair;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
+
+    private final NonPersonalAccountRepository nonPersonalAccountRepository;
+    private final PersonalAccountRepository personalAccountRepository;
 
     @Override
     public Account activateNewKey(Account account, KeyPair newKeyPair) {
@@ -33,12 +39,26 @@ public class AccountServiceImpl implements AccountService {
         return account;
     }
 
+    @Override
+    public boolean keyPairExists(String keyId) {
+        return nonPersonalAccountRepository.activeKeyExists(keyId) ||
+                personalAccountRepository.activeKeyExists(keyId);
+    }
+
+    @Override
+    public Optional<KeyPair> findKeyPairByKeyId(String keyId) {
+        return nonPersonalAccountRepository
+                .findByActiveKeyId(keyId).map(nonPersonalAccount -> (Account) nonPersonalAccount)
+                .or(() -> personalAccountRepository.findByActiveKeyId(keyId)).map(Account::getActiveKeyPair);
+    }
+
     private void deactivateKeyPair(Account account) {
         Optional.ofNullable(account.getActiveKeyPair()).ifPresent(keyPair -> {
-            ArrayList<KeyPair> inactiveKeyPairs = new ArrayList<>(Optional.ofNullable(account.getInactiveKeyPairs()).orElse(Collections.emptyList()));
+            List<KeyPair> inactiveKeyPairs = new ArrayList<>(Optional.ofNullable(account.getInactiveKeyPairs()).orElse(Collections.emptyList()));
             inactiveKeyPairs.add(keyPair);
             account.setActiveKeyPair(null);
             account.setInactiveKeyPairs(inactiveKeyPairs);
         });
     }
+
 }

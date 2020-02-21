@@ -17,6 +17,7 @@ package com.rabobank.argos.service.domain.security;
 
 
 import com.rabobank.argos.domain.account.Account;
+import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import lombok.EqualsAndHashCode;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,6 +31,11 @@ public class AccountUserDetailsAdapter extends org.springframework.security.core
     public AccountUserDetailsAdapter(PersonalAccount account) {
         super(account.getName(), "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
         this.account = account;
+    }
+
+    public AccountUserDetailsAdapter(NonPersonalAccount nonPersonalAccount) {
+        super(nonPersonalAccount.getName(), "", List.of(new SimpleGrantedAuthority("ROLE_NONPERSONAL")));
+        this.account = nonPersonalAccount;
     }
 
     public String getId() {

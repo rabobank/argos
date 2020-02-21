@@ -22,6 +22,8 @@ info:
     name: Apache License 2.0
 servers:
   - url: /api
+security:
+  - bearerAuth: []
 
 paths:
   /supplychain:
@@ -169,6 +171,9 @@ paths:
       operationId: createLink
       tags:
         - link
+      security:
+        - basicAuth: []
+        - bearerAuth: []
       parameters:
         - name: supplyChainId
           in: path
@@ -184,51 +189,6 @@ paths:
       responses:
         '204':
           description: no content
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/Error'
-  /key:
-    post:
-      summary: stores a public and private key pair
-      operationId: storeKey
-      tags:
-        - key
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/KeyPair"
-      responses:
-        '204':
-          description: no content
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/Error'
-  /key/{keyId}:
-    get:
-      summary: get a key pair by id
-      operationId: getKey
-      tags:
-        - key
-      parameters:
-        - name: keyId
-          in: path
-          description: key pair id
-          required: true
-          schema:
-            type: string
-            minLength: 64
-            maxLength: 64
-            pattern: '^[0-9a-f]*$'
-      responses:
-        '200':
-          description: Key pair
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/KeyPair"
         '400':
           $ref: '#/components/responses/ValidationError'
         '500':
@@ -361,6 +321,9 @@ paths:
       operationId: performVerification
       tags:
         - verification
+      security:
+        - basicAuth: []
+        - bearerAuth: []
       parameters:
         - name: supplyChainId
           in: path
@@ -550,8 +513,6 @@ paths:
     post:
       summary: creates a new active public and private key pair
       operationId: createKey
-      security:
-        - bearerAuth: []
       tags:
         - personal account
       requestBody:
@@ -572,8 +533,6 @@ paths:
     get:
       summary: gets the currently active a key pair
       operationId: getKeyPair
-      security:
-        - bearerAuth: []
       tags:
         - personal account
       responses:
@@ -593,8 +552,6 @@ paths:
     get:
       summary: returns the personal account profile of the authenticated personal account based on the bearer token
       operationId: getPersonalAccountOfAuthenticatedUser
-      security:
-        - bearerAuth: []
       tags:
         - personal account
       responses:
@@ -634,6 +591,25 @@ paths:
               description: location where the created non personal account can be found
         '400':
           $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+  /nonpersonalaccount/me/activekey:
+    get:
+      summary: return the active key pair
+      operationId: getNonPersonalAccountKey
+      security:
+        - basicAuth: []
+      tags:
+        - non personal account
+      responses:
+        '200':
+          description: active key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonPersonalAccountKeyPair"
+        '404':
+          description: no active key exists
         '500':
           $ref: '#/components/responses/Error'
   /nonpersonalaccount/{nonPersonalAccountId}:
@@ -700,14 +676,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/KeyPair"
+              $ref: "#/components/schemas/NonPersonalAccountKeyPair"
       responses:
         '201':
           description: created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/KeyPair"
+                $ref: "#/components/schemas/NonPersonalAccountKeyPair"
           headers:
             Location:
               schema:
@@ -735,17 +711,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/KeyPair"
+                $ref: "#/components/schemas/NonPersonalAccountKeyPair"
         '404':
           description: no active key exists
         '500':
           $ref: '#/components/responses/Error'
 components:
   securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    basicAuth:
+      type: http
+      scheme: basic
+
   responses:
     ValidationError:
       description: validation error
@@ -860,6 +840,26 @@ components:
         encryptedPrivateKey:
           type: string
           format: byte
+    NonPersonalAccountKeyPair:
+      type: object
+      required:
+        - keyId
+        - publicKey
+        - hashedKeyPassphrase
+        - encryptedPrivateKey
+      properties:
+        keyId:
+          $ref: '#/components/schemas/KeyId'
+        publicKey:
+          type: string
+          format: byte
+        hashedKeyPassphrase:
+          type: string
+          writeOnly: true
+          description: used for authentication of a non personal account via http basic authentication
+        encryptedPrivateKey:
+          type: string
+          format: byte
     SupplyChain:
       type: object
       required:
@@ -869,6 +869,7 @@ components:
         id:
           type: string
           maxLength: 36
+          readOnly: true
         name:
           type: string
           maxLength: 256
@@ -897,6 +898,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         signatures:
           minItems: 1
           type: array
@@ -1046,6 +1048,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
           minLength: 1
@@ -1092,6 +1095,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
         email:
@@ -1109,6 +1113,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
         parentLabelId:
