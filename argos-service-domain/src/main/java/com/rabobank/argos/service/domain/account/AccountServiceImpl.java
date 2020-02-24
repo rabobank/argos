@@ -99,8 +99,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<PersonalAccount> searchPersonalAccounts(String roleName) {
-        Optional<String> optionalRoleId = Optional.ofNullable(roleName).map(roleRepository::findByName)
-                .filter(Optional::isPresent).map(Optional::get).map(Role::getRoleId);
+        Optional<String> optionalRoleId = Optional.ofNullable(roleName).flatMap(roleRepository::findByName).map(Role::getRoleId);
         return optionalRoleId.map(personalAccountRepository::findByRoleId).orElseGet(personalAccountRepository::findAll);
     }
 

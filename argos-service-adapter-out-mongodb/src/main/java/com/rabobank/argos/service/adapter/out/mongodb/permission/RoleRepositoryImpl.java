@@ -40,12 +40,6 @@ public class RoleRepositoryImpl implements RoleRepository {
     }
 
     @Override
-    public Optional<Role> findById(String roleId) {
-        Query query = getPrimaryQuery(roleId);
-        return Optional.ofNullable(template.findOne(query, Role.class, COLLECTION));
-    }
-
-    @Override
     public List<Role> findAll() {
         return template.findAll(Role.class, COLLECTION);
     }
@@ -61,7 +55,4 @@ public class RoleRepositoryImpl implements RoleRepository {
         return Optional.ofNullable(template.findOne(new Query(Criteria.where(ROLE_NAME_FIELD).is(name)), Role.class, COLLECTION));
     }
 
-    private static Query getPrimaryQuery(String roleId) {
-        return new Query(Criteria.where(ROLE_ID_FIELD).is(roleId));
-    }
 }

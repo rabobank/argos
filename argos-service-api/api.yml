@@ -589,7 +589,7 @@ paths:
             type: string
       responses:
         '200':
-          description: list of personal accounts
+          description: list of personal accounts without roles property
           content:
             application/json:
               schema:

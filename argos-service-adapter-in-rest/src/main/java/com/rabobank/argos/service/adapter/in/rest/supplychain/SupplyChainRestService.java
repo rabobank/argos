@@ -33,7 +33,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -75,7 +74,7 @@ public class SupplyChainRestService implements SupplychainApi {
     public ResponseEntity<RestSupplyChain> getSupplyChainByPathToRoot(String supplyChainName, List<String> pathToRoot) {
         return hierarchyRepository.findByNamePathToRootAndType(supplyChainName, pathToRoot, TreeNode.Type.SUPPLY_CHAIN)
                 .map(TreeNode::getReferenceId)
-                .map(supplyChainRepository::findBySupplyChainId).filter(Optional::isPresent).map(Optional::get)
+                .flatMap(supplyChainRepository::findBySupplyChainId)
                 .map(converter::convertToRestRestSupplyChainItem)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> supplyChainNotFound(supplyChainName, pathToRoot));

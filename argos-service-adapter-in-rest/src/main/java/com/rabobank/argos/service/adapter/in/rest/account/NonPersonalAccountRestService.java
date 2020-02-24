@@ -80,9 +80,7 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     @Override
     public ResponseEntity<RestNonPersonalAccountKeyPair> getNonPersonalAccountKeyById(String nonPersonalAccountId) {
         return accountService.findNonPersonalAccountById(nonPersonalAccountId)
-                .map(account -> Optional.ofNullable(account.getActiveKeyPair()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(account -> Optional.ofNullable(account.getActiveKeyPair()))
                 .map(account -> (NonPersonalAccountKeyPair) account)
                 .map(keyPairMapper::convertToRestKeyPair)
                 .map(ResponseEntity::ok)

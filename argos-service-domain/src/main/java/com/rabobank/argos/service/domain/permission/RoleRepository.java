@@ -23,8 +23,6 @@ import java.util.Optional;
 public interface RoleRepository {
     void save(Role role);
 
-    Optional<Role> findById(String roleId);
-
     List<Role> findAll();
 
     List<Role> findByIds(List<String> roleIds);
