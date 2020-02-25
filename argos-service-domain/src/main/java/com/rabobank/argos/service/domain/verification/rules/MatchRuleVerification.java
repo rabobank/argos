@@ -43,7 +43,7 @@ public class MatchRuleVerification implements RuleVerification {
     }
 
     @Override
-    public Boolean verify(RuleVerificationContext<? extends Rule> context) {
+    public boolean verify(RuleVerificationContext<? extends Rule> context) {
         MatchRule rule = context.getRule();
         Set<Artifact> filteredArtifacts = context.getFilteredArtifacts(rule.getSourcePathPrefix());
         
@@ -61,15 +61,15 @@ public class MatchRuleVerification implements RuleVerification {
             Set<Artifact> srcPrefixedDestinationArtifacts = destinationArtifacts.stream().map(artifact -> prefixSrcDestinationSwap(artifact, rule)).collect(Collectors.toSet());
             if (filteredArtifacts.stream().allMatch(srcPrefixedDestinationArtifacts::contains)) {
                 context.consume(filteredArtifacts);
-                logInfo(log, filteredArtifacts, getRuleType());
-                return Boolean.TRUE;
+                logInfo(log, filteredArtifacts);
+                return true;
             } else {
-                logErrors(log, filteredArtifacts, getRuleType());
-                return Boolean.FALSE;
+                logErrors(log, filteredArtifacts);
+                return false;
             }
         } else {
             log.warn("no link for destination step {}", rule.getDestinationStepName());
-            return Boolean.FALSE;
+            return false;
         }
     }
     

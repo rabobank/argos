@@ -27,20 +27,19 @@ public interface RuleVerification {
     
     RuleType getRuleType();
 
-    Boolean verify(RuleVerificationContext<? extends Rule> context);
+    boolean verify(RuleVerificationContext<? extends Rule> context);
     
-    public default void logInfo(Logger log, Set<Artifact> artifacts, RuleType type) {
+    public default void logInfo(Logger log, Set<Artifact> artifacts) {
         log.info("verify result for [{}] rule was valid, number of consumed artifacts [{}]",
                 getRuleType(),
                 artifacts.size());
     }
     
-    public default void logErrors(Logger log, Set<Artifact> artifacts, RuleType type) {
-        artifacts.stream().forEach(artifact -> {
-            log.info("On rule type [{}] not consumed artifact: [{}]", 
+    public default void logErrors(Logger log, Set<Artifact> artifacts) {
+        artifacts.stream().forEach(artifact -> log.info("On rule type [{}] not consumed artifact: [{}]", 
                     getRuleType(),
-                    artifact);
-        });
+                    artifact)
+        );
     }
 
 }

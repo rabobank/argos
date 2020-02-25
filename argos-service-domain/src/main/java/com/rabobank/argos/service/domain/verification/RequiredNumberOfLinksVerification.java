@@ -48,7 +48,7 @@ public class RequiredNumberOfLinksVerification implements Verification {
 
     }
 
-    private Boolean verifyForSegment(LayoutSegment segment, VerificationContext context) {
+    private boolean verifyForSegment(LayoutSegment segment, VerificationContext context) {
         Optional<String> invalidStep = context
                 .getStepNamesBySegmentName(segment.getName())
                 .stream()
@@ -58,7 +58,7 @@ public class RequiredNumberOfLinksVerification implements Verification {
         return invalidStep.isEmpty();
     }
 
-    private Boolean isValid(String segmentName, String stepName, VerificationContext context) {
+    private boolean isValid(String segmentName, String stepName, VerificationContext context) {
         Map<Integer, List<LinkMetaBlock>> linkMetaBlockMap = context
                 .getLinkMetaBlocksBySegmentNameAndStepName(segmentName, stepName).stream()
                 .collect(groupingBy(f -> f.getLink().hashCode()));
