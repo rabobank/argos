@@ -26,11 +26,11 @@ Feature: Personal Account
     Given path '/api/personalaccount/me'
     When method GET
     Then status 200
-    Then match response contains {"name":"Luke Skywalker","email":"luke@skywalker.imp"}
+    Then match response == {"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","EDIT_GLOBAL_PERMISSIONS"] }]}
 
   Scenario: createKey should return 204
     Given path '/api/personalaccount/me/key'
-    And request read('classpath:testmessages/key/keypair1.json')
+    And request read('classpath:testmessages/key/personal-keypair.json')
     When method POST
     Then status 204
 
@@ -41,7 +41,7 @@ Feature: Personal Account
     Then status 400
 
   Scenario: getKey should return 200
-    * def keyPair = read('classpath:testmessages/key/keypair1.json')
+    * def keyPair = read('classpath:testmessages/key/personal-keypair.json')
     Given path '/api/personalaccount/me/key'
     And request keyPair
     When method POST
@@ -49,9 +49,23 @@ Feature: Personal Account
     Given path '/api/personalaccount/me/key'
     When method GET
     Then status 200
-    Then match response ==  keyPair
+    Then match response == keyPair
 
-  Scenario: getKey should with no active keypair should return 404
-    Given path '/api/personalaccount/me/key'
+  Scenario: update roles should return 200
+    Given path '/api/personalaccount/me'
     When method GET
-    Then status 404
+    Then status 200
+    Given path '/api/personalaccount/'+response.id+'/role'
+    And request []
+    When method PUT
+    Then status 200
+    Then match response == {"id":"#(response.id)","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": []}
+    Given path '/api/personalaccount/'+response.id+'/role'
+    And request ["administrator"]
+    When method PUT
+    Then status 200
+    Then match response == {"id":"#(response.id)","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","EDIT_GLOBAL_PERMISSIONS"] }]}
+    Given path '/api/personalaccount/'+response.id
+    When method GET
+    Then status 200
+    Then match response == {"id":"#(response.id)","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","EDIT_GLOBAL_PERMISSIONS"] }]}
