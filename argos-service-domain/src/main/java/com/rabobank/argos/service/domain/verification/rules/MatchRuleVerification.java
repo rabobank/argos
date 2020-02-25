@@ -20,18 +20,16 @@ import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
+import com.rabobank.argos.service.domain.verification.ArtifactsVerificationContext;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.rabobank.argos.domain.layout.ArtifactType.PRODUCTS;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 
 @Slf4j
@@ -52,14 +50,14 @@ public class MatchRuleVerification implements RuleVerification {
         Link link = context.getLinkBySegmentNameAndStepName(destinationSegmentName, rule.getDestinationStepName());
         
         if (link != null) {
-            Set<Artifact> destinationArtifacts = null;
+            Set<Artifact> filteredDestinationArtifacts = null;
             if (rule.getDestinationType() == PRODUCTS) {
-                destinationArtifacts = new HashSet<>(link.getProducts());
+                filteredDestinationArtifacts = new HashSet<>(link.getProducts());                
             } else {
-                destinationArtifacts = new HashSet<>(link.getMaterials());
+                filteredDestinationArtifacts = new HashSet<>(link.getMaterials());
             }
-            Set<Artifact> srcPrefixedDestinationArtifacts = destinationArtifacts.stream().map(artifact -> prefixSrcDestinationSwap(artifact, rule)).collect(Collectors.toSet());
-            if (filteredArtifacts.stream().allMatch(srcPrefixedDestinationArtifacts::contains)) {
+            filteredDestinationArtifacts = ArtifactsVerificationContext.filterArtifacts(filteredDestinationArtifacts, rule.getPattern(), rule.getDestinationPathPrefix());
+            if (this.verifyArtifacts(filteredArtifacts, filteredDestinationArtifacts)) {
                 context.consume(filteredArtifacts);
                 logInfo(log, filteredArtifacts);
                 return true;
@@ -72,19 +70,15 @@ public class MatchRuleVerification implements RuleVerification {
             return false;
         }
     }
-    
-    /*
-     * 
-     */
-    private Artifact prefixSrcDestinationSwap(Artifact destinationArtifact, MatchRule rule) {
-        Path path = Paths.get(destinationArtifact.getUri());
-        if (StringUtils.hasLength(rule.getDestinationPathPrefix()) && destinationArtifact.getUri().startsWith(rule.getDestinationPathPrefix())) {
-            path = Paths.get(rule.getDestinationPathPrefix()).relativize(path);
-        }        
-        if (StringUtils.hasLength(rule.getSourcePathPrefix())) {
-            path = Paths.get(rule.getSourcePathPrefix()).resolve(path);
-        }
-        return new Artifact(path.toString(), destinationArtifact.getHash());
-    }
+
+    private boolean verifyArtifacts(Set<Artifact> filteredSourceArtifacts, Set<Artifact> filteredDestinationArtifacts) {
+        return filteredSourceArtifacts
+                .stream()
+                .map(Artifact::getHash)
+                .allMatch(filteredDestinationArtifacts
+                        .stream()
+                        .map(Artifact::getHash)
+                        .collect(Collectors.toSet())::contains);
+    }    
 
 }

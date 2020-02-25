@@ -56,6 +56,7 @@ class MatchRuleVerificationTest {
     private static final String DESTINATION_PATH_PREFIX2 = "dest/dir2";
     private static final String SRC_PATH_PREFIX = "src";
     private static final String URI = "cool.jar";
+    private static final String URI2 = "src/*";
     private static final String HASH = "hash";
     
     private MatchRuleVerification verification;
@@ -111,13 +112,12 @@ class MatchRuleVerificationTest {
     
     @Test
     void verifyMatchRuleFails() {
-        MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, null, null, DESTINATION_STEP_NAME);
+        MatchRule matchRule = new MatchRule(URI2, null, ArtifactType.MATERIALS, null, null, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
         when(context.getSegmentName()).thenReturn(SRC_SEGMENT_NAME);
         
         when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
         when(destinationLink.getMaterials()).thenReturn(List.of(artifactWithoutPrfx));
-        when(destinationLink.getProducts()).thenReturn(List.of(artifactWithoutPrfx));
 
         when(context.getFilteredArtifacts(null)).thenReturn(Set.of(sourceArtifactWithPrfx));
         matchRule.setDestinationType(ArtifactType.MATERIALS);
@@ -125,6 +125,7 @@ class MatchRuleVerificationTest {
         verify(context, times(0)).consume(anySet());
         
         when(context.getFilteredArtifacts(null)).thenReturn(Set.of(sourceArtifactWithPrfx));
+        when(destinationLink.getProducts()).thenReturn(List.of(artifactWithoutPrfx));
         matchRule.setDestinationType(ArtifactType.PRODUCTS);
         assertThat(verification.verify(context), is(false));
         verify(context, times(0)).consume(anySet());
