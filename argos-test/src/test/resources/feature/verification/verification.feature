@@ -17,6 +17,9 @@
 Feature: Verification
 
   Background:
+    * call read('classpath:feature/reset.feature')
+    * def token = karate.properties['bearer.token']
+    * configure headers = call read('classpath:headers.js') { token: #(token)}
     * def defaultVerificationRequest = {expectedProducts: [{uri: 'target/argos-test-0.0.1-SNAPSHOT.jar',hash: '49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162'}] }
     * def defaultSteps = [{link:'build-step-link.json', signingKey:2},{link:'test-step-link.json', signingKey:3}]
 
@@ -110,4 +113,12 @@ Feature: Verification
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'multiple-verification-contexts',steps:#(steps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":true}
 
-
+  Scenario: verification without authorization should return a 401 error
+    * url karate.properties['server.baseurl']
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
+    * def supplyChainPath = '/api/supplychain/'+ supplyChain.response.id
+    * configure headers = null
+    Given path supplyChainPath + '/verification'
+    And request defaultVerificationRequest
+    When method POST
+    Then status 401

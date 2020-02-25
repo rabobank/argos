@@ -265,7 +265,7 @@
                     <aggregate>false</aggregate>
                     <excludes>
                         <exclude>target/**</exclude>
-                        <exclude>src/test/resources/karate-config.js</exclude>
+                        <exclude>src/test/resources/**.js</exclude>
                         <exclude>**/bob</exclude>
                     </excludes>
                     <useDefaultExcludes>true</useDefaultExcludes>

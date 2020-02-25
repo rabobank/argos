@@ -19,8 +19,10 @@ Feature: Link
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * call read('classpath:feature/key/insert-test-key-pairs.feature')
+    * def token = karate.properties['bearer.token']
+    * configure headers = call read('classpath:headers.js') { token: #(token)}
     * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
+    * call read('classpath:feature/account/insert-test-key-pairs.feature') {parentLabelId: #(supplyChain.response.parentLabelId)}
     * def linkPath = '/api/supplychain/'+ supplyChain.response.id + '/link'
     * def validLink = 'classpath:testmessages/link/valid-link.json'
 
@@ -30,10 +32,17 @@ Feature: Link
   Scenario: store link with invalid specifications should return a 400 error
     Given path linkPath
     And request read('classpath:testmessages/link/invalid-link.json')
-    And header Content-Type = 'application/json'
     When method POST
     Then status 400
     And match response contains read('classpath:testmessages/link/invalid-link-response.json')
+
+  Scenario: store link without authorization should return a 401 error
+    * configure headers = null
+    Given path linkPath
+    And request read(validLink)
+    And header Content-Type = 'application/json'
+    When method POST
+    Then status 401
 
   Scenario: find link with valid supplychainid should return a 200
     * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}
@@ -41,6 +50,14 @@ Feature: Link
     When method GET
     Then status 200
     And match response[*] contains read('classpath:testmessages/link/valid-link-response.json')
+
+  Scenario: find link without authorization should return a 401 error
+    * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}
+    * configure headers = null
+    Given path linkPath
+    And header Content-Type = 'application/json'
+    When method GET
+    Then status 401
 
   Scenario: find link with valid supplychainid and optionalHash should return a 200
     * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}

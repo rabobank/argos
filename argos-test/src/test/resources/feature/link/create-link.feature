@@ -26,6 +26,5 @@ Feature: create a valid link
     * def signedLink = call read('classpath:feature/link/sign-link.feature') {json:#(linkToBeSigned),keyNumber:#(keyNumber)}
     Given path linkPath
     And request signedLink.response
-    And header Content-Type = 'application/json'
     When method POST
     Then status 204

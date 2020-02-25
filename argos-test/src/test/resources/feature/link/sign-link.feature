@@ -28,6 +28,5 @@ Feature: sign link
     And request linkToBeSigned
     And param keyId = keyPair.keyId
     And param password = 'test'
-    And header Content-Type = 'application/json'
     When method POST
     Then status 200

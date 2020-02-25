@@ -64,7 +64,7 @@ jwt:
   # redirectUri mentioned by the client in the /oauth2/authorize request.
   # We're not using cookies because they won't work well in mobile clients.
 auth:
-  frontendRedirectBasePath: http://localhost:3000
+  frontendRedirectBasePath: http://localhost:8087
 
 logging:
   level:

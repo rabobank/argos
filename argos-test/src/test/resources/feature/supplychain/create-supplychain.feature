@@ -25,6 +25,5 @@ Feature: using __arg
   Scenario: create a supplychain
     Given path '/api/supplychain'
     And request { name: #(supplyChainName), parentLabelId: #(parentLabelId)}
-    And header Content-Type = 'application/json'
     When method POST
     Then status 201
