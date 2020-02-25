@@ -38,7 +38,7 @@ public class RequireRuleVerification implements RuleVerification {
         Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
         if (!filteredArtifacts.isEmpty()) {
             context.consume(filteredArtifacts);
-            logResult(log, filteredArtifacts, getRuleType());
+            logInfo(log, filteredArtifacts, getRuleType());
             return Boolean.TRUE;
         } else {
             logErrors(log, filteredArtifacts, getRuleType());

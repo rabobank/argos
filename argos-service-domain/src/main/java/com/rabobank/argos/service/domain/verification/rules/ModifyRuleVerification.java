@@ -58,7 +58,7 @@ public class ModifyRuleVerification implements RuleVerification {
                 .findFirst()
                 .orElseGet(() -> {
                     context.consume(filteredArtifacts);
-                    logResult(log, filteredArtifacts, getRuleType());
+                    logInfo(log, filteredArtifacts, getRuleType());
                     return Boolean.TRUE;
                 });
     }

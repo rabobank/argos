@@ -37,7 +37,7 @@ public class AllowRuleVerification implements RuleVerification {
     public Boolean verify(RuleVerificationContext<? extends Rule> context) {
         Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
         context.consume(filteredArtifacts);
-        logResult(log, filteredArtifacts, getRuleType());
+        logInfo(log, filteredArtifacts, getRuleType());
         return Boolean.TRUE;
     }
 }

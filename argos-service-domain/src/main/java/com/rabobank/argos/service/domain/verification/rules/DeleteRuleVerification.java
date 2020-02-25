@@ -43,7 +43,7 @@ public class DeleteRuleVerification implements RuleVerification {
         complement.removeAll(context.getProducts());
         if (filteredArtifacts.stream().allMatch(complement::contains)) {
             context.consume(filteredArtifacts);
-            logResult(log, filteredArtifacts, getRuleType());
+            logInfo(log, filteredArtifacts, getRuleType());
             return Boolean.TRUE;
         } else {
             logErrors(log, filteredArtifacts, getRuleType());

@@ -37,7 +37,7 @@ public class DisallowRuleVerification implements RuleVerification {
     public Boolean verify(RuleVerificationContext<? extends Rule> context) {
         Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
         if (filteredArtifacts.isEmpty()) {
-            logResult(log, filteredArtifacts, getRuleType());
+            logInfo(log, filteredArtifacts, getRuleType());
             return Boolean.TRUE;
         } else {
             logErrors(log, filteredArtifacts, getRuleType());

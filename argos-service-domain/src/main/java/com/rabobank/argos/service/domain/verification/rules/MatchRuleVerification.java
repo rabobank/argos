@@ -61,7 +61,7 @@ public class MatchRuleVerification implements RuleVerification {
             Set<Artifact> srcPrefixedDestinationArtifacts = destinationArtifacts.stream().map(artifact -> prefixSrcDestinationSwap(artifact, rule)).collect(Collectors.toSet());
             if (filteredArtifacts.stream().allMatch(srcPrefixedDestinationArtifacts::contains)) {
                 context.consume(filteredArtifacts);
-                logResult(log, filteredArtifacts, getRuleType());
+                logInfo(log, filteredArtifacts, getRuleType());
                 return Boolean.TRUE;
             } else {
                 logErrors(log, filteredArtifacts, getRuleType());
