@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -78,11 +79,8 @@ public class ArtifactsVerificationContext {
         }
     }
     
-    public Link getLinkBySegmentNameAndStepName(String segmentName, String stepName) {
-        if (linksMap.get(segmentName) == null || linksMap.get(segmentName).get(stepName) == null) {
-            return null;
-        }
-        return linksMap.get(segmentName).get(stepName);
+    public Optional<Link> getLinkBySegmentNameAndStepName(String segmentName, String stepName) {
+        return Optional.ofNullable(linksMap.get(segmentName).get(stepName));
     }
  
     public Link getLink() {

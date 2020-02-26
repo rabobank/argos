@@ -17,7 +17,7 @@
 #
 # For caching maven artifacts create first a docker volume with the command:
 #
-# docker voulem create --name=maven_cache
+# docker volume create --name=maven_cache
 #
 
 version: '3.1'
@@ -43,7 +43,6 @@ services:
       - 8080:8080
     depends_on:
       - mongodb
-      - argos-integration-test-service
 
   oauth-stub:
     build:

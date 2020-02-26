@@ -49,8 +49,11 @@ class ArtifactsVerificationContextTest {
     
     private String segmentName = "segmentName";
     
-    @Mock
+    private String segmentName2 = "segmentName2";
+    
     private Step step;
+    
+    private Step step2;
     
     private Link link;
     
@@ -73,6 +76,8 @@ class ArtifactsVerificationContextTest {
 
     @BeforeEach
     void setUp() {
+        step = Step.builder().name("step").build();
+        step2 = Step.builder().name("step2").build();
         link = Link.builder()
                 .stepName(step.getName())
                 .materials(List.of(artifact1, artifact2))
@@ -81,6 +86,10 @@ class ArtifactsVerificationContextTest {
         Map<String, Link> stepmap = new HashMap<>();
         stepmap.put(step.getName(), link);
         linksMap.put(segmentName, stepmap);
+        Map<String, Link> stepmap2 = new HashMap<>();
+        stepmap.put(step2.getName(), null);
+        linksMap.put(segmentName2, stepmap2);
+        
         verificationContext1 = ArtifactsVerificationContext.builder()
                 .type(type)
                 .segmentName(segmentName)
@@ -153,9 +162,8 @@ class ArtifactsVerificationContextTest {
     
     @Test
     void getLinkBySegmentNameAndStepName() {
-        assertEquals(verificationContext1.getLinkBySegmentNameAndStepName(segmentName, step.getName()), link);
-        assertNull(verificationContext1.getLinkBySegmentNameAndStepName(segmentName, "foo"));
-        assertNull(verificationContext1.getLinkBySegmentNameAndStepName("foo", step.getName()));
+        assertEquals(verificationContext1.getLinkBySegmentNameAndStepName(segmentName, step.getName()).get(), link);
+        assertTrue(verificationContext1.getLinkBySegmentNameAndStepName(segmentName2, step2.getName()).isEmpty());
     }
     
     @Test

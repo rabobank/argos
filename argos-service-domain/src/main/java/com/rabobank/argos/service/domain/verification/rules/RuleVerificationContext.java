@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.domain.verification.rules;
 
+import java.util.Optional;
 import java.util.Set;
 
 import com.rabobank.argos.domain.layout.rule.Rule;
@@ -54,7 +55,7 @@ public class RuleVerificationContext<R extends Rule> {
         return artifactsContext.getSegmentName();
     }
     
-    public Link getLinkBySegmentNameAndStepName(String segmentName, String stepName) {
+    public Optional<Link> getLinkBySegmentNameAndStepName(String segmentName, String stepName) {
         return artifactsContext.getLinkBySegmentNameAndStepName(segmentName, stepName);
     }
     

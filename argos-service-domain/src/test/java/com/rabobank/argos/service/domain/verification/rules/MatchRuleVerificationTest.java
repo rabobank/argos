@@ -34,6 +34,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -103,7 +104,7 @@ class MatchRuleVerificationTest {
         when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
         when(context.getSegmentName()).thenReturn(SRC_SEGMENT_NAME);
         
-        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         when(destinationLink.getMaterials()).thenReturn(List.of(artifactWithoutPrfx));
         assertThat(verification.verify(context), is(true));
         verify(context, times(1)).consume(Set.of(artifactWithoutPrfx));
@@ -116,7 +117,7 @@ class MatchRuleVerificationTest {
         when(context.getRule()).thenReturn(matchRule);
         when(context.getSegmentName()).thenReturn(SRC_SEGMENT_NAME);
         
-        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         when(destinationLink.getMaterials()).thenReturn(List.of(artifactWithoutPrfx));
 
         when(context.getFilteredArtifacts(null)).thenReturn(Set.of(sourceArtifactWithPrfx));
@@ -139,7 +140,7 @@ class MatchRuleVerificationTest {
         when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
         when(context.getSegmentName()).thenReturn(SRC_SEGMENT_NAME);
         
-        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         when(destinationLink.getProducts()).thenReturn(List.of(artifactWithoutPrfx));
         assertThat(verification.verify(context), is(true));
         verify(context, times(1)).consume(Set.of(artifactWithoutPrfx));
@@ -151,7 +152,7 @@ class MatchRuleVerificationTest {
         MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, null, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
         when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
-        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         when(destinationLink.getMaterials()).thenReturn(List.of(artifactWithoutPrfx));
         
         when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
@@ -164,7 +165,7 @@ class MatchRuleVerificationTest {
     void verifyMatchRuleOtherSegmentEmptyFilter() {
         MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, null, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
-        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         when(destinationLink.getMaterials()).thenReturn(List.of(artifactWithoutPrfx));
         
         when(context.getFilteredArtifacts(null)).thenReturn(Set.of());
@@ -177,7 +178,7 @@ class MatchRuleVerificationTest {
     void verifyMatchRuleOtherSegmentWithSrcPrefix() {
         MatchRule matchRule = new MatchRule(URI, SRC_PATH_PREFIX, ArtifactType.MATERIALS, null, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
-        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         when(destinationLink.getMaterials()).thenReturn(List.of(artifactWithoutPrfx));
         
         when(context.getFilteredArtifacts(SRC_PATH_PREFIX)).thenReturn(Set.of(sourceArtifactWithPrfx));
@@ -190,7 +191,7 @@ class MatchRuleVerificationTest {
     void verifyMatchRuleOtherSegmentWithSrcPrefixInvalid() {
         MatchRule matchRule = new MatchRule(URI, SRC_PATH_PREFIX, ArtifactType.MATERIALS, null, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
-        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         
         when(context.getFilteredArtifacts(SRC_PATH_PREFIX)).thenReturn(Set.of(sourceArtifactWithPrfx));
         
@@ -204,7 +205,7 @@ class MatchRuleVerificationTest {
     void verifyMatchRuleOtherSegmentWithDestPrefix() {
         MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, DESTINATION_PATH_PREFIX, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
-        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         when(destinationLink.getMaterials()).thenReturn(List.of(destinationArtifactWithPrfx));
         
         when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
@@ -217,7 +218,7 @@ class MatchRuleVerificationTest {
     void verifyMatchRuleOtherSegmentWithDestPrefixInvalid() {
         MatchRule matchRule = new MatchRule(URI, null, ArtifactType.MATERIALS, DESTINATION_PATH_PREFIX, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
-        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         
         when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
         
@@ -231,7 +232,7 @@ class MatchRuleVerificationTest {
     void verifyMatchRuleOtherSegmentWithSrcAndDestPrefix() {
         MatchRule matchRule = new MatchRule(URI, SRC_PATH_PREFIX, ArtifactType.MATERIALS, DESTINATION_PATH_PREFIX, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
-        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         when(destinationLink.getMaterials()).thenReturn(List.of(destinationArtifactWithPrfx));
         
         when(context.getFilteredArtifacts(SRC_PATH_PREFIX)).thenReturn(Set.of(sourceArtifactWithPrfx));
@@ -245,7 +246,7 @@ class MatchRuleVerificationTest {
     void verifyMatchRuleOtherSegmentWithSrcAndDestPrefixInvalid() {
         MatchRule matchRule = new MatchRule(URI, SRC_PATH_PREFIX, ArtifactType.MATERIALS, DESTINATION_PATH_PREFIX, DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME);
         when(context.getRule()).thenReturn(matchRule);
-        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(DESTINATION_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         
         when(context.getFilteredArtifacts(SRC_PATH_PREFIX)).thenReturn(Set.of(sourceArtifactWithPrfx));
         
@@ -263,7 +264,7 @@ class MatchRuleVerificationTest {
         when(context.getFilteredArtifacts(null)).thenReturn(Set.of(artifactWithoutPrfx));
         when(context.getSegmentName()).thenReturn(SRC_SEGMENT_NAME);
         
-        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(destinationLink);
+        when(context.getLinkBySegmentNameAndStepName(SRC_SEGMENT_NAME, DESTINATION_STEP_NAME)).thenReturn(Optional.ofNullable(destinationLink));
         when(destinationLink.getMaterials()).thenReturn(List.of(destinationOtherHash));
         assertThat(verification.verify(context), is(false));
         verify(context, times(0)).consume(anySet());

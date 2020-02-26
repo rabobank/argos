@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import static com.rabobank.argos.domain.layout.ArtifactType.PRODUCTS;
 
 import java.util.HashSet;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -47,9 +48,10 @@ public class MatchRuleVerification implements RuleVerification {
         
         String destinationSegmentName = rule.getDestinationSegmentName() != null ? rule.getDestinationSegmentName() : context.getSegmentName();
 
-        Link link = context.getLinkBySegmentNameAndStepName(destinationSegmentName, rule.getDestinationStepName());
+        Optional<Link> optionalLink = context.getLinkBySegmentNameAndStepName(destinationSegmentName, rule.getDestinationStepName());
         
-        if (link != null) {
+        if (optionalLink.isPresent()) {
+            Link link = optionalLink.get();
             Set<Artifact> filteredDestinationArtifacts = null;
             if (rule.getDestinationType() == PRODUCTS) {
                 filteredDestinationArtifacts = new HashSet<>(link.getProducts());                
@@ -57,7 +59,7 @@ public class MatchRuleVerification implements RuleVerification {
                 filteredDestinationArtifacts = new HashSet<>(link.getMaterials());
             }
             filteredDestinationArtifacts = ArtifactsVerificationContext.filterArtifacts(filteredDestinationArtifacts, rule.getPattern(), rule.getDestinationPathPrefix());
-            if (this.verifyArtifacts(filteredArtifacts, filteredDestinationArtifacts)) {
+            if (verifyArtifacts(filteredArtifacts, filteredDestinationArtifacts)) {
                 context.consume(filteredArtifacts);
                 logInfo(log, filteredArtifacts);
                 return true;
