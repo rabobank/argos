@@ -20,12 +20,15 @@ import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
+import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.security.AccountSecurityContextImpl;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +58,8 @@ class PersonalAccountRestServiceTest {
     public static final String ACTIVE_KEYPAIR_NOT_FOUND = "404 NOT_FOUND \"no active keypair found for account: name\"";
     private static final String ACCOUNT_ID = "accountId";
     private static final String ROLE_NAME = "roleName";
+    private static final String LABEL_ID = "labelId";
+    private static final String ROLE_ID = "roleId";
 
     private PersonalAccountRestService service;
     @Mock
@@ -78,6 +83,9 @@ class PersonalAccountRestServiceTest {
 
     @Mock
     private RestPersonalAccount restPersonalAccount;
+
+    @Captor
+    private ArgumentCaptor<AccountSearchParams> searchParamsArgumentCaptor;
 
     @BeforeEach
     void setUp() {
@@ -171,11 +179,16 @@ class PersonalAccountRestServiceTest {
 
     @Test
     void searchPersonalAccounts() {
-        when(accountService.searchPersonalAccounts(ROLE_NAME)).thenReturn(List.of(personalAccount));
+        when(personalAccountMapper.convertToRoleId(ROLE_NAME)).thenReturn(ROLE_ID);
+        when(accountService.searchPersonalAccounts(any(AccountSearchParams.class))).thenReturn(List.of(personalAccount));
         when(personalAccountMapper.convertToRestPersonalAccountWithoutRoles(personalAccount)).thenReturn(restPersonalAccount);
-        ResponseEntity<List<RestPersonalAccount>> response = service.searchPersonalAccounts(ROLE_NAME);
+        ResponseEntity<List<RestPersonalAccount>> response = service.searchPersonalAccounts(ROLE_NAME, LABEL_ID);
         assertThat(response.getBody(), contains(restPersonalAccount));
         assertThat(response.getStatusCodeValue(), Matchers.is(200));
+        verify(accountService).searchPersonalAccounts(searchParamsArgumentCaptor.capture());
+        AccountSearchParams searchParams = searchParamsArgumentCaptor.getValue();
+        assertThat(searchParams.getLocalPermissionsLabelId(), is(Optional.of(LABEL_ID)));
+        assertThat(searchParams.getRoleId(), is(Optional.of(ROLE_ID)));
     }
 
     @Test

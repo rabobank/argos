@@ -17,6 +17,7 @@ package com.rabobank.argos.service.adapter.out.mongodb.account;
 
 import com.mongodb.client.result.UpdateResult;
 import com.rabobank.argos.domain.account.PersonalAccount;
+import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import org.bson.Document;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -134,19 +135,12 @@ class PersonalAccountRepositoryImplTest {
         assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: {}, Fields: {}, Sort: {}"));
     }
 
-    @Test
-    void findByRoleId() {
-        when(template.find(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(List.of(personalAccount));
-        assertThat(repository.findByRoleId(ROLE_ID), contains(personalAccount));
-        verify(template).find(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
-        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"roleIds\" : { \"$in\" : [\"roleId\"]}}, Fields: {}, Sort: { \"name\" : 1}"));
-    }
 
     @Test
-    void findAll() {
+    void search() {
         when(template.find(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(List.of(personalAccount));
-        assertThat(repository.findAll(), contains(personalAccount));
+        assertThat(repository.search(AccountSearchParams.builder().build()), contains(personalAccount));
         verify(template).find(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
-        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: {}, Fields: {}, Sort: { \"name\" : 1}"));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: {}, Fields: { \"accountId\" : 1, \"name\" : 1, \"email\" : 1}, Sort: { \"name\" : 1}"));
     }
 }

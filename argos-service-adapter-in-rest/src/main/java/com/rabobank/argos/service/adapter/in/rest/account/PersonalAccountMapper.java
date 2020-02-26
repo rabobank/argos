@@ -16,6 +16,11 @@
 package com.rabobank.argos.service.adapter.in.rest.account;
 
 import com.rabobank.argos.domain.account.PersonalAccount;
+import com.rabobank.argos.domain.permission.LocalPermission;
+import com.rabobank.argos.domain.permission.LocalPermissions;
+import com.rabobank.argos.domain.permission.Role;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermission;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermissions;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
 import com.rabobank.argos.service.adapter.in.rest.permission.RoleMapper;
@@ -27,6 +32,7 @@ import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
@@ -49,6 +55,20 @@ public abstract class PersonalAccountMapper {
         return roleRepository.findByIds(roleIds).stream().map(roleMapper::convertToRestRole).collect(Collectors.toList());
     }
 
-    @Mapping(target = "id", source = "accountId")
+    @Mappings({
+            @Mapping(target = "id", source = "accountId"),
+            @Mapping(target = "roles", ignore = true)
+    })
     public abstract RestPersonalAccount convertToRestPersonalAccountWithoutRoles(PersonalAccount personalAccount);
+
+    public abstract List<RestLocalPermissions> convertToRestLocalPermissions(List<LocalPermissions> localPermissions);
+
+    public abstract List<LocalPermission> convertToLocalPermissions(List<RestLocalPermission> localPermissions);
+
+    public abstract RestLocalPermissions convertToRestLocalPermission(LocalPermissions localPermissions);
+
+    @Named("convertToRoleId")
+    public String convertToRoleId(String optionalRoleName) {
+        return Optional.ofNullable(optionalRoleName).flatMap(roleName -> roleRepository.findByName(roleName)).map(Role::getRoleId).orElse(null);
+    }
 }

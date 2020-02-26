@@ -587,6 +587,12 @@ paths:
           required: false
           schema:
             type: string
+        - name: localPermissionsLabelId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
       responses:
         '200':
           description: list of personal accounts without roles property
@@ -647,6 +653,90 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PersonalAccount"
+        '500':
+          $ref: '#/components/responses/Error'
+  /personalaccount/{accountId}/localpermission/{labelId}:
+    get:
+      summary: returns the local permissions of the personalaccount and label
+      operationId: getLocalPermissionsForLabel
+      tags:
+        - personal account
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
+        - name: labelId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
+      responses:
+        '200':
+          description: local permissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocalPermissions"
+    put:
+      summary: updates permissions of the personalaccount and label
+      operationId: updateLocalPermissionsForLabel
+      tags:
+        - personal account
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
+        - name: labelId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: local permission
+              type: array
+              items:
+                $ref: "#/components/schemas/LocalPermission"
+      responses:
+        '200':
+          description: local permissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocalPermissions"
+  /personalaccount/{accountId}/localpermission:
+    get:
+      summary: returns all the local permissions of the personalaccount
+      operationId: getAllLocalPermissions
+      tags:
+        - personal account
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
+      responses:
+        '200':
+          description: all local permissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LocalPermissions"
         '500':
           $ref: '#/components/responses/Error'
   /nonpersonalaccount:
@@ -805,9 +895,7 @@ paths:
       summary: gets all roles
       operationId: getRoles
       tags:
-        - global permission
-      security:
-        - bearerAuth: []
+        - permissions
       responses:
         '200':
           description: list of roles
@@ -820,6 +908,25 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+        '500':
+          $ref: '#/components/responses/Error'
+  /permissions/local:
+    get:
+      summary: gets all local permissions
+      operationId: getLocalPermissions
+      tags:
+        - permissions
+      responses:
+        '200':
+          description: list local permissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LocalPermission"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/Error'
 components:
@@ -1254,6 +1361,29 @@ components:
       enum:
         - EDIT_GLOBAL_PERMISSIONS
         - READ
+    LocalPermissions:
+      type: object
+      required:
+        - labelId
+        - permissions
+      properties:
+        labelId:
+          type: string
+          pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
+        permissions:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/LocalPermission"
+    LocalPermission:
+      type: string
+      enum:
+        - LOCAL_READ
+        - LOCAL_TREE_EDIT
+        - LOCAL_PERMISSION_EDIT
+        - LOCAL_LINK_ADD
+        - LOCAL_LAYOUT_ADD
+        - LOCAL_VERIFY
     Error:
       type: object
       required:

@@ -20,6 +20,7 @@ import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.account.NonPersonalAccountKeyPair;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.domain.permission.LocalPermissions;
 import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -98,15 +99,27 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<PersonalAccount> searchPersonalAccounts(String roleName) {
-        Optional<String> optionalRoleId = Optional.ofNullable(roleName).flatMap(roleRepository::findByName).map(Role::getRoleId);
-        return optionalRoleId.map(personalAccountRepository::findByRoleId).orElseGet(personalAccountRepository::findAll);
+    public List<PersonalAccount> searchPersonalAccounts(AccountSearchParams params) {
+        return personalAccountRepository.search(params);
     }
 
     @Override
     public Optional<PersonalAccount> updatePersonalAccountRolesById(String accountId, List<String> roleNames) {
         return personalAccountRepository.findByAccountId(accountId).map(personalAccount -> {
             personalAccount.setRoleIds(getRoleIds(roleNames));
+            personalAccountRepository.update(personalAccount);
+            return personalAccount;
+        });
+    }
+
+    @Override
+    public Optional<PersonalAccount> updatePersonalAccountLocalPermissionsById(String accountId, LocalPermissions newLocalPermissions) {
+        return personalAccountRepository.findByAccountId(accountId).map(personalAccount -> {
+            personalAccount.getLocalPermissions().stream()
+                    .filter(localPermissions -> localPermissions.getLabelId().equals(newLocalPermissions.getLabelId()))
+                    .findFirst()
+                    .ifPresentOrElse(localPermissions -> localPermissions.setPermissions(newLocalPermissions.getPermissions()),
+                            () -> personalAccount.getLocalPermissions().add(newLocalPermissions));
             personalAccountRepository.update(personalAccount);
             return personalAccount;
         });

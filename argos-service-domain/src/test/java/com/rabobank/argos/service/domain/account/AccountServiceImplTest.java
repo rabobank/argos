@@ -85,6 +85,9 @@ class AccountServiceImplTest {
     @Mock
     private NonPersonalAccount nonPersonalAccount;
 
+    @Mock
+    private AccountSearchParams params;
+
     @BeforeEach
     void setUp() {
         accountService = new AccountServiceImpl(nonPersonalAccountRepository, personalAccountRepository, roleRepository);
@@ -213,25 +216,11 @@ class AccountServiceImplTest {
     }
 
     @Test
-    void searchPersonalAccountsAll() {
-        when(personalAccountRepository.findAll()).thenReturn(List.of(account));
-        assertThat(accountService.searchPersonalAccounts(null), contains(account));
+    void searchPersonalAccounts() {
+        when(personalAccountRepository.search(params)).thenReturn(List.of(account));
+        assertThat(accountService.searchPersonalAccounts(params), contains(account));
     }
 
-    @Test
-    void searchPersonalAccountsByRoleName() {
-        when(role.getRoleId()).thenReturn(ROLE_ID);
-        when(roleRepository.findByName(ROLE_NAME)).thenReturn(Optional.of(role));
-        when(personalAccountRepository.findByRoleId(ROLE_ID)).thenReturn(List.of(account));
-        assertThat(accountService.searchPersonalAccounts(ROLE_NAME), contains(account));
-    }
-
-    @Test
-    void searchPersonalAccountsByRoleNameNotFound() {
-        when(personalAccountRepository.findAll()).thenReturn(List.of(account));
-        when(roleRepository.findByName(ROLE_NAME)).thenReturn(Optional.empty());
-        assertThat(accountService.searchPersonalAccounts(ROLE_NAME), contains(account));
-    }
 
     @Test
     void updatePersonalAccountRolesById() {
