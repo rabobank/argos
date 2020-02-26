@@ -27,6 +27,7 @@ import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAcc
 import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.ACTIVE_KEY_ID_FIELD;
 import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.COLLECTION;
 import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.EMAIL;
+import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.NAME_FIELD;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 
@@ -43,6 +44,11 @@ public class PersonalAccountDatabaseChangelog {
     public void addActiveKeyIndex(MongoTemplate template) {
         template.indexOps(COLLECTION).ensureIndex(new Index(ACTIVE_KEY_ID_FIELD, ASC)
                 .partial(PartialIndexFilter.of(new Criteria(ACTIVE_KEY_ID_FIELD).exists(true))).unique());
+    }
+
+    @ChangeSet(order = "003", id = "PersonalAccountDatabaseChangelog-3", author = "bart")
+    public void addIndexToName(MongoTemplate template) {
+        template.indexOps(COLLECTION).ensureIndex(new Index(NAME_FIELD, ASC));
     }
 
 }

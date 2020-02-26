@@ -139,6 +139,14 @@ class PersonalAccountRepositoryImplTest {
         when(template.find(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(List.of(personalAccount));
         assertThat(repository.findByRoleId(ROLE_ID), contains(personalAccount));
         verify(template).find(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
-        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"roleIds\" : { \"$in\" : [\"roleId\"]}}, Fields: {}, Sort: {}"));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"roleIds\" : { \"$in\" : [\"roleId\"]}}, Fields: {}, Sort: { \"name\" : 1}"));
+    }
+
+    @Test
+    void findAll() {
+        when(template.find(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(List.of(personalAccount));
+        assertThat(repository.findAll(), contains(personalAccount));
+        verify(template).find(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: {}, Fields: {}, Sort: { \"name\" : 1}"));
     }
 }

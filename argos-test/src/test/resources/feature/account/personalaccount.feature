@@ -69,3 +69,20 @@ Feature: Personal Account
     When method GET
     Then status 200
     Then match response == {"id":"#(response.id)","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","EDIT_GLOBAL_PERMISSIONS"] }]}
+
+  Scenario: search personal account by role name should return 200
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    Given path '/api/personalaccount'
+    And param roleName = 'administrator'
+    When method GET
+    Then status 200
+    And match response == [{"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp"}]
+    * call read('classpath:feature/account/delete-personal-account.feature') {id: #(extraAccount.response.id)}
+
+  Scenario: search all personal account 200
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    Given path '/api/personalaccount'
+    When method GET
+    Then status 200
+    And match response == [{"id":"#uuid","name":"Extra Person","email":"extra@extra.go"},{"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp"}]
+    * call read('classpath:feature/account/delete-personal-account.feature') {id: #(extraAccount.response.id)}

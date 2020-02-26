@@ -19,6 +19,7 @@ import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -38,6 +39,7 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     static final String ACCOUNT_ID = "accountId";
     static final String ACTIVE_KEY_ID_FIELD = "activeKeyPair.keyId";
     static final String EMAIL = "email";
+    static final String NAME_FIELD = "name";
     static final String ROLE_ID_FIELD = "roleIds";
     private final MongoTemplate template;
 
@@ -49,7 +51,7 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
 
     @Override
     public List<PersonalAccount> findAll() {
-        return template.findAll(PersonalAccount.class, COLLECTION);
+        return template.find(new Query().with(Sort.by(NAME_FIELD)), PersonalAccount.class, COLLECTION);
     }
 
     @Override
@@ -82,7 +84,7 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
 
     @Override
     public List<PersonalAccount> findByRoleId(String roleId) {
-        return template.find(new Query(where(ROLE_ID_FIELD).in(roleId)), PersonalAccount.class, COLLECTION);
+        return template.find(new Query(where(ROLE_ID_FIELD).in(roleId)).with(Sort.by(NAME_FIELD)), PersonalAccount.class, COLLECTION);
     }
 
     @Override
