@@ -15,58 +15,56 @@
  */
 package com.rabobank.argos.service.domain.verification.rules;
 
+import java.util.Optional;
+import java.util.Set;
+
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.link.Artifact;
-import com.rabobank.argos.service.domain.verification.VerificationContext;
+import com.rabobank.argos.domain.link.Link;
+import com.rabobank.argos.service.domain.verification.ArtifactsVerificationContext;
+
 import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.Nullable;
-import org.springframework.util.StringUtils;
-
-import java.util.List;
-import java.util.stream.Stream;
+import lombok.NonNull;
+import lombok.ToString;
 
 @Builder
 @Getter
-@Slf4j
+@ToString
 public class RuleVerificationContext<R extends Rule> {
-
-    private final VerificationContext verificationContext;
+    
+    @NonNull
+    private ArtifactsVerificationContext artifactsContext;
+    
+    @NonNull
     private final R rule;
-    private final List<Artifact> materials;
-    private final List<Artifact> products;
-
-    public Stream<Artifact> getFilteredProducts() {
-        return getFilteredProducts(null);
+    
+    public Set<Artifact> getFilteredArtifacts() {
+        return artifactsContext.getFilteredArtifacts(rule.getPattern(), null);
     }
 
-    public Stream<Artifact> getFilteredMaterials() {
-        return getFilteredMaterials(null);
+    public Set<Artifact> getFilteredArtifacts(String prefix) {
+        return artifactsContext.getFilteredArtifacts(rule.getPattern(), prefix);
     }
-
-    public Stream<Artifact> getFilteredProducts(String prefix) {
-        return filterArtifacts(products, rule.getPattern(), prefix);
+    
+    public void consume(Set<Artifact> artifacts) {
+        artifactsContext.consume(artifacts);
     }
-
-    public Stream<Artifact> getFilteredMaterials(String prefix) {
-        return filterArtifacts(materials, rule.getPattern(), prefix);
+    
+    public String getSegmentName() {
+        return artifactsContext.getSegmentName();
     }
-
-    public static Stream<Artifact> filterArtifacts(List<Artifact> artifacts, String pattern, @Nullable String prefix) {
-        return artifacts.stream().filter(artifact -> ArtifactMatcher.matches(getUri(artifact, prefix), pattern));
+    
+    public Optional<Link> getLinkBySegmentNameAndStepName(String segmentName, String stepName) {
+        return artifactsContext.getLinkBySegmentNameAndStepName(segmentName, stepName);
     }
-
-    private static String getUri(Artifact artifact, String prefix) {
-        if (StringUtils.hasLength(prefix) && artifact.getUri().startsWith(prefix)) {
-            return artifact.getUri().substring(prefix.length());
-        } else {
-            return artifact.getUri();
-        }
+    
+    public Set<Artifact> getMaterials() {
+        return artifactsContext.getMaterials();
     }
-
-    public boolean containsSomeMaterials(List<Artifact> artifacts) {
-        return artifacts.stream().anyMatch(materials::contains);
+    
+    public Set<Artifact> getProducts() {
+        return artifactsContext.getProducts();
     }
 
     public <T extends Rule> T getRule() {

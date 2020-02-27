@@ -15,12 +15,29 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-public interface Verification {
-    //pretest                                                           //these steps mutate the context
-    enum Priority {LAYOUT_AUTHORIZED_KEYID, LAYOUT_METABLOCK_SIGNATURE, STEP_AUTHORIZED_KEYID, LINK_METABLOCK_SIGNATURE, EXPECTED_COMMAND, REQUIRED_NUMBER_OF_LINKS, RULES}
+import static org.junit.jupiter.api.Assertions.*;
 
-    Priority getPriority();
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-    VerificationRunResult verify(VerificationContext context);
+import com.rabobank.argos.service.domain.verification.ArtifactMatcher;
+
+class ArtifactMatcherTest {
+
+    @BeforeEach
+    void setUp() throws Exception {
+    }
+
+    @Test
+    void matchesWithDoubleSlash() {
+        assertTrue(ArtifactMatcher.matches("foo/bar", "foo/*"));
+    }
+    
+    @Test
+    void matchesDoubleAndSingleStar() {
+        assertFalse(ArtifactMatcher.matches("foo/bar", "*"));
+        assertTrue(ArtifactMatcher.matches("foo/bar", "*/*"));
+        assertTrue(ArtifactMatcher.matches("foo/bar", "foo/*"));
+    }
 
 }

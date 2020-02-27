@@ -39,37 +39,39 @@ public class RequiredNumberOfLinksVerification implements Verification {
     @Override
     public VerificationRunResult verify(VerificationContext context) {
 
-        return context.layoutSegments()
+        return context.getLayoutMetaBlock().getLayout().getLayoutSegments()
                 .stream()
-                .map(segment -> verifyForSegment(segment, context))
+                .filter(segment -> !verifyForSegment(segment, context))
                 .findFirst()
+                .map(segment -> VerificationRunResult.builder().runIsValid(false).build())
                 .orElse(VerificationRunResult.okay());
 
     }
 
-    private VerificationRunResult verifyForSegment(LayoutSegment segment, VerificationContext context) {
+    private boolean verifyForSegment(LayoutSegment segment, VerificationContext context) {
         Optional<String> invalidStep = context
-                .getExpectedStepNamesBySegmentName(segment.getName())
+                .getStepNamesBySegmentName(segment.getName())
                 .stream()
                 .filter(stepName -> !isValid(segment.getName(), stepName, context))
                 .findFirst();
 
-        return VerificationRunResult.valid(invalidStep.isEmpty());
+        return invalidStep.isEmpty();
     }
 
     private boolean isValid(String segmentName, String stepName, VerificationContext context) {
         Map<Integer, List<LinkMetaBlock>> linkMetaBlockMap = context
-                .getLinksBySegmentNameAndStepName(segmentName, stepName).stream()
+                .getLinkMetaBlocksBySegmentNameAndStepName(segmentName, stepName).stream()
                 .collect(groupingBy(f -> f.getLink().hashCode()));
         if (linkMetaBlockMap.size() == 1) {
             return isValid(linkMetaBlockMap.values().iterator().next(), context.getStepBySegmentNameAndStepName(segmentName, stepName));
         } else {
-            log.info("more than one or no links with the same hash for step {}", stepName);
+            log.info("{} different links with the same hash for step {}", linkMetaBlockMap.size(), stepName);
             return false;
         }
     }
 
     private boolean isValid(List<LinkMetaBlock> linkMetaBlocks, Step step) {
+        log.info("{} links for step {} and should be {}", linkMetaBlocks.size(), step.getName(), step.getRequiredNumberOfLinks());
         return linkMetaBlocks.size() >= step.getRequiredNumberOfLinks();
     }
 }

@@ -19,14 +19,16 @@ import com.rabobank.argos.domain.layout.rule.Rule;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 @Builder
 @Getter
 @Setter
+@ToString
 public class Step {
-    private String stepName;
+    private String name;
     private List<String> authorizedKeyIds;
     private int requiredNumberOfLinks;
     private List<String> expectedCommand;

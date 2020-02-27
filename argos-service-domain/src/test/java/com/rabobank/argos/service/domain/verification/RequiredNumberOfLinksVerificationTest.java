@@ -15,6 +15,8 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
+import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Link;
@@ -39,21 +41,32 @@ import static org.mockito.Mockito.when;
 class RequiredNumberOfLinksVerificationTest {
 
     private static final String STEP_NAME = "stepName";
+    private static final String STEP_NAME2 = "stepName2";
     private static final String SEGMENT_NAME = "segmentName";
+    private static final String SEGMENT_NAME2 = "segmentName2";
     private RequiredNumberOfLinksVerification requiredNumberOfLinksVerification;
 
-    @Mock
     private VerificationContext context;
 
-    @Mock
-    private Step step;
+    private Step step;    
+    
+    private Step step2;
+    
+    private LayoutMetaBlock layoutMetaBlock; 
+    
+    private Layout layout;
 
-    @Mock
-    private LayoutSegment layoutSegment;
+    private LayoutSegment layoutSegment;    
+    
+    private LayoutSegment layoutSegment2;
 
     private LinkMetaBlock linkMetaBlock;
 
     private LinkMetaBlock linkMetaBlock2;
+
+    private LinkMetaBlock linkMetaBlock3;
+
+    private LinkMetaBlock linkMetaBlock4;
 
     @BeforeEach
     void setup() {
@@ -61,6 +74,17 @@ class RequiredNumberOfLinksVerificationTest {
 
         linkMetaBlock = createLinkMetaBlock(SEGMENT_NAME, STEP_NAME);
         linkMetaBlock2 = createLinkMetaBlock(SEGMENT_NAME, STEP_NAME);
+        linkMetaBlock3 = createLinkMetaBlock(SEGMENT_NAME2, STEP_NAME2);
+        linkMetaBlock4 = createLinkMetaBlock(SEGMENT_NAME2, STEP_NAME2);
+
+        step = Step.builder().name(STEP_NAME).requiredNumberOfLinks(1).build();
+        step2 = Step.builder().name(STEP_NAME2).requiredNumberOfLinks(1).build();
+        layoutSegment = LayoutSegment.builder().name(SEGMENT_NAME).steps(List.of(step)).build();
+        layoutSegment2 = LayoutSegment.builder().name(SEGMENT_NAME2).steps(List.of(step2)).build();
+        layout = Layout.builder().layoutSegments(List.of(layoutSegment, layoutSegment2)).build();
+        
+        layoutMetaBlock = LayoutMetaBlock.builder().layout(layout).build();
+        context = VerificationContext.builder().layoutMetaBlock(layoutMetaBlock).linkMetaBlocks(List.of(linkMetaBlock, linkMetaBlock2, linkMetaBlock3, linkMetaBlock4)).build();
     }
 
     private LinkMetaBlock createLinkMetaBlock(String segmentName, String stepName) {
@@ -79,57 +103,40 @@ class RequiredNumberOfLinksVerificationTest {
 
     @Test
     void verifyWithRequiredNumberOfLinksShouldReturnValid() {
-        when(context.layoutSegments()).thenReturn(singletonList(layoutSegment));
-        when(layoutSegment.getName()).thenReturn(SEGMENT_NAME);
-        when(context.getExpectedStepNamesBySegmentName(SEGMENT_NAME)).thenReturn(singletonList(STEP_NAME));
-        when(context.layoutSegments()).thenReturn(singletonList(layoutSegment));
-        when(context.getStepBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(step);
-        when(context.getLinksBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(singletonList(linkMetaBlock));
-        when(step.getRequiredNumberOfLinks()).thenReturn(1);
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(true));
-        verify(context, times(0)).removeLinkMetaBlocks(anyList());
     }
 
     @Test
-    void verifyWithNoRequiredNumberOfLinksShouldReturnInValid() {
-        when(context.layoutSegments()).thenReturn(singletonList(layoutSegment));
-        when(layoutSegment.getName()).thenReturn(SEGMENT_NAME);
-        when(context.getExpectedStepNamesBySegmentName(SEGMENT_NAME)).thenReturn(singletonList(STEP_NAME));
-        when(context.layoutSegments()).thenReturn(singletonList(layoutSegment));
-        when(context.getStepBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(step);
-        when(context.getLinksBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(singletonList(linkMetaBlock));
-        when(step.getRequiredNumberOfLinks()).thenReturn(2);
+    void verifyWithNotRequiredNumberOfLinksShouldReturnInValid() {
+        step.setRequiredNumberOfLinks(3);
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
-        verify(context, times(0)).removeLinkMetaBlocks(anyList());
     }
 
     @Test
     void verifyWithRequiredNumberOfLinks2ShouldReturnValid() {
-        when(context.layoutSegments()).thenReturn(singletonList(layoutSegment));
-        when(layoutSegment.getName()).thenReturn(SEGMENT_NAME);
-        when(context.getExpectedStepNamesBySegmentName(SEGMENT_NAME)).thenReturn(singletonList(STEP_NAME));
-        when(context.layoutSegments()).thenReturn(singletonList(layoutSegment));
-        when(context.getStepBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(step);
-        when(context.getLinksBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(List.of(linkMetaBlock, linkMetaBlock2));
-        when(step.getRequiredNumberOfLinks()).thenReturn(2);
+        step.setRequiredNumberOfLinks(2);
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(true));
-        verify(context, times(0)).removeLinkMetaBlocks(anyList());
     }
 
 
     @Test
     void verifyTwoLinkHashesForOneStepIsInvalid() {
-        when(context.layoutSegments()).thenReturn(singletonList(layoutSegment));
-        when(layoutSegment.getName()).thenReturn(SEGMENT_NAME);
-        when(context.getExpectedStepNamesBySegmentName(SEGMENT_NAME)).thenReturn(singletonList(STEP_NAME));
-        when(context.layoutSegments()).thenReturn(singletonList(layoutSegment));
         linkMetaBlock.getLink().setCommand(List.of("cmd"));
-        when(context.getLinksBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(List.of(linkMetaBlock, linkMetaBlock2));
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
-        verify(context, times(0)).removeLinkMetaBlocks(anyList());
+    }
+    
+    @Test
+    void verifyWithSegmentNotFoundReturnInValid() {
+        step2.setRequiredNumberOfLinks(2);
+        context = VerificationContext.builder()
+                .layoutMetaBlock(layoutMetaBlock)
+                .linkMetaBlocks(List.of(linkMetaBlock, linkMetaBlock2))
+                .build();
+        VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
+        assertThat(result.isRunIsValid(), is(false));
     }
 }
