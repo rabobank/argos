@@ -27,7 +27,7 @@ import lombok.ToString;
 public class MatchFilter {
 
     private String pattern;
-    private DestinationType destinationType;
+    private ArtifactType destinationType;
     private String destinationStepName;
     private String destinationSegmentName;
 

@@ -50,8 +50,8 @@
               "ruleType": "DELETE"
             }
           ],
-          "requiredNumberOfLinks": 23,
-          "stepName": "step a"
+          "name": "step a",
+          "requiredNumberOfLinks": 23
         },
         {
           "expectedMaterials": [
@@ -74,8 +74,8 @@
               "ruleType": "MODIFY"
             }
           ],
-          "requiredNumberOfLinks": 1,
-          "stepName": "step b"
+          "name": "step b",
+          "requiredNumberOfLinks": 1
         }
       ]
     }

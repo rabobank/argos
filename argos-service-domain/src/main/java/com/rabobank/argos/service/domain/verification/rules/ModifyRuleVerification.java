@@ -18,17 +18,17 @@ package com.rabobank.argos.service.domain.verification.rules;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toSet;
 
 @Component
 @Slf4j
@@ -39,31 +39,27 @@ public class ModifyRuleVerification implements RuleVerification {
     }
 
     @Override
-    public RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
-        Set<Artifact> filteredProducts = context.getFilteredProducts().collect(toSet());
+    public boolean verify(RuleVerificationContext<? extends Rule> context) {
+        Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
+        
+        Set<String> uris = context.getFilteredArtifacts().stream().map(Artifact::getUri).collect(Collectors.toSet());
 
-        if (filteredProducts.isEmpty()) {
-            return RuleVerificationResult.notOkay();
-        }
-
-        Map<String, List<Artifact>> uriMap = Stream.concat(filteredProducts.stream(), context.getFilteredMaterials().collect(toSet()).stream())
-                .collect(groupingBy(Artifact::getUri));
+        Map<String, Set<Artifact>> uriMap = Stream.concat(
+                context.getMaterials().stream().filter(artifact -> uris.contains(artifact.getUri())), 
+                context.getProducts().stream().filter(artifact -> uris.contains(artifact.getUri())))
+                .collect(groupingBy(Artifact::getUri, Collectors.toSet()));
 
         return uriMap.values().stream()
-                .filter(filterNotValidArtifacts())
-                .map(artifacts -> RuleVerificationResult.notOkay())
+                .filter(artifacts -> artifacts.size() != 2)
+                .map(artifacts -> {
+                    logErrors(log, filteredArtifacts);
+                    return false;
+                })
                 .findFirst()
-                .orElseGet(() -> RuleVerificationResult.okay(filteredProducts));
-
-    }
-
-    private Predicate<List<Artifact>> filterNotValidArtifacts() {
-        return artifacts -> artifacts.size() != 2 || artifacts.get(0).getHash().equals(artifacts.get(1).getHash());
-    }
-
-    @Override
-    public RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context) {
-        log.warn("Modify Rule in expectedMaterials not allowed");
-        return RuleVerificationResult.notOkay();
+                .orElseGet(() -> {
+                    context.consume(filteredArtifacts);
+                    logInfo(log, filteredArtifacts);
+                    return true;
+                });
     }
 }

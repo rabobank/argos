@@ -15,6 +15,8 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
+import com.rabobank.argos.domain.layout.Layout;
+import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.Rule;
@@ -24,10 +26,12 @@ import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.service.domain.verification.RulesVerification;
 import com.rabobank.argos.service.domain.verification.VerificationContext;
+import com.rabobank.argos.service.domain.verification.rules.AllowRuleVerification;
+import com.rabobank.argos.service.domain.verification.rules.DisallowRuleVerification;
 import com.rabobank.argos.service.domain.verification.rules.RuleVerification;
 import com.rabobank.argos.service.domain.verification.rules.RuleVerificationContext;
-import com.rabobank.argos.service.domain.verification.rules.RuleVerificationResult;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,70 +40,71 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.RULES;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RulesVerificationTest {
 
-    private static final String STEP_NAME = "stepName";
-    private static final String SEGMENT_NAME = "segmentName";
-    @Mock
-    private RuleVerification ruleVerification;
+    public static final String STEP_NAME = "stepName";
+    public static final String SEGMENT_NAME = "segmentName";
+    
+    private RuleVerification allowRuleVerification = new AllowRuleVerification();
+    
+    private RuleVerification disAllowRuleVerification = new DisallowRuleVerification();
 
     @Mock
     private RulesVerification verification;
 
-    @Mock
     private VerificationContext verificationContext;
-
-    @Mock
+    
     private Step step;
 
     @Mock
     private LinkMetaBlock linkMetaBlock;
 
+    private List<LinkMetaBlock> linkMetaBlocks;
+
+    @Mock
+    private LayoutMetaBlock layoutMetaBlock;
+
+    @Mock
+    private Layout layout;
     @Mock
     private LayoutSegment layoutSegment;
 
-    @Mock
-    private Rule expectedMaterialRule;
+    private Rule allowAllRule = new Rule(RuleType.ALLOW, "**");
+    
+    private Rule allowRuleWithNotFound = new Rule(RuleType.ALLOW, "not found");
+    
+    private Rule disAllowAllRule = new Rule(RuleType.DISALLOW, "**");
+    
+    private Rule deleteRule = new Rule(RuleType.DELETE, "**");
 
-    @Mock
-    private Rule expectedProductRule;
+    private Artifact artifact1 = new Artifact("artifact1", "hash");
 
-    @Mock
-    private Link link;
-
-    @Mock
-    private RuleVerificationResult productRuleVerificationResult;
-
-    @Mock
-    private RuleVerificationResult materialRuleVerificationResult;
-
-    @Mock
-    private Artifact materialArtifact;
-
-    @Mock
-    private Artifact productArtifact;
+    private Artifact artifact2 = new Artifact("artifact2", "hash");
 
     @Captor
     private ArgumentCaptor<RuleVerificationContext<?>> ruleVerificationContextArgumentCaptor;
+    
+    @BeforeAll
+    static void setUpBeforeClass() throws Exception {
+        
+        
+    }
 
     @BeforeEach
     void setUp() {
-        verification = new RulesVerification(List.of(ruleVerification));
+        verification = new RulesVerification(List.of(allowRuleVerification, disAllowRuleVerification));
+        verification.init();
+        
     }
 
     @Test
@@ -108,134 +113,114 @@ class RulesVerificationTest {
     }
 
     @Test
-    void verifyHappyFlow() {
-        when(ruleVerification.verifyExpectedProducts(any(RuleVerificationContext.class))).thenReturn(productRuleVerificationResult);
+    void verifyAllowAllRuleWithMaterialAndProductRules() {
+        step = Step.builder()
+                .name(STEP_NAME)
+                .expectedMaterials(List.of(allowAllRule))
+                .expectedProducts(List.of(allowAllRule)).build();
+        linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
+                .builder().link(Link.builder()
+                        .materials(List.of(artifact1))
+                        .products(List.of(artifact2))
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .stepName(STEP_NAME).build()).build()));
         setupMocks();
-
-        when(link.getMaterials()).thenReturn(List.of(materialArtifact));
-        when(link.getProducts()).thenReturn(List.of(productArtifact));
-
-        when(materialRuleVerificationResult.isValid()).thenReturn(true);
-        when(productRuleVerificationResult.isValid()).thenReturn(true);
-
-        when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
-        when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(productArtifact));
-
         assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
-
-        verify(verificationContext).removeLinkMetaBlocks(Collections.emptyList());
-
-        verify(ruleVerification).verifyExpectedProducts(ruleVerificationContextArgumentCaptor.capture());
-        RuleVerificationContext<?> ruleVerificationContext = ruleVerificationContextArgumentCaptor.getValue();
-        assertThat(ruleVerificationContext.getMaterials(), empty());
-        assertThat(ruleVerificationContext.getProducts(), empty());
-        assertThat(ruleVerificationContext.getRule(), sameInstance(expectedProductRule));
-        assertThat(ruleVerificationContext.getVerificationContext(), sameInstance(verificationContext));
     }
-
+    
     @Test
-    void verifyMaterialRuleFailed() {
-        when(ruleVerification.verifyExpectedProducts(any(RuleVerificationContext.class))).thenReturn(productRuleVerificationResult);
+    void verifyAllowRuleWithNotConsumed() {
+        step = Step.builder()
+                .name(STEP_NAME)
+                .expectedMaterials(List.of(allowRuleWithNotFound))
+                .expectedProducts(List.of(allowRuleWithNotFound)).build();
+        linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
+                .builder().link(Link.builder()
+                        .materials(List.of(artifact1))
+                        .products(List.of(artifact2))
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .stepName(STEP_NAME).build()).build()));
         setupMocks();
-
-        when(materialRuleVerificationResult.isValid()).thenReturn(false);
-        when(productRuleVerificationResult.isValid()).thenReturn(true);
-
-        when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
-        when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(productArtifact));
-
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
-        verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
-
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
     }
-
+    
     @Test
-    void verifyProductRuleFailed() {
-        when(ruleVerification.verifyExpectedProducts(any(RuleVerificationContext.class))).thenReturn(productRuleVerificationResult);
+    void verifyListOfRules() {
+        step = Step.builder()
+                .name(STEP_NAME)
+                .expectedMaterials(List.of(allowRuleWithNotFound, allowAllRule))
+                .expectedProducts(List.of(allowRuleWithNotFound, allowAllRule)).build();
+        linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock.builder()
+                .link(Link.builder()
+                .materials(List.of(artifact1))
+                .products(List.of(artifact2))
+                .layoutSegmentName(SEGMENT_NAME)
+                .stepName(STEP_NAME).build())
+                .build()));
         setupMocks();
-
-        when(materialRuleVerificationResult.isValid()).thenReturn(true);
-        when(productRuleVerificationResult.isValid()).thenReturn(false);
-
-        when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
-        when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(productArtifact));
-
         assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
-        verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
-
     }
-
+    
     @Test
-    void verifyNotAllProductArtifactsChecked() {
-        when(ruleVerification.verifyExpectedProducts(any(RuleVerificationContext.class))).thenReturn(productRuleVerificationResult);
+    void verifyRuleFails() {
+        step = Step.builder()
+                .name(STEP_NAME)
+                .expectedMaterials(List.of(allowRuleWithNotFound, disAllowAllRule))
+                .expectedProducts(List.of(allowRuleWithNotFound, disAllowAllRule)).build();
+        linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
+                .builder().link(Link.builder()
+                        .materials(List.of(artifact1))
+                        .products(List.of(artifact2))
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .stepName(STEP_NAME).build()).build()));
         setupMocks();
-
-        when(materialRuleVerificationResult.isValid()).thenReturn(true);
-        when(productRuleVerificationResult.isValid()).thenReturn(true);
-
-        when(link.getMaterials()).thenReturn(List.of(materialArtifact));
-        when(link.getProducts()).thenReturn(List.of(productArtifact));
-
-        when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
-        when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of());
-
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
-        verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
 
     }
 
     @Test
-    void verifyNotAllMaterialArtifactsChecked() {
-        when(ruleVerification.verifyExpectedProducts(any(RuleVerificationContext.class))).thenReturn(productRuleVerificationResult);
+    void verifyArtifactsNoRules() {
+        step = Step.builder()
+                .name(STEP_NAME)
+                .expectedMaterials(List.of())
+                .expectedProducts(List.of()).build();
+        linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
+                .builder().link(Link.builder()
+                        .materials(List.of(artifact1))
+                        .products(List.of(artifact2))
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .stepName(STEP_NAME).build()).build()));
         setupMocks();
-
-        when(materialRuleVerificationResult.isValid()).thenReturn(true);
-        when(productRuleVerificationResult.isValid()).thenReturn(true);
-
-        when(link.getMaterials()).thenReturn(List.of(materialArtifact));
-        when(link.getProducts()).thenReturn(List.of(productArtifact));
-
-        when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of());
-        when(productRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(productArtifact));
-
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
-        verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
 
     }
 
     @Test
     void verifyNotImplementedRule() {
+        step = Step.builder()
+                .name(STEP_NAME)
+                .expectedMaterials(List.of(deleteRule))
+                .expectedProducts(List.of(deleteRule)).build();
+        linkMetaBlocks = new ArrayList<>(List.of(LinkMetaBlock
+                .builder().link(Link.builder()
+                        .materials(List.of(artifact1))
+                        .products(List.of(artifact2))
+                        .layoutSegmentName(SEGMENT_NAME)
+                        .stepName(STEP_NAME).build()).build()));
         setupMocks();
-
-        when(expectedProductRule.getRuleType()).thenReturn(RuleType.DELETE);
-        when(materialRuleVerificationResult.isValid()).thenReturn(true);
-
-
-        when(materialRuleVerificationResult.getValidatedArtifacts()).thenReturn(Set.of(materialArtifact));
-
-        assertThat(verification.verify(verificationContext).isRunIsValid(), is(true));
-        verify(verificationContext).removeLinkMetaBlocks(List.of(linkMetaBlock));
+        assertThat(verification.verify(verificationContext).isRunIsValid(), is(false));
 
     }
 
     private void setupMocks() {
-        when(ruleVerification.getRuleType()).thenReturn(RuleType.ALLOW);
-        verification.init();
-        when(verificationContext.layoutSegments()).thenReturn(singletonList(layoutSegment));
+        when(layoutMetaBlock.getLayout()).thenReturn(layout);
+        when(layout.getLayoutSegments()).thenReturn(Collections.singletonList(layoutSegment));
+        when(layoutSegment.getSteps()).thenReturn(Collections.singletonList(step));
         when(layoutSegment.getName()).thenReturn(SEGMENT_NAME);
-        when(verificationContext.getExpectedStepNamesBySegmentName(SEGMENT_NAME)).thenReturn(singletonList(STEP_NAME));
-        when(verificationContext.getStepBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(step);
-        when(linkMetaBlock.getLink()).thenReturn(link);
-        when(verificationContext.getLinksBySegmentNameAndStepName(SEGMENT_NAME, STEP_NAME)).thenReturn(List.of(linkMetaBlock));
-        when(step.getStepName()).thenReturn(STEP_NAME);
-        when(expectedMaterialRule.getRuleType()).thenReturn(RuleType.ALLOW);
-        when(step.getExpectedMaterials()).thenReturn(List.of(expectedMaterialRule));
-
-        when(expectedProductRule.getRuleType()).thenReturn(RuleType.ALLOW);
-        when(step.getExpectedProducts()).thenReturn(List.of(expectedProductRule));
-
-        when(ruleVerification.verifyExpectedMaterials(any(RuleVerificationContext.class))).thenReturn(materialRuleVerificationResult);
-
-
+        verificationContext = VerificationContext
+                .builder()
+                .layoutMetaBlock(layoutMetaBlock)
+                .linkMetaBlocks(linkMetaBlocks)
+                .build();
     }
 }

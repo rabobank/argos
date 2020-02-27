@@ -13,19 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.verification.rules;
+package com.rabobank.argos.domain.layout;
 
-import lombok.AllArgsConstructor;
-
-import java.nio.file.FileSystems;
-import java.nio.file.Paths;
-
-import static lombok.AccessLevel.PRIVATE;
-
-@AllArgsConstructor(access = PRIVATE)
-public class ArtifactMatcher {
-
-    public static boolean matches(String uri, String pattern) {
-        return FileSystems.getDefault().getPathMatcher("glob:" + pattern).matches(Paths.get(uri));
-    }
+public enum ArtifactType {
+    PRODUCTS, MATERIALS
 }

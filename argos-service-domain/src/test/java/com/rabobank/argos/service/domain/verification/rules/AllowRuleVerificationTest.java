@@ -18,17 +18,21 @@ package com.rabobank.argos.service.domain.verification.rules;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
+import com.rabobank.argos.service.domain.verification.ArtifactsVerificationContext;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.stream.Stream;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -39,6 +43,9 @@ class AllowRuleVerificationTest {
 
     @Mock
     private RuleVerificationContext<? extends Rule> context;
+    
+    @Mock
+    private ArtifactsVerificationContext artifactsContext;
 
     @Mock
     private Artifact artifact;
@@ -54,18 +61,18 @@ class AllowRuleVerificationTest {
     }
 
     @Test
-    void verifyExpectedProducts() {
-        when(context.getFilteredProducts()).thenReturn(Stream.of(artifact));
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedProducts(context);
-        assertThat(ruleVerificationResult.isValid(), is(true));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), contains(artifact));
+    void verifyExpectedArtifacts() {
+        when(context.getFilteredArtifacts()).thenReturn(Set.of(artifact));
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(anySet());
     }
+    
+
 
     @Test
-    void verifyExpectedMaterials() {
-        when(context.getFilteredMaterials()).thenReturn(Stream.of(artifact));
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
-        assertThat(ruleVerificationResult.isValid(), is(true));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), contains(artifact));
+    void verifyExpectedArtifactsEmpty() {
+        when(context.getFilteredArtifacts()).thenReturn(Set.of());
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of());
     }
 }

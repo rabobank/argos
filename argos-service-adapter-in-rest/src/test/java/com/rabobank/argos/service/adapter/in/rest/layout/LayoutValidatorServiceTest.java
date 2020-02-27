@@ -121,7 +121,7 @@ class LayoutValidatorServiceTest {
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(layoutSegment.getName()).thenReturn("segmentName");
-        when(step.getStepName()).thenReturn("stepName");
+        when(step.getName()).thenReturn("stepName");
         when(layout.getExpectedEndProducts()).thenReturn(singletonList(matchFilter));
         when(matchFilter.getDestinationSegmentName()).thenReturn("segmentName");
         when(matchFilter.getDestinationStepName()).thenReturn("stepName");
@@ -292,7 +292,7 @@ class LayoutValidatorServiceTest {
     @Test
     void validateStepNamesNotUnique() {
         when(layoutSegment.getName()).thenReturn("segment 1");
-        when(step.getStepName()).thenReturn("stepName");
+        when(step.getName()).thenReturn("stepName");
         when(layoutSegment.getSteps()).thenReturn(List.of(step, step));
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
@@ -306,7 +306,7 @@ class LayoutValidatorServiceTest {
         when(matchFilter.getDestinationSegmentName()).thenReturn("segmentName");
         when(matchFilter.getDestinationStepName()).thenReturn("otherStepName");
         when(layoutSegment.getName()).thenReturn("segmentName");
-        when(step.getStepName()).thenReturn("stepName");
+        when(step.getName()).thenReturn("stepName");
         when(layoutSegment.getSteps()).thenReturn(List.of(step));
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
@@ -319,7 +319,7 @@ class LayoutValidatorServiceTest {
         when(layout.getExpectedEndProducts()).thenReturn(singletonList(matchFilter));
         when(matchFilter.getDestinationSegmentName()).thenReturn("otherSegmentName");
         when(layoutSegment.getName()).thenReturn("segmentName");
-        when(step.getStepName()).thenReturn("stepName");
+        when(step.getName()).thenReturn("stepName");
         when(layoutSegment.getSteps()).thenReturn(List.of(step));
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
@@ -334,7 +334,7 @@ class LayoutValidatorServiceTest {
         when(layoutSegment2.getSteps()).thenReturn(singletonList(step));
         when(layoutSegment2.getName()).thenReturn("othersegmentName");
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment, layoutSegment2));
-        when(step.getStepName()).thenReturn("stepName");
+        when(step.getName()).thenReturn("stepName");
         when(layout.getExpectedEndProducts()).thenReturn(List.of(matchFilter, matchFilter2));
         when(matchFilter.getDestinationSegmentName()).thenReturn("segmentName");
         when(matchFilter.getDestinationStepName()).thenReturn("stepName");

@@ -17,11 +17,16 @@ package com.rabobank.argos.service.domain.verification.rules;
 
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
+import com.rabobank.argos.domain.link.Artifact;
+
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.Set;
+
 import org.springframework.stereotype.Component;
 
-import static java.util.stream.Collectors.toSet;
-
 @Component
+@Slf4j
 public class AllowRuleVerification implements RuleVerification {
     @Override
     public RuleType getRuleType() {
@@ -29,12 +34,10 @@ public class AllowRuleVerification implements RuleVerification {
     }
 
     @Override
-    public RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
-        return RuleVerificationResult.okay(context.getFilteredProducts().collect(toSet()));
-    }
-
-    @Override
-    public RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context) {
-        return RuleVerificationResult.okay(context.getFilteredMaterials().collect(toSet()));
+    public boolean verify(RuleVerificationContext<? extends Rule> context) {
+        Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
+        context.consume(filteredArtifacts);
+        logInfo(log, filteredArtifacts);
+        return true;
     }
 }

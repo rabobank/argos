@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
+import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,6 @@ public class ExpectedCommandVerification implements Verification {
 
     @Override
     public VerificationRunResult verify(VerificationContext context) {
-
         List<LinkMetaBlock> failedCommandVerifications = context.getLinkMetaBlocks()
                 .stream()
                 //check each link for failed required commands
@@ -54,26 +54,16 @@ public class ExpectedCommandVerification implements Verification {
     }
 
     private static Predicate<LinkMetaBlock> linkMetaBlockDoesNotHaveRequiredCommands(VerificationContext context) {
-        return linkMetaBlock -> linkCommandsAreNullAndStepCommandsAreNot(context, linkMetaBlock)
-                ||
-                linkCommandDoNotMatchStepCommands(context, linkMetaBlock);
+        return linkMetaBlock -> {
+            String segmentName = linkMetaBlock.getLink().getLayoutSegmentName();
+            String stepName = linkMetaBlock.getLink().getStepName();
+            Step step = context.getStepBySegmentNameAndStepName(segmentName, stepName);
+            return linkCommandDoNotMatchStepCommands(step.getExpectedCommand(), linkMetaBlock.getLink().getCommand());
+        };
     }
 
-    private static boolean linkCommandDoNotMatchStepCommands(VerificationContext context, LinkMetaBlock linkMetaBlock) {
-        return !getExpectedCommand(context, linkMetaBlock)
-                .containsAll(linkMetaBlock.getLink().getCommand());
-    }
-
-    private static boolean linkCommandsAreNullAndStepCommandsAreNot(VerificationContext context, LinkMetaBlock linkMetaBlock) {
-        return linkMetaBlock.getLink().getCommand() == null && getExpectedCommand(context, linkMetaBlock) != null;
-    }
-
-    private static List<String> getExpectedCommand(VerificationContext context, LinkMetaBlock linkMetaBlock) {
-        return context
-                .getStepBySegmentNameAndStepName(
-                        linkMetaBlock.getLink().getLayoutSegmentName(),
-                        linkMetaBlock.getLink().getStepName()
-                )
-                .getExpectedCommand();
+    private static boolean linkCommandDoNotMatchStepCommands(List<String> expectedCommand, List<String> command) {
+        return (command == null && expectedCommand != null)
+                || (command != null && !command.equals(expectedCommand));
     }
 }

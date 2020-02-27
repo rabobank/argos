@@ -50,7 +50,7 @@ public class JsonSigningSerializer implements SigningSerializer {
     public String serialize(Layout layout) {
         Layout layoutClone = Mappers.getMapper(Cloner.class).clone(layout);
         layoutClone.getLayoutSegments().sort(comparing(LayoutSegment::getName));
-        layoutClone.getLayoutSegments().forEach(layoutSegment -> layoutSegment.getSteps().sort(comparing(Step::getStepName)));
+        layoutClone.getLayoutSegments().forEach(layoutSegment -> layoutSegment.getSteps().sort(comparing(Step::getName)));
         return serializeSignable(layoutClone);
     }
 

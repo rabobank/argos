@@ -15,15 +15,31 @@
  */
 package com.rabobank.argos.service.domain.verification.rules;
 
+import java.util.Set;
+
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
+import com.rabobank.argos.domain.link.Artifact;
+
+import org.slf4j.Logger;
 
 public interface RuleVerification {
-
+    
     RuleType getRuleType();
 
-    RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context);
-
-    RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context);
+    boolean verify(RuleVerificationContext<? extends Rule> context);
+    
+    public default void logInfo(Logger log, Set<Artifact> artifacts) {
+        log.info("verify result for [{}] rule was valid, number of consumed artifacts [{}]",
+                getRuleType(),
+                artifacts.size());
+    }
+    
+    public default void logErrors(Logger log, Set<Artifact> artifacts) {
+        artifacts.stream().forEach(artifact -> log.info("On rule type [{}] not consumed artifact: [{}]", 
+                    getRuleType(),
+                    artifact)
+        );
+    }
 
 }
