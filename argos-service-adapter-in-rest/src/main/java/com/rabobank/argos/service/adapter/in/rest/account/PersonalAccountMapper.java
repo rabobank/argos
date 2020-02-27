@@ -27,7 +27,6 @@ import com.rabobank.argos.service.adapter.in.rest.permission.RoleMapper;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -44,10 +43,9 @@ public abstract class PersonalAccountMapper {
     @Autowired
     private RoleMapper roleMapper;
 
-    @Mappings({
-            @Mapping(target = "id", source = "accountId"),
-            @Mapping(target = "roles", source = "roleIds", qualifiedByName = "convertToRestRoles")
-    })
+
+    @Mapping(target = "id", source = "accountId")
+    @Mapping(target = "roles", source = "roleIds", qualifiedByName = "convertToRestRoles")
     public abstract RestPersonalAccount convertToRestPersonalAccount(PersonalAccount personalAccount);
 
     @Named("convertToRestRoles")
@@ -55,10 +53,9 @@ public abstract class PersonalAccountMapper {
         return roleRepository.findByIds(roleIds).stream().map(roleMapper::convertToRestRole).collect(Collectors.toList());
     }
 
-    @Mappings({
-            @Mapping(target = "id", source = "accountId"),
-            @Mapping(target = "roles", ignore = true)
-    })
+
+    @Mapping(target = "id", source = "accountId")
+    @Mapping(target = "roles", ignore = true)
     public abstract RestPersonalAccount convertToRestPersonalAccountWithoutRoles(PersonalAccount personalAccount);
 
     public abstract List<RestLocalPermissions> convertToRestLocalPermissions(List<LocalPermissions> localPermissions);

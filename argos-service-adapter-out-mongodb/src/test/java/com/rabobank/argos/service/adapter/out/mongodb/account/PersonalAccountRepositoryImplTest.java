@@ -52,6 +52,7 @@ class PersonalAccountRepositoryImplTest {
     private static final String ACTIVE_KEY_ID = "activeKeyId";
     private static final long COUNT = 12334L;
     private static final String ROLE_ID = "roleId";
+    private static final String LABEL_ID = "labelId";
     @Mock
     private MongoTemplate template;
 
@@ -137,10 +138,26 @@ class PersonalAccountRepositoryImplTest {
 
 
     @Test
-    void search() {
+    void searchAll() {
         when(template.find(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(List.of(personalAccount));
         assertThat(repository.search(AccountSearchParams.builder().build()), contains(personalAccount));
         verify(template).find(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
         assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: {}, Fields: { \"accountId\" : 1, \"name\" : 1, \"email\" : 1}, Sort: { \"name\" : 1}"));
+    }
+
+    @Test
+    void searchByRoleId() {
+        when(template.find(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(List.of(personalAccount));
+        assertThat(repository.search(AccountSearchParams.builder().roleId(ROLE_ID).build()), contains(personalAccount));
+        verify(template).find(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"roleIds\" : { \"$in\" : [\"roleId\"]}}, Fields: { \"accountId\" : 1, \"name\" : 1, \"email\" : 1}, Sort: { \"name\" : 1}"));
+    }
+
+    @Test
+    void searchByLocalPermissionsLabelId() {
+        when(template.find(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(List.of(personalAccount));
+        assertThat(repository.search(AccountSearchParams.builder().localPermissionsLabelId(LABEL_ID).build()), contains(personalAccount));
+        verify(template).find(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"localPermissions.labelId\" : \"labelId\"}, Fields: { \"accountId\" : 1, \"name\" : 1, \"email\" : 1}, Sort: { \"name\" : 1}"));
     }
 }

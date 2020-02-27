@@ -119,7 +119,11 @@ public class AccountServiceImpl implements AccountService {
                     .filter(localPermissions -> localPermissions.getLabelId().equals(newLocalPermissions.getLabelId()))
                     .findFirst()
                     .ifPresentOrElse(localPermissions -> localPermissions.setPermissions(newLocalPermissions.getPermissions()),
-                            () -> personalAccount.getLocalPermissions().add(newLocalPermissions));
+                            () -> {
+                                ArrayList<LocalPermissions> localPermissions = new ArrayList<>(personalAccount.getLocalPermissions());
+                                localPermissions.add(newLocalPermissions);
+                                personalAccount.setLocalPermissions(localPermissions);
+                            });
             personalAccountRepository.update(personalAccount);
             return personalAccount;
         });

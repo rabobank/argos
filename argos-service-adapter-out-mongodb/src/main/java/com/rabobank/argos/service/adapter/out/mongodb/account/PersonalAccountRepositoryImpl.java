@@ -82,7 +82,7 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     public List<PersonalAccount> search(AccountSearchParams params) {
         Query query = params.getRoleId()
                 .map(roleId -> new Query(where(ROLE_ID_FIELD).in(roleId))).orElseGet(() ->
-                        params.getLocalPermissionsLabelId().map(labelId -> new Query(where(PERMISSIONS_LABEL_ID_FIELD).in(labelId)))
+                        params.getLocalPermissionsLabelId().map(labelId -> new Query(where(PERMISSIONS_LABEL_ID_FIELD).is(labelId)))
                                 .orElseGet(Query::new));
         query.fields().include(ACCOUNT_ID).include(EMAIL).include(NAME_FIELD);
         return template.find(query.with(Sort.by(NAME_FIELD)), PersonalAccount.class, COLLECTION);

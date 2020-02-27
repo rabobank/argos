@@ -19,7 +19,6 @@ import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.integrationtest.argos.service.api.model.RestLayoutMetaBlock;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -32,10 +31,9 @@ import static com.rabobank.argos.domain.key.RSAPublicKeyFactory.instance;
 @Mapper(componentModel = "spring", uses = {StepMapper.class})
 public interface LayoutMetaBlockMapper {
 
-    @Mappings({
-            @Mapping(target = "layoutMetaBlockId", ignore = true),
-            @Mapping(target = "supplyChainId", ignore = true)}
-    )
+
+    @Mapping(target = "layoutMetaBlockId", ignore = true)
+    @Mapping(target = "supplyChainId", ignore = true)
     LayoutMetaBlock convertFromRestLayoutMetaBlock(RestLayoutMetaBlock metaBlock);
 
     @Mapping(source = "layoutMetaBlockId", target = "id")
