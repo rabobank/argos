@@ -18,6 +18,7 @@ package com.rabobank.argos.domain.layout;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,7 @@ import java.util.Optional;
 @Getter
 @Setter
 @Builder
+@ToString
 public class Layout {
     private List<PublicKey> keys;
     private List<String> authorizedKeyIds;

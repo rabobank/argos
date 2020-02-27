@@ -104,8 +104,8 @@ public class LayoutValidatorService {
     }
 
     private void validateStepNamesUnique(LayoutSegment layoutSegment) {
-        Set<String> stepNameSet = layoutSegment.getSteps().stream().map(Step::getStepName).collect(toSet());
-        List<String> stepNameList = layoutSegment.getSteps().stream().map(Step::getStepName).collect(toList());
+        Set<String> stepNameSet = layoutSegment.getSteps().stream().map(Step::getName).collect(toSet());
+        List<String> stepNameList = layoutSegment.getSteps().stream().map(Step::getName).collect(toList());
         if (stepNameSet.size() != stepNameList.size()) {
             throwValidationException("step names are not unique");
         }
@@ -133,7 +133,7 @@ public class LayoutValidatorService {
     }
 
     private boolean hasDestinationStepName(List<Step> steps, String destinationStepName) {
-        return steps.stream().anyMatch(step -> step.getStepName().equals(destinationStepName));
+        return steps.stream().anyMatch(step -> step.getName().equals(destinationStepName));
     }
 
     private void validateSupplyChain(LayoutMetaBlock layoutMetaBlock) {

@@ -20,18 +20,18 @@ import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
-import com.rabobank.argos.domain.link.LinkMetaBlock;
+import com.rabobank.argos.service.domain.verification.ArtifactsVerificationContext;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
-import static com.rabobank.argos.domain.layout.DestinationType.MATERIALS;
-import static com.rabobank.argos.domain.layout.DestinationType.PRODUCTS;
-import static com.rabobank.argos.service.domain.verification.rules.RuleVerificationContext.filterArtifacts;
-import static java.util.stream.Collectors.toSet;
+import static com.rabobank.argos.domain.layout.ArtifactType.PRODUCTS;
+
+import java.util.HashSet;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -42,64 +42,45 @@ public class MatchRuleVerification implements RuleVerification {
     }
 
     @Override
-    public RuleVerificationResult verifyExpectedProducts(RuleVerificationContext<? extends Rule> context) {
-        return verify(context, filterSourceArtifacts(context.getProducts(), context.getRule()));
-    }
-
-    @Override
-    public RuleVerificationResult verifyExpectedMaterials(RuleVerificationContext<? extends Rule> context) {
-        return verify(context, filterSourceArtifacts(context.getMaterials(), context.getRule()));
-    }
-
-    private RuleVerificationResult verify(RuleVerificationContext<? extends Rule> context, Stream<Artifact> filteredSourceArtifacts) {
+    public boolean verify(RuleVerificationContext<? extends Rule> context) {
         MatchRule rule = context.getRule();
-        List<LinkMetaBlock> linksByStepName = context.getVerificationContext()
-                .getOriginalLinksBySegmentNameAndStepName(rule.getDestinationSegmentName(), rule.getDestinationStepName());
-        if (!linksByStepName.isEmpty()) {
+        Set<Artifact> filteredArtifacts = context.getFilteredArtifacts(rule.getSourcePathPrefix());
+        
+        String destinationSegmentName = rule.getDestinationSegmentName() != null ? rule.getDestinationSegmentName() : context.getSegmentName();
+
+        Optional<Link> optionalLink = context.getLinkBySegmentNameAndStepName(destinationSegmentName, rule.getDestinationStepName());
+        
+        if (optionalLink.isPresent()) {
+            Link link = optionalLink.get();
+            Set<Artifact> filteredDestinationArtifacts = null;
             if (rule.getDestinationType() == PRODUCTS) {
-                return checkResult(getLinkStream(linksByStepName).map(destinationLink ->
-                        verifyArtifacts(filteredSourceArtifacts, filterDestinationArtifacts(destinationLink.getProducts(), rule))));
-            } else if (rule.getDestinationType() == MATERIALS) {
-                return checkResult(getLinkStream(linksByStepName).map(destinationLink ->
-                        verifyArtifacts(filteredSourceArtifacts, filterDestinationArtifacts(destinationLink.getMaterials(), rule))));
+                filteredDestinationArtifacts = new HashSet<>(link.getProducts());                
             } else {
-                log.error("unknown destination type {}", rule.getDestinationType());
-                return RuleVerificationResult.notOkay();
+                filteredDestinationArtifacts = new HashSet<>(link.getMaterials());
+            }
+            filteredDestinationArtifacts = ArtifactsVerificationContext.filterArtifacts(filteredDestinationArtifacts, rule.getPattern(), rule.getDestinationPathPrefix());
+            if (verifyArtifacts(filteredArtifacts, filteredDestinationArtifacts)) {
+                context.consume(filteredArtifacts);
+                logInfo(log, filteredArtifacts);
+                return true;
+            } else {
+                logErrors(log, filteredArtifacts);
+                return false;
             }
         } else {
-            log.warn("no links for destination step {}", rule.getDestinationStepName());
-            return RuleVerificationResult.notOkay();
+            log.warn("no link for destination step {}", rule.getDestinationStepName());
+            return false;
         }
     }
 
-    private Stream<Link> getLinkStream(List<LinkMetaBlock> linksByStepName) {
-        return linksByStepName.stream().map(LinkMetaBlock::getLink);
-    }
-
-    private RuleVerificationResult checkResult(Stream<RuleVerificationResult> resultStream) {
-        return resultStream.filter(RuleVerificationResult::isValid).findFirst().orElse(RuleVerificationResult.notOkay());
-    }
-
-    private Stream<Artifact> filterDestinationArtifacts(List<Artifact> destinationArtifacts, MatchRule matchRule) {
-        return filterArtifacts(destinationArtifacts, matchRule.getPattern(), matchRule.getDestinationPathPrefix());
-    }
-
-    private Stream<Artifact> filterSourceArtifacts(List<Artifact> sourceArtifacts, MatchRule matchRule) {
-        return filterArtifacts(sourceArtifacts, matchRule.getPattern(), matchRule.getSourcePathPrefix());
-    }
-
-    private RuleVerificationResult verifyArtifacts(Stream<Artifact> filteredSourceArtifacts, Stream<Artifact> filteredDestinationArtifacts) {
-        Set<Artifact> artifacts = filteredSourceArtifacts.collect(toSet());
-        if (!artifacts.isEmpty() && areEqual(artifacts.stream().map(Artifact::getHash).collect(toSet()), filteredDestinationArtifacts.map(Artifact::getHash).collect(toSet()))) {
-            return RuleVerificationResult.okay(artifacts);
-        } else {
-            return RuleVerificationResult.notOkay();
-        }
-    }
-
-    private boolean areEqual(Set<String> filteredSourceHashes, Set<String> filteredDestinationHashes) {
-        return filteredSourceHashes.size() == filteredDestinationHashes.size() && filteredSourceHashes.containsAll(filteredDestinationHashes);
-    }
-
+    private boolean verifyArtifacts(Set<Artifact> filteredSourceArtifacts, Set<Artifact> filteredDestinationArtifacts) {
+        return filteredSourceArtifacts
+                .stream()
+                .map(Artifact::getHash)
+                .allMatch(filteredDestinationArtifacts
+                        .stream()
+                        .map(Artifact::getHash)
+                        .collect(Collectors.toSet())::contains);
+    }    
 
 }

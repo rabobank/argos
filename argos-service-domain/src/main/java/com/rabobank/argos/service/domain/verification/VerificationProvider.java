@@ -58,7 +58,10 @@ public class VerificationProvider {
 
         return verificationRunResults
                 .stream()
-                .peek(verificationRunResult -> log.info("context validity: {}", verificationRunResult.isRunIsValid()))
+                .map(verificationRunResult -> {                    
+                    log.info("context validity: {}", verificationRunResult.isRunIsValid());
+                    return verificationRunResult;
+                })
                 .filter(VerificationRunResult::isRunIsValid)
                 .findFirst().orElse(VerificationRunResult.valid(false));
     }

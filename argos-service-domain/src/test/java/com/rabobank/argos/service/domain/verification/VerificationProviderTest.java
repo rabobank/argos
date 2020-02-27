@@ -95,7 +95,7 @@ class VerificationProviderTest {
     }
 
     private void setupMocking() {
-        when(lowPrio.getPriority()).thenReturn(Verification.Priority.BUILDSTEPS_COMPLETED);
+        when(lowPrio.getPriority()).thenReturn(Verification.Priority.EXPECTED_COMMAND);
         when(highPrio.getPriority()).thenReturn(Verification.Priority.LAYOUT_METABLOCK_SIGNATURE);
         when(verificationContextsProvider.createPossibleVerificationContexts(any(), any())).thenReturn(singletonList(verificationContext));
         verifications.add(lowPrio);

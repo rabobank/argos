@@ -18,17 +18,21 @@ package com.rabobank.argos.service.domain.verification.rules;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
+import com.rabobank.argos.service.domain.verification.ArtifactsVerificationContext;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.stream.Stream;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +42,9 @@ class DeleteRuleVerificationTest {
     private DeleteRuleVerification deleteRuleVerification;
     @Mock
     private RuleVerificationContext<? extends Rule> context;
+    
+    @Mock
+    private ArtifactsVerificationContext artifactsContext;
 
     @Mock
     private Artifact artifact;
@@ -53,37 +60,45 @@ class DeleteRuleVerificationTest {
     }
 
     @Test
-    void verifyExpectedProducts() {
-        when(context.getFilteredProducts()).thenReturn(Stream.empty());
-        when(context.getFilteredMaterials()).thenReturn(Stream.of(artifact));
-        RuleVerificationResult result = deleteRuleVerification.verifyExpectedProducts(context);
-        assertThat(result.isValid(), is(true));
-        assertThat(result.getValidatedArtifacts(), hasSize(0));
+    void verifyArtifacts() {
+        when(context.getFilteredArtifacts()).thenReturn(Set.of(artifact));
+        when(context.getMaterials()).thenReturn(Set.of(artifact));
+        when(context.getProducts()).thenReturn(Set.of());
+        assertThat(deleteRuleVerification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of(artifact));
     }
 
     @Test
-    void verifyExpectedMaterials() {
-        when(context.getFilteredMaterials()).thenReturn(Stream.of(artifact));
-        RuleVerificationResult result = deleteRuleVerification.verifyExpectedMaterials(context);
-        assertThat(result.isValid(), is(true));
-        assertThat(result.getValidatedArtifacts(), hasSize(0));
+    void verifyNotDeleted() {
+        when(context.getFilteredArtifacts()).thenReturn(Set.of(artifact));
+        assertThat(deleteRuleVerification.verify(context), is(false));
+        verify(context, times(0)).consume(anySet());
 
     }
 
     @Test
-    void verifyExpectedProductsWithNonDeletedMaterialsShouldProduceInvalid() {
-        when(context.getFilteredProducts()).thenReturn(Stream.of(artifact));
-        when(context.getFilteredMaterials()).thenReturn(Stream.of(artifact));
-        RuleVerificationResult result = deleteRuleVerification.verifyExpectedProducts(context);
-        assertThat(result.isValid(), is(false));
-        assertThat(result.getValidatedArtifacts(), hasSize(0));
+    void verifyWithNonDeletedArtifactsShouldProduceInvalid() {
+        when(context.getFilteredArtifacts()).thenReturn(Set.of(artifact));
+        when(context.getMaterials()).thenReturn(Set.of(artifact));
+        when(context.getProducts()).thenReturn(Set.of(artifact));
+        assertThat(deleteRuleVerification.verify(context), is(false));
+        verify(context, times(0)).consume(anySet());
+    }
+
+
+    @Test
+    void verifyOnProductsShouldProduceInvalid() {
+        when(context.getFilteredArtifacts()).thenReturn(Set.of());
+        when(context.getMaterials()).thenReturn(Set.of(artifact));
+        when(context.getProducts()).thenReturn(Set.of());
+        assertThat(deleteRuleVerification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of());
     }
 
     @Test
-    void verifyExpectedMaterialsWithEmptyMaterialsShouldProduceInvalid() {
-        when(context.getFilteredMaterials()).thenReturn(Stream.empty());
-        RuleVerificationResult result = deleteRuleVerification.verifyExpectedMaterials(context);
-        assertThat(result.isValid(), is(false));
-        assertThat(result.getValidatedArtifacts(), hasSize(0));
+    void verifyWithEmptyArtifactsShouldProduceInvalid() {
+        when(context.getFilteredArtifacts()).thenReturn(Set.of());
+        assertThat(deleteRuleVerification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of());
     }
 }

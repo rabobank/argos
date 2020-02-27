@@ -16,9 +16,10 @@
 package com.rabobank.argos.domain.layout.rule;
 
 
-import com.rabobank.argos.domain.layout.DestinationType;
+import com.rabobank.argos.domain.layout.ArtifactType;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 @Setter
@@ -26,14 +27,14 @@ import lombok.Setter;
 public class MatchRule extends Rule {
 
     private String sourcePathPrefix;
+    private ArtifactType destinationType;
     private String destinationPathPrefix;
-    private DestinationType destinationType;
     private String destinationSegmentName;
     private String destinationStepName;
 
     @Builder
-    public MatchRule(String pattern, String destinationPathPrefix, String sourcePathPrefix, DestinationType destinationType,
-                     String destinationSegmentName, String destinationStepName) {
+    public MatchRule(String pattern, String sourcePathPrefix, @NonNull ArtifactType destinationType,
+            String destinationPathPrefix, String destinationSegmentName, String destinationStepName) {
         super(RuleType.MATCH, pattern);
         this.sourcePathPrefix = sourcePathPrefix;
         this.destinationPathPrefix = destinationPathPrefix;
@@ -41,7 +42,6 @@ public class MatchRule extends Rule {
         this.destinationSegmentName = destinationSegmentName;
         this.destinationStepName = destinationStepName;
     }
-
 }
 
 

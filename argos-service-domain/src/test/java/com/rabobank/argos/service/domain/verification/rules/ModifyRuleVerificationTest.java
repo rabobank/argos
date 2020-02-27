@@ -18,18 +18,21 @@ package com.rabobank.argos.service.domain.verification.rules;
 import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
+import com.rabobank.argos.service.domain.verification.ArtifactsVerificationContext;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.stream.Stream;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,12 +46,15 @@ class ModifyRuleVerificationTest {
 
     @Mock
     private RuleVerificationContext<? extends Rule> context;
-
+    
     @Mock
-    private Artifact productArtifact;
+    private ArtifactsVerificationContext artifactsContext;
 
-    @Mock
-    private Artifact materialArtifact;
+    private Artifact artifact = new Artifact(ARTIFACT_URI, PRODUCT_HASH);
+    private Artifact artifact2 = new Artifact("uri2", "hash2");
+    private Artifact artifact3 = new Artifact("uri3", "hash3");
+    private Artifact productArtifact = new Artifact(ARTIFACT_URI, PRODUCT_HASH);
+    private Artifact materialArtifact = new Artifact(ARTIFACT_URI, MATERIAL_HASH);
 
     @BeforeEach
     void setUp() {
@@ -61,65 +67,43 @@ class ModifyRuleVerificationTest {
     }
 
     @Test
-    void verifyExpectedProductsHappyFlow() {
-        when(productArtifact.getUri()).thenReturn(ARTIFACT_URI);
-        when(materialArtifact.getUri()).thenReturn(ARTIFACT_URI);
+    void verifyArtifactsHappyFlow() {
 
-        when(productArtifact.getHash()).thenReturn(PRODUCT_HASH);
-        when(materialArtifact.getHash()).thenReturn(MATERIAL_HASH);
+        when(context.getFilteredArtifacts()).thenReturn(Set.of(artifact));
+        when(context.getProducts()).thenReturn(Set.of(artifact2,productArtifact));
+        when(context.getMaterials()).thenReturn(Set.of(artifact3, materialArtifact));
 
-        when(context.getFilteredProducts()).thenReturn(Stream.of(productArtifact));
-        when(context.getFilteredMaterials()).thenReturn(Stream.of(materialArtifact));
-
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedProducts(context);
-
-        assertThat(ruleVerificationResult.isValid(), is(true));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), contains(productArtifact));
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of(artifact));
     }
 
     @Test
-    void verifyExpectedProductsHashEquals() {
-        when(productArtifact.getUri()).thenReturn(ARTIFACT_URI);
-        when(materialArtifact.getUri()).thenReturn(ARTIFACT_URI);
+    void verifyArtifactsNotModified() {
 
-        when(productArtifact.getHash()).thenReturn(PRODUCT_HASH);
-        when(materialArtifact.getHash()).thenReturn(PRODUCT_HASH);
+        when(context.getFilteredArtifacts()).thenReturn(Set.of(artifact));
+        when(context.getProducts()).thenReturn(Set.of(productArtifact));
+        when(context.getMaterials()).thenReturn(Set.of(productArtifact));
 
-        when(context.getFilteredProducts()).thenReturn(Stream.of(productArtifact));
-        when(context.getFilteredMaterials()).thenReturn(Stream.of(materialArtifact));
-
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedProducts(context);
-
-        assertThat(ruleVerificationResult.isValid(), is(false));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
+        assertThat(verification.verify(context), is(false));
+        verify(context, times(0)).consume(anySet());
     }
 
     @Test
-    void verifyExpectedProductsNoProductMatch() {
-        when(context.getFilteredProducts()).thenReturn(Stream.of());
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedProducts(context);
-
-        assertThat(ruleVerificationResult.isValid(), is(false));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
+    void verifyArtifactsNoProductMatch() {
+        when(context.getFilteredArtifacts()).thenReturn(Set.of());
+        assertThat(verification.verify(context), is(true));
+        verify(context, times(1)).consume(Set.of());
     }
 
     @Test
-    void verifyExpectedProductsNoMaterialMatch() {
-        when(productArtifact.getUri()).thenReturn(ARTIFACT_URI);
+    void verifyArtifactsNoMaterialMatch() {
 
-        when(context.getFilteredProducts()).thenReturn(Stream.of(productArtifact));
-        when(context.getFilteredMaterials()).thenReturn(Stream.of());
+        when(context.getProducts()).thenReturn(Set.of(productArtifact));
+        when(context.getMaterials()).thenReturn(Set.of());
 
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedProducts(context);
+        when(context.getFilteredArtifacts()).thenReturn(Set.of(productArtifact));
 
-        assertThat(ruleVerificationResult.isValid(), is(false));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
-    }
-
-    @Test
-    void verifyExpectedMaterials() {
-        RuleVerificationResult ruleVerificationResult = verification.verifyExpectedMaterials(context);
-        assertThat(ruleVerificationResult.isValid(), is(false));
-        assertThat(ruleVerificationResult.getValidatedArtifacts(), empty());
+        assertThat(verification.verify(context), is(false));
+        verify(context, times(0)).consume(anySet());
     }
 }

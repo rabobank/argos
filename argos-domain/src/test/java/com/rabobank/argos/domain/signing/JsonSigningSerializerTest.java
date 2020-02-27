@@ -17,8 +17,8 @@ package com.rabobank.argos.domain.signing;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabobank.argos.domain.layout.ArtifactType;
 import com.rabobank.argos.domain.key.RSAPublicKeyFactory;
-import com.rabobank.argos.domain.layout.DestinationType;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutSegment;
 import com.rabobank.argos.domain.layout.MatchFilter;
@@ -72,13 +72,13 @@ class JsonSigningSerializerTest {
                 .keys(Arrays.asList(PublicKey.builder().id("keyId").key(publicKey).build()))
                 .expectedEndProducts(singletonList(MatchFilter.builder()
                         .destinationSegmentName("destinationSegmentName")
-                        .destinationType(DestinationType.PRODUCTS)
+                        .destinationType(ArtifactType.PRODUCTS)
                         .destinationStepName("destinationStepName")
                         .pattern("MatchFiler").build()))
                 .layoutSegments(singletonList(LayoutSegment.builder().name("segment 1")
                         .steps(Arrays.asList(
                                 Step.builder()
-                                        .stepName("step b")
+                                        .name("step b")
                                         .requiredNumberOfLinks(1)
                                         .expectedMaterials(Arrays.asList(
                                                 new Rule(RuleType.ALLOW, "AllowRule"),
@@ -90,7 +90,7 @@ class JsonSigningSerializerTest {
                                         ))
                                         .build(),
                                 Step.builder()
-                                        .stepName("step a")
+                                        .name("step a")
                                         .authorizedKeyIds(Arrays.asList("step a key 2", "step a key 1"))
                                         .requiredNumberOfLinks(23)
                                         .expectedCommand(Arrays.asList("3", "2", "1"))
@@ -101,7 +101,7 @@ class JsonSigningSerializerTest {
                                                         .sourcePathPrefix("sourcePathPrefix")
                                                         .destinationStepName("destinationStepName")
                                                         .destinationSegmentName("segment 1")
-                                                        .destinationType(DestinationType.MATERIALS)
+                                                        .destinationType(ArtifactType.MATERIALS)
                                                         .build(),
                                                 new Rule(RuleType.DELETE, "DeleteRule")
                                         ))
