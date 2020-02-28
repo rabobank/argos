@@ -17,7 +17,7 @@ package com.rabobank.argos.service.adapter.out.mongodb.permission;
 
 import com.github.mongobee.changeset.ChangeLog;
 import com.github.mongobee.changeset.ChangeSet;
-import com.rabobank.argos.domain.permission.GlobalPermission;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.domain.permission.Role;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
@@ -42,7 +42,9 @@ public class RoleDatabaseChangelog {
     @ChangeSet(order = "002", id = "RoleDatabaseChangelog-2", author = "bart")
     public void addAdminRole(MongoTemplate template) {
         template.save(Role.builder().name(Role.ADMINISTRATOR_ROLE_NAME)
-                .permissions(List.of(GlobalPermission.READ,
-                        GlobalPermission.EDIT_GLOBAL_PERMISSIONS)).build(), COLLECTION);
+                .permissions(List.of(Permission.READ,
+                        Permission.PERMISSION_EDIT,
+                        Permission.TREE_EDIT,
+                        Permission.VERIFY)).build(), COLLECTION);
     }
 }

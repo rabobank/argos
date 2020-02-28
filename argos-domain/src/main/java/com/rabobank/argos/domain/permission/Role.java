@@ -32,5 +32,5 @@ public class Role {
     @Builder.Default
     private String roleId = UUID.randomUUID().toString();
     private String name;
-    private List<GlobalPermission> permissions;
+    private List<Permission> permissions;
 }

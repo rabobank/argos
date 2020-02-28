@@ -1355,12 +1355,16 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: "#/components/schemas/GlobalPermission"
-    GlobalPermission:
+            $ref: "#/components/schemas/Permission"
+    Permission:
       type: string
       enum:
-        - EDIT_GLOBAL_PERMISSIONS
         - READ
+        - TREE_EDIT
+        - PERMISSION_EDIT
+        - LINK_ADD
+        - LAYOUT_ADD
+        - VERIFY
     LocalPermissions:
       type: object
       required:

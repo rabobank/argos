@@ -15,6 +15,11 @@
  */
 package com.rabobank.argos.domain.permission;
 
-public enum GlobalPermission {
-    EDIT_GLOBAL_PERMISSIONS, READ
+public enum Permission {
+    READ,
+    TREE_EDIT,
+    PERMISSION_EDIT,
+    LINK_ADD,
+    LAYOUT_ADD,
+    VERIFY
 }
