@@ -16,7 +16,7 @@
 package com.rabobank.argos.service.adapter.in.rest.permission;
 
 import com.rabobank.argos.domain.permission.Role;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermission;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,8 +66,8 @@ class PermissionRestServiceTest {
 
     @Test
     void getLocalPermissions() {
-        ResponseEntity<List<RestLocalPermission>> response = service.getLocalPermissions();
-        assertThat(response.getBody(), contains(RestLocalPermission.values()));
+        ResponseEntity<List<RestPermission>> response = service.getLocalPermissions();
+        assertThat(response.getBody(), contains(RestPermission.values()));
         assertThat(response.getStatusCodeValue(), is(200));
 
     }

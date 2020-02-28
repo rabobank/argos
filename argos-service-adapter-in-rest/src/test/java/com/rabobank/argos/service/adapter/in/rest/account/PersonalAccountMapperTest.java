@@ -16,11 +16,11 @@
 package com.rabobank.argos.service.adapter.in.rest.account;
 
 import com.rabobank.argos.domain.account.PersonalAccount;
-import com.rabobank.argos.domain.permission.LocalPermission;
 import com.rabobank.argos.domain.permission.LocalPermissions;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.domain.permission.Role;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermissions;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
 import com.rabobank.argos.service.adapter.in.rest.permission.RoleMapper;
@@ -90,27 +90,27 @@ class PersonalAccountMapperTest {
 
     @Test
     void convertToRestLocalPermission() {
-        LocalPermissions localPermissions = LocalPermissions.builder().labelId(LABEL_ID).permissions(List.of(LocalPermission.values())).build();
+        LocalPermissions localPermissions = LocalPermissions.builder().labelId(LABEL_ID).permissions(List.of(Permission.values())).build();
         RestLocalPermissions restLocalPermissions = mapper.convertToRestLocalPermission(localPermissions);
         assertThat(restLocalPermissions.getLabelId(), is(LABEL_ID));
-        assertThat(restLocalPermissions.getPermissions(), contains(RestLocalPermission.values()));
+        assertThat(restLocalPermissions.getPermissions(), contains(RestPermission.values()));
     }
 
     @Test
     void localPermissionListToRestLocalPermissionList() {
-        assertThat(mapper.localPermissionListToRestLocalPermissionList(List.of(LocalPermission.values())), contains(RestLocalPermission.values()));
+        assertThat(mapper.permissionListToRestPermissionList(List.of(Permission.values())), contains(RestPermission.values()));
     }
 
     @Test
     void convertToRestLocalPermissions() {
-        LocalPermissions localPermissions = LocalPermissions.builder().labelId(LABEL_ID).permissions(List.of(LocalPermission.values())).build();
+        LocalPermissions localPermissions = LocalPermissions.builder().labelId(LABEL_ID).permissions(List.of(Permission.values())).build();
         List<RestLocalPermissions> restLocalPermissions = mapper.convertToRestLocalPermissions(List.of(localPermissions));
-        assertThat(restLocalPermissions, contains(new RestLocalPermissions().labelId(LABEL_ID).permissions(List.of(RestLocalPermission.values()))));
+        assertThat(restLocalPermissions, contains(new RestLocalPermissions().labelId(LABEL_ID).permissions(List.of(RestPermission.values()))));
     }
 
     @Test
     void convertToLocalPermissions() {
-        assertThat(mapper.convertToLocalPermissions(List.of(RestLocalPermission.values())), contains(LocalPermission.values()));
+        assertThat(mapper.convertToLocalPermissions(List.of(RestPermission.values())), contains(Permission.values()));
     }
 
     @Test

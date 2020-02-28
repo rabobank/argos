@@ -29,5 +29,5 @@ import java.util.List;
 @EqualsAndHashCode
 public class LocalPermissions implements Serializable {
     private String labelId;
-    private List<LocalPermission> permissions;
+    private List<Permission> permissions;
 }

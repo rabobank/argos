@@ -19,8 +19,8 @@ import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.account.NonPersonalAccountKeyPair;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyPair;
-import com.rabobank.argos.domain.permission.LocalPermission;
 import com.rabobank.argos.domain.permission.LocalPermissions;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -277,10 +277,10 @@ class AccountServiceImplTest {
         when(existingLocalPermissions.getLabelId()).thenReturn(LABEL_ID);
         when(account.getLocalPermissions()).thenReturn(List.of(existingLocalPermissions));
         when(newLocalPermissions.getLabelId()).thenReturn(LABEL_ID);
-        when(newLocalPermissions.getPermissions()).thenReturn(List.of(LocalPermission.READ));
+        when(newLocalPermissions.getPermissions()).thenReturn(List.of(Permission.READ));
         when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
         assertThat(accountService.updatePersonalAccountLocalPermissionsById(ACCOUNT_ID, newLocalPermissions), is(Optional.of(account)));
-        verify(existingLocalPermissions).setPermissions(List.of(LocalPermission.READ));
+        verify(existingLocalPermissions).setPermissions(List.of(Permission.READ));
         verify(personalAccountRepository).update(account);
     }
 

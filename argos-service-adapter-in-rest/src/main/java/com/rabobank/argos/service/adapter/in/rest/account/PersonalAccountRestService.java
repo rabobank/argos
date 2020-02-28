@@ -24,8 +24,8 @@ import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.domain.permission.LocalPermissions;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.PersonalAccountApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermissions;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import com.rabobank.argos.service.domain.account.AccountService;
@@ -113,7 +113,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     }
 
     @Override
-    public ResponseEntity<RestLocalPermissions> updateLocalPermissionsForLabel(String accountId, String labelId, List<RestLocalPermission> restLocalPermission) {
+    public ResponseEntity<RestLocalPermissions> updateLocalPermissionsForLabel(String accountId, String labelId, List<RestPermission> restLocalPermission) {
         LocalPermissions newLocalPermissions = LocalPermissions.builder().labelId(labelId).permissions(personalAccountMapper.convertToLocalPermissions(restLocalPermission)).build();
         PersonalAccount personalAccount = accountService.updatePersonalAccountLocalPermissionsById(accountId, newLocalPermissions).orElseThrow(this::accountNotFound);
         return ResponseEntity.ok(personalAccount.getLocalPermissions().stream()

@@ -16,7 +16,7 @@
 package com.rabobank.argos.service.adapter.in.rest.permission;
 
 import com.rabobank.argos.service.adapter.in.rest.api.handler.PermissionsApi;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermission;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class PermissionRestService implements PermissionsApi {
     }
 
     @Override
-    public ResponseEntity<List<RestLocalPermission>> getLocalPermissions() {
-        return ResponseEntity.ok(List.of(RestLocalPermission.values()));
+    public ResponseEntity<List<RestPermission>> getLocalPermissions() {
+        return ResponseEntity.ok(List.of(RestPermission.values()));
     }
 }

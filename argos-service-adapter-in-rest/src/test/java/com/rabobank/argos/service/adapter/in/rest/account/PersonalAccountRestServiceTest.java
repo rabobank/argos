@@ -18,11 +18,11 @@ package com.rabobank.argos.service.adapter.in.rest.account;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.key.KeyPair;
-import com.rabobank.argos.domain.permission.LocalPermission;
 import com.rabobank.argos.domain.permission.LocalPermissions;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermissions;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import com.rabobank.argos.service.domain.account.AccountService;
@@ -269,16 +269,16 @@ class PersonalAccountRestServiceTest {
     void updateLocalPermissionsForLabel() {
         when(accountService.updatePersonalAccountLocalPermissionsById(eq(ACCOUNT_ID), any(LocalPermissions.class)))
                 .thenReturn(Optional.of(personalAccount));
-        when(personalAccountMapper.convertToLocalPermissions(List.of(RestLocalPermission.READ))).thenReturn(List.of(LocalPermission.READ));
+        when(personalAccountMapper.convertToLocalPermissions(List.of(RestPermission.READ))).thenReturn(List.of(Permission.READ));
         when(localPermissions.getLabelId()).thenReturn(LABEL_ID);
         when(personalAccount.getLocalPermissions()).thenReturn(List.of(localPermissions));
         when(personalAccountMapper.convertToRestLocalPermission(localPermissions)).thenReturn(restLocalPermissions);
-        ResponseEntity<RestLocalPermissions> response = service.updateLocalPermissionsForLabel(ACCOUNT_ID, LABEL_ID, List.of(RestLocalPermission.READ));
+        ResponseEntity<RestLocalPermissions> response = service.updateLocalPermissionsForLabel(ACCOUNT_ID, LABEL_ID, List.of(RestPermission.READ));
         assertThat(response.getStatusCodeValue(), is(200));
         assertThat(response.getBody(), sameInstance(restLocalPermissions));
         verify(accountService).updatePersonalAccountLocalPermissionsById(eq(ACCOUNT_ID), localPermissionsArgumentCaptor.capture());
         LocalPermissions localPermissions = localPermissionsArgumentCaptor.getValue();
-        assertThat(localPermissions.getPermissions(), contains(LocalPermission.READ));
+        assertThat(localPermissions.getPermissions(), contains(Permission.READ));
         assertThat(localPermissions.getLabelId(), is(LABEL_ID));
     }
 }

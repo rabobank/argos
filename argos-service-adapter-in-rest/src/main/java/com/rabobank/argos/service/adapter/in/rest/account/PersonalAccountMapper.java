@@ -16,11 +16,11 @@
 package com.rabobank.argos.service.adapter.in.rest.account;
 
 import com.rabobank.argos.domain.account.PersonalAccount;
-import com.rabobank.argos.domain.permission.LocalPermission;
 import com.rabobank.argos.domain.permission.LocalPermissions;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.domain.permission.Role;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermissions;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
 import com.rabobank.argos.service.adapter.in.rest.permission.RoleMapper;
@@ -60,7 +60,7 @@ public abstract class PersonalAccountMapper {
 
     public abstract List<RestLocalPermissions> convertToRestLocalPermissions(List<LocalPermissions> localPermissions);
 
-    public abstract List<LocalPermission> convertToLocalPermissions(List<RestLocalPermission> localPermissions);
+    public abstract List<Permission> convertToLocalPermissions(List<RestPermission> localPermissions);
 
     public abstract RestLocalPermissions convertToRestLocalPermission(LocalPermissions localPermissions);
 
