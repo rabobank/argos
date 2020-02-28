@@ -26,6 +26,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import com.rabobank.argos.service.domain.account.AccountService;
+import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContextImpl;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -102,10 +103,13 @@ class PersonalAccountRestServiceTest {
     @Captor
     private ArgumentCaptor<LocalPermissions> localPermissionsArgumentCaptor;
 
+    @Mock
+    private LabelRepository labelRepository;
+
     @BeforeEach
     void setUp() {
         personalAccount.setAccountId(ACCOUNT_ID);
-        service = new PersonalAccountRestService(accountSecurityContext, keyPairMapper, accountService, personalAccountMapper);
+        service = new PersonalAccountRestService(accountSecurityContext, keyPairMapper, accountService, personalAccountMapper, labelRepository);
     }
 
     @Test
@@ -266,6 +270,7 @@ class PersonalAccountRestServiceTest {
 
     @Test
     void updateLocalPermissionsForLabel() {
+        when(labelRepository.exists(LABEL_ID)).thenReturn(true);
         when(accountService.updatePersonalAccountLocalPermissionsById(eq(ACCOUNT_ID), any(LocalPermissions.class)))
                 .thenReturn(Optional.of(personalAccount));
         when(personalAccountMapper.convertToLocalPermissions(List.of(RestPermission.READ))).thenReturn(List.of(Permission.READ));
@@ -279,5 +284,13 @@ class PersonalAccountRestServiceTest {
         LocalPermissions localPermissions = localPermissionsArgumentCaptor.getValue();
         assertThat(localPermissions.getPermissions(), contains(Permission.READ));
         assertThat(localPermissions.getLabelId(), is(LABEL_ID));
+    }
+
+    @Test
+    void updateLocalPermissionsForLabelNotExists() {
+        when(labelRepository.exists(LABEL_ID)).thenReturn(false);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.updateLocalPermissionsForLabel(ACCOUNT_ID, LABEL_ID, List.of(RestPermission.READ)));
+        assertThat(exception.getStatus().value(), is(400));
+        assertThat(exception.getMessage(), is("400 BAD_REQUEST \"label not found : labelId\""));
     }
 }

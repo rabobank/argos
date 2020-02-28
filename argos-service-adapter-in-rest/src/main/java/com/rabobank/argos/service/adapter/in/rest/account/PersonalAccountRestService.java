@@ -29,6 +29,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import com.rabobank.argos.service.domain.account.AccountService;
+import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -54,6 +55,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     private final KeyIdProvider keyIdProvider = new KeyIdProviderImpl();
     private final AccountService accountService;
     private final PersonalAccountMapper personalAccountMapper;
+    private final LabelRepository labelRepository;
 
 
     @PreAuthorize("hasRole('USER')")
@@ -114,6 +116,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
 
     @Override
     public ResponseEntity<RestLocalPermissions> updateLocalPermissionsForLabel(String accountId, String labelId, List<RestPermission> restLocalPermission) {
+        verifyParentLabelExists(labelId);
         LocalPermissions newLocalPermissions = LocalPermissions.builder().labelId(labelId).permissions(personalAccountMapper.convertToLocalPermissions(restLocalPermission)).build();
         PersonalAccount personalAccount = accountService.updatePersonalAccountLocalPermissionsById(accountId, newLocalPermissions).orElseThrow(this::accountNotFound);
         return personalAccount.getLocalPermissions().stream()
@@ -128,6 +131,16 @@ public class PersonalAccountRestService implements PersonalAccountApi {
         KeyPair keyPair = Optional.ofNullable(account.getActiveKeyPair()).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "no active keypair found for account: " + account.getName()));
         return new ResponseEntity<>(keyPairMapper.convertToRestKeyPair(keyPair), HttpStatus.OK);
+    }
+
+    private void verifyParentLabelExists(String labelId) {
+        if (!labelRepository.exists(labelId)) {
+            throw labelNotFound(labelId);
+        }
+    }
+
+    private ResponseStatusException labelNotFound(String labelId) {
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, "label not found : " + labelId);
     }
 
     private void validateKeyId(KeyPair keyPair) {
