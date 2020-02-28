@@ -17,7 +17,7 @@ package com.rabobank.argos.service.security.oauth2;
 
 import com.rabobank.argos.domain.account.AuthenticationProvider;
 import com.rabobank.argos.domain.account.PersonalAccount;
-import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
+import com.rabobank.argos.service.domain.account.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,17 +37,18 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CustomOAuth2PersonalAccountServiceTest {
 
+    private static final String ACCOUNT_ID = "accountId";
     @Mock
-    private PersonalAccountRepository personalAccountRepository;
+    private AccountService accountService;
 
     @Mock
     private DefaultOAuth2UserService defaultOAuth2UserService;
@@ -78,35 +79,24 @@ class CustomOAuth2PersonalAccountServiceTest {
                 .authorizationUri("/")
                 .tokenUri("/")
                 .build();
-        userService = new CustomOAuth2UserService(personalAccountRepository);
+        userService = new CustomOAuth2UserService(accountService);
         ReflectionTestUtils.setField(userService, "defaultOAuth2UserService", defaultOAuth2UserService);
     }
 
     @Test
     void loadUserNewUser() {
         setupMocks();
-        when(personalAccountRepository.findByEmail("userprincipalname")).thenReturn(Optional.empty());
+        when(personalAccount.getAccountId()).thenReturn(ACCOUNT_ID);
+        when(accountService.authenticateUser(any())).thenReturn(Optional.of(personalAccount));
         ArgosOAuth2User userPrincipal = (ArgosOAuth2User) userService.loadUser(oAuth2UserRequest);
-        assertThat(userPrincipal.getUserId(), hasLength(36));
+        assertThat(userPrincipal.getAccountId(), is(ACCOUNT_ID));
 
-        verify(personalAccountRepository).save(userArgumentCaptor.capture());
+        verify(accountService).authenticateUser(userArgumentCaptor.capture());
         PersonalAccount createdPersonalAccount = userArgumentCaptor.getValue();
         assertThat(createdPersonalAccount.getName(), is("displayName"));
         assertThat(createdPersonalAccount.getEmail(), is("userprincipalname"));
         assertThat(createdPersonalAccount.getProvider(), is(AuthenticationProvider.AZURE));
         assertThat(createdPersonalAccount.getProviderId(), is("providerId"));
-    }
-
-    @Test
-    void loadUserExistingUser() {
-        setupMocks();
-        when(personalAccount.getAccountId()).thenReturn("userId");
-        when(personalAccountRepository.findByEmail("userprincipalname")).thenReturn(Optional.of(personalAccount));
-        ArgosOAuth2User userPrincipal = (ArgosOAuth2User) userService.loadUser(oAuth2UserRequest);
-        assertThat(userPrincipal.getUserId(), is("userId"));
-
-        verify(personalAccountRepository).update(personalAccount);
-        verify(personalAccount).setName("displayName");
     }
 
     @Test

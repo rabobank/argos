@@ -19,10 +19,12 @@ package com.rabobank.argos.integrationtest.service.link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.integrationtest.argos.service.api.model.RestLinkMetaBlock;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface LinkMetaBlockMapper {
 
+    @Mapping(target = "supplyChainId", ignore = true)
     LinkMetaBlock convertFromRestLinkMetaBlock(RestLinkMetaBlock metaBlock);
 
     RestLinkMetaBlock convertToRestLinkMetaBlock(LinkMetaBlock metaBlock);

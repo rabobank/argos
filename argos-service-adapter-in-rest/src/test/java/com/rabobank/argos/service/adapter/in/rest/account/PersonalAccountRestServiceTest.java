@@ -21,7 +21,6 @@ import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.domain.account.AccountService;
-import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContextImpl;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,11 +32,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,12 +53,13 @@ class PersonalAccountRestServiceTest {
     private static final String KEY_ID_PROVIDER = "keyIdProvider";
     private static final String PERSONAL_ACCOUNT_NOT_FOUND = "404 NOT_FOUND \"personal account not found\"";
     public static final String ACTIVE_KEYPAIR_NOT_FOUND = "404 NOT_FOUND \"no active keypair found for account: name\"";
+    private static final String ACCOUNT_ID = "accountId";
+    private static final String ROLE_NAME = "roleName";
 
     private PersonalAccountRestService service;
     @Mock
     private AccountSecurityContextImpl accountSecurityContext;
-    @Mock
-    private PersonalAccountRepository personalAccountRepository;
+
     @Mock
     private AccountKeyPairMapper keyPairMapper;
     @Mock
@@ -72,9 +73,16 @@ class PersonalAccountRestServiceTest {
     @Mock
     private AccountService accountService;
 
+    @Mock
+    private PersonalAccountMapper personalAccountMapper;
+
+    @Mock
+    private RestPersonalAccount restPersonalAccount;
+
     @BeforeEach
     void setUp() {
-        service = new PersonalAccountRestService(accountSecurityContext, personalAccountRepository, keyPairMapper, accountService);
+        personalAccount.setAccountId(ACCOUNT_ID);
+        service = new PersonalAccountRestService(accountSecurityContext, keyPairMapper, accountService, personalAccountMapper);
     }
 
     @Test
@@ -89,12 +97,11 @@ class PersonalAccountRestServiceTest {
     @Test
     void getPersonalAccountOfAuthenticatedUser() {
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
+        when(personalAccountMapper.convertToRestPersonalAccount(personalAccount)).thenReturn(restPersonalAccount);
         ResponseEntity<RestPersonalAccount> responseEntity = service.getPersonalAccountOfAuthenticatedUser();
         assertThat(responseEntity.getStatusCodeValue(), Matchers.is(200));
         RestPersonalAccount restPersonalAccount = responseEntity.getBody();
-        assertThat(restPersonalAccount, is(notNullValue()));
-        assertThat(restPersonalAccount.getName(), is(NAME));
-        assertThat(restPersonalAccount.getEmail(), is(EMAIL));
+        assertThat(restPersonalAccount, sameInstance(restPersonalAccount));
     }
 
     @Test
@@ -105,8 +112,7 @@ class PersonalAccountRestServiceTest {
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
         ReflectionTestUtils.setField(service, KEY_ID_PROVIDER, keyIdProvider);
         assertThat(service.createKey(restKeyPair).getStatusCodeValue(), is(204));
-        verify(accountService).activateNewKey(personalAccount, keyPair);
-        verify(personalAccountRepository).update(personalAccount);
+        verify(accountService).activateNewKey(ACCOUNT_ID, keyPair);
     }
 
     @Test
@@ -144,5 +150,48 @@ class PersonalAccountRestServiceTest {
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getKeyPair());
         assertThat(exception.getStatus().value(), is(404));
         assertThat(exception.getMessage(), is(ACTIVE_KEYPAIR_NOT_FOUND));
+    }
+
+    @Test
+    void getPersonalAccountById() {
+        when(accountService.getPersonalAccountById(ACCOUNT_ID)).thenReturn(Optional.of(personalAccount));
+        when(personalAccountMapper.convertToRestPersonalAccount(personalAccount)).thenReturn(restPersonalAccount);
+        ResponseEntity<RestPersonalAccount> response = service.getPersonalAccountById(ACCOUNT_ID);
+        assertThat(response.getBody(), sameInstance(restPersonalAccount));
+        assertThat(response.getStatusCodeValue(), Matchers.is(200));
+    }
+
+    @Test
+    void getPersonalAccountByIdNotFound() {
+        when(accountService.getPersonalAccountById(ACCOUNT_ID)).thenReturn(Optional.empty());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getPersonalAccountById(ACCOUNT_ID));
+        assertThat(exception.getStatus().value(), is(404));
+        assertThat(exception.getMessage(), is(PERSONAL_ACCOUNT_NOT_FOUND));
+    }
+
+    @Test
+    void searchPersonalAccounts() {
+        when(accountService.searchPersonalAccounts(ROLE_NAME)).thenReturn(List.of(personalAccount));
+        when(personalAccountMapper.convertToRestPersonalAccountWithoutRoles(personalAccount)).thenReturn(restPersonalAccount);
+        ResponseEntity<List<RestPersonalAccount>> response = service.searchPersonalAccounts(ROLE_NAME);
+        assertThat(response.getBody(), contains(restPersonalAccount));
+        assertThat(response.getStatusCodeValue(), Matchers.is(200));
+    }
+
+    @Test
+    void updatePersonalAccountRolesById() {
+        when(accountService.updatePersonalAccountRolesById(ACCOUNT_ID, List.of(ROLE_NAME))).thenReturn(Optional.of(personalAccount));
+        when(personalAccountMapper.convertToRestPersonalAccount(personalAccount)).thenReturn(restPersonalAccount);
+        ResponseEntity<RestPersonalAccount> response = service.updatePersonalAccountRolesById(ACCOUNT_ID, List.of(ROLE_NAME));
+        assertThat(response.getBody(), sameInstance(restPersonalAccount));
+        assertThat(response.getStatusCodeValue(), Matchers.is(200));
+    }
+
+    @Test
+    void updatePersonalAccountRolesByIdNotFound() {
+        when(accountService.updatePersonalAccountRolesById(ACCOUNT_ID, List.of(ROLE_NAME))).thenReturn(Optional.empty());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.updatePersonalAccountRolesById(ACCOUNT_ID, List.of(ROLE_NAME)));
+        assertThat(exception.getStatus().value(), is(404));
+        assertThat(exception.getMessage(), is(PERSONAL_ACCOUNT_NOT_FOUND));
     }
 }

@@ -15,7 +15,6 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.account;
 
-import com.mongodb.client.result.UpdateResult;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.service.domain.account.NonPersonalAccountRepository;
@@ -61,18 +60,12 @@ public class NonPersonalAccountRepositoryImpl implements NonPersonalAccountRepos
     }
 
     @Override
-    public Optional<NonPersonalAccount> update(String id, NonPersonalAccount account) {
-        Query query = getPrimaryKeyQuery(id);
+    public void update(NonPersonalAccount account) {
+        Query query = getPrimaryKeyQuery(account.getAccountId());
         Document document = new Document();
         template.getConverter().write(account, document);
         try {
-            UpdateResult updateResult = template.updateFirst(query, Update.fromDocument(document), NonPersonalAccount.class, COLLECTION);
-            if (updateResult.getMatchedCount() > 0) {
-                account.setAccountId(id);
-                return Optional.of(account);
-            } else {
-                return Optional.empty();
-            }
+            template.updateFirst(query, Update.fromDocument(document), NonPersonalAccount.class, COLLECTION);
         } catch (DuplicateKeyException e) {
             throw duplicateKeyException(account, e);
         }

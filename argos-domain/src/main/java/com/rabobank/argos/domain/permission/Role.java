@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.in.rest.hierarchy;
+package com.rabobank.argos.domain.permission;
 
-import com.rabobank.argos.domain.hierarchy.Label;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestLabel;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-@Mapper(componentModel = "spring")
-public interface LabelMapper {
+import java.util.List;
+import java.util.UUID;
 
-    @Mapping(target = "labelId", ignore = true)
-    Label convertFromRestLabel(RestLabel restLabel);
+@Getter
+@Setter
+@Builder
+public class Role {
 
-    @Mapping(target = "id", source = "labelId")
-    RestLabel convertToRestLabel(Label label);
+    public static final String ADMINISTRATOR_ROLE_NAME = "administrator";
+
+    @Builder.Default
+    private String roleId = UUID.randomUUID().toString();
+    private String name;
+    private List<Permission> permissions;
 }

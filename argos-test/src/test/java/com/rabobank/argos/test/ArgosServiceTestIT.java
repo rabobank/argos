@@ -41,6 +41,7 @@ public class ArgosServiceTestIT {
         waitForArgosServiceToStart();
         waitForArgosIntegrationTestServiceToStart();
         System.setProperty(BEARER_TOKEN, getToken());
+        log.info("bearer token: {}", System.getProperty(BEARER_TOKEN));
     }
 
     @Karate.Test
@@ -65,7 +66,7 @@ public class ArgosServiceTestIT {
 
     @Karate.Test
     Karate personalaccount() {
-        return new Karate().feature("classpath:feature/personalaccount/personalaccount.feature");
+        return new Karate().feature("classpath:feature/account/personalaccount.feature");
     }
 
     @Karate.Test
@@ -82,4 +83,11 @@ public class ArgosServiceTestIT {
     Karate nonPersonalAccount() {
         return new Karate().feature("classpath:feature/account/non-personal-account.feature");
     }
+
+    @Karate.Test
+    Karate permission() {
+        return new Karate().feature("classpath:feature/permission/permission.feature");
+    }
+
+
 }

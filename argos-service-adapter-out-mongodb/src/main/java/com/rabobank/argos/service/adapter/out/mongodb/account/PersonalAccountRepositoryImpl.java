@@ -19,12 +19,14 @@ import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -37,11 +39,19 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     static final String ACCOUNT_ID = "accountId";
     static final String ACTIVE_KEY_ID_FIELD = "activeKeyPair.keyId";
     static final String EMAIL = "email";
+    static final String NAME_FIELD = "name";
+    static final String ROLE_ID_FIELD = "roleIds";
     private final MongoTemplate template;
 
     @Override
     public Optional<PersonalAccount> findByEmail(String email) {
         return Optional.ofNullable(template.findOne(new Query(where(EMAIL).is(email)), PersonalAccount.class, COLLECTION));
+    }
+
+
+    @Override
+    public List<PersonalAccount> findAll() {
+        return template.find(new Query().with(Sort.by(NAME_FIELD)), PersonalAccount.class, COLLECTION);
     }
 
     @Override
@@ -65,6 +75,16 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     @Override
     public Optional<PersonalAccount> findByActiveKeyId(String activeKeyId) {
         return Optional.ofNullable(template.findOne(getActiveKeyQuery(activeKeyId), PersonalAccount.class, COLLECTION));
+    }
+
+    @Override
+    public long getTotalNumberOfAccounts() {
+        return template.count(new Query(), PersonalAccount.class, COLLECTION);
+    }
+
+    @Override
+    public List<PersonalAccount> findByRoleId(String roleId) {
+        return template.find(new Query(where(ROLE_ID_FIELD).in(roleId)).with(Sort.by(NAME_FIELD)), PersonalAccount.class, COLLECTION);
     }
 
     @Override

@@ -72,7 +72,7 @@ public class TokenProvider {
     public String createToken(Authentication authentication) {
         ArgosOAuth2User oAuth2User = (ArgosOAuth2User) authentication.getPrincipal();
         return Jwts.builder()
-                .setSubject(oAuth2User.getUserId())
+                .setSubject(oAuth2User.getAccountId())
                 .setIssuedAt(new Date())
                 .setExpiration(Timestamp.valueOf(LocalDateTime.now().plus(timeout)))
                 .signWith(secretKey)

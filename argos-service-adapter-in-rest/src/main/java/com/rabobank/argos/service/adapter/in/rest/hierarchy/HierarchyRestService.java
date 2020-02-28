@@ -85,6 +85,7 @@ public class HierarchyRestService implements HierarchyApi {
                 .orElseThrow(() -> labelNotFound(labelId));
     }
 
+
     @Override
     public ResponseEntity<RestLabel> updateLabelById(String labelId, RestLabel restLabel) {
         verifyParentLabelIsDifferent(labelId, restLabel.getParentLabelId());

@@ -25,7 +25,6 @@ import com.rabobank.argos.service.adapter.in.rest.api.handler.PersonalAccountApi
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.service.domain.account.AccountService;
-import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,31 +45,51 @@ import java.util.Optional;
 public class PersonalAccountRestService implements PersonalAccountApi {
 
     private final AccountSecurityContext accountSecurityContext;
-    private final PersonalAccountRepository personalAccountRepository;
     private final AccountKeyPairMapper keyPairMapper;
     private final KeyIdProvider keyIdProvider = new KeyIdProviderImpl();
     private final AccountService accountService;
+    private final PersonalAccountMapper personalAccountMapper;
 
 
     @PreAuthorize("hasRole('USER')")
     @Override
     public ResponseEntity<RestPersonalAccount> getPersonalAccountOfAuthenticatedUser() {
-        Account account = accountSecurityContext
-                .getAuthenticatedAccount().orElseThrow(this::profileNotFound);
-        return ResponseEntity.ok(convert(account));
+        return accountSecurityContext.getAuthenticatedAccount()
+                .map(account -> (PersonalAccount) account)
+                .map(personalAccountMapper::convertToRestPersonalAccount)
+                .map(ResponseEntity::ok).orElseThrow(this::profileNotFound);
     }
 
     @PreAuthorize("hasRole('USER')")
     @Override
     public ResponseEntity<Void> createKey(@Valid RestKeyPair restKeyPair) {
-        Account account = accountSecurityContext
-                .getAuthenticatedAccount().orElseThrow(this::profileNotFound);
+        Account account = accountSecurityContext.getAuthenticatedAccount().orElseThrow(this::profileNotFound);
         KeyPair keyPair = keyPairMapper.convertFromRestKeyPair(restKeyPair);
         validateKeyId(keyPair);
-        accountService.activateNewKey(account, keyPair);
-        personalAccountRepository.update((PersonalAccount) account);
+        accountService.activateNewKey(account.getAccountId(), keyPair);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @Override
+    public ResponseEntity<RestPersonalAccount> getPersonalAccountById(String accountId) {
+        return accountService.getPersonalAccountById(accountId)
+                .map(personalAccountMapper::convertToRestPersonalAccount)
+                .map(ResponseEntity::ok).orElseThrow(this::profileNotFound);
+    }
+
+    @Override
+    public ResponseEntity<List<RestPersonalAccount>> searchPersonalAccounts(String roleName) {
+        return ResponseEntity.ok(accountService.searchPersonalAccounts(roleName).stream()
+                .map(personalAccountMapper::convertToRestPersonalAccountWithoutRoles).collect(Collectors.toList()));
+    }
+
+    @Override
+    public ResponseEntity<RestPersonalAccount> updatePersonalAccountRolesById(String accountId, List<String> roleNames) {
+        return accountService.updatePersonalAccountRolesById(accountId, roleNames)
+                .map(personalAccountMapper::convertToRestPersonalAccount)
+                .map(ResponseEntity::ok).orElseThrow(this::profileNotFound);
+    }
+
 
     @Override
     public ResponseEntity<RestKeyPair> getKeyPair() {
@@ -83,13 +104,6 @@ public class PersonalAccountRestService implements PersonalAccountApi {
         if (!keyPair.getKeyId().equals(keyIdProvider.computeKeyId(keyPair.getPublicKey()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid key id : " + keyPair.getKeyId());
         }
-    }
-
-    private RestPersonalAccount convert(Account personalAccount) {
-        return new RestPersonalAccount()
-                .id(personalAccount.getAccountId())
-                .name(personalAccount.getName())
-                .email(personalAccount.getEmail());
     }
 
     private ResponseStatusException profileNotFound() {

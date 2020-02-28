@@ -17,6 +17,8 @@ package com.rabobank.argos.integrationtest.service;
 
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.account.AuthenticationProvider;
+import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
@@ -25,9 +27,11 @@ import com.rabobank.argos.integrationtest.argos.service.api.handler.IntegrationT
 import com.rabobank.argos.integrationtest.argos.service.api.model.RestKeyPair;
 import com.rabobank.argos.integrationtest.argos.service.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.integrationtest.argos.service.api.model.RestLinkMetaBlock;
+import com.rabobank.argos.integrationtest.argos.service.api.model.RestPersonalAccount;
 import com.rabobank.argos.integrationtest.service.layout.LayoutMetaBlockMapper;
 import com.rabobank.argos.integrationtest.service.link.LinkMetaBlockMapper;
 import com.rabobank.argos.service.domain.account.AccountService;
+import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
@@ -62,6 +66,7 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RequestMapping("/integration-test")
 @RestController
@@ -77,6 +82,8 @@ public class TestITService implements IntegrationTestServiceApi {
     private final LinkMetaBlockMapper linkMetaBlockMapper;
 
     private final AccountService accountService;
+
+    private final PersonalAccountRepository personalAccountRepository;
 
     @PostConstruct
     public void init() {
@@ -117,6 +124,25 @@ public class TestITService implements IntegrationTestServiceApi {
         linkMetaBlock.setSignature(Signature.builder().signature(signature).keyId(keyId).build());
         return ResponseEntity.ok(linkMetaBlockMapper.convertToRestLinkMetaBlock(linkMetaBlock));
 
+    }
+
+    @Override
+    public ResponseEntity<RestPersonalAccount> createPersonalAccount(RestPersonalAccount restPersonalAccount) {
+        PersonalAccount personalAccount = PersonalAccount.builder()
+                .email(restPersonalAccount.getEmail())
+                .name(restPersonalAccount.getName())
+                .provider(AuthenticationProvider.AZURE)
+                .providerId(UUID.randomUUID().toString())
+                .build();
+        personalAccountRepository.save(personalAccount);
+        restPersonalAccount.setId(personalAccount.getAccountId());
+        return ResponseEntity.ok(restPersonalAccount);
+    }
+
+    @Override
+    public ResponseEntity<Void> deletePersonalAccount(String accountId) {
+        repositoryResetProvider.deletePersonalAccount(accountId);
+        return ResponseEntity.noContent().build();
     }
 
     private PrivateKey getPrivateKey(String password, String keyId) {

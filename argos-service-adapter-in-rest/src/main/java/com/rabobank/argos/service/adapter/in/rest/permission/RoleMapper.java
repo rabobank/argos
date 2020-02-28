@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.adapter.in.rest.hierarchy;
+package com.rabobank.argos.service.adapter.in.rest.permission;
 
-import com.rabobank.argos.domain.hierarchy.Label;
-import com.rabobank.argos.service.adapter.in.rest.api.model.RestLabel;
+import com.rabobank.argos.domain.permission.Role;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface LabelMapper {
+public interface RoleMapper {
 
-    @Mapping(target = "labelId", ignore = true)
-    Label convertFromRestLabel(RestLabel restLabel);
+    @Mapping(target = "roleId", ignore = true)
+    Role convertFromRestRole(RestRole restRole);
 
-    @Mapping(target = "id", source = "labelId")
-    RestLabel convertToRestLabel(Label label);
+    @Mapping(source = "roleId", target = "id")
+    RestRole convertToRestRole(Role role);
+
 }

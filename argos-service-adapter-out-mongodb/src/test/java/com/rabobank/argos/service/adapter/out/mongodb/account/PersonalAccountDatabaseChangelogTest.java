@@ -50,5 +50,10 @@ class PersonalAccountDatabaseChangelogTest {
         verify(template, times(1)).indexOps(COLLECTION);
     }
 
-
+    @Test
+    void addIndexToName() {
+        when(template.indexOps(COLLECTION)).thenReturn(indexOperations);
+        new PersonalAccountDatabaseChangelog().addIndexToName(template);
+        verify(template, times(1)).indexOps(COLLECTION);
+    }
 }

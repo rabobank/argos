@@ -16,27 +16,50 @@
 package com.rabobank.argos.service.domain.account;
 
 import com.rabobank.argos.domain.account.Account;
+import com.rabobank.argos.domain.account.NonPersonalAccount;
+import com.rabobank.argos.domain.account.NonPersonalAccountKeyPair;
+import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.domain.permission.Role;
+import com.rabobank.argos.service.domain.permission.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.rabobank.argos.domain.permission.Role.ADMINISTRATOR_ROLE_NAME;
+
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AccountServiceImpl implements AccountService {
 
     private final NonPersonalAccountRepository nonPersonalAccountRepository;
     private final PersonalAccountRepository personalAccountRepository;
+    private final RoleRepository roleRepository;
 
     @Override
-    public Account activateNewKey(Account account, KeyPair newKeyPair) {
-        deactivateKeyPair(account);
-        account.setActiveKeyPair(newKeyPair);
-        return account;
+    public Optional<PersonalAccount> activateNewKey(String accountId, KeyPair newKeyPair) {
+        return personalAccountRepository.findByAccountId(accountId).map(account -> {
+            activateNewKey(account, newKeyPair);
+            personalAccountRepository.update(account);
+            return account;
+        });
+    }
+
+    @Override
+    public Optional<NonPersonalAccount> activateNewKey(String accountId, NonPersonalAccountKeyPair newKeyPair) {
+        return nonPersonalAccountRepository.findById(accountId).map(account -> {
+            activateNewKey(account, newKeyPair);
+            nonPersonalAccountRepository.update(account);
+            return account;
+        });
     }
 
     @Override
@@ -50,6 +73,84 @@ public class AccountServiceImpl implements AccountService {
         return nonPersonalAccountRepository
                 .findByActiveKeyId(keyId).map(nonPersonalAccount -> (Account) nonPersonalAccount)
                 .or(() -> personalAccountRepository.findByActiveKeyId(keyId)).map(Account::getActiveKeyPair);
+    }
+
+    @Override
+    public Optional<PersonalAccount> authenticateUser(PersonalAccount personalAccount) {
+        return Optional.of(personalAccountRepository.findByEmail(personalAccount.getEmail()).map(currentAccount -> {
+            currentAccount.setName(personalAccount.getName());
+            personalAccountRepository.update(currentAccount);
+            return currentAccount;
+        }).orElseGet(() -> {
+            if (getTotalPersonalAccounts() == 0) {
+                makeAdministrator(personalAccount);
+            } else {
+                personalAccount.setRoleIds(Collections.emptyList());
+            }
+            personalAccountRepository.save(personalAccount);
+            return personalAccount;
+        }));
+    }
+
+    @Override
+    public Optional<PersonalAccount> getPersonalAccountById(String accountId) {
+        return personalAccountRepository.findByAccountId(accountId);
+    }
+
+    @Override
+    public List<PersonalAccount> searchPersonalAccounts(String roleName) {
+        Optional<String> optionalRoleId = Optional.ofNullable(roleName).flatMap(roleRepository::findByName).map(Role::getRoleId);
+        return optionalRoleId.map(personalAccountRepository::findByRoleId).orElseGet(personalAccountRepository::findAll);
+    }
+
+    @Override
+    public Optional<PersonalAccount> updatePersonalAccountRolesById(String accountId, List<String> roleNames) {
+        return personalAccountRepository.findByAccountId(accountId).map(personalAccount -> {
+            personalAccount.setRoleIds(getRoleIds(roleNames));
+            personalAccountRepository.update(personalAccount);
+            return personalAccount;
+        });
+    }
+
+    @Override
+    public void save(NonPersonalAccount nonPersonalAccount) {
+        nonPersonalAccountRepository.save(nonPersonalAccount);
+    }
+
+    @Override
+    public Optional<NonPersonalAccount> findNonPersonalAccountById(String accountId) {
+        return nonPersonalAccountRepository.findById(accountId);
+    }
+
+    @Override
+    public Optional<NonPersonalAccount> update(String accountId, NonPersonalAccount nonPersonalAccount) {
+        return nonPersonalAccountRepository.findById(accountId).map(account -> {
+            account.setParentLabelId(nonPersonalAccount.getParentLabelId());
+            account.setName(nonPersonalAccount.getName());
+            account.setEmail(nonPersonalAccount.getEmail());
+            nonPersonalAccountRepository.update(account);
+            return account;
+        });
+    }
+
+    private List<String> getRoleIds(List<String> roleNames) {
+        return roleNames.stream().map(roleRepository::findByName)
+                .filter(Optional::isPresent)
+                .map(Optional::get).map(Role::getRoleId).collect(Collectors.toList());
+    }
+
+    private long getTotalPersonalAccounts() {
+        return personalAccountRepository.getTotalNumberOfAccounts();
+    }
+
+    private void makeAdministrator(PersonalAccount personalAccount) {
+        log.info("Assigned administrator role to personal account " + personalAccount.getName());
+        roleRepository.findByName(ADMINISTRATOR_ROLE_NAME).ifPresent(adminRole -> personalAccount.setRoleIds(List.of(adminRole.getRoleId())));
+    }
+
+    private void activateNewKey(Account account, KeyPair newKeyPair) {
+        deactivateKeyPair(account);
+        account.setActiveKeyPair(newKeyPair);
     }
 
     private void deactivateKeyPair(Account account) {

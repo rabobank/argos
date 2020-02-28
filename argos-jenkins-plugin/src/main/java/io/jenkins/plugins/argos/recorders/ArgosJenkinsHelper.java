@@ -35,9 +35,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -54,8 +54,8 @@ public class ArgosJenkinsHelper {
     public Argos4j createArgos() {
 
         String version = Optional.ofNullable(Jenkins.getInstanceOrNull())
-                .map(jenkins -> Optional.ofNullable(jenkins.getPlugin("bouncycastle-api")))
-                .filter(Optional::isPresent).map(Optional::get).map(Plugin::getWrapper)
+                .flatMap(jenkins -> Optional.ofNullable(jenkins.getPlugin("bouncycastle-api")))
+                .map(Plugin::getWrapper)
                 .map(PluginWrapper::getVersion).orElseThrow(() -> new Argos4jError("bouncycastle-api plugin not installed"));
 
         if (Float.parseFloat(version) < 1.8F) {
