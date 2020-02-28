@@ -37,7 +37,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.server.ServerErrorException;
 
 import javax.validation.Valid;
 import java.util.Collections;
@@ -107,18 +106,19 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     @Override
     public ResponseEntity<RestLocalPermissions> getLocalPermissionsForLabel(String accountId, String labelId) {
         PersonalAccount personalAccount = accountService.getPersonalAccountById(accountId).orElseThrow(this::accountNotFound);
-        return ResponseEntity.ok(personalAccount.getLocalPermissions().stream()
+        return personalAccount.getLocalPermissions().stream()
                 .filter(localPermissions -> localPermissions.getLabelId().equals(labelId))
-                .findFirst().map(personalAccountMapper::convertToRestLocalPermission).orElse(new RestLocalPermissions().labelId(labelId)));
+                .findFirst().map(personalAccountMapper::convertToRestLocalPermission).map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @Override
     public ResponseEntity<RestLocalPermissions> updateLocalPermissionsForLabel(String accountId, String labelId, List<RestPermission> restLocalPermission) {
         LocalPermissions newLocalPermissions = LocalPermissions.builder().labelId(labelId).permissions(personalAccountMapper.convertToLocalPermissions(restLocalPermission)).build();
         PersonalAccount personalAccount = accountService.updatePersonalAccountLocalPermissionsById(accountId, newLocalPermissions).orElseThrow(this::accountNotFound);
-        return ResponseEntity.ok(personalAccount.getLocalPermissions().stream()
+        return personalAccount.getLocalPermissions().stream()
                 .filter(localPermissions -> localPermissions.getLabelId().equals(labelId))
-                .findFirst().map(personalAccountMapper::convertToRestLocalPermission).orElseThrow(() -> new ServerErrorException("updateLocalPermissionsForLabel failed", (Throwable) null)));
+                .findFirst().map(personalAccountMapper::convertToRestLocalPermission).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @Override

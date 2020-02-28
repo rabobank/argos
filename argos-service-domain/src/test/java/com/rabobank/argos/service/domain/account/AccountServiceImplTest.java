@@ -285,10 +285,25 @@ class AccountServiceImplTest {
     }
 
     @Test
+    void updatePersonalAccountLocalPermissionsByIdExistingLocalPermissionsDelete() {
+        when(existingLocalPermissions.getLabelId()).thenReturn(LABEL_ID);
+        when(account.getLocalPermissions()).thenReturn(List.of(existingLocalPermissions));
+        when(newLocalPermissions.getLabelId()).thenReturn(LABEL_ID);
+        when(newLocalPermissions.getPermissions()).thenReturn(emptyList());
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        assertThat(accountService.updatePersonalAccountLocalPermissionsById(ACCOUNT_ID, newLocalPermissions), is(Optional.of(account)));
+        verify(account).setLocalPermissions(localPermissionsListArgumentCaptor.capture());
+        assertThat(localPermissionsListArgumentCaptor.getValue(), empty());
+        verify(personalAccountRepository).update(account);
+        verify(personalAccountRepository).update(account);
+    }
+
+    @Test
     void updatePersonalAccountLocalPermissionsByIdNonExistingLocalPermissions() {
         when(existingLocalPermissions.getLabelId()).thenReturn(LABEL_ID);
         when(account.getLocalPermissions()).thenReturn(List.of(existingLocalPermissions));
         when(newLocalPermissions.getLabelId()).thenReturn("other");
+        when(newLocalPermissions.getPermissions()).thenReturn(List.of(Permission.READ));
         when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
         assertThat(accountService.updatePersonalAccountLocalPermissionsById(ACCOUNT_ID, newLocalPermissions), is(Optional.of(account)));
         verify(account).setLocalPermissions(localPermissionsListArgumentCaptor.capture());

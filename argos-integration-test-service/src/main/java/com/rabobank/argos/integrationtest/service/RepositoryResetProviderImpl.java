@@ -36,10 +36,12 @@ public class RepositoryResetProviderImpl implements RepositoryResetProvider {
         template.getCollectionNames().stream()
                 .filter(name -> !IGNORED_COLLECTIONS.contains(name))
                 .forEach(name -> template.remove(new Query(), name));
+        template.remove(new Query(Criteria.where("email").ne("luke@skywalker.imp")), "personalaccounts");
     }
 
     @Override
     public void deletePersonalAccount(String accountId) {
         template.remove(new Query(Criteria.where("accountId").is(accountId)), "personalaccounts");
     }
+
 }

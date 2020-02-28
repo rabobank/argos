@@ -261,8 +261,7 @@ class PersonalAccountRestServiceTest {
         when(localPermissions.getLabelId()).thenReturn("otherLabel");
         when(personalAccount.getLocalPermissions()).thenReturn(List.of(localPermissions));
         ResponseEntity<RestLocalPermissions> response = service.getLocalPermissionsForLabel(ACCOUNT_ID, LABEL_ID);
-        assertThat(response.getStatusCodeValue(), is(200));
-        assertThat(response.getBody().getLabelId(), is(LABEL_ID));
+        assertThat(response.getStatusCodeValue(), is(204));
     }
 
     @Test

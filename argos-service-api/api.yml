@@ -681,8 +681,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LocalPermissions"
+        '204':
+          description: no local permissions
     put:
-      summary: updates permissions of the personalaccount and label
+      summary: updates permissions of the personalaccount and label when the permissions list is empty the permissions are removed
       operationId: updateLocalPermissionsForLabel
       tags:
         - personal account
@@ -715,6 +717,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LocalPermissions"
+        '204':
+          description: local permissions removed
+
   /personalaccount/{accountId}/localpermission:
     get:
       summary: returns all the local permissions of the personalaccount

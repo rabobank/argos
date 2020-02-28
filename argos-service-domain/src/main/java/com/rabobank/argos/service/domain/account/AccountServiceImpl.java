@@ -115,18 +115,39 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Optional<PersonalAccount> updatePersonalAccountLocalPermissionsById(String accountId, LocalPermissions newLocalPermissions) {
         return personalAccountRepository.findByAccountId(accountId).map(personalAccount -> {
-            personalAccount.getLocalPermissions().stream()
-                    .filter(localPermissions -> localPermissions.getLabelId().equals(newLocalPermissions.getLabelId()))
-                    .findFirst()
-                    .ifPresentOrElse(localPermissions -> localPermissions.setPermissions(newLocalPermissions.getPermissions()),
-                            () -> {
-                                ArrayList<LocalPermissions> localPermissions = new ArrayList<>(personalAccount.getLocalPermissions());
-                                localPermissions.add(newLocalPermissions);
-                                personalAccount.setLocalPermissions(localPermissions);
-                            });
-            personalAccountRepository.update(personalAccount);
+            if (newLocalPermissions.getPermissions().isEmpty()) {
+                removeLocalPermissions(newLocalPermissions, personalAccount);
+            } else {
+                addOrUpdateLocalPermissions(newLocalPermissions, personalAccount);
+            }
             return personalAccount;
         });
+    }
+
+    private void addOrUpdateLocalPermissions(LocalPermissions newLocalPermissions, PersonalAccount personalAccount) {
+        findLocalPermissions(newLocalPermissions, personalAccount)
+                .ifPresentOrElse(localPermissions -> localPermissions.setPermissions(newLocalPermissions.getPermissions()),
+                        () -> {
+                            ArrayList<LocalPermissions> localPermissions = new ArrayList<>(personalAccount.getLocalPermissions());
+                            localPermissions.add(newLocalPermissions);
+                            personalAccount.setLocalPermissions(localPermissions);
+                        });
+        personalAccountRepository.update(personalAccount);
+    }
+
+    private void removeLocalPermissions(LocalPermissions newLocalPermissions, PersonalAccount personalAccount) {
+        findLocalPermissions(newLocalPermissions, personalAccount).ifPresent(localPermissions -> {
+            ArrayList<LocalPermissions> localPermissionList = new ArrayList<>(personalAccount.getLocalPermissions());
+            localPermissionList.remove(localPermissions);
+            personalAccount.setLocalPermissions(localPermissionList);
+            personalAccountRepository.update(personalAccount);
+        });
+    }
+
+    private Optional<LocalPermissions> findLocalPermissions(LocalPermissions newLocalPermissions, PersonalAccount personalAccount) {
+        return personalAccount.getLocalPermissions().stream()
+                .filter(localPermissions -> localPermissions.getLabelId().equals(newLocalPermissions.getLabelId()))
+                .findFirst();
     }
 
     @Override
