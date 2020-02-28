@@ -15,7 +15,7 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.permission;
 
-import com.rabobank.argos.domain.permission.GlobalPermission;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.domain.permission.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,6 +69,9 @@ class RoleDatabaseChangelogTest {
         verify(template).save(roleArgumentCaptor.capture(), eq(COLLECTION));
         Role role = roleArgumentCaptor.getValue();
         assertThat(role.getName(), is(Role.ADMINISTRATOR_ROLE_NAME));
-        assertThat(role.getPermissions(), contains(GlobalPermission.READ, GlobalPermission.EDIT_GLOBAL_PERMISSIONS));
+        assertThat(role.getPermissions(), contains(Permission.READ,
+                Permission.PERMISSION_EDIT,
+                Permission.TREE_EDIT,
+                Permission.VERIFY));
     }
 }

@@ -26,7 +26,7 @@ Feature: Personal Account
     Given path '/api/personalaccount/me'
     When method GET
     Then status 200
-    Then match response == {"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","EDIT_GLOBAL_PERMISSIONS"] }]}
+    Then match response == {"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","PERMISSION_EDIT","TREE_EDIT","VERIFY"] }]}
 
   Scenario: createKey should return 204
     Given path '/api/personalaccount/me/key'
@@ -64,11 +64,11 @@ Feature: Personal Account
     And request ["administrator"]
     When method PUT
     Then status 200
-    Then match response == {"id":"#(response.id)","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","EDIT_GLOBAL_PERMISSIONS"] }]}
+    Then match response == {"id":"#(response.id)","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","PERMISSION_EDIT","TREE_EDIT","VERIFY"] }]}
     Given path '/api/personalaccount/'+response.id
     When method GET
     Then status 200
-    Then match response == {"id":"#(response.id)","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","EDIT_GLOBAL_PERMISSIONS"] }]}
+    Then match response == {"id":"#(response.id)","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","PERMISSION_EDIT","TREE_EDIT","VERIFY"] }]}
 
   Scenario: search personal account by role name should return 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
