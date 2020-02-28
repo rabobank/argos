@@ -26,4 +26,4 @@ Feature: Permissions
     Given path '/api/permissions/global/role'
     And method GET
     Then status 200
-    And match response == [{"id":"#uuid","name":"administrator","permissions":["READ","EDIT_GLOBAL_PERMISSIONS"]}]
+    And match response == [{"id":"#uuid","name":"administrator","permissions":["READ","PERMISSION_EDIT","TREE_EDIT","VERIFY"]}]
