@@ -15,10 +15,11 @@
  */
 package com.rabobank.argos.domain;
 
-public class PathHelper {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-    private PathHelper() {
-    }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class PathHelper {
 
     public static String normalizePath(String path) {
         if (path == null) {
