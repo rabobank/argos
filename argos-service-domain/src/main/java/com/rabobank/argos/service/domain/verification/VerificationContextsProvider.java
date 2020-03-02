@@ -187,8 +187,4 @@ public class VerificationContextsProvider {
     private Set<LinkMetaBlock> queryByRunId(String supplyChainId, String runId, String destinationSegmentName, Set<String> resolvedSteps) {
         return new HashSet<>(linkMetaBlockRepository.findByRunId(supplyChainId, destinationSegmentName, runId, resolvedSteps));
     }
-
-    RuleVerification getRuleVerification(RuleType type) {
-        return rulesVerificationMap.get(type);
-    }
 }

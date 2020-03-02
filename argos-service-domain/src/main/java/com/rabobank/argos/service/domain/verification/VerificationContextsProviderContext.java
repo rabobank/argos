@@ -73,7 +73,7 @@ public class VerificationContextsProviderContext {
     /*
      * 
      */
-    void init() {
+    public void init() {
         linkMetaBlockSets = new HashSet<>();
         linkMetaBlockSets.add(new HashSet<>());
         resolvedSegments = new HashSet<>();
@@ -88,7 +88,7 @@ public class VerificationContextsProviderContext {
      * 
      * @return first element in the queue
      */
-    Optional<LayoutSegment> getNextSegment() {
+    public Optional<LayoutSegment> getNextSegment() {
         if (topologicalSortedSegments.isEmpty()) {
             return Optional.empty();
         } else {
@@ -102,7 +102,7 @@ public class VerificationContextsProviderContext {
      * @param startSegment
      * @return
      */
-    static Queue<LayoutSegment> topologicalSort(Map<LayoutSegment, Set<LayoutSegment>> graph) {
+    public static Queue<LayoutSegment> topologicalSort(Map<LayoutSegment, Set<LayoutSegment>> graph) {
         Set<LayoutSegment> nodesWithoutIncomingEdges = graph.entrySet().stream()
                 .filter(entry -> entry.getValue().isEmpty())
                 .map(Entry<LayoutSegment, Set<LayoutSegment>>::getKey)
@@ -132,7 +132,7 @@ public class VerificationContextsProviderContext {
      * 
      * @return
      */
-    static Map<LayoutSegment, Set<LayoutSegment>> createDirectedSegmentGraph(Layout layout) {
+    public static Map<LayoutSegment, Set<LayoutSegment>> createDirectedSegmentGraph(Layout layout) {
         Map<LayoutSegment, Set<LayoutSegment>> graph = new HashMap<>();
 
         layout.getLayoutSegments().forEach(segment -> {
@@ -161,7 +161,7 @@ public class VerificationContextsProviderContext {
      * 
      * @return
      */
-    Map<String, Map<MatchRule, Set<Artifact>>> getFirstMatchRulesAndArtifacts() {
+    public Map<String, Map<MatchRule, Set<Artifact>>> getFirstMatchRulesAndArtifacts() {
         Set<Artifact> notConsumed = new HashSet<>(productsToVerify);
         Map<String, Map<MatchRule, Set<Artifact>>> destStepMap = new HashMap<>();
         layout.getExpectedEndProducts().forEach(rule -> {
@@ -184,7 +184,7 @@ public class VerificationContextsProviderContext {
         return destStepMap;
     }
     
-    Set<Artifact> getDestinationArtifacts(Set<Artifact> artifacts, MatchRule rule) {
+    public static Set<Artifact> getDestinationArtifacts(Set<Artifact> artifacts, MatchRule rule) {
         Set<Artifact> destArtifacts = ArtifactsVerificationContext.filterArtifacts(artifacts, 
                 rule.getPattern(),
                 rule.getSourcePathPrefix());
@@ -203,7 +203,7 @@ public class VerificationContextsProviderContext {
         return destArtifacts;        
     }
     
-    Map<String, Map<MatchRule, Set<Artifact>>> getMatchRulesAndArtifacts(LayoutSegment destinationSegment, Set<LinkMetaBlock> linkMetaBlockSet) {
+    public Map<String, Map<MatchRule, Set<Artifact>>> getMatchRulesAndArtifacts(LayoutSegment destinationSegment, Set<LinkMetaBlock> linkMetaBlockSet) {
         Map<String, Map<String, Set<Link>>> blockMap = linkMetaBlockSet.stream().map(LinkMetaBlock::getLink)
                 .collect(groupingBy(Link::getLayoutSegmentName,
                         groupingBy(Link::getStepName, Collectors.toSet())));
@@ -230,7 +230,7 @@ public class VerificationContextsProviderContext {
         return destStepMap;
     }
     
-    void addStepsWithMatchRulesAndArtifactsToMap(
+    public void addStepsWithMatchRulesAndArtifactsToMap(
             Map<String, Map<MatchRule, Set<Artifact>>> destStepMap,
             Link link, 
             LayoutSegment destSegment,
@@ -250,20 +250,24 @@ public class VerificationContextsProviderContext {
                     .put(matchRule, 
                             getDestinationArtifacts(artifactsContext.getNotConsumedArtifacts(), matchRule));
                     // consume artifacts
-                    rulesVerificationMap.get(matchRule.getRuleType())
+                getRuleVerification(matchRule.getRuleType())
                         .verify(RuleVerificationContext.builder()
                                 .rule(rule)
                                 .artifactsContext(artifactsContext).build());
             } else { // all other rules
                 // process first other rule types
                 // consume filtered artifacts
-                rulesVerificationMap.get(rule.getRuleType())
+                getRuleVerification(rule.getRuleType())
                     .verify(RuleVerificationContext.builder().rule(rule).artifactsContext(artifactsContext).build());
             }
         });
     }
+
+    private RuleVerification getRuleVerification(RuleType type) {
+        return rulesVerificationMap.get(type);
+    }
     
-    static Set<Set<LinkMetaBlock>> permutateAndAddLinkMetaBlocks(Set<LinkMetaBlock> linkMetaBlocks, Set<Set<LinkMetaBlock>> linkMetaBlockSets) {
+    public static Set<Set<LinkMetaBlock>> permutateAndAddLinkMetaBlocks(Set<LinkMetaBlock> linkMetaBlocks, Set<Set<LinkMetaBlock>> linkMetaBlockSets) {
         Set<Set<LinkMetaBlock>> segmentLinkSets = permutateOnStepsInSegment(linkMetaBlocks);
         Set<Set<LinkMetaBlock>> tempSets = new HashSet<>();
         for (Set<LinkMetaBlock> linkSet: linkMetaBlockSets) {
@@ -276,7 +280,7 @@ public class VerificationContextsProviderContext {
         return tempSets;
     }
     
-    static Set<Set<LinkMetaBlock>> permutateOnStepsInSegment(Set<LinkMetaBlock> linkMetaBlocks) {
+    public static Set<Set<LinkMetaBlock>> permutateOnStepsInSegment(Set<LinkMetaBlock> linkMetaBlocks) {
         Set<Set<LinkMetaBlock>> tempSets = new HashSet<>();
         tempSets.add(new HashSet<>());
         Map<String, Map<Link, Set<LinkMetaBlock>>> stepSets = linkMetaBlocks.stream()
