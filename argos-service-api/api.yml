@@ -827,11 +827,19 @@ components:
       properties:
         pattern:
           type: string
+        sourcePathPrefix:
+          type: string
+          maxLength: 1024
+          pattern: '^(?!.*\\).*$'
         destinationType:
           type: string
           enum:
             - PRODUCTS
             - MATERIALS
+        destinationPathPrefix:
+          type: string
+          maxLength: 1024
+          pattern: '^(?!.*\\).*$'
         destinationSegmentName:
           type: string
         destinationStepName:
