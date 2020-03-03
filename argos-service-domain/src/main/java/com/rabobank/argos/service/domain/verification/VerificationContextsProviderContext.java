@@ -27,7 +27,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toSet;
 import java.util.stream.Stream;
 
 import com.rabobank.argos.domain.ArgosError;
@@ -80,6 +81,7 @@ public class VerificationContextsProviderContext {
         if (layout != null) {
             segmentGraph = createDirectedSegmentGraph(layout);
             topologicalSortedSegments = topologicalSort(createDirectedSegmentGraph(layout));
+            
         }
     }
     
@@ -106,7 +108,7 @@ public class VerificationContextsProviderContext {
         Set<LayoutSegment> nodesWithoutIncomingEdges = graph.entrySet().stream()
                 .filter(entry -> entry.getValue().isEmpty())
                 .map(Entry<LayoutSegment, Set<LayoutSegment>>::getKey)
-                .collect(Collectors.toSet());
+                .collect(toSet());
         LinkedList<LayoutSegment> sortedList = new LinkedList<>();
         while (!nodesWithoutIncomingEdges.isEmpty()) {
             LayoutSegment n = nodesWithoutIncomingEdges.iterator().next();
@@ -122,6 +124,10 @@ public class VerificationContextsProviderContext {
             nodesWithoutIncomingEdges.remove(n);
         }
         graph.entrySet().forEach(entry -> {if (!entry.getValue().isEmpty()) {
+                log.error("Layout segment graph has at least 1 cycle");
+                for (LayoutSegment segment: entry.getValue()) {
+                    log.error("Edge not processed: [{} <= {}]", entry.getKey().getName(), segment.getName());
+                }
                 throw new ArgosError("layout segment graph has at least 1 cycle.");
             }
         });
@@ -142,7 +148,7 @@ public class VerificationContextsProviderContext {
                                 step.getExpectedProducts().stream())
                         .filter(rule -> RuleType.MATCH.equals(rule.getRuleType()))
                         .filter(rule -> !segment.getName().equals(((MatchRule) rule).getDestinationSegmentName()))
-                        .map(rule -> ((MatchRule) rule).getDestinationSegmentName()).collect(Collectors.toSet());
+                        .map(rule -> ((MatchRule) rule).getDestinationSegmentName()).collect(toSet());
                 layout.getLayoutSegments().forEach(destSegment -> {
                     graph.putIfAbsent(destSegment, new HashSet<>());
                     if (destSegs.contains(destSegment.getName())) {
@@ -158,7 +164,7 @@ public class VerificationContextsProviderContext {
     }
     
     /*
-     * 
+     * Ge
      * @return
      */
     public Map<String, Map<MatchRule, Set<Artifact>>> getFirstMatchRulesAndArtifacts() {
@@ -169,11 +175,7 @@ public class VerificationContextsProviderContext {
             destStepMap.get(rule.getDestinationStepName()).putIfAbsent(rule, new HashSet<>());
             destStepMap.get(rule.getDestinationStepName())
                 .get(rule)
-                .addAll(ArtifactsVerificationContext.filterArtifacts(notConsumed, 
-                        rule.getPattern(),
-                        rule.getSourcePathPrefix()));
-            notConsumed.removeAll(ArtifactsVerificationContext.filterArtifacts(notConsumed, rule.getPattern(),
-                    rule.getSourcePathPrefix()));
+                .addAll(getDestinationArtifacts(notConsumed, rule));            
         });
         
         // check if all productsToVerify are consumed
@@ -184,10 +186,11 @@ public class VerificationContextsProviderContext {
         return destStepMap;
     }
     
-    public static Set<Artifact> getDestinationArtifacts(Set<Artifact> artifacts, MatchRule rule) {
-        Set<Artifact> destArtifacts = ArtifactsVerificationContext.filterArtifacts(artifacts, 
+    public static Set<Artifact> getDestinationArtifacts(Set<Artifact> notConsumed, MatchRule rule) {
+        Set<Artifact> destArtifacts = ArtifactsVerificationContext.filterArtifacts(notConsumed, 
                 rule.getPattern(),
                 rule.getSourcePathPrefix());
+        notConsumed.removeAll(destArtifacts);
         if (rule.getSourcePathPrefix() != null || rule.getDestinationPathPrefix() != null) {
             destArtifacts = destArtifacts.stream().map(artifact -> {
                 Artifact newArtifact = new Artifact(artifact.getUri(), artifact.getHash());
@@ -198,7 +201,7 @@ public class VerificationContextsProviderContext {
                     newArtifact.setUri(Paths.get(rule.getDestinationPathPrefix(), newArtifact.getUri()).toString());
                 }
                 return newArtifact;
-            }).collect(Collectors.toSet());
+            }).collect(toSet());
         } 
         return destArtifacts;        
     }
@@ -206,7 +209,7 @@ public class VerificationContextsProviderContext {
     public Map<String, Map<MatchRule, Set<Artifact>>> getMatchRulesAndArtifacts(LayoutSegment destinationSegment, Set<LinkMetaBlock> linkMetaBlockSet) {
         Map<String, Map<String, Set<Link>>> blockMap = linkMetaBlockSet.stream().map(LinkMetaBlock::getLink)
                 .collect(groupingBy(Link::getLayoutSegmentName,
-                        groupingBy(Link::getStepName, Collectors.toSet())));
+                        groupingBy(Link::getStepName, toSet())));
         
         Map<String, Map<Step, Set<Link>>> linkMap = new HashMap<>();
         segmentGraph.get(destinationSegment).forEach(segment -> {
@@ -285,7 +288,7 @@ public class VerificationContextsProviderContext {
         tempSets.add(new HashSet<>());
         Map<String, Map<Link, Set<LinkMetaBlock>>> stepSets = linkMetaBlocks.stream()
                 .collect(groupingBy(linkMetaBlock -> linkMetaBlock.getLink().getStepName(),
-                        groupingBy(LinkMetaBlock::getLink, Collectors.toSet())));
+                        groupingBy(LinkMetaBlock::getLink, toSet())));
         for (Entry<String, Map<Link, Set<LinkMetaBlock>>> stepEntry : stepSets.entrySet()) {
             Set<Set<LinkMetaBlock>> newTempSets = new HashSet<>();
             for (Entry<Link, Set<LinkMetaBlock>> linkEntry : stepEntry.getValue().entrySet()) {

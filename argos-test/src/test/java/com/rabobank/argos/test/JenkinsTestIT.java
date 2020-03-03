@@ -133,22 +133,21 @@ public class JenkinsTestIT {
 
     @Test
     public void testPipeline() throws IOException {
-        JobWithDetails pipeLineJob = getJob("argos-test-app-pipeline");
-        if (!hasMaster(pipeLineJob)) {
-            pipeLineJob.build();
-            await().atMost(1, MINUTES).until(() -> hasMaster(pipeLineJob));
-        }
-
-        JobWithDetails job = getJob("argos-test-app-pipeline");
-        FolderJob folderJob = jenkins.getFolderJob(job).get();
-        Map<String, Job> jobs = folderJob.getJobs();
-        int buildNumber = runBuild(jobs.get(TEST_APP_BRANCH));
-
-        verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
-
-        // a number of times to create a lot of link objects
-        verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
-        verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
+        
+          JobWithDetails pipeLineJob = getJob("argos-test-app-pipeline"); if
+          (!hasMaster(pipeLineJob)) { pipeLineJob.build(); await().atMost(1,
+          MINUTES).until(() -> hasMaster(pipeLineJob)); }
+          
+          JobWithDetails job = getJob("argos-test-app-pipeline"); FolderJob folderJob =
+          jenkins.getFolderJob(job).get(); Map<String, Job> jobs = folderJob.getJobs();
+          int buildNumber = runBuild(jobs.get(TEST_APP_BRANCH));
+          
+          verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
+          
+          // a number of times to create a lot of link objects
+          verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
+          verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
+         
 
         verifyEndProducts();
     }
@@ -180,7 +179,10 @@ public class JenkinsTestIT {
 
     public void verifyEndProducts() {
         String hash = getWarSnapshotHash();
-        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("target/argos-test-app.war").hash(hash))));
+        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash))));
+        
+        String hash2 = "0123456789012345678901234567890123456789012345678901234567890123";
+        assertFalse(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash2))));
     }
 
     private JobWithDetails getJob(String name) throws IOException {

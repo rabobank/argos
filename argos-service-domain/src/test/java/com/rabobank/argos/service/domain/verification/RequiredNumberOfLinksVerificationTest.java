@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
+import com.rabobank.argos.domain.Signature;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
@@ -34,27 +35,33 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @ExtendWith(MockitoExtension.class)
 class RequiredNumberOfLinksVerificationTest {
 
-    private static final String STEP_NAME = "stepName";
+    private static final String STEP_NAME1 = "stepName1";
     private static final String STEP_NAME2 = "stepName2";
+    private static final String STEP_NAME3 = "stepName3";
     private static final String SEGMENT_NAME = "segmentName";
     private static final String SEGMENT_NAME2 = "segmentName2";
+    private static final String KEY_ID_1 = "keyid1";
+    private static final String KEY_ID_2 = "keyid2";
+    private static final Signature SIGNATURE_1 = Signature.builder().keyId(KEY_ID_1).signature("sig1").build();
+    private static final Signature SIGNATURE_2 = Signature.builder().keyId(KEY_ID_2).signature("sig2").build();
+    private static final Signature SIGNATURE_3 = Signature.builder().keyId(KEY_ID_1).signature("sig3").build();
     private RequiredNumberOfLinksVerification requiredNumberOfLinksVerification;
 
     private VerificationContext context;
 
-    private Step step;    
+    private Step step1;    
     
-    private Step step2;
+    private Step step2;    
+    
+    private Step step3;
     
     private LayoutMetaBlock layoutMetaBlock; 
     
     private Layout layout;
 
-    private LayoutSegment layoutSegment;    
-    
-    private LayoutSegment layoutSegment2;
+    private LayoutSegment layoutSegment;
 
-    private LinkMetaBlock linkMetaBlock;
+    private LinkMetaBlock linkMetaBlock1;
 
     private LinkMetaBlock linkMetaBlock2;
 
@@ -62,27 +69,31 @@ class RequiredNumberOfLinksVerificationTest {
 
     private LinkMetaBlock linkMetaBlock4;
 
+    private LinkMetaBlock linkMetaBlock5;
+
     @BeforeEach
     void setup() {
         requiredNumberOfLinksVerification = new RequiredNumberOfLinksVerification();
 
-        linkMetaBlock = createLinkMetaBlock(SEGMENT_NAME, STEP_NAME);
-        linkMetaBlock2 = createLinkMetaBlock(SEGMENT_NAME, STEP_NAME);
-        linkMetaBlock3 = createLinkMetaBlock(SEGMENT_NAME2, STEP_NAME2);
-        linkMetaBlock4 = createLinkMetaBlock(SEGMENT_NAME2, STEP_NAME2);
+        linkMetaBlock1 = createLinkMetaBlock(SIGNATURE_1, SEGMENT_NAME, STEP_NAME1);
+        linkMetaBlock2 = createLinkMetaBlock(SIGNATURE_2, SEGMENT_NAME, STEP_NAME1);
+        linkMetaBlock3 = createLinkMetaBlock(SIGNATURE_1, SEGMENT_NAME, STEP_NAME2);
+        linkMetaBlock4 = createLinkMetaBlock(SIGNATURE_1, SEGMENT_NAME, STEP_NAME3);
+        linkMetaBlock5 = createLinkMetaBlock(SIGNATURE_3, SEGMENT_NAME, STEP_NAME3);
 
-        step = Step.builder().name(STEP_NAME).requiredNumberOfLinks(1).build();
+        step1 = Step.builder().name(STEP_NAME1).requiredNumberOfLinks(1).build();
         step2 = Step.builder().name(STEP_NAME2).requiredNumberOfLinks(1).build();
-        layoutSegment = LayoutSegment.builder().name(SEGMENT_NAME).steps(List.of(step)).build();
-        layoutSegment2 = LayoutSegment.builder().name(SEGMENT_NAME2).steps(List.of(step2)).build();
-        layout = Layout.builder().layoutSegments(List.of(layoutSegment, layoutSegment2)).build();
+        step3 = Step.builder().name(STEP_NAME3).requiredNumberOfLinks(1).build();
+        layoutSegment = LayoutSegment.builder().name(SEGMENT_NAME).steps(List.of(step1, step2, step3)).build();
+        layout = Layout.builder().layoutSegments(List.of(layoutSegment)).build();
         
         layoutMetaBlock = LayoutMetaBlock.builder().layout(layout).build();
-        context = VerificationContext.builder().layoutMetaBlock(layoutMetaBlock).linkMetaBlocks(List.of(linkMetaBlock, linkMetaBlock2, linkMetaBlock3, linkMetaBlock4)).build();
+        context = VerificationContext.builder().layoutMetaBlock(layoutMetaBlock).linkMetaBlocks(List.of(linkMetaBlock1, linkMetaBlock2, linkMetaBlock3, linkMetaBlock4)).build();
     }
 
-    private LinkMetaBlock createLinkMetaBlock(String segmentName, String stepName) {
+    private LinkMetaBlock createLinkMetaBlock(Signature sig,String segmentName, String stepName) {
         return LinkMetaBlock.builder()
+                .signature(sig)
                 .link(Link.builder()
                         .layoutSegmentName(segmentName)
                         .stepName(stepName)
@@ -103,22 +114,29 @@ class RequiredNumberOfLinksVerificationTest {
 
     @Test
     void verifyWithNotRequiredNumberOfLinksShouldReturnInValid() {
-        step.setRequiredNumberOfLinks(3);
+        step1.setRequiredNumberOfLinks(3);
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
     }
 
     @Test
     void verifyWithRequiredNumberOfLinks2ShouldReturnValid() {
-        step.setRequiredNumberOfLinks(2);
+        step1.setRequiredNumberOfLinks(2);
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(true));
+    }
+
+    @Test
+    void verifyWithRequiredNumberOfLinks2SignedBySameFunctShouldReturnInValid() {
+        step3.setRequiredNumberOfLinks(2);
+        VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
+        assertThat(result.isRunIsValid(), is(false));
     }
 
 
     @Test
     void verifyTwoLinkHashesForOneStepIsInvalid() {
-        linkMetaBlock.getLink().setCommand(List.of("cmd"));
+        linkMetaBlock1.getLink().setCommand(List.of("cmd"));
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(false));
     }
@@ -128,7 +146,7 @@ class RequiredNumberOfLinksVerificationTest {
         step2.setRequiredNumberOfLinks(2);
         context = VerificationContext.builder()
                 .layoutMetaBlock(layoutMetaBlock)
-                .linkMetaBlocks(List.of(linkMetaBlock, linkMetaBlock2))
+                .linkMetaBlocks(List.of(linkMetaBlock1, linkMetaBlock2))
                 .build();
         VerificationRunResult result = requiredNumberOfLinksVerification.verify(context);
         assertThat(result.isRunIsValid(), is(false));

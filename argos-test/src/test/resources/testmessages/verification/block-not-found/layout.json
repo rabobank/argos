@@ -59,58 +59,8 @@
                 "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar"
               },
               {
-                "ruleType": "ALLOW",
-                "pattern": "**"
-              },
-              {
                 "ruleType": "DELETE",
                 "pattern": "**/*.java"
-              }
-            ]
-          },
-          {
-            "name": "test",
-            "authorizedKeyIds": [
-              "a97daeaf3afaed859472a367da7a860b4b90eefb97fe51384bd45e9eed020b5b"
-            ],
-            "requiredNumberOfLinks": 1,
-            "expectedCommand": [
-              "stepName2 expectedCommand"
-            ],
-            "expectedMaterials": [
-              {
-                "ruleType": "MATCH",
-                "pattern": "pom.xml",
-                "destinationType": "MATERIALS",
-                "destinationStepName": "build",
-                "destinationSegmentName": "segment 1"
-              },
-              {
-                "ruleType": "DISALLOW",
-                "pattern": "**/invalid-link.json"
-              },
-              {
-                "ruleType": "ALLOW",
-                "pattern": "**"
-              }
-            ],
-            "expectedProducts": [
-              {
-                "ruleType": "MATCH",
-                "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
-                "sourcePathPrefix": "",
-                "destinationPathPrefix": "target/",
-                "destinationType": "PRODUCTS",
-                "destinationStepName": "build",
-                "destinationSegmentName": "segment 1"
-              },
-              {
-                "ruleType": "REQUIRE",
-                "pattern": "**Argos4jIT.java"
-              },
-              {
-                "ruleType": "DISALLOW",
-                "pattern": "**/bob"
               },
               {
                 "ruleType": "ALLOW",

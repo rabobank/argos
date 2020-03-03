@@ -73,9 +73,8 @@ public class VerificationContextsProvider {
                 .productsToVerify(new HashSet<>(productsToVerify))
                 .rulesVerificationMap(rulesVerificationMap)
                 .build();
-
-        context.init();
         try {
+            context.init();
             processMatchRules(context);
         } catch(ArgosError exc) {
             log.error(exc.getMessage());
@@ -148,15 +147,15 @@ public class VerificationContextsProvider {
         log.info("Found runIds: {}", runIds);
         
         runIds.forEach(runId -> {
-               Set<LinkMetaBlock> newLinkSetByRunId = new HashSet<>(linkMetaBlocks);
                Set<LinkMetaBlock> foundBlocks = queryByRunId(context.getSupplyChainId(), runId,
                        segment.getName(),
                        resolvedSteps);
-               log.info("[{}] LinkMetaBlocks found for: supply chain id: [{}] segment: [{}] runId: [{}] and resolved steps", foundBlocks.size(), context.getSupplyChainId(), segment.getName(), runId);
-               newLinkSetByRunId.addAll(foundBlocks);
-               context.setLinkMetaBlockSets(VerificationContextsProviderContext.permutateAndAddLinkMetaBlocks(newLinkSetByRunId, context.getLinkMetaBlockSets()));
+               log.info("[{}] LinkMetaBlocks found for: supply chain id: [{}] segment: [{}] runId: [{}] and already resolved steps", foundBlocks.size(), context.getSupplyChainId(), segment.getName(), runId);
+               linkMetaBlocks.addAll(foundBlocks);
+               
             }
         );
+        context.setLinkMetaBlockSets(VerificationContextsProviderContext.permutateAndAddLinkMetaBlocks(linkMetaBlocks, context.getLinkMetaBlockSets()));
     }
     
     /*

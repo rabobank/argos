@@ -19,9 +19,10 @@
     ],
     "expectedEndProducts": [
       {
-        "pattern": "**/*.war",
+        "pattern": "*.war",
         "destinationType": "PRODUCTS",
         "destinationStepName": "approve",
+        "destinationPathPrefix": "target",
         "destinationSegmentName": "segment 4"
       },
       {

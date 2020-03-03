@@ -23,7 +23,12 @@ Feature: Verification
   Scenario: happy flow all rules
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest) ,testDir: 'happy-flow',steps:#(defaultSteps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":true}
-
+  
+  Scenario: products to verify wrong hash
+    * def verificationRequest = {expectedProducts: [{uri: 'target/argos-test-0.0.1-SNAPSHOT.jar',hash: '0123456789012345678901234567890012345678901234567890123456789012'}] }
+    * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(verificationRequest) ,testDir: 'happy-flow',steps:#(defaultSteps),layoutSigningKey:1}
+    And match resp.response == {"runIsValid":false}
+    
   Scenario: expected expected end products not matches
     * def verificationRequest = {expectedProducts: [{uri: 'argos-test-0.0.1-SNAPSHOT.jar',hash: '49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162'}] }
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(verificationRequest) ,testDir: 'happy-flow',steps:#(defaultSteps),layoutSigningKey:1}
@@ -109,5 +114,6 @@ Feature: Verification
     * def steps = [{link:'build-step-link-valid.json', signingKey:2},{link:'build-step-link-invalid.json', signingKey:3},{link:'test-step-link-invalid.json', signingKey:2},{link:'test-step-link-valid.json',signingKey:3}]
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest),testDir: 'multiple-verification-contexts',steps:#(steps),layoutSigningKey:1}
     And match resp.response == {"runIsValid":true}
+   
 
 

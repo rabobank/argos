@@ -82,7 +82,7 @@ public class RulesVerification implements Verification {
 
     private Boolean verifyStep(Map<String, Map<String, Link>> linksMap, String segmentName, Step step, Link link) {
         if (link == null) {
-            log.warn("no links for step {}", step.getName());
+            log.warn("no links for step [{}]", step.getName());
             return false;
         }
         return verifyLink(linksMap, segmentName, step, link);
@@ -115,7 +115,7 @@ public class RulesVerification implements Verification {
 
         return getExpectedArtifactRulesByType(step, type).stream()
                 .map(rule -> verifyRule(rule, ruleVerifier -> {
-                    log.info("verify expected {} {} for step {}", type, rule.getRuleType(), step.getName());
+                    log.info("verify expected [{}] [{}] for step [{}]", type, rule.getRuleType(), step.getName());
                     RuleVerificationContext<Rule> context = RuleVerificationContext.builder()
                             .rule(rule)
                             .artifactsContext(artifactsContext)
@@ -131,7 +131,7 @@ public class RulesVerification implements Verification {
         return Optional.ofNullable(rulesVerificationMap.get(rule.getRuleType()))
                 .map(ruleVerifyFunction::test)
                 .orElseGet(() -> {
-                    log.error("rule verification {} not implemented", rule.getRuleType());
+                    log.error("rule verification [{}] not implemented", rule.getRuleType());
                     return Boolean.FALSE;
                 });
     }

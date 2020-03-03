@@ -21,9 +21,10 @@ import com.rabobank.argos.domain.link.LinkMetaBlock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.rabobank.argos.service.domain.verification.Verification.Priority.REQUIRED_NUMBER_OF_LINKS;
 import static java.util.stream.Collectors.groupingBy;
@@ -59,19 +60,19 @@ public class RequiredNumberOfLinksVerification implements Verification {
     }
 
     private Boolean isValid(String segmentName, String stepName, VerificationContext context) {
-        Map<Integer, List<LinkMetaBlock>> linkMetaBlockMap = context
+        Map<Integer, Set<LinkMetaBlock>> linkMetaBlockMap = context
                 .getLinkMetaBlocksBySegmentNameAndStepName(segmentName, stepName).stream()
-                .collect(groupingBy(f -> f.getLink().hashCode()));
+                .collect(groupingBy(f -> f.getLink().hashCode(), Collectors.toSet()));
         if (linkMetaBlockMap.size() == 1) {
             return isValid(linkMetaBlockMap.values().iterator().next(), context.getStepBySegmentNameAndStepName(segmentName, stepName));
         } else {
-            log.info("{} different links with the same hash for step {}", linkMetaBlockMap.size(), stepName);
+            log.info("[{}] different link objects in metablocks for step [{}]", linkMetaBlockMap.size(), stepName);
             return false;
         }
     }
 
-    private boolean isValid(List<LinkMetaBlock> linkMetaBlocks, Step step) {
-        log.info("{} links for step {} and should be {}", linkMetaBlocks.size(), step.getName(), step.getRequiredNumberOfLinks());
+    private boolean isValid(Set<LinkMetaBlock> linkMetaBlocks, Step step) {
+        log.info("[{}] links for step [{}] and should be at least [{}]", linkMetaBlocks.size(), step.getName(), step.getRequiredNumberOfLinks());
         return linkMetaBlocks.size() >= step.getRequiredNumberOfLinks();
     }
 }
