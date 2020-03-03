@@ -30,16 +30,7 @@ public class ReflectionHelper {
         return StreamUtils
                 .zipWithIndex(Arrays.stream(method.getParameters()))
                 .filter(p -> p.getValue().getAnnotation(annotation) != null)
-                .map(p -> new ParameterData<>(p.getValue().getAnnotation(annotation), p.getValue(), getArgumentValueByIndex(argumentValues, (int) p.getIndex())))
+                .map(p -> new ParameterData<>(p.getValue().getAnnotation(annotation), argumentValues[(int) p.getIndex()]))
                 .findFirst();
     }
-
-    private static <S> S getArgumentValueByIndex(S[] argumentValues, Integer index) {
-        try {
-            return argumentValues[index];
-        } catch (Exception e) {
-            throw new IllegalArgumentException("argument value at index: " + index + " does not exist", e);
-        }
-    }
-
 }

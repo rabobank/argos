@@ -19,14 +19,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Parameter;
 
 @AllArgsConstructor
 @Getter
 public class ParameterData<T extends Annotation, S> {
     private T annotation;
-
-    private Parameter parameter;
-
     private S value;
 }
