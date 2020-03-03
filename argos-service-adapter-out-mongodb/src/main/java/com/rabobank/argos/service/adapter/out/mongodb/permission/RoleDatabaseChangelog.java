@@ -43,8 +43,9 @@ public class RoleDatabaseChangelog {
     public void addAdminRole(MongoTemplate template) {
         template.save(Role.builder().name(Role.ADMINISTRATOR_ROLE_NAME)
                 .permissions(List.of(Permission.READ,
-                        Permission.PERMISSION_EDIT,
+                        Permission.LOCAL_PERMISSION_EDIT,
                         Permission.TREE_EDIT,
-                        Permission.VERIFY)).build(), COLLECTION);
+                        Permission.VERIFY,
+                        Permission.ASSIGN_ROLE)).build(), COLLECTION);
     }
 }

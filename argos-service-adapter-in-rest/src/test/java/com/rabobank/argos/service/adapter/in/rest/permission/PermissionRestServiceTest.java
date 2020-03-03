@@ -66,9 +66,8 @@ class PermissionRestServiceTest {
 
     @Test
     void getLocalPermissions() {
-        ResponseEntity<List<RestPermission>> response = service.getLocalPermissions();
+        ResponseEntity<List<RestPermission>> response = service.getPermissions();
         assertThat(response.getBody(), contains(RestPermission.values()));
         assertThat(response.getStatusCodeValue(), is(200));
-
     }
 }

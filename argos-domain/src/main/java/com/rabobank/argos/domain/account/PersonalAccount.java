@@ -16,7 +16,6 @@
 package com.rabobank.argos.domain.account;
 
 import com.rabobank.argos.domain.key.KeyPair;
-import com.rabobank.argos.domain.permission.LocalPermissions;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -45,14 +44,14 @@ public class PersonalAccount extends Account {
                 name,
                 email,
                 activeKeyPair,
-                inactiveKeyPairs == null ? emptyList() : inactiveKeyPairs);
+                inactiveKeyPairs == null ? emptyList() : inactiveKeyPairs,
+                emptyList());
         this.provider = provider;
         this.providerId = providerId;
         this.roleIds = roleIds;
-        this.localPermissions = emptyList();
     }
     private AuthenticationProvider provider;
     private String providerId;
     private List<String> roleIds;
-    private List<LocalPermissions> localPermissions;
+
 }

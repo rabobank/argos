@@ -45,7 +45,7 @@ public class PermissionRestService implements PermissionsApi {
     }
 
     @Override
-    public ResponseEntity<List<RestPermission>> getLocalPermissions() {
+    public ResponseEntity<List<RestPermission>> getPermissions() {
         return ResponseEntity.ok(List.of(RestPermission.values()));
     }
 }

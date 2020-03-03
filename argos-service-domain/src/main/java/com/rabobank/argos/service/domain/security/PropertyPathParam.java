@@ -13,25 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.account;
+package com.rabobank.argos.service.domain.security;
 
-import com.rabobank.argos.domain.key.KeyPair;
-import com.rabobank.argos.domain.permission.LocalPermissions;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.io.Serializable;
-import java.util.List;
-
-@Getter
-@Setter
-@AllArgsConstructor
-public abstract class Account implements Serializable {
-    private String accountId;
-    private String name;
-    private String email;
-    private KeyPair activeKeyPair;
-    private List<? extends KeyPair> inactiveKeyPairs;
-    private List<LocalPermissions> localPermissions;
+public @interface PropertyPathParam {
+    String propertyPath() default "";
 }

@@ -18,7 +18,8 @@ package com.rabobank.argos.domain.permission;
 public enum Permission {
     READ,
     TREE_EDIT,
-    PERMISSION_EDIT,
+    LOCAL_PERMISSION_EDIT,
+    ASSIGN_ROLE,
     LINK_ADD,
     LAYOUT_ADD,
     VERIFY

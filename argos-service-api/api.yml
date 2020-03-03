@@ -915,15 +915,15 @@ paths:
 
         '500':
           $ref: '#/components/responses/Error'
-  /permissions/local:
+  /permissions:
     get:
-      summary: gets all local permissions
-      operationId: getLocalPermissions
+      summary: gets all permissions
+      operationId: getPermissions
       tags:
         - permissions
       responses:
         '200':
-          description: list local permissions
+          description: list of all permissions
           content:
             application/json:
               schema:
@@ -1366,7 +1366,8 @@ components:
       enum:
         - READ
         - TREE_EDIT
-        - PERMISSION_EDIT
+        - LOCAL_PERMISSION_EDIT
+        - ASSIGN_ROLE
         - LINK_ADD
         - LAYOUT_ADD
         - VERIFY

@@ -207,6 +207,7 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
                 .referenceId(hierarchyItem.getReferenceId())
                 .type(TreeNode.Type.valueOf(hierarchyItem.getType().name()))
                 .pathToRoot(hierarchyItem.getPathToRoot())
+                .idPathToRoot(hierarchyItem.getIdPathToRoot())
                 .parentLabelId(hierarchyItem.getParentLabelId())
                 .hasChildren(hierarchyItem.isHasChildren())
                 .build();
@@ -237,6 +238,7 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
         private String parentLabelId;
         private Type type;
         private List<String> pathToRoot;
+        private List<String> idPathToRoot;
         private boolean hasChildren;
         private List<HierarchyItem> descendants;
         private int depth;

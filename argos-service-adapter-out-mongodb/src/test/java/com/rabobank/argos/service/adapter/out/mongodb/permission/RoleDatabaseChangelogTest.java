@@ -70,8 +70,9 @@ class RoleDatabaseChangelogTest {
         Role role = roleArgumentCaptor.getValue();
         assertThat(role.getName(), is(Role.ADMINISTRATOR_ROLE_NAME));
         assertThat(role.getPermissions(), contains(Permission.READ,
-                Permission.PERMISSION_EDIT,
+                Permission.LOCAL_PERMISSION_EDIT,
                 Permission.TREE_EDIT,
-                Permission.VERIFY));
+                Permission.VERIFY,
+                Permission.ASSIGN_ROLE));
     }
 }

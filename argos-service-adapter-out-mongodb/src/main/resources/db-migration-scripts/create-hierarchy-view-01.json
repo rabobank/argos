@@ -40,6 +40,9 @@
               },
               "pathToRoot": {
                 "$push": "$pathToRoot.name"
+              },
+              "idPathToRoot": {
+                "$push": "$pathToRoot.referenceId"
               }
             }
           },

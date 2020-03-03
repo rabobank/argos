@@ -128,7 +128,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "api.yml#/components/schemas/PersonalAccount"
+                $ref: "#/components/schemas/PersonalAccountWithToken"
   /deletePersonalAccount/{accountId}:
     delete:
       summary: delete account
@@ -144,3 +144,14 @@ paths:
       responses:
         '204':
           description: delete
+components:
+  schemas:
+    PersonalAccountWithToken:
+      allOf:
+        - $ref: "api.yml#/components/schemas/PersonalAccount"
+        - type: object
+          required:
+            - token
+          properties:
+            token:
+              type: string

@@ -26,10 +26,10 @@ Feature: Permissions
     Given path '/api/permissions/global/role'
     And method GET
     Then status 200
-    And match response == [{"id":"#uuid","name":"administrator","permissions":["READ","PERMISSION_EDIT","TREE_EDIT","VERIFY"]}]
+    And match response == [{"id":"#uuid","name":"administrator","permissions":["READ","LOCAL_PERMISSION_EDIT","TREE_EDIT","VERIFY","ASSIGN_ROLE"]}]
 
   Scenario: all local permissions requested from server will return 200
-    Given path '/api/permissions/local'
+    Given path '/api/permissions'
     And method GET
     Then status 200
-    And match response == ["READ","TREE_EDIT","PERMISSION_EDIT","LINK_ADD","LAYOUT_ADD","VERIFY"]
+    And match response == ["READ","TREE_EDIT","LOCAL_PERMISSION_EDIT","ASSIGN_ROLE","LINK_ADD","LAYOUT_ADD","VERIFY"]
