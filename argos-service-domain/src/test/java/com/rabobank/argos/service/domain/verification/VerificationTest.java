@@ -15,22 +15,16 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-import static org.hamcrest.CoreMatchers.anything;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,9 +33,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.Module.SetupContext;
-import com.rabobank.argos.domain.supplychain.SupplyChain;
-import com.rabobank.argos.service.domain.key.KeyPairRepository;
 import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
 import com.rabobank.argos.service.domain.verification.ExpectedCommandVerification;
 import com.rabobank.argos.service.domain.verification.LayoutAuthorizedKeyIdVerification;
@@ -51,7 +42,6 @@ import com.rabobank.argos.service.domain.verification.RequiredNumberOfLinksVerif
 import com.rabobank.argos.service.domain.verification.RulesVerification;
 import com.rabobank.argos.service.domain.verification.StepAuthorizedKeyIdVerification;
 import com.rabobank.argos.service.domain.verification.Verification;
-import com.rabobank.argos.service.domain.verification.VerificationContextsProvider;
 import com.rabobank.argos.service.domain.verification.VerificationContextsProvider;
 import com.rabobank.argos.service.domain.verification.VerificationProvider;
 import com.rabobank.argos.service.domain.verification.helper.ArgosTestSigner;
@@ -82,16 +72,8 @@ import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.domain.signing.JsonSigningSerializer;
 import com.rabobank.argos.domain.signing.SignatureValidator;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class VerificationTest {
-    
-    @Mock
-    private KeyPairRepository keyPairRepository;
     
     @Mock
     private LinkMetaBlockRepository linkMetaBlockRepository;
@@ -117,9 +99,9 @@ class VerificationTest {
     private final java.security.KeyPair aliceSignKey = ArgosTestSigner.generateKey();
     private final java.security.KeyPair carlSignKey = ArgosTestSigner.generateKey();
     
-    private final KeyPair bobKey = KeyPair.builder().keyId(KeyIdProvider.computeKeyId(bobSignKey.getPublic())).publicKey(bobSignKey.getPublic()).build();
-    private final KeyPair aliceKey = KeyPair.builder().keyId(KeyIdProvider.computeKeyId(aliceSignKey.getPublic())).publicKey(aliceSignKey.getPublic()).build();
-    private final KeyPair carlKey = KeyPair.builder().keyId(KeyIdProvider.computeKeyId(carlSignKey.getPublic())).publicKey(carlSignKey.getPublic()).build();
+    private final KeyPair bobKey = new KeyPair(KeyIdProvider.computeKeyId(bobSignKey.getPublic()), null, bobSignKey.getPublic());
+    private final KeyPair aliceKey = new KeyPair(KeyIdProvider.computeKeyId(aliceSignKey.getPublic()), null, aliceSignKey.getPublic());
+    private final KeyPair carlKey = new KeyPair(KeyIdProvider.computeKeyId(carlSignKey.getPublic()), null, carlSignKey.getPublic());
         
     StepBuilder segment1Step1Builder;
     LinkBuilder segment1Step1LinkBuilder;

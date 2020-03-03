@@ -16,6 +16,8 @@
 package com.rabobank.argos.service.adapter.in.rest.layout;
 
 import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.key.KeyIdProvider;
+import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
@@ -48,6 +50,7 @@ import static org.mockito.Mockito.when;
 class LayoutValidatorServiceTest {
 
     private static final String SUPPLY_CHAIN_ID = "supplyChainId";
+    private static final String KEY_ID_1 = "keyId1";
 
     @Mock
     private SupplyChainRepository supplyChainRepository;
@@ -95,7 +98,6 @@ class LayoutValidatorServiceTest {
     @BeforeEach
     void setUp() {
         service = new LayoutValidatorService(supplyChainRepository, signatureValidatorService, accountService);
-        ReflectionTestUtils.setField(service, "keyIdProvider", keyIdProvider);
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
     }
 
@@ -117,8 +119,8 @@ class LayoutValidatorServiceTest {
         when(matchRule.getDestinationStepName()).thenReturn("stepName");
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey2.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(true);
-        when(accountService.keyPairExists(KEY_ID_2)).thenReturn(true);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
+        when(accountService.keyPairExists(publicKey2.getId())).thenReturn(true);
 
         service.validate(layoutMetaBlock);
         verify(signatureValidatorService).validateSignature(layout, signature);
@@ -142,8 +144,8 @@ class LayoutValidatorServiceTest {
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey2.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(true);
-        when(accountService.keyPairExists(KEY_ID_2)).thenReturn(true);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
+        when(accountService.keyPairExists(publicKey2.getId())).thenReturn(true);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
@@ -163,8 +165,8 @@ class LayoutValidatorServiceTest {
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey2.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(true);
-        when(accountService.keyPairExists(KEY_ID_2)).thenReturn(true);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
+        when(accountService.keyPairExists(publicKey2.getId())).thenReturn(true);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
@@ -184,7 +186,7 @@ class LayoutValidatorServiceTest {
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey2.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_2)).thenReturn(true);
+        when(accountService.keyPairExists(publicKey2.getId())).thenReturn(true);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
@@ -205,7 +207,7 @@ class LayoutValidatorServiceTest {
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey1.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(true);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
@@ -222,8 +224,8 @@ class LayoutValidatorServiceTest {
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey2.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(true);
-        when(accountService.keyPairExists(KEY_ID_2)).thenReturn(false);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
+        when(accountService.keyPairExists(publicKey2.getId())).thenReturn(false);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
             service.validate(layoutMetaBlock);
@@ -237,8 +239,10 @@ class LayoutValidatorServiceTest {
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
 
-        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(false);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
+
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey1.getId()));
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(false);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
             service.validate(layoutMetaBlock);

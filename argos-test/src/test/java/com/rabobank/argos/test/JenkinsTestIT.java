@@ -62,8 +62,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 public class JenkinsTestIT {
@@ -76,7 +75,7 @@ public class JenkinsTestIT {
     private JenkinsServer jenkins;
     private String supplyChainId;
     private String keyIdBob;
-    private String token;
+    private String token = getToken();
 
     @BeforeAll
     static void startup() {
@@ -195,10 +194,10 @@ public class JenkinsTestIT {
 
     public void verifyEndProducts() {
         String hash = getWarSnapshotHash();
-        assertTrue(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash))));
+        assertTrue(isValidEndProduct(token, supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash))));
         
         String hash2 = "0123456789012345678901234567890123456789012345678901234567890123";
-        assertFalse(isValidEndProduct(supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash2))));
+        assertFalse(isValidEndProduct(token, supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash2))));
     }
 
     private JobWithDetails getJob(String name) throws IOException {

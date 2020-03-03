@@ -35,6 +35,7 @@ import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.runtime.Network;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -98,14 +99,12 @@ public class LinkMetablockRepositoryIT {
 
     @Test
     void findByRunIdWithSegmentNameAndResolvedStepShouldNotRetreive() {
-        loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, singleton(STEP_NAME));
         assertThat(links, hasSize(0));
     }
 
     @Test
     void findByRunIdWithSegmentNameShouldRetreive() {
-        loadData();
         List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, new HashSet<>());
         assertThat(links, hasSize(1));
     }

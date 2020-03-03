@@ -39,6 +39,7 @@
 		<swagger-ui.version>3.24.3</swagger-ui.version>
 		<pitest.version>1.4.10</pitest.version>
 		<io.jsonwebtoken.version>0.10.7</io.jsonwebtoken.version>
+		<bouncycastle.version>1.64</bouncycastle.version>
 	</properties>
 
 	<licenses>
@@ -124,6 +125,11 @@
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
 			<version>${io.jsonwebtoken.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>${bouncycastle.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>

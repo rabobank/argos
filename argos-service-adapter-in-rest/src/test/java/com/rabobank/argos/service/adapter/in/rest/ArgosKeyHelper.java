@@ -26,7 +26,8 @@ public class ArgosKeyHelper {
     
     public static KeyPair generateKeyPair() {
         java.security.KeyPair keyPair = genKeyPair();
-        return KeyPair.builder().keyId(KeyIdProvider.computeKeyId(keyPair.getPublic())).publicKey(keyPair.getPublic()).build();
+        
+        return new KeyPair(KeyIdProvider.computeKeyId(keyPair.getPublic()), null, keyPair.getPublic());
     }
     
     public static java.security.PublicKey generatePublickKey() {
