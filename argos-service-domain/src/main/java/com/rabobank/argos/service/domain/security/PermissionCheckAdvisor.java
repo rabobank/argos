@@ -54,16 +54,21 @@ public class PermissionCheckAdvisor {
 
     @Before(value = "permissionCheckPointCut(permissionCheck)", argNames = "joinPoint,permissionCheck")
     public void checkPermissions(JoinPoint joinPoint, PermissionCheck permissionCheck) {
-        Account account = accountSecurityContext.getAuthenticatedAccount().orElseThrow();
+        Account account = accountSecurityContext.getAuthenticatedAccount().orElseThrow(() -> new AccessDeniedException("Access denied"));
 
-        log.info("checking permissions of method:{} for account: {} with permissions: {}",
+        log.info("checking of method:{} with permissions {} for account: {}",
                 joinPoint.getSignature().getName(),
-                account.getName(),
-                permissionCheck.permissions()
+                permissionCheck.permissions(),
+                account.getName()
         );
 
 
         if (!(hasGlobalPermissions(permissionCheck, account) || hasLocalPermissions(joinPoint, permissionCheck, account))) {
+            log.info("access denied for method:{} with permissions {} for account: {}",
+                    joinPoint.getSignature().getName(),
+                    permissionCheck.permissions(),
+                    account.getName()
+            );
             throw new AccessDeniedException("Access denied");
         }
     }

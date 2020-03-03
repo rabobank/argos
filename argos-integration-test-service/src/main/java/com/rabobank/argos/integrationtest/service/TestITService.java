@@ -73,6 +73,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -150,6 +151,7 @@ public class TestITService implements IntegrationTestServiceApi {
                 .name(restPersonalAccount.getName())
                 .provider(AuthenticationProvider.AZURE)
                 .providerId(UUID.randomUUID().toString())
+                .roleIds(Collections.emptyList())
                 .build();
 
         personalAccountRepository.save(personalAccount);

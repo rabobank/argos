@@ -64,6 +64,7 @@
               "name": 1,
               "type": 1,
               "pathToRoot": 1,
+              "idPathToRoot": 1,
               "hasChildren": {
                 "$gt": [
                   {

@@ -63,6 +63,15 @@ Feature: Personal Account
     Then status 200
     Then match response == {"id":"#(extraAccount.response.id)","name":"Extra Person","email":"extra@extra.go", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","LOCAL_PERMISSION_EDIT","TREE_EDIT","VERIFY","ASSIGN_ROLE"] }]}
 
+  Scenario: user without ASSIGN_ROLE permission can not assign a role to a user
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/role'
+    And request ["administrator"]
+    When method PUT
+    Then status 403
+    And match response == {"message":"Access denied"}
+
   Scenario: search personal account by role name should return 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
     Given path '/api/personalaccount'
@@ -139,3 +148,59 @@ Feature: Personal Account
     Then status 200
     And match response == [{"labelId": "#(label.response.id)", "permissions": ["VERIFY","READ"]}]
 
+  Scenario: a user with local permission LOCAL_PERMISSION_EDIT can manage local permissions
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'local.permissions@extra.go'}
+    * def rootLabel = call read('classpath:feature/label/create-label.feature') { name: 'root_label'}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+rootLabel.response.id
+    And request ["LOCAL_PERMISSION_EDIT"]
+    When method PUT
+    Then status 200
+
+    * def childLabel = call read('classpath:feature/label/create-label.feature') { name: 'child_label', parentLabelId: #(rootLabel.response.id)}
+    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
+    * def anotherAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Another Person', email: 'another@extra.go'}
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission/'+childLabel.response.id
+    And request ["READ"]
+    When method PUT
+    Then status 200
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission/'+childLabel.response.id
+    When method GET
+    Then status 200
+    And match response == {"labelId": "#(childLabel.response.id)", "permissions": ["READ"]}
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission'
+    When method GET
+    Then status 403
+    And match response == {"message":"Access denied"}
+
+  Scenario: a user without local permission LOCAL_PERMISSION_EDIT can not manage local permissions
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'local.permissions@extra.go'}
+    * def rootLabel = call read('classpath:feature/label/create-label.feature') { name: 'root_label'}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+rootLabel.response.id
+    And request ["READ"]
+    When method PUT
+    Then status 200
+
+    * def childLabel = call read('classpath:feature/label/create-label.feature') { name: 'child_label', parentLabelId: #(rootLabel.response.id)}
+    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
+    * def anotherAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Another Person', email: 'another@extra.go'}
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission/'+childLabel.response.id
+    And request ["READ"]
+    When method PUT
+    Then status 403
+    And match response == {"message":"Access denied"}
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission/'+childLabel.response.id
+    When method GET
+    Then status 403
+    And match response == {"message":"Access denied"}
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission'
+    When method GET
+    Then status 403
+    And match response == {"message":"Access denied"}

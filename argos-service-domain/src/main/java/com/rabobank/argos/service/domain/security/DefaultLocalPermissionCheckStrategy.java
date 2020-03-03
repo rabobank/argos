@@ -61,7 +61,8 @@ public class DefaultLocalPermissionCheckStrategy implements LocalPermissionCheck
 
         Map<String, List<LocalPermissions>> localPermissionsMap = account.getLocalPermissions().stream().collect(Collectors.groupingBy(LocalPermissions::getLabelId));
 
-        Set<LocalPermissions> allLocalPermissions = allLabelIdsUpTree.stream().map(labelId -> localPermissionsMap.getOrDefault(labelId, emptyList())).flatMap(List::stream).collect(toSet());
+        Set<Permission> allLocalPermissions = allLabelIdsUpTree.stream().map(labelId -> localPermissionsMap.getOrDefault(labelId, emptyList()))
+                .flatMap(List::stream).map(LocalPermissions::getPermissions).flatMap(List::stream).collect(toSet());
 
         return allLocalPermissions.containsAll(permissionsToCheck);
     }
