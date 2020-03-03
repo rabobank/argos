@@ -15,6 +15,8 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.link;
 
+import com.rabobank.argos.domain.layout.ArtifactType;
+import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +28,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.rabobank.argos.service.adapter.out.mongodb.link.LinkMetaBlockRepositoryImpl.COLLECTION;
 import static java.util.Collections.singletonList;
@@ -104,6 +111,21 @@ class LinkMetaBlockRepositoryImplTest {
         assertThat(blocks.get(0), sameInstance(linkMetaBlock));
         verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION));
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"link.layoutSegmentName\" : \"layoutSegmentName\"}, { \"link.stepName\" : \"stepName\"}, { \"link.materials.hash\" : \"sha\"}]}, Fields: {}, Sort: {}"));
+    }
+
+    @Test
+    void findBySupplyChainAndSegmentNameAndStepNameAndArtifactTypesAndArtifactHashes() {
+        new Artifact("file1", SHA);
+        EnumMap<ArtifactType, Set<Artifact>> artifactMap = new EnumMap<>(ArtifactType.class);
+        artifactMap.put(ArtifactType.MATERIALS, new HashSet<>());
+        artifactMap.get(ArtifactType.MATERIALS).add(new Artifact("file1", SHA));
+        
+        when(template.find(any(), eq(LinkMetaBlock.class), eq(COLLECTION))).thenReturn(singletonList(linkMetaBlock));
+        List<LinkMetaBlock> blocks = repository.findBySupplyChainAndSegmentNameAndStepNameAndArtifactTypesAndArtifactHashes(SUPPLY_CHAIN_ID, "layoutSegmentName", "stepName", artifactMap);
+        assertThat(blocks, hasSize(1));
+        assertThat(blocks.get(0), sameInstance(linkMetaBlock));
+        verify(template).find(queryArgumentCaptor.capture(), eq(LinkMetaBlock.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\", \"$and\" : [{ \"link.layoutSegmentName\" : \"layoutSegmentName\"}, { \"link.stepName\" : \"stepName\"}, { \"link.materials.hash\" : \"sha\", \"link.materials.uri\" : \"file1\"}]}, Fields: {}, Sort: {}"));
     }
 
     @Test
