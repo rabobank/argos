@@ -15,27 +15,25 @@
  */
 package com.rabobank.argos.service.domain.account;
 
-import com.rabobank.argos.domain.account.PersonalAccount;
+import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-public interface PersonalAccountRepository {
+class AccountSearchParamsTest {
 
-    Optional<PersonalAccount> findByEmail(String email);
+    private static final String ROLE_ID = "roleId";
+    private static final String LABEL_ID = "labelId";
 
-    Optional<PersonalAccount> findByAccountId(String accountId);
+    @Test
+    void getRoleId() {
+        assertThat(AccountSearchParams.builder().roleId(ROLE_ID).build().getRoleId(), is(Optional.of(ROLE_ID)));
+    }
 
-    void save(PersonalAccount personalAccount);
-
-    void update(PersonalAccount existingPersonalAccount);
-
-    boolean activeKeyExists(String activeKeyId);
-
-    Optional<PersonalAccount> findByActiveKeyId(String activeKeyId);
-
-    long getTotalNumberOfAccounts();
-
-    List<PersonalAccount> search(AccountSearchParams params);
+    @Test
+    void getLocalPermissionsLabelId() {
+        assertThat(AccountSearchParams.builder().localPermissionsLabelId(LABEL_ID).build().getLocalPermissionsLabelId(), is(Optional.of(LABEL_ID)));
+    }
 }

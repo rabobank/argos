@@ -20,6 +20,7 @@ import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.account.NonPersonalAccountKeyPair;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.domain.permission.LocalPermissions;
 import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -98,9 +99,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<PersonalAccount> searchPersonalAccounts(String roleName) {
-        Optional<String> optionalRoleId = Optional.ofNullable(roleName).flatMap(roleRepository::findByName).map(Role::getRoleId);
-        return optionalRoleId.map(personalAccountRepository::findByRoleId).orElseGet(personalAccountRepository::findAll);
+    public List<PersonalAccount> searchPersonalAccounts(AccountSearchParams params) {
+        return personalAccountRepository.search(params);
     }
 
     @Override
@@ -110,6 +110,44 @@ public class AccountServiceImpl implements AccountService {
             personalAccountRepository.update(personalAccount);
             return personalAccount;
         });
+    }
+
+    @Override
+    public Optional<PersonalAccount> updatePersonalAccountLocalPermissionsById(String accountId, LocalPermissions newLocalPermissions) {
+        return personalAccountRepository.findByAccountId(accountId).map(personalAccount -> {
+            if (newLocalPermissions.getPermissions().isEmpty()) {
+                removeLocalPermissions(newLocalPermissions, personalAccount);
+            } else {
+                addOrUpdateLocalPermissions(newLocalPermissions, personalAccount);
+            }
+            return personalAccount;
+        });
+    }
+
+    private void addOrUpdateLocalPermissions(LocalPermissions newLocalPermissions, PersonalAccount personalAccount) {
+        findLocalPermissions(newLocalPermissions, personalAccount)
+                .ifPresentOrElse(localPermissions -> localPermissions.setPermissions(newLocalPermissions.getPermissions()),
+                        () -> {
+                            ArrayList<LocalPermissions> localPermissions = new ArrayList<>(personalAccount.getLocalPermissions());
+                            localPermissions.add(newLocalPermissions);
+                            personalAccount.setLocalPermissions(localPermissions);
+                        });
+        personalAccountRepository.update(personalAccount);
+    }
+
+    private void removeLocalPermissions(LocalPermissions newLocalPermissions, PersonalAccount personalAccount) {
+        findLocalPermissions(newLocalPermissions, personalAccount).ifPresent(localPermissions -> {
+            ArrayList<LocalPermissions> localPermissionList = new ArrayList<>(personalAccount.getLocalPermissions());
+            localPermissionList.remove(localPermissions);
+            personalAccount.setLocalPermissions(localPermissionList);
+            personalAccountRepository.update(personalAccount);
+        });
+    }
+
+    private Optional<LocalPermissions> findLocalPermissions(LocalPermissions newLocalPermissions, PersonalAccount personalAccount) {
+        return personalAccount.getLocalPermissions().stream()
+                .filter(localPermissions -> localPermissions.getLabelId().equals(newLocalPermissions.getLabelId()))
+                .findFirst();
     }
 
     @Override

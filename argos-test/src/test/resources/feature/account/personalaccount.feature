@@ -77,7 +77,6 @@ Feature: Personal Account
     When method GET
     Then status 200
     And match response == [{"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp"}]
-    * call read('classpath:feature/account/delete-personal-account.feature') {id: #(extraAccount.response.id)}
 
   Scenario: search all personal account 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
@@ -85,4 +84,65 @@ Feature: Personal Account
     When method GET
     Then status 200
     And match response == [{"id":"#uuid","name":"Extra Person","email":"extra@extra.go"},{"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp"}]
-    * call read('classpath:feature/account/delete-personal-account.feature') {id: #(extraAccount.response.id)}
+
+  Scenario: search by local permission label id personal account 200
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'search@extra.go'}
+    * def label = call read('classpath:feature/label/create-label.feature') { name: 'label1'}
+    Given path '/api/personalaccount'
+    And param localPermissionsLabelId = label.response.id
+    When method GET
+    Then status 200
+    And match response == []
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
+    And request ["VERIFY","READ"]
+    When method PUT
+    Then status 200
+
+    Given path '/api/personalaccount'
+    And param localPermissionsLabelId = label.response.id
+    When method GET
+    Then status 200
+    And match response == [{"id":"#uuid","name":"Extra Person","email":"search@extra.go"}]
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
+    And request []
+    When method PUT
+    Then status 204
+
+    Given path '/api/personalaccount'
+    And param localPermissionsLabelId = label.response.id
+    When method GET
+    Then status 200
+    And match response == []
+
+  Scenario: manage local permissions
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'local.permissions@extra.go'}
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission'
+    When method GET
+    Then status 200
+    And match response == []
+    * def label = call read('classpath:feature/label/create-label.feature') { name: 'label1'}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
+    And request ["READ"]
+    When method PUT
+    Then status 200
+    And match response == {"labelId": "#(label.response.id)", "permissions": ["READ"]}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
+    And request ["VERIFY","READ"]
+    When method PUT
+    Then status 200
+    And match response == {"labelId": "#(label.response.id)", "permissions": ["VERIFY","READ"]}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
+    When method GET
+    Then status 200
+    And match response == {"labelId": "#(label.response.id)", "permissions": ["VERIFY","READ"]}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission'
+    When method GET
+    Then status 200
+    And match response == [{"labelId": "#(label.response.id)", "permissions": ["VERIFY","READ"]}]
+

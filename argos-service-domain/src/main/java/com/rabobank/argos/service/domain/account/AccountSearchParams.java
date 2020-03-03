@@ -15,27 +15,20 @@
  */
 package com.rabobank.argos.service.domain.account;
 
-import com.rabobank.argos.domain.account.PersonalAccount;
+import lombok.Builder;
 
-import java.util.List;
 import java.util.Optional;
 
+@Builder
+public class AccountSearchParams {
+    private final String roleId;
+    private final String localPermissionsLabelId;
 
-public interface PersonalAccountRepository {
+    public Optional<String> getRoleId() {
+        return Optional.ofNullable(roleId);
+    }
 
-    Optional<PersonalAccount> findByEmail(String email);
-
-    Optional<PersonalAccount> findByAccountId(String accountId);
-
-    void save(PersonalAccount personalAccount);
-
-    void update(PersonalAccount existingPersonalAccount);
-
-    boolean activeKeyExists(String activeKeyId);
-
-    Optional<PersonalAccount> findByActiveKeyId(String activeKeyId);
-
-    long getTotalNumberOfAccounts();
-
-    List<PersonalAccount> search(AccountSearchParams params);
+    public Optional<String> getLocalPermissionsLabelId() {
+        return Optional.ofNullable(localPermissionsLabelId);
+    }
 }

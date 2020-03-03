@@ -15,7 +15,8 @@
  */
 package com.rabobank.argos.service.adapter.in.rest.permission;
 
-import com.rabobank.argos.service.adapter.in.rest.api.handler.GlobalPermissionApi;
+import com.rabobank.argos.service.adapter.in.rest.api.handler.PermissionsApi;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class GlobalPermissionRestService implements GlobalPermissionApi {
+public class PermissionRestService implements PermissionsApi {
 
     private final RoleRepository roleRepository;
     private final RoleMapper converter;
@@ -43,4 +44,8 @@ public class GlobalPermissionRestService implements GlobalPermissionApi {
         return ResponseEntity.ok(roles);
     }
 
+    @Override
+    public ResponseEntity<List<RestPermission>> getLocalPermissions() {
+        return ResponseEntity.ok(List.of(RestPermission.values()));
+    }
 }

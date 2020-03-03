@@ -13,29 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.account;
+package com.rabobank.argos.domain.permission;
 
-import com.rabobank.argos.domain.account.PersonalAccount;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
 
-
-public interface PersonalAccountRepository {
-
-    Optional<PersonalAccount> findByEmail(String email);
-
-    Optional<PersonalAccount> findByAccountId(String accountId);
-
-    void save(PersonalAccount personalAccount);
-
-    void update(PersonalAccount existingPersonalAccount);
-
-    boolean activeKeyExists(String activeKeyId);
-
-    Optional<PersonalAccount> findByActiveKeyId(String activeKeyId);
-
-    long getTotalNumberOfAccounts();
-
-    List<PersonalAccount> search(AccountSearchParams params);
+@Getter
+@Setter
+@Builder
+@EqualsAndHashCode
+public class LocalPermissions implements Serializable {
+    private String labelId;
+    private List<Permission> permissions;
 }

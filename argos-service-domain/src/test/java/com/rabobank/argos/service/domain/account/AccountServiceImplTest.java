@@ -19,11 +19,15 @@ import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.account.NonPersonalAccountKeyPair;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.domain.permission.LocalPermissions;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -39,6 +43,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +56,7 @@ class AccountServiceImplTest {
     private static final String KEY_ID = "keyId";
     private static final String ROLE_NAME = "roleName";
     private static final String PARENT_LABEL_ID = "parentLabelId";
+    private static final String LABEL_ID = "labelId";
 
     private KeyPair activeKeyPair = new KeyPair();
     private KeyPair inactiveKeyPair = new KeyPair();
@@ -84,6 +90,18 @@ class AccountServiceImplTest {
 
     @Mock
     private NonPersonalAccount nonPersonalAccount;
+
+    @Mock
+    private AccountSearchParams params;
+
+    @Mock
+    private LocalPermissions newLocalPermissions;
+
+    @Mock
+    private LocalPermissions existingLocalPermissions;
+
+    @Captor
+    private ArgumentCaptor<List<LocalPermissions>> localPermissionsListArgumentCaptor;
 
     @BeforeEach
     void setUp() {
@@ -213,25 +231,11 @@ class AccountServiceImplTest {
     }
 
     @Test
-    void searchPersonalAccountsAll() {
-        when(personalAccountRepository.findAll()).thenReturn(List.of(account));
-        assertThat(accountService.searchPersonalAccounts(null), contains(account));
+    void searchPersonalAccounts() {
+        when(personalAccountRepository.search(params)).thenReturn(List.of(account));
+        assertThat(accountService.searchPersonalAccounts(params), contains(account));
     }
 
-    @Test
-    void searchPersonalAccountsByRoleName() {
-        when(role.getRoleId()).thenReturn(ROLE_ID);
-        when(roleRepository.findByName(ROLE_NAME)).thenReturn(Optional.of(role));
-        when(personalAccountRepository.findByRoleId(ROLE_ID)).thenReturn(List.of(account));
-        assertThat(accountService.searchPersonalAccounts(ROLE_NAME), contains(account));
-    }
-
-    @Test
-    void searchPersonalAccountsByRoleNameNotFound() {
-        when(personalAccountRepository.findAll()).thenReturn(List.of(account));
-        when(roleRepository.findByName(ROLE_NAME)).thenReturn(Optional.empty());
-        assertThat(accountService.searchPersonalAccounts(ROLE_NAME), contains(account));
-    }
 
     @Test
     void updatePersonalAccountRolesById() {
@@ -266,5 +270,51 @@ class AccountServiceImplTest {
         verify(existingNonPersonalAccount).setEmail(EMAIL);
         verify(existingNonPersonalAccount).setName(ACCOUNT_NAME);
         verify(existingNonPersonalAccount).setParentLabelId(PARENT_LABEL_ID);
+    }
+
+    @Test
+    void updatePersonalAccountLocalPermissionsByIdExistingLocalPermissions() {
+        when(existingLocalPermissions.getLabelId()).thenReturn(LABEL_ID);
+        when(account.getLocalPermissions()).thenReturn(List.of(existingLocalPermissions));
+        when(newLocalPermissions.getLabelId()).thenReturn(LABEL_ID);
+        when(newLocalPermissions.getPermissions()).thenReturn(List.of(Permission.READ));
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        assertThat(accountService.updatePersonalAccountLocalPermissionsById(ACCOUNT_ID, newLocalPermissions), is(Optional.of(account)));
+        verify(existingLocalPermissions).setPermissions(List.of(Permission.READ));
+        verify(personalAccountRepository).update(account);
+    }
+
+    @Test
+    void updatePersonalAccountLocalPermissionsByIdExistingLocalPermissionsDelete() {
+        when(existingLocalPermissions.getLabelId()).thenReturn(LABEL_ID);
+        when(account.getLocalPermissions()).thenReturn(List.of(existingLocalPermissions));
+        when(newLocalPermissions.getLabelId()).thenReturn(LABEL_ID);
+        when(newLocalPermissions.getPermissions()).thenReturn(emptyList());
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        assertThat(accountService.updatePersonalAccountLocalPermissionsById(ACCOUNT_ID, newLocalPermissions), is(Optional.of(account)));
+        verify(account).setLocalPermissions(localPermissionsListArgumentCaptor.capture());
+        assertThat(localPermissionsListArgumentCaptor.getValue(), empty());
+        verify(personalAccountRepository).update(account);
+        verify(personalAccountRepository).update(account);
+    }
+
+    @Test
+    void updatePersonalAccountLocalPermissionsByIdNonExistingLocalPermissions() {
+        when(existingLocalPermissions.getLabelId()).thenReturn(LABEL_ID);
+        when(account.getLocalPermissions()).thenReturn(List.of(existingLocalPermissions));
+        when(newLocalPermissions.getLabelId()).thenReturn("other");
+        when(newLocalPermissions.getPermissions()).thenReturn(List.of(Permission.READ));
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        assertThat(accountService.updatePersonalAccountLocalPermissionsById(ACCOUNT_ID, newLocalPermissions), is(Optional.of(account)));
+        verify(account).setLocalPermissions(localPermissionsListArgumentCaptor.capture());
+        assertThat(localPermissionsListArgumentCaptor.getValue(), contains(existingLocalPermissions, newLocalPermissions));
+        verify(personalAccountRepository).update(account);
+    }
+
+    @Test
+    void updatePersonalAccountLocalPermissionsByIdAccountNotFound() {
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.empty());
+        assertThat(accountService.updatePersonalAccountLocalPermissionsById(ACCOUNT_ID, newLocalPermissions), is(Optional.empty()));
+        verifyNoMoreInteractions(personalAccountRepository);
     }
 }

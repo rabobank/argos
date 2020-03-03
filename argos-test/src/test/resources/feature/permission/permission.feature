@@ -27,3 +27,9 @@ Feature: Permissions
     And method GET
     Then status 200
     And match response == [{"id":"#uuid","name":"administrator","permissions":["READ","PERMISSION_EDIT","TREE_EDIT","VERIFY"]}]
+
+  Scenario: all local permissions requested from server will return 200
+    Given path '/api/permissions/local'
+    And method GET
+    Then status 200
+    And match response == ["READ","TREE_EDIT","PERMISSION_EDIT","LINK_ADD","LAYOUT_ADD","VERIFY"]

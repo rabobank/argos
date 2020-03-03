@@ -56,4 +56,11 @@ class PersonalAccountDatabaseChangelogTest {
         new PersonalAccountDatabaseChangelog().addIndexToName(template);
         verify(template, times(1)).indexOps(COLLECTION);
     }
+
+    @Test
+    void addIndexToLocalPermissionLabelId() {
+        when(template.indexOps(COLLECTION)).thenReturn(indexOperations);
+        new PersonalAccountDatabaseChangelog().addIndexToLocalPermissionLabelId(template);
+        verify(template, times(1)).indexOps(COLLECTION);
+    }
 }

@@ -21,10 +21,15 @@ import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.domain.permission.LocalPermissions;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.PersonalAccountApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermissions;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
+import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import com.rabobank.argos.service.domain.account.AccountService;
+import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,6 +55,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     private final KeyIdProvider keyIdProvider = new KeyIdProviderImpl();
     private final AccountService accountService;
     private final PersonalAccountMapper personalAccountMapper;
+    private final LabelRepository labelRepository;
 
 
     @PreAuthorize("hasRole('USER')")
@@ -57,13 +64,13 @@ public class PersonalAccountRestService implements PersonalAccountApi {
         return accountSecurityContext.getAuthenticatedAccount()
                 .map(account -> (PersonalAccount) account)
                 .map(personalAccountMapper::convertToRestPersonalAccount)
-                .map(ResponseEntity::ok).orElseThrow(this::profileNotFound);
+                .map(ResponseEntity::ok).orElseThrow(this::accountNotFound);
     }
 
     @PreAuthorize("hasRole('USER')")
     @Override
     public ResponseEntity<Void> createKey(@Valid RestKeyPair restKeyPair) {
-        Account account = accountSecurityContext.getAuthenticatedAccount().orElseThrow(this::profileNotFound);
+        Account account = accountSecurityContext.getAuthenticatedAccount().orElseThrow(this::accountNotFound);
         KeyPair keyPair = keyPairMapper.convertFromRestKeyPair(restKeyPair);
         validateKeyId(keyPair);
         accountService.activateNewKey(account.getAccountId(), keyPair);
@@ -74,12 +81,14 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     public ResponseEntity<RestPersonalAccount> getPersonalAccountById(String accountId) {
         return accountService.getPersonalAccountById(accountId)
                 .map(personalAccountMapper::convertToRestPersonalAccount)
-                .map(ResponseEntity::ok).orElseThrow(this::profileNotFound);
+                .map(ResponseEntity::ok).orElseThrow(this::accountNotFound);
     }
 
     @Override
-    public ResponseEntity<List<RestPersonalAccount>> searchPersonalAccounts(String roleName) {
-        return ResponseEntity.ok(accountService.searchPersonalAccounts(roleName).stream()
+    public ResponseEntity<List<RestPersonalAccount>> searchPersonalAccounts(String roleName, String localPermissionsLabelId) {
+        return ResponseEntity.ok(accountService.searchPersonalAccounts(AccountSearchParams.builder()
+                .roleId(personalAccountMapper.convertToRoleId(roleName))
+                .localPermissionsLabelId(localPermissionsLabelId).build()).stream()
                 .map(personalAccountMapper::convertToRestPersonalAccountWithoutRoles).collect(Collectors.toList()));
     }
 
@@ -87,17 +96,51 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     public ResponseEntity<RestPersonalAccount> updatePersonalAccountRolesById(String accountId, List<String> roleNames) {
         return accountService.updatePersonalAccountRolesById(accountId, roleNames)
                 .map(personalAccountMapper::convertToRestPersonalAccount)
-                .map(ResponseEntity::ok).orElseThrow(this::profileNotFound);
+                .map(ResponseEntity::ok).orElseThrow(this::accountNotFound);
     }
 
+    @Override
+    public ResponseEntity<List<RestLocalPermissions>> getAllLocalPermissions(String accountId) {
+        return ResponseEntity.ok(accountService.getPersonalAccountById(accountId).map(PersonalAccount::getLocalPermissions)
+                .map(personalAccountMapper::convertToRestLocalPermissions).orElse(Collections.emptyList()));
+    }
+
+    @Override
+    public ResponseEntity<RestLocalPermissions> getLocalPermissionsForLabel(String accountId, String labelId) {
+        PersonalAccount personalAccount = accountService.getPersonalAccountById(accountId).orElseThrow(this::accountNotFound);
+        return personalAccount.getLocalPermissions().stream()
+                .filter(localPermissions -> localPermissions.getLabelId().equals(labelId))
+                .findFirst().map(personalAccountMapper::convertToRestLocalPermission).map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
+    @Override
+    public ResponseEntity<RestLocalPermissions> updateLocalPermissionsForLabel(String accountId, String labelId, List<RestPermission> restLocalPermission) {
+        verifyParentLabelExists(labelId);
+        LocalPermissions newLocalPermissions = LocalPermissions.builder().labelId(labelId).permissions(personalAccountMapper.convertToLocalPermissions(restLocalPermission)).build();
+        PersonalAccount personalAccount = accountService.updatePersonalAccountLocalPermissionsById(accountId, newLocalPermissions).orElseThrow(this::accountNotFound);
+        return personalAccount.getLocalPermissions().stream()
+                .filter(localPermissions -> localPermissions.getLabelId().equals(labelId))
+                .findFirst().map(personalAccountMapper::convertToRestLocalPermission).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
+    }
 
     @Override
     public ResponseEntity<RestKeyPair> getKeyPair() {
         Account account = accountSecurityContext
-                .getAuthenticatedAccount().orElseThrow(this::profileNotFound);
+                .getAuthenticatedAccount().orElseThrow(this::accountNotFound);
         KeyPair keyPair = Optional.ofNullable(account.getActiveKeyPair()).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "no active keypair found for account: " + account.getName()));
         return new ResponseEntity<>(keyPairMapper.convertToRestKeyPair(keyPair), HttpStatus.OK);
+    }
+
+    private void verifyParentLabelExists(String labelId) {
+        if (!labelRepository.exists(labelId)) {
+            throw labelNotFound(labelId);
+        }
+    }
+
+    private ResponseStatusException labelNotFound(String labelId) {
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, "label not found : " + labelId);
     }
 
     private void validateKeyId(KeyPair keyPair) {
@@ -106,7 +149,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
         }
     }
 
-    private ResponseStatusException profileNotFound() {
+    private ResponseStatusException accountNotFound() {
         return new ResponseStatusException(HttpStatus.NOT_FOUND, "personal account not found");
     }
 }

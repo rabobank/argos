@@ -16,6 +16,7 @@
 package com.rabobank.argos.service.adapter.out.mongodb.account;
 
 import com.rabobank.argos.domain.account.PersonalAccount;
+import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
@@ -41,17 +42,12 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     static final String EMAIL = "email";
     static final String NAME_FIELD = "name";
     static final String ROLE_ID_FIELD = "roleIds";
+    static final String PERMISSIONS_LABEL_ID_FIELD = "localPermissions.labelId";
     private final MongoTemplate template;
 
     @Override
     public Optional<PersonalAccount> findByEmail(String email) {
         return Optional.ofNullable(template.findOne(new Query(where(EMAIL).is(email)), PersonalAccount.class, COLLECTION));
-    }
-
-
-    @Override
-    public List<PersonalAccount> findAll() {
-        return template.find(new Query().with(Sort.by(NAME_FIELD)), PersonalAccount.class, COLLECTION);
     }
 
     @Override
@@ -83,8 +79,13 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     }
 
     @Override
-    public List<PersonalAccount> findByRoleId(String roleId) {
-        return template.find(new Query(where(ROLE_ID_FIELD).in(roleId)).with(Sort.by(NAME_FIELD)), PersonalAccount.class, COLLECTION);
+    public List<PersonalAccount> search(AccountSearchParams params) {
+        Query query = params.getRoleId()
+                .map(roleId -> new Query(where(ROLE_ID_FIELD).in(roleId))).orElseGet(() ->
+                        params.getLocalPermissionsLabelId().map(labelId -> new Query(where(PERMISSIONS_LABEL_ID_FIELD).is(labelId)))
+                                .orElseGet(Query::new));
+        query.fields().include(ACCOUNT_ID).include(EMAIL).include(NAME_FIELD);
+        return template.find(query.with(Sort.by(NAME_FIELD)), PersonalAccount.class, COLLECTION);
     }
 
     @Override
