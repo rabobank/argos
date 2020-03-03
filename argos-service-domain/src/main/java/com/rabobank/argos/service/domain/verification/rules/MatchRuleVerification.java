@@ -20,18 +20,16 @@ import com.rabobank.argos.domain.layout.rule.Rule;
 import com.rabobank.argos.domain.layout.rule.RuleType;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
+import com.rabobank.argos.service.domain.verification.ArtifactsVerificationContext;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.rabobank.argos.domain.layout.ArtifactType.PRODUCTS;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Optional;
 
@@ -44,7 +42,7 @@ public class MatchRuleVerification implements RuleVerification {
     }
 
     @Override
-    public Boolean verify(RuleVerificationContext<? extends Rule> context) {
+    public boolean verify(RuleVerificationContext<? extends Rule> context) {
         MatchRule rule = context.getRule();
         Set<Artifact> filteredArtifacts = context.getFilteredArtifacts(rule.getSourcePathPrefix());
         
@@ -54,39 +52,35 @@ public class MatchRuleVerification implements RuleVerification {
         
         if (optionalLink.isPresent()) {
             Link link = optionalLink.get();
-            Set<Artifact> destinationArtifacts = null;
+            Set<Artifact> filteredDestinationArtifacts = null;
             if (rule.getDestinationType() == PRODUCTS) {
-                destinationArtifacts = new HashSet<>(link.getProducts());
+                filteredDestinationArtifacts = new HashSet<>(link.getProducts());                
             } else {
-                destinationArtifacts = new HashSet<>(link.getMaterials());
+                filteredDestinationArtifacts = new HashSet<>(link.getMaterials());
             }
-            Set<Artifact> srcPrefixedDestinationArtifacts = destinationArtifacts.stream().map(artifact -> prefixSrcDestinationSwap(artifact, rule)).collect(Collectors.toSet());
-            if (filteredArtifacts.stream().allMatch(srcPrefixedDestinationArtifacts::contains)) {
+            filteredDestinationArtifacts = ArtifactsVerificationContext.filterArtifacts(filteredDestinationArtifacts, rule.getPattern(), rule.getDestinationPathPrefix());
+            if (verifyArtifacts(filteredArtifacts, filteredDestinationArtifacts)) {
                 context.consume(filteredArtifacts);
-                logResult(log, filteredArtifacts, getRuleType());
-                return Boolean.TRUE;
+                logInfo(log, filteredArtifacts);
+                return true;
             } else {
-                logErrors(log, filteredArtifacts, getRuleType());
-                return Boolean.FALSE;
+                logErrors(log, filteredArtifacts);
+                return false;
             }
         } else {
-            log.warn("no link for match rule {}", rule);
-            return Boolean.FALSE;
+            log.warn("no link for destination step {}", rule.getDestinationStepName());
+            return false;
         }
     }
-    
-    /*
-     * 
-     */
-    private Artifact prefixSrcDestinationSwap(Artifact destinationArtifact, MatchRule rule) {
-        Path path = Paths.get(destinationArtifact.getUri());
-        if (StringUtils.hasLength(rule.getDestinationPathPrefix()) && destinationArtifact.getUri().startsWith(rule.getDestinationPathPrefix())) {
-            path = Paths.get(rule.getDestinationPathPrefix()).relativize(path);
-        }        
-        if (StringUtils.hasLength(rule.getSourcePathPrefix())) {
-            path = Paths.get(rule.getSourcePathPrefix()).resolve(path);
-        }
-        return new Artifact(path.toString(), destinationArtifact.getHash());
-    }
+
+    private boolean verifyArtifacts(Set<Artifact> filteredSourceArtifacts, Set<Artifact> filteredDestinationArtifacts) {
+        return filteredSourceArtifacts
+                .stream()
+                .map(Artifact::getHash)
+                .allMatch(filteredDestinationArtifacts
+                        .stream()
+                        .map(Artifact::getHash)
+                        .collect(Collectors.toSet())::contains);
+    }    
 
 }

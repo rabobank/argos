@@ -5,7 +5,7 @@
     "stepName": "build segment 2",
     "materials": [
       {
-        "uri": "pom.xml",
+        "uri": "src/pom.xml",
         "hash": "df272f57191b2d45b55e04c8602194d724e485aefc77827ceba798352cb2bd77"
       },
       {

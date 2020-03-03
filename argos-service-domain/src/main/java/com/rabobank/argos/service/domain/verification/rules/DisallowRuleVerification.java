@@ -34,14 +34,14 @@ public class DisallowRuleVerification implements RuleVerification {
     }
 
     @Override
-    public Boolean verify(RuleVerificationContext<? extends Rule> context) {
+    public boolean verify(RuleVerificationContext<? extends Rule> context) {
         Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
         if (filteredArtifacts.isEmpty()) {
-            logResult(log, filteredArtifacts, getRuleType());
-            return Boolean.TRUE;
+            logInfo(log, filteredArtifacts);
+            return true;
         } else {
-            logErrors(log, filteredArtifacts, getRuleType());
-            return Boolean.FALSE;
+            logErrors(log, filteredArtifacts);
+            return false;
         }
     }
 }

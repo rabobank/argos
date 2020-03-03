@@ -16,7 +16,7 @@
 package com.rabobank.argos.argos4j.internal;
 
 import com.rabobank.argos.argos4j.Argos4jError;
-import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
+import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.Signature;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,7 @@ public class Argos4JSigner {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    public Signature sign(RestKeyPair keyPair, char[] keyPassphrase, String jsonRepresentation) {
+    public Signature sign(RestNonPersonalAccountKeyPair keyPair, char[] keyPassphrase, String jsonRepresentation) {
         return Signature.builder().keyId(keyPair.getKeyId())
                 .signature(createSignature(decryptPrivateKey(keyPair.getEncryptedPrivateKey(), keyPassphrase), jsonRepresentation))
                 .build();

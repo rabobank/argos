@@ -39,7 +39,7 @@ public class ModifyRuleVerification implements RuleVerification {
     }
 
     @Override
-    public Boolean verify(RuleVerificationContext<? extends Rule> context) {
+    public boolean verify(RuleVerificationContext<? extends Rule> context) {
         Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
         
         Set<String> uris = context.getFilteredArtifacts().stream().map(Artifact::getUri).collect(Collectors.toSet());
@@ -52,14 +52,14 @@ public class ModifyRuleVerification implements RuleVerification {
         return uriMap.values().stream()
                 .filter(artifacts -> artifacts.size() != 2)
                 .map(artifacts -> {
-                    logErrors(log, filteredArtifacts, getRuleType());
-                    return Boolean.FALSE;
+                    logErrors(log, filteredArtifacts);
+                    return false;
                 })
                 .findFirst()
                 .orElseGet(() -> {
                     context.consume(filteredArtifacts);
-                    logResult(log, filteredArtifacts, getRuleType());
-                    return Boolean.TRUE;
+                    logInfo(log, filteredArtifacts);
+                    return true;
                 });
     }
 }

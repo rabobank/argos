@@ -81,6 +81,12 @@ public class VerificationContext {
                         linkMetaBlocksBySegmentNameAndStepName
                             .get(segment.getName())
                             .putIfAbsent(step.getName(), new ArrayList<>());
+                        linksBySegmentNameAndStep
+                            .get(segment.getName())
+                            .putIfAbsent(step, null);
+                        linksBySegmentNameAndStepName
+                            .get(segment.getName())
+                            .putIfAbsent(step.getName(), null);
                         List<LinkMetaBlock> metaBlocks = linkMetaBlocksBySegmentNameAndStepName
                                 .getOrDefault(segment.getName(), emptyMap())
                                 .getOrDefault(step.getName(), emptyList());

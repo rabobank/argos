@@ -22,6 +22,8 @@ info:
     name: Apache License 2.0
 servers:
   - url: /api
+security:
+  - bearerAuth: []
 
 paths:
   /supplychain:
@@ -169,6 +171,9 @@ paths:
       operationId: createLink
       tags:
         - link
+      security:
+        - basicAuth: []
+        - bearerAuth: []
       parameters:
         - name: supplyChainId
           in: path
@@ -184,51 +189,6 @@ paths:
       responses:
         '204':
           description: no content
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/Error'
-  /key:
-    post:
-      summary: stores a public and private key pair
-      operationId: storeKey
-      tags:
-        - key
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/KeyPair"
-      responses:
-        '204':
-          description: no content
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/Error'
-  /key/{keyId}:
-    get:
-      summary: get a key pair by id
-      operationId: getKey
-      tags:
-        - key
-      parameters:
-        - name: keyId
-          in: path
-          description: key pair id
-          required: true
-          schema:
-            type: string
-            minLength: 64
-            maxLength: 64
-            pattern: '^[0-9a-f]*$'
-      responses:
-        '200':
-          description: Key pair
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/KeyPair"
         '400':
           $ref: '#/components/responses/ValidationError'
         '500':
@@ -361,6 +321,9 @@ paths:
       operationId: performVerification
       tags:
         - verification
+      security:
+        - basicAuth: []
+        - bearerAuth: []
       parameters:
         - name: supplyChainId
           in: path
@@ -550,8 +513,6 @@ paths:
     post:
       summary: creates a new active public and private key pair
       operationId: createKey
-      security:
-        - bearerAuth: []
       tags:
         - personal account
       requestBody:
@@ -572,8 +533,6 @@ paths:
     get:
       summary: gets the currently active a key pair
       operationId: getKeyPair
-      security:
-        - bearerAuth: []
       tags:
         - personal account
       responses:
@@ -593,8 +552,6 @@ paths:
     get:
       summary: returns the personal account profile of the authenticated personal account based on the bearer token
       operationId: getPersonalAccountOfAuthenticatedUser
-      security:
-        - bearerAuth: []
       tags:
         - personal account
       responses:
@@ -608,12 +565,167 @@ paths:
           description: personal account not found
         '500':
           $ref: '#/components/responses/Error'
+  /nonpersonalaccount:
+    post:
+      summary: create a new non personal account
+      operationId: createNonPersonalAccount
+      tags:
+        - non personal account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NonPersonalAccount"
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonPersonalAccount"
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: location where the created non personal account can be found
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+  /nonpersonalaccount/me/activekey:
+    get:
+      summary: return the active key pair
+      operationId: getNonPersonalAccountKey
+      security:
+        - basicAuth: []
+      tags:
+        - non personal account
+      responses:
+        '200':
+          description: active key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonPersonalAccountKeyPair"
+        '404':
+          description: no active key exists
+        '500':
+          $ref: '#/components/responses/Error'
+  /nonpersonalaccount/{nonPersonalAccountId}:
+    get:
+      summary: find non personal account by id
+      operationId: getNonPersonalAccountById
+      tags:
+        - non personal account
+      parameters:
+        - name: nonPersonalAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: non personal account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonPersonalAccount"
+        '500':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: update non personal account by id
+      operationId: updateNonPersonalAccountById
+      tags:
+        - non personal account
+      parameters:
+        - name: nonPersonalAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NonPersonalAccount"
+      responses:
+        '200':
+          description: updated non personal account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonPersonalAccount"
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+  /nonpersonalaccount/{nonPersonalAccountId}/key:
+    post:
+      summary: create a new active key the old key will be made inactive
+      operationId: createNonPersonalAccountKeyById
+      tags:
+        - non personal account
+      parameters:
+        - name: nonPersonalAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NonPersonalAccountKeyPair"
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonPersonalAccountKeyPair"
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: location where the created non personal account can be found
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/Error'
+    get:
+      summary: return the active key pair
+      operationId: getNonPersonalAccountKeyById
+      tags:
+        - non personal account
+      parameters:
+        - name: nonPersonalAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonPersonalAccountKeyPair"
+        '404':
+          description: no active key exists
+        '500':
+          $ref: '#/components/responses/Error'
 components:
   securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    basicAuth:
+      type: http
+      scheme: basic
+
   responses:
     ValidationError:
       description: validation error
@@ -728,6 +840,26 @@ components:
         encryptedPrivateKey:
           type: string
           format: byte
+    NonPersonalAccountKeyPair:
+      type: object
+      required:
+        - keyId
+        - publicKey
+        - hashedKeyPassphrase
+        - encryptedPrivateKey
+      properties:
+        keyId:
+          $ref: '#/components/schemas/KeyId'
+        publicKey:
+          type: string
+          format: byte
+        hashedKeyPassphrase:
+          type: string
+          writeOnly: true
+          description: used for authentication of a non personal account via http basic authentication
+        encryptedPrivateKey:
+          type: string
+          format: byte
     SupplyChain:
       type: object
       required:
@@ -737,6 +869,7 @@ components:
         id:
           type: string
           maxLength: 36
+          readOnly: true
         name:
           type: string
           maxLength: 256
@@ -765,6 +898,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         signatures:
           minItems: 1
           type: array
@@ -922,6 +1056,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
           minLength: 1
@@ -946,6 +1081,7 @@ components:
           enum:
             - LABEL
             - SUPPLY_CHAIN
+            - NON_PERSONAL_ACCOUNT
         referenceId:
           type: string
         hasChildren:
@@ -967,11 +1103,32 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         name:
           type: string
         email:
           type: string
           format: email
+        keyIds:
+          type: array
+          items:
+            type: string
+    NonPersonalAccount:
+      type: object
+      required:
+        - name
+        - parentLabelId
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        parentLabelId:
+          type: string
+          minLength: 36
+          maxLength: 36
+          pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}?$'
     Error:
       type: object
       required:

@@ -70,17 +70,17 @@ public class RulesVerification implements Verification {
                         linksMap, 
                         segmentName,
                         linksBySegmentAndStep.get(segmentName)))
-                .filter(result1 -> result1.equals(Boolean.FALSE))
+                .filter(result1 -> !result1)
                 .findFirst()
                 .map(result2 -> VerificationRunResult.builder().runIsValid(false).build())
                 .orElse(VerificationRunResult.builder().runIsValid(true).build());
     }
 
-    private Boolean verifyForSegment(Map<String, Map<String, Link>> linksMap, String segmentName, Map<Step, Link> stepMap) {
-        return stepMap.keySet().stream().map(step -> verifyStep(linksMap, segmentName, step, stepMap.get(step))).noneMatch(result -> result.equals(Boolean.FALSE));
+    private boolean verifyForSegment(Map<String, Map<String, Link>> linksMap, String segmentName, Map<Step, Link> stepMap) {
+        return stepMap.keySet().stream().map(step -> verifyStep(linksMap, segmentName, step, stepMap.get(step))).noneMatch(result -> !result);
     }
 
-    private Boolean verifyStep(Map<String, Map<String, Link>> linksMap, String segmentName, Step step, Link link) {
+    private boolean verifyStep(Map<String, Map<String, Link>> linksMap, String segmentName, Step step, Link link) {
         if (link == null) {
             log.warn("no links for step [{}]", step.getName());
             return false;
@@ -88,23 +88,12 @@ public class RulesVerification implements Verification {
         return verifyLink(linksMap, segmentName, step, link);
     }
 
-    private Boolean verifyLink(Map<String, Map<String, Link>> linksMap, String segmentName, Step step, Link link) {
-        Boolean isValid =  verifyArtifactsByType(linksMap, segmentName, step, new HashSet<>(link.getMaterials()), link, ArtifactType.MATERIALS);
-        
-        if (Boolean.FALSE.equals(isValid)) {
-            return Boolean.FALSE;
-        }
-        
-        isValid =  verifyArtifactsByType(linksMap, segmentName, step, new HashSet<>(link.getProducts()), link, ArtifactType.PRODUCTS);
-        
-        if (Boolean.FALSE.equals(isValid)) {
-            return Boolean.FALSE;
-        }
-        
-        return Boolean.TRUE;
+    private boolean verifyLink(Map<String, Map<String, Link>> linksMap, String segmentName, Step step, Link link) {
+        return  verifyArtifactsByType(linksMap, segmentName, step, new HashSet<>(link.getMaterials()), link, ArtifactType.MATERIALS)
+                && verifyArtifactsByType(linksMap, segmentName, step, new HashSet<>(link.getProducts()), link, ArtifactType.PRODUCTS);
     }
 
-    private Boolean verifyArtifactsByType(Map<String, Map<String, Link>> linksMap, String segmentName, Step step,
+    private boolean verifyArtifactsByType(Map<String, Map<String, Link>> linksMap, String segmentName, Step step,
             Set<Artifact> artifacts, Link link, ArtifactType type) {
         ArtifactsVerificationContext artifactsContext = ArtifactsVerificationContext.builder()
                 .segmentName(segmentName)
@@ -122,17 +111,17 @@ public class RulesVerification implements Verification {
                             .build();
                     return ruleVerifier.verify(context);
                 }))
-                .filter(valid -> valid.equals(Boolean.FALSE))
+                .filter(valid -> !valid)
                 .findFirst()
                 .orElseGet(() -> validateNotConsumedArtifacts(artifactsContext));        
     }
 
-    private Boolean verifyRule(Rule rule, Predicate<RuleVerification> ruleVerifyFunction) {
+    private boolean verifyRule(Rule rule, Predicate<RuleVerification> ruleVerifyFunction) {
         return Optional.ofNullable(rulesVerificationMap.get(rule.getRuleType()))
                 .map(ruleVerifyFunction::test)
                 .orElseGet(() -> {
                     log.error("rule verification [{}] not implemented", rule.getRuleType());
-                    return Boolean.FALSE;
+                    return false;
                 });
     }
     
@@ -152,15 +141,15 @@ public class RulesVerification implements Verification {
         }
     }
     
-    private Boolean validateNotConsumedArtifacts(ArtifactsVerificationContext artifactsContext) {
+    private boolean validateNotConsumedArtifacts(ArtifactsVerificationContext artifactsContext) {
         if (!artifactsContext.getNotConsumedArtifacts().isEmpty()) {
             artifactsContext.getNotConsumedArtifacts().stream().forEach(artifact -> {
                 log.info("Not consumed artifact [{}]",
                         artifact);
             });
-            return Boolean.FALSE;
+            return false;
         }
-        return Boolean.TRUE;
+        return true;
     }
 
 }

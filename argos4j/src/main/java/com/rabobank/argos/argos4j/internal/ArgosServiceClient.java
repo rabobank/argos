@@ -21,13 +21,14 @@ import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.Argos4jSettings;
 import com.rabobank.argos.argos4j.internal.mapper.LinkMetaBlockMapper;
 import com.rabobank.argos.argos4j.rest.api.ApiClient;
-import com.rabobank.argos.argos4j.rest.api.client.KeyApi;
 import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
+import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
-import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLinkMetaBlock;
+import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import feign.FeignException;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.mapstruct.factory.Mappers;
 
 
@@ -36,9 +37,11 @@ public class ArgosServiceClient {
     private final Argos4jSettings settings;
     private final ApiClient apiClient;
 
-    public ArgosServiceClient(Argos4jSettings settings) {
+    public ArgosServiceClient(Argos4jSettings settings, char[] signingKeyPassphrase) {
         this.settings = settings;
-        apiClient = new ApiClient().setBasePath(settings.getArgosServerBaseUrl());
+        apiClient = new ApiClient("basicAuth").setBasePath(settings.getArgosServerBaseUrl());
+
+        apiClient.setCredentials(settings.getSigningKeyId(), DigestUtils.sha256Hex(new String(signingKeyPassphrase)));
         apiClient.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
@@ -52,10 +55,10 @@ public class ArgosServiceClient {
         }
     }
 
-    public RestKeyPair getKeyPair() {
+    public RestNonPersonalAccountKeyPair getKeyPair() {
         try {
-            KeyApi keyApi = apiClient.buildClient(KeyApi.class);
-            return keyApi.getKey(settings.getSigningKeyId());
+            NonPersonalAccountApi keyApi = apiClient.buildClient(NonPersonalAccountApi.class);
+            return keyApi.getNonPersonalAccountKey();
         } catch (FeignException e) {
             throw new Argos4jError(e.status() + " " + e.contentUTF8(), e);
         }

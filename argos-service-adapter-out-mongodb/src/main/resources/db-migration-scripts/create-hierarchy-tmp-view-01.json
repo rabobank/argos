@@ -26,6 +26,28 @@
             }
           }
         ],
+        "joinednonpersonalaccounts": [
+          {
+            "$lookup": {
+              "from": "nonPersonalAccounts",
+              "localField": "labelId",
+              "foreignField": "parentLabelId",
+              "as": "nonpersonalaccounts"
+            }
+          },
+          {
+            "$unwind": "$nonpersonalaccounts"
+          },
+          {
+            "$project": {
+              "_id": "$nonpersonalaccounts._id",
+              "referenceId": "$nonpersonalaccounts.accountId",
+              "name": "$nonpersonalaccounts.name",
+              "type": "NON_PERSONAL_ACCOUNT",
+              "parentLabelId": "$nonpersonalaccounts.parentLabelId"
+            }
+          }
+        ],
         "labelsprojected": [
           {
             "$project": {
@@ -44,7 +66,8 @@
         "hierarchy": {
           "$concatArrays": [
             "$labelsprojected",
-            "$joinedsupplychains"
+            "$joinedsupplychains",
+            "$joinednonpersonalaccounts"
           ]
         }
       }

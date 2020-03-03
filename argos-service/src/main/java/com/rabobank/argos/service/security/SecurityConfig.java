@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -31,6 +32,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationConverter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
@@ -54,13 +59,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final TokenProvider tokenProvider;
 
-    private final CustomUserDetailsService customUserDetailsService;
+    private final PersonalAccountUserDetailsService personalAccountUserDetailsService;
 
-    @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter(tokenProvider, customUserDetailsService);
+    private final NonPersonalAccountUserDetailsService nonPersonalAccountUserDetailsService;
+
+    private TokenAuthenticationFilter tokenAuthenticationFilter() {
+        return new TokenAuthenticationFilter(tokenProvider);
     }
 
+    private KeyIdBasicAuthenticationFilter keyIdBasicAuthenticationFilter() {
+        return new KeyIdBasicAuthenticationFilter(new BasicAuthenticationConverter());
+    }
     /*
       By default, Spring OAuth2 uses HttpSessionOAuth2AuthorizationRequestRepository to save
       the authorization request. But, since our service is stateless, we can't save it in
@@ -69,6 +78,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
         return new HttpCookieOAuth2AuthorizationRequestRepository(cookieHelper);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new SCryptPasswordEncoder();
     }
 
     @Override
@@ -84,6 +98,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.authenticationProvider(new PersonalAccountAuthenticationProvider(personalAccountUserDetailsService));
+        http.authenticationProvider(new NonPersonalAccountAuthenticationProvider(nonPersonalAccountUserDetailsService, passwordEncoder()));
         http
                 .cors()
                 .and()
@@ -97,16 +113,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic()
                 .disable()
                 .exceptionHandling()
-                .authenticationEntryPoint(new RestAuthenticationEntryPoint())
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 .and()
                 .authorizeRequests()
-                .antMatchers("/swagger/**",
-                        "/api/supplychain", "/api/supplychain/**",
-                        "/api/key", "/api/key/**", "/actuator/**",
-                        "/api/label", "/api/label/*",
-                        "/api/hierarchy", "/api/hierarchy/*")
-                .permitAll()
-                .antMatchers("/api/auth/**", "/api/oauth2/**")
+                .antMatchers("/swagger/**", "/actuator/**", "/api/auth/**", "/api/oauth2/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -126,5 +136,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureHandler(oAuth2AuthenticationFailureHandler);
 
         http.addFilterBefore(tokenAuthenticationFilter(), BasicAuthenticationFilter.class);
+        http.addFilterBefore(keyIdBasicAuthenticationFilter(), BasicAuthenticationFilter.class);
     }
 }

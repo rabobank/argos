@@ -49,7 +49,7 @@ public class RequiredNumberOfLinksVerification implements Verification {
 
     }
 
-    private Boolean verifyForSegment(LayoutSegment segment, VerificationContext context) {
+    private boolean verifyForSegment(LayoutSegment segment, VerificationContext context) {
         Optional<String> invalidStep = context
                 .getStepNamesBySegmentName(segment.getName())
                 .stream()

@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -31,6 +32,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.ConstraintViolationException;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -62,7 +64,6 @@ public class RestServiceExceptionHandler {
         return ResponseEntity.badRequest().contentType(APPLICATION_JSON).body(createMessage(message));
     }
 
-
     @ExceptionHandler(value = {JsonMappingException.class})
     public ResponseEntity<RestError> handleJsonMappingException() {
         return ResponseEntity.badRequest().contentType(APPLICATION_JSON).body(createMessage("invalid json"));
@@ -82,6 +83,11 @@ public class RestServiceExceptionHandler {
             log.error("{}", ex.getMessage(), ex);
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).contentType(APPLICATION_JSON).body(createMessage(ex.getMessage()));
         }
+    }
+
+    @ExceptionHandler(value = {AccessDeniedException.class})
+    public ResponseEntity<RestError> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity.status(FORBIDDEN).contentType(APPLICATION_JSON).body(createMessage(ex.getMessage()));
     }
 
     private RestError createMessage(String message) {

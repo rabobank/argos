@@ -35,7 +35,7 @@ public class CreateRuleVerification implements RuleVerification {
     }
 
     @Override
-    public Boolean verify(RuleVerificationContext<? extends Rule> context) {
+    public boolean verify(RuleVerificationContext<? extends Rule> context) {
         Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
         
         Set<String> uris = context.getProducts().stream().map(Artifact::getUri).collect(Collectors.toSet());
@@ -44,11 +44,11 @@ public class CreateRuleVerification implements RuleVerification {
         
         if (filteredArtifacts.stream().map(Artifact::getUri).allMatch(uris::contains)) {
             context.consume(filteredArtifacts);
-            logResult(log, filteredArtifacts, getRuleType());
-            return Boolean.TRUE;
+            logInfo(log, filteredArtifacts);
+            return true;
         } else {
-            logErrors(log, filteredArtifacts, getRuleType());
-            return Boolean.FALSE;
+            logErrors(log, filteredArtifacts);
+            return false;
         }
     }
 }

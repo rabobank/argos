@@ -25,7 +25,7 @@ import java.util.List;
 @Getter
 @Setter
 public class TreeNode {
-    public enum Type {LABEL, SUPPLY_CHAIN}
+    public enum Type {LABEL, SUPPLY_CHAIN, NON_PERSONAL_ACCOUNT}
     private String referenceId;
     private String name;
     private String parentLabelId;

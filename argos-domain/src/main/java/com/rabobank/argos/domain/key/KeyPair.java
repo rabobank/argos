@@ -15,18 +15,20 @@
  */
 package com.rabobank.argos.domain.key;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;
 import java.security.PublicKey;
 
-@Builder
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class KeyPair implements Serializable {
     private String keyId;
     private byte[] encryptedPrivateKey;

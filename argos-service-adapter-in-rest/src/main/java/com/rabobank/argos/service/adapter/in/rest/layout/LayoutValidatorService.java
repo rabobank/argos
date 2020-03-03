@@ -24,7 +24,7 @@ import com.rabobank.argos.domain.layout.PublicKey;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.MatchRule;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
-import com.rabobank.argos.service.domain.key.KeyPairRepository;
+import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -47,7 +47,7 @@ public class LayoutValidatorService {
 
     private final SignatureValidatorService signatureValidatorService;
 
-    private final KeyPairRepository keyPairRepository;
+    private final AccountService accountService;
 
     public void validate(LayoutMetaBlock layoutMetaBlock) {
         validateSegmentNamesUnique(layoutMetaBlock.getLayout());
@@ -154,7 +154,7 @@ public class LayoutValidatorService {
     }
 
     private void keyExists(String keyId) {
-        if (!keyPairRepository.exists(keyId)) {
+        if (!accountService.keyPairExists(keyId)) {
             throwValidationException("keyId " + keyId + " not found");
         }
     }

@@ -19,7 +19,7 @@ import com.rabobank.argos.domain.Signature;
 import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.signing.SignatureValidator;
-import com.rabobank.argos.service.domain.key.KeyPairRepository;
+import com.rabobank.argos.service.domain.account.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,7 +45,7 @@ class SignatureValidatorServiceTest {
     private SignatureValidator signatureValidator;
 
     @Mock
-    private KeyPairRepository keyPairRepository;
+    private AccountService accountService;
     private SignatureValidatorService service;
 
     @Mock
@@ -62,13 +62,13 @@ class SignatureValidatorServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new SignatureValidatorService(signatureValidator, keyPairRepository);
+        service = new SignatureValidatorService(signatureValidator, accountService);
     }
 
     @Test
     void validateSignature() {
         when(keyPair.getPublicKey()).thenReturn(publicKey);
-        when(keyPairRepository.findByKeyId(KEY_ID)).thenReturn(Optional.of(keyPair));
+        when(accountService.findKeyPairByKeyId(KEY_ID)).thenReturn(Optional.of(keyPair));
         when(signature.getKeyId()).thenReturn(KEY_ID);
         when(signature.getSignature()).thenReturn(SIGNATURE);
 
@@ -79,7 +79,7 @@ class SignatureValidatorServiceTest {
     @Test
     void createInValidSignature() {
         when(keyPair.getPublicKey()).thenReturn(publicKey);
-        when(keyPairRepository.findByKeyId(KEY_ID)).thenReturn(Optional.of(keyPair));
+        when(accountService.findKeyPairByKeyId(KEY_ID)).thenReturn(Optional.of(keyPair));
         when(signature.getKeyId()).thenReturn(KEY_ID);
         when(signature.getSignature()).thenReturn(SIGNATURE);
 
@@ -93,7 +93,7 @@ class SignatureValidatorServiceTest {
     @Test
     void createSignatureKeyIdNotFound() {
         when(signature.getKeyId()).thenReturn(KEY_ID);
-        when(keyPairRepository.findByKeyId(KEY_ID)).thenReturn(Optional.empty());
+        when(accountService.findKeyPairByKeyId(KEY_ID)).thenReturn(Optional.empty());
 
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.validateSignature(signable, signature));

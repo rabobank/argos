@@ -25,7 +25,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
@@ -50,8 +49,11 @@ class ArtifactsVerificationContextTest {
     
     private String segmentName = "segmentName";
     
-    @Mock
+    private String segmentName2 = "segmentName2";
+    
     private Step step;
+    
+    private Step step2;
     
     private Link link;
     
@@ -74,6 +76,8 @@ class ArtifactsVerificationContextTest {
 
     @BeforeEach
     void setUp() {
+        step = Step.builder().name("step").build();
+        step2 = Step.builder().name("step2").build();
         link = Link.builder()
                 .stepName(step.getName())
                 .materials(List.of(artifact1, artifact2))
@@ -82,6 +86,10 @@ class ArtifactsVerificationContextTest {
         Map<String, Link> stepmap = new HashMap<>();
         stepmap.put(step.getName(), link);
         linksMap.put(segmentName, stepmap);
+        Map<String, Link> stepmap2 = new HashMap<>();
+        stepmap.put(step2.getName(), null);
+        linksMap.put(segmentName2, stepmap2);
+        
         verificationContext1 = ArtifactsVerificationContext.builder()
                 .segmentName(segmentName)
                 .notConsumedArtifacts(Set.of(artifact1, artifact2))

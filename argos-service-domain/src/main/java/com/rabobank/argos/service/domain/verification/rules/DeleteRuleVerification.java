@@ -35,7 +35,7 @@ public class DeleteRuleVerification implements RuleVerification {
     }
 
     @Override
-    public Boolean verify(RuleVerificationContext<? extends Rule> context) {
+    public boolean verify(RuleVerificationContext<? extends Rule> context) {
         // deleteRule filteredMaterials must not be in filteredProducts
         // example pattern **/*.java not in filteredProducts but exists in filteredMaterials
         Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
@@ -43,11 +43,11 @@ public class DeleteRuleVerification implements RuleVerification {
         complement.removeAll(context.getProducts());
         if (filteredArtifacts.stream().allMatch(complement::contains)) {
             context.consume(filteredArtifacts);
-            logResult(log, filteredArtifacts, getRuleType());
-            return Boolean.TRUE;
+            logInfo(log, filteredArtifacts);
+            return true;
         } else {
-            logErrors(log, filteredArtifacts, getRuleType());
-            return Boolean.FALSE;
+            logErrors(log, filteredArtifacts);
+            return false;
         }
     }
 }

@@ -18,14 +18,17 @@ package com.rabobank.argos.test;
 
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
+import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccount;
+import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
 import com.rabobank.argos.test.rest.api.ApiClient;
 import com.rabobank.argos.test.rest.api.client.IntegrationTestServiceApi;
 import com.rabobank.argos.test.rest.api.model.TestKeyPair;
 import com.rabobank.argos.test.rest.api.model.TestLayoutMetaBlock;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.mapstruct.factory.Mappers;
 
-import static com.rabobank.argos.test.ServiceStatusHelper.getKeyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getLayoutApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getNonPersonalAccountApi;
 
 public class TestServiceHelper {
 
@@ -43,19 +46,24 @@ public class TestServiceHelper {
         return new ApiClient().setBasePath(properties.getIntegrationTestServiceBaseUrl() + "/integration-test");
     }
 
-    public static RestKeyPair createAndStoreKeyPair(String password) {
+    public static RestKeyPair createAndStoreKeyPair(String token, String password, String parentLabelId) {
         RestMapper mapper = Mappers.getMapper(RestMapper.class);
         TestKeyPair layoutKeyPair = getTestApi().createKeyPair(password);
         RestKeyPair restKeyPair = mapper.mapTestKeyPair(layoutKeyPair);
-        getKeyApi().storeKey(restKeyPair);
+        RestNonPersonalAccount npa = getNonPersonalAccountApi(token).createNonPersonalAccount(new RestNonPersonalAccount().name("npa").parentLabelId(parentLabelId));
+        getNonPersonalAccountApi(token).createNonPersonalAccountKeyById(npa.getId(), new RestNonPersonalAccountKeyPair()
+                .keyId(restKeyPair.getKeyId())
+                .encryptedPrivateKey(restKeyPair.getEncryptedPrivateKey())
+                .publicKey(restKeyPair.getPublicKey())
+                .hashedKeyPassphrase(DigestUtils.sha256Hex(password)));
         return restKeyPair;
     }
 
-    public static void signAndStoreLayout(String supplyChainId, RestLayoutMetaBlock restLayout, String keyId, String password) {
+    public static void signAndStoreLayout(String token, String supplyChainId, RestLayoutMetaBlock restLayout, String keyId, String password) {
         RestMapper mapper = Mappers.getMapper(RestMapper.class);
         TestLayoutMetaBlock testLayout = mapper.mapRestLayout(restLayout);
         TestLayoutMetaBlock signed = getTestApi().signLayout(password, keyId, testLayout);
-        getLayoutApi().createLayout(supplyChainId, mapper.mapTestLayout(signed));
+        getLayoutApi(token).createLayout(supplyChainId, mapper.mapTestLayout(signed));
     }
 
 }
