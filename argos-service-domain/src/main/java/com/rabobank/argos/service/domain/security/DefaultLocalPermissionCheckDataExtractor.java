@@ -18,7 +18,6 @@ package com.rabobank.argos.service.domain.security;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.service.domain.util.reflection.ReflectionHelper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -30,7 +29,6 @@ import static com.rabobank.argos.service.domain.security.DefaultLocalPermissionC
 
 @Component(DEFAULT_LOCAL_PERMISSION_CHECK_DATA_EXTRACTOR_BEAN_NAME)
 @RequiredArgsConstructor
-@Slf4j
 public class DefaultLocalPermissionCheckDataExtractor implements LocalPermissionCheckDataExtractor {
     public static final String DEFAULT_LOCAL_PERMISSION_CHECK_DATA_EXTRACTOR_BEAN_NAME = "defaultLocalPermissionCheckDataExtractor";
     private final ReflectionHelper reflectionHelper;
