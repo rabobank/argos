@@ -43,9 +43,4 @@ public class LayoutMetaBlock {
     public Boolean allLayoutSegmentsAreResolved(Set<String> resolvedSegmentNames) {
         return layout.getLayoutSegments().size() == resolvedSegmentNames.size();
     }
-
-    public List<MatchFilter> expectedEndProducts() {
-        return layout.getExpectedEndProducts();
-    }
-
 }

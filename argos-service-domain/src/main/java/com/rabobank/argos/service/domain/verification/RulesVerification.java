@@ -82,7 +82,7 @@ public class RulesVerification implements Verification {
 
     private boolean verifyStep(Map<String, Map<String, Link>> linksMap, String segmentName, Step step, Link link) {
         if (link == null) {
-            log.warn("no links for step {}", step.getName());
+            log.warn("no links for step [{}]", step.getName());
             return false;
         }
         return verifyLink(linksMap, segmentName, step, link);
@@ -96,9 +96,7 @@ public class RulesVerification implements Verification {
     private boolean verifyArtifactsByType(Map<String, Map<String, Link>> linksMap, String segmentName, Step step,
             Set<Artifact> artifacts, Link link, ArtifactType type) {
         ArtifactsVerificationContext artifactsContext = ArtifactsVerificationContext.builder()
-                .type(type)
                 .segmentName(segmentName)
-                .step(step)
                 .link(link)
                 .notConsumedArtifacts(artifacts)
                 .linksMap(linksMap)
@@ -106,7 +104,7 @@ public class RulesVerification implements Verification {
 
         return getExpectedArtifactRulesByType(step, type).stream()
                 .map(rule -> verifyRule(rule, ruleVerifier -> {
-                    log.info("verify expected {} {} for step {}", type, rule.getRuleType(), step.getName());
+                    log.info("verify expected [{}] [{}] for step [{}]", type, rule.getRuleType(), step.getName());
                     RuleVerificationContext<Rule> context = RuleVerificationContext.builder()
                             .rule(rule)
                             .artifactsContext(artifactsContext)
@@ -122,7 +120,7 @@ public class RulesVerification implements Verification {
         return Optional.ofNullable(rulesVerificationMap.get(rule.getRuleType()))
                 .map(ruleVerifyFunction::test)
                 .orElseGet(() -> {
-                    log.error("rule verification {} not implemented", rule.getRuleType());
+                    log.error("rule verification [{}] not implemented", rule.getRuleType());
                     return false;
                 });
     }
@@ -144,15 +142,11 @@ public class RulesVerification implements Verification {
     }
     
     private boolean validateNotConsumedArtifacts(ArtifactsVerificationContext artifactsContext) {
-        Link link = artifactsContext.getLink();
         if (!artifactsContext.getNotConsumedArtifacts().isEmpty()) {
-            artifactsContext.getNotConsumedArtifacts().stream().forEach(artifact -> 
-                log.info("Link with name {} with run id {} has not consumed artifact on {}: {}", 
-                        link.getStepName(),
-                        link.getRunId(),
-                        artifactsContext.getType(),
-                        artifact)
-            );
+            artifactsContext.getNotConsumedArtifacts().stream().forEach(artifact -> {
+                log.info("Not consumed artifact [{}]",
+                        artifact);
+            });
             return false;
         }
         return true;

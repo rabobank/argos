@@ -15,8 +15,6 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
-import com.rabobank.argos.domain.layout.ArtifactType;
-import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
 
@@ -37,11 +35,7 @@ import java.util.stream.Collectors;
 @Builder
 @Getter
 public class ArtifactsVerificationContext {
-    
-    @NonNull
-    private ArtifactType type;
 
-    @NonNull
     private final Map<String, Map<String, Link>> linksMap;
     
     @NonNull
@@ -55,9 +49,6 @@ public class ArtifactsVerificationContext {
     
     @NonNull
     private final String segmentName;
-
-    @NonNull
-    private final Step step;
 
     public Set<Artifact> getFilteredArtifacts(String pattern) {
         return getFilteredArtifacts(pattern, null);
@@ -80,19 +71,18 @@ public class ArtifactsVerificationContext {
     }
     
     public Optional<Link> getLinkBySegmentNameAndStepName(String segmentName, String stepName) {
-        return Optional.ofNullable(linksMap.get(segmentName).get(stepName));
-    }
- 
-    public Link getLink() {
-        return this.link;
+        if (linksMap == null || linksMap.get(segmentName) == null || linksMap.get(segmentName).get(stepName) == null) {
+            return Optional.empty();
+        }
+        return Optional.of(linksMap.get(segmentName).get(stepName));
     }
 
     public Set<Artifact> getMaterials() {
-        return new HashSet<>(this.getLink().getMaterials());
+        return new HashSet<>(link.getMaterials());
     }
     
     public Set<Artifact> getProducts() {
-        return new HashSet<>(this.getLink().getProducts());
+        return new HashSet<>(link.getProducts());
     }
     
     public void consume(Set<Artifact> artifacts) {

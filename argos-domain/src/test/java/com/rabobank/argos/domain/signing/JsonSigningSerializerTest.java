@@ -21,7 +21,6 @@ import com.rabobank.argos.domain.layout.ArtifactType;
 import com.rabobank.argos.domain.key.RSAPublicKeyFactory;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutSegment;
-import com.rabobank.argos.domain.layout.MatchFilter;
 import com.rabobank.argos.domain.layout.PublicKey;
 import com.rabobank.argos.domain.layout.Step;
 import com.rabobank.argos.domain.layout.rule.MatchRule;
@@ -70,7 +69,7 @@ class JsonSigningSerializerTest {
 
         String serialized = new JsonSigningSerializer().serialize(Layout.builder()
                 .keys(Arrays.asList(PublicKey.builder().id("keyId").key(publicKey).build()))
-                .expectedEndProducts(singletonList(MatchFilter.builder()
+                .expectedEndProducts(singletonList(MatchRule.builder()
                         .destinationSegmentName("destinationSegmentName")
                         .destinationType(ArtifactType.PRODUCTS)
                         .destinationStepName("destinationStepName")

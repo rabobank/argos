@@ -98,7 +98,6 @@
               {
                 "ruleType": "MATCH",
                 "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
-                "sourcePathPrefix": "",
                 "destinationPathPrefix": "target/",
                 "destinationType": "PRODUCTS",
                 "destinationStepName": "build",

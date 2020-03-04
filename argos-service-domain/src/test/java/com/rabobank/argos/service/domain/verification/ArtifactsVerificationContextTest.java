@@ -25,12 +25,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -91,46 +91,35 @@ class ArtifactsVerificationContextTest {
         linksMap.put(segmentName2, stepmap2);
         
         verificationContext1 = ArtifactsVerificationContext.builder()
-                .type(type)
                 .segmentName(segmentName)
-                .step(step)
-                .link(link)
                 .notConsumedArtifacts(Set.of(artifact1, artifact2))
+                .link(link)
                 .linksMap(linksMap)
                 .build();
         verificationContext2 = ArtifactsVerificationContext.builder()
-                .type(type)
                 .segmentName(segmentName)
-                //ruleWithPrefix
-                .step(step)
-                .link(link)
                 .notConsumedArtifacts(Set.of(artifact1, artifact2))
+                .link(link)
                 .linksMap(linksMap)
                 .build();
         verificationContext3 = ArtifactsVerificationContext.builder()
-                .type(type)
                 .segmentName(segmentName)
-                .step(step)
-                .link(link)
                 .notConsumedArtifacts(Set.of(artifact1, artifact2))
+                .link(link)
                 .linksMap(linksMap)
                 //(ruleNotFound)
                 .build();
         verificationContext4 = ArtifactsVerificationContext.builder()
-                .type(type)
                 .segmentName(segmentName)
-                .step(step)
-                .link(link)
                 .notConsumedArtifacts(Set.of(artifact1, artifact2, artifact3, artifact4))
+                .link(link)
                 .linksMap(linksMap)
                 //.rule(ruleWithPrefix)
                 .build();
         verificationContext5 = ArtifactsVerificationContext.builder()
-                .type(type)
                 .segmentName(segmentName)
-                .step(step)
-                .link(link)
                 .notConsumedArtifacts(Set.of(artifact1, artifact2, artifact3, artifact4))
+                .link(link)
                 .linksMap(linksMap)
                 //.rule(ruleAllMatch)
                 .build();
@@ -162,81 +151,29 @@ class ArtifactsVerificationContextTest {
     
     @Test
     void getLinkBySegmentNameAndStepName() {
-        assertEquals(verificationContext1.getLinkBySegmentNameAndStepName(segmentName, step.getName()).get(), link);
-        assertTrue(verificationContext1.getLinkBySegmentNameAndStepName(segmentName2, step2.getName()).isEmpty());
+        assertEquals(Optional.of(link), verificationContext1.getLinkBySegmentNameAndStepName(segmentName, step.getName()));
+        assertThat(verificationContext1.getLinkBySegmentNameAndStepName(segmentName, "foo"), is(Optional.empty()));
+        assertThat(verificationContext1.getLinkBySegmentNameAndStepName("foo", step.getName()), is(Optional.empty()));
     }
     
     @Test
     void nonNull() {
         Throwable exception = assertThrows(java.lang.NullPointerException.class, () -> {
             ArtifactsVerificationContext.builder()
-            .type(null)
-            .segmentName(segmentName)
-            .step(step)
-            .link(link)
-            .notConsumedArtifacts(Set.of(artifact1, artifact2))
-            .linksMap(linksMap)
-            .build();
-          });
-        assertEquals("type is marked non-null but is null", exception.getMessage());
-        
-        exception = assertThrows(java.lang.NullPointerException.class, () -> {
-            ArtifactsVerificationContext.builder()
-            .type(type)
             .segmentName(null)
-            .step(step)
-            .link(link)
             .notConsumedArtifacts(Set.of(artifact1, artifact2))
             .linksMap(linksMap)
             .build();
           });
         assertEquals("segmentName is marked non-null but is null", exception.getMessage());
-        
-        exception = assertThrows(java.lang.NullPointerException.class, () -> {
-            ArtifactsVerificationContext.builder()
-            .type(type)
-            .segmentName(segmentName)
-            .step(null)
-            .link(link)
-            .notConsumedArtifacts(Set.of(artifact1, artifact2))
-            .linksMap(linksMap)
-            .build();
-          });
-        assertEquals("step is marked non-null but is null", exception.getMessage());
-        exception = assertThrows(java.lang.NullPointerException.class, () -> {
-            ArtifactsVerificationContext.builder()
-            .type(type)
-            .segmentName(segmentName)
-            .step(step)
-            .link(null)
-            .notConsumedArtifacts(Set.of(artifact1, artifact2))
-            .linksMap(linksMap)
-            .build();
-          });
-        assertEquals("link is marked non-null but is null", exception.getMessage());
 
         exception = assertThrows(java.lang.NullPointerException.class, () -> {
             ArtifactsVerificationContext.builder()
-            .type(type)
             .segmentName(segmentName)
-            .step(step)
-            .link(link)
             .notConsumedArtifacts(null)
             .linksMap(linksMap)
             .build();
           });
         assertEquals("notConsumedArtifacts is marked non-null but is null", exception.getMessage());
-
-        exception = assertThrows(java.lang.NullPointerException.class, () -> {
-            ArtifactsVerificationContext.builder()
-            .type(type)
-            .segmentName(segmentName)
-            .step(step)
-            .link(link)
-            .notConsumedArtifacts(Set.of(artifact1, artifact2))
-            .linksMap(null)
-            .build();
-          });
-        assertEquals("linksMap is marked non-null but is null", exception.getMessage());
     }
 }

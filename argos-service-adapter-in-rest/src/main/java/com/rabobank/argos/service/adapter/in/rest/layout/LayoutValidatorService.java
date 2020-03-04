@@ -17,13 +17,12 @@ package com.rabobank.argos.service.adapter.in.rest.layout;
 
 import com.rabobank.argos.domain.Signature;
 import com.rabobank.argos.domain.key.KeyIdProvider;
-import com.rabobank.argos.domain.key.KeyIdProviderImpl;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
-import com.rabobank.argos.domain.layout.MatchFilter;
 import com.rabobank.argos.domain.layout.PublicKey;
 import com.rabobank.argos.domain.layout.Step;
+import com.rabobank.argos.domain.layout.rule.MatchRule;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
@@ -50,12 +49,10 @@ public class LayoutValidatorService {
 
     private final AccountService accountService;
 
-    private KeyIdProvider keyIdProvider = new KeyIdProviderImpl();
-
     public void validate(LayoutMetaBlock layoutMetaBlock) {
         validateSegmentNamesUnique(layoutMetaBlock.getLayout());
         validateStepNamesUnique(layoutMetaBlock.getLayout());
-        validateMatchFilterDestinations(layoutMetaBlock.getLayout());
+        validateMatchRuleDestinations(layoutMetaBlock.getLayout());
         validateExpectedProductsHaveSameSegmentName(layoutMetaBlock.getLayout());
         validateSupplyChain(layoutMetaBlock);
         validateAutorizationKeyIds(layoutMetaBlock.getLayout());
@@ -73,7 +70,7 @@ public class LayoutValidatorService {
     }
 
     private void validatePublicKeyId(PublicKey publicKey) {
-        if (!publicKey.getId().equals(keyIdProvider.computeKeyId(publicKey.getKey()))) {
+        if (!publicKey.getId().equals(KeyIdProvider.computeKeyId(publicKey.getKey()))) {
             throwValidationException("key with id " + publicKey.getId() + " not matched computed key id from public key");
         }
     }
@@ -92,7 +89,7 @@ public class LayoutValidatorService {
     private void validateExpectedProductsHaveSameSegmentName(Layout layout) {
         Set<String> sameSegmentNames = layout.getExpectedEndProducts()
                 .stream()
-                .map(MatchFilter::getDestinationSegmentName)
+                .map(MatchRule::getDestinationSegmentName)
                 .collect(Collectors.toSet());
         if (sameSegmentNames.size() > 1) {
             throwValidationException("segment names for expectedProducts should all be the same");
@@ -119,17 +116,17 @@ public class LayoutValidatorService {
         }
     }
 
-    private void validateMatchFilterDestinations(Layout layout) {
-        if (!layout.getExpectedEndProducts().stream().allMatch(matchFilter -> hasFilterDestination(matchFilter, layout))) {
+    private void validateMatchRuleDestinations(Layout layout) {
+        if (!layout.getExpectedEndProducts().stream().allMatch(matchRule -> hasFilterDestination(matchRule, layout))) {
             throwValidationException("expected product destination step name not found");
         }
     }
 
-    private boolean hasFilterDestination(MatchFilter matchFilter, Layout layout) {
+    private boolean hasFilterDestination(MatchRule matchRule, Layout layout) {
         return layout.getLayoutSegments().stream()
-                .filter(layoutSegment -> layoutSegment.getName().equals(matchFilter.getDestinationSegmentName()))
+                .filter(layoutSegment -> layoutSegment.getName().equals(matchRule.getDestinationSegmentName()))
                 .map(LayoutSegment::getSteps)
-                .anyMatch(steps -> hasDestinationStepName(steps, matchFilter.getDestinationStepName()));
+                .anyMatch(steps -> hasDestinationStepName(steps, matchRule.getDestinationStepName()));
     }
 
     private boolean hasDestinationStepName(List<Step> steps, String destinationStepName) {

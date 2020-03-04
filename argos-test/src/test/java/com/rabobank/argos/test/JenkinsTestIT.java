@@ -25,6 +25,7 @@ import com.offbytwo.jenkins.model.Job;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
+import com.rabobank.argos.argos4j.internal.ArgosServiceClient;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
 import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
@@ -34,7 +35,6 @@ import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,8 +62,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 public class JenkinsTestIT {
@@ -76,7 +75,7 @@ public class JenkinsTestIT {
     private JenkinsServer jenkins;
     private String supplyChainId;
     private String keyIdBob;
-    private String token;
+    private String token = getToken();
 
     @BeforeAll
     static void startup() {
@@ -110,7 +109,7 @@ public class JenkinsTestIT {
     private void createNpaWithActiveKey(String token, RestNonPersonalAccountKeyPair restKeyPair, String parentLabelId, String name) {
         NonPersonalAccountApi nonPersonalAccountApi = getNonPersonalAccountApi(token);
         RestNonPersonalAccount npa = nonPersonalAccountApi.createNonPersonalAccount(new RestNonPersonalAccount().parentLabelId(parentLabelId).name(name));
-        restKeyPair.setHashedKeyPassphrase(DigestUtils.sha256Hex(restKeyPair.getHashedKeyPassphrase()));
+        restKeyPair.setHashedKeyPassphrase(ArgosServiceClient.calculatePassphrase(restKeyPair.getKeyId(), restKeyPair.getHashedKeyPassphrase()));
         nonPersonalAccountApi.createNonPersonalAccountKeyById(npa.getId(), restKeyPair);
     }
 
@@ -149,22 +148,21 @@ public class JenkinsTestIT {
 
     @Test
     public void testPipeline() throws IOException {
-        JobWithDetails pipeLineJob = getJob("argos-test-app-pipeline");
-        if (!hasMaster(pipeLineJob)) {
-            pipeLineJob.build();
-            await().atMost(1, MINUTES).until(() -> hasMaster(pipeLineJob));
-        }
-
-        JobWithDetails job = getJob("argos-test-app-pipeline");
-        FolderJob folderJob = jenkins.getFolderJob(job).get();
-        Map<String, Job> jobs = folderJob.getJobs();
-        int buildNumber = runBuild(jobs.get(TEST_APP_BRANCH));
-
-        verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
-
-        // a number of times to create a lot of link objects
-        verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
-        verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
+        
+          JobWithDetails pipeLineJob = getJob("argos-test-app-pipeline"); if
+          (!hasMaster(pipeLineJob)) { pipeLineJob.build(); await().atMost(1,
+          MINUTES).until(() -> hasMaster(pipeLineJob)); }
+          
+          JobWithDetails job = getJob("argos-test-app-pipeline"); FolderJob folderJob =
+          jenkins.getFolderJob(job).get(); Map<String, Job> jobs = folderJob.getJobs();
+          int buildNumber = runBuild(jobs.get(TEST_APP_BRANCH));
+          
+          verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
+          
+          // a number of times to create a lot of link objects
+          verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
+          verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
+         
 
         verifyEndProducts();
     }
@@ -196,7 +194,10 @@ public class JenkinsTestIT {
 
     public void verifyEndProducts() {
         String hash = getWarSnapshotHash();
-        assertTrue(isValidEndProduct(token, supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("target/argos-test-app.war").hash(hash))));
+        assertTrue(isValidEndProduct(token, supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash))));
+        
+        String hash2 = "0123456789012345678901234567890123456789012345678901234567890123";
+        assertFalse(isValidEndProduct(token, supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash2))));
     }
 
     private JobWithDetails getJob(String name) throws IOException {

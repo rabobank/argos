@@ -19,6 +19,7 @@ import com.github.mongobee.Mongobee;
 import com.github.mongobee.exception.MongobeeException;
 import com.mongodb.client.MongoClients;
 import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.layout.ArtifactType;
 import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
@@ -35,17 +36,20 @@ import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.runtime.Network;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static de.flapdoodle.embed.process.config.io.ProcessOutput.getDefaultInstanceSilent;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.singleton;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -98,13 +102,13 @@ public class LinkMetablockRepositoryIT {
 
     @Test
     void findByRunIdWithSegmentNameAndResolvedStepShouldNotRetreive() {
-        List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, singletonList(STEP_NAME));
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, singleton(STEP_NAME));
         assertThat(links, hasSize(0));
     }
 
     @Test
     void findByRunIdWithSegmentNameShouldRetreive() {
-        List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, new ArrayList<>());
+        List<LinkMetaBlock> links = linkMetaBlockRepository.findByRunId(SUPPLYCHAIN, SEGMENT_NAME, RUN_ID, new HashSet<>());
         assertThat(links, hasSize(1));
     }
 
@@ -143,6 +147,29 @@ public class LinkMetablockRepositoryIT {
     void findBySupplyChainAndStepNameAndMaterialsHashesShouldNotRetreive() {
         List<LinkMetaBlock> links = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndMaterialHash(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, List.of(HASH_1, "INCORRECT_HASH"));
         assertThat(links, hasSize(0));
+    }
+
+    @Test
+    void findBySupplyChainAndSegmentNameAndStepNameAndArtifactTypesAndArtifactHashesShouldRetrieve() {
+        EnumMap<ArtifactType, Set<Artifact>> artifactMap = new EnumMap<>(ArtifactType.class);
+        artifactMap.put(ArtifactType.MATERIALS, new HashSet<>());
+        artifactMap.get(ArtifactType.MATERIALS).addAll(createMaterials());
+        artifactMap.put(ArtifactType.PRODUCTS, new HashSet<>());
+        artifactMap.get(ArtifactType.PRODUCTS).addAll(createProducts());
+        List<LinkMetaBlock> blocks = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndArtifactTypesAndArtifactHashes(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, artifactMap);
+        assertThat(blocks, hasSize(1));
+    }
+
+    @Test
+    void findBySupplyChainAndSegmentNameAndStepNameAndArtifactTypesAndArtifactHashesShouldNotRetrieve() {
+        EnumMap<ArtifactType, Set<Artifact>> artifactMap = new EnumMap<>(ArtifactType.class);
+        artifactMap.put(ArtifactType.MATERIALS, new HashSet<>());
+        artifactMap.get(ArtifactType.MATERIALS).addAll(createMaterials());
+        artifactMap.put(ArtifactType.PRODUCTS, new HashSet<>());
+        artifactMap.get(ArtifactType.PRODUCTS).addAll(createProducts());
+        artifactMap.get(ArtifactType.PRODUCTS).add(new Artifact("file1", "hash1"));
+        List<LinkMetaBlock> blocks = linkMetaBlockRepository.findBySupplyChainAndSegmentNameAndStepNameAndArtifactTypesAndArtifactHashes(SUPPLYCHAIN, SEGMENT_NAME, STEP_NAME, artifactMap);
+        assertThat(blocks, hasSize(0));
     }
 
 
