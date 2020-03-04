@@ -16,7 +16,6 @@
 package com.rabobank.argos.service.adapter.in.rest.account;
 
 import com.rabobank.argos.domain.account.PersonalAccount;
-import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.domain.permission.LocalPermissions;
 import com.rabobank.argos.domain.permission.Permission;
@@ -38,7 +37,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -79,9 +77,6 @@ class PersonalAccountRestServiceTest {
     private KeyPair keyPair;
 
     @Mock
-    private KeyIdProvider keyIdProvider;
-
-    @Mock
     private PersonalAccount personalAccount;
 
     @Mock
@@ -112,7 +107,6 @@ class PersonalAccountRestServiceTest {
     void setUp() {
         personalAccount.setAccountId(ACCOUNT_ID);
         service = new PersonalAccountRestService(accountSecurityContext, keyPairMapper, accountService, personalAccountMapper, labelRepository);
-        service = new PersonalAccountRestService(accountSecurityContext, personalAccountRepository, keyPairMapper, accountService);
         keyPair = ArgosKeyHelper.generateKeyPair();
     }
 
@@ -138,11 +132,8 @@ class PersonalAccountRestServiceTest {
     @Test
     void storeKeyShouldReturnSuccess() {
         when(personalAccount.getAccountId()).thenReturn(ACCOUNT_ID);
-        when(keyIdProvider.computeKeyId(any())).thenReturn(KEY_ID);
-        when(keyPair.getKeyId()).thenReturn(KEY_ID);
         when(keyPairMapper.convertFromRestKeyPair(restKeyPair)).thenReturn(keyPair);
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
-        //ReflectionTestUtils.setField(service, KEY_ID_PROVIDER, keyIdProvider);
         assertThat(service.createKey(restKeyPair).getStatusCodeValue(), is(204));
         verify(accountService).activateNewKey(ACCOUNT_ID, keyPair);
     }

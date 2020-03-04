@@ -17,10 +17,9 @@ package com.rabobank.argos.integrationtest.service;
 
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.Signature;
-import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.account.AuthenticationProvider;
 import com.rabobank.argos.domain.account.PersonalAccount;
-import com.rabobank.argos.domain.key.KeyIdProviderImpl;
+import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import com.rabobank.argos.domain.signing.JsonSigningSerializer;
