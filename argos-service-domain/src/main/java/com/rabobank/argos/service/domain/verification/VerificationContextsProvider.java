@@ -113,23 +113,31 @@ public class VerificationContextsProvider {
         Optional<LayoutSegment> optionalSegment = context.getNextSegment();
         if (optionalSegment.isPresent()) {
             segment = optionalSegment.get();
-        } else {
-            return;
-        }
-        // first segment based on products to verify 
-        // and the first item in the ordered list
-        if (context.getResolvedSegments().isEmpty()) {
-            // initialization
-            Map<String, Map<MatchRule, Set<Artifact>>> stepMap = context.getFirstMatchRulesAndArtifacts();            
-            processSegment(context, segment, stepMap);
-        } else {
-            for (Set<LinkMetaBlock> linkMetaBlockSet: context.getLinkMetaBlockSets()) {
-                Map<String, Map<MatchRule, Set<Artifact>>> destStepMap = context.getMatchRulesAndArtifacts(segment, linkMetaBlockSet);
-                processSegment(context, segment, destStepMap);
+            // first segment based on products to verify 
+            // and the first item in the ordered list
+            if (context.getResolvedSegments().isEmpty()) {
+                // initialization
+                Map<String, Map<MatchRule, Set<Artifact>>> stepMap = context.getFirstMatchRulesAndArtifacts();
+                // check if all productsToVerify are consumed
+                if (context.getProductsToVerify().isEmpty()) {
+                    processSegment(context, segment, stepMap);
+                } else {
+                    log.info("Not all products to verify are consumed {} left.", context.getProductsToVerify().size());
+                }
+            } else {
+                for (Set<LinkMetaBlock> linkMetaBlockSet: context.getLinkMetaBlockSets()) {
+                    Map<String, Map<MatchRule, Set<Artifact>>> destStepMap = context.getMatchRulesAndArtifacts(segment, linkMetaBlockSet);
+                    processSegment(context, segment, destStepMap);
+                }
+            }
+            // check if all productsToVerify are consumed
+            if (context.getProductsToVerify().isEmpty()) {
+                context.getResolvedSegments().add(segment);
+                processMatchRules(context);
+            } else {
+                log.info("Not all products to verify are consumed {} left.", context.getProductsToVerify().size());
             }
         }
-        context.getResolvedSegments().add(segment);
-        processMatchRules(context);
     }
     
     private void processSegment(VerificationContextsProviderContext context, LayoutSegment segment, Map<String, Map<MatchRule, Set<Artifact>>> destStepMap) {
@@ -142,6 +150,17 @@ public class VerificationContextsProvider {
             linkMetaBlocks.addAll(queryByArtifacts(context.getSupplyChainId(), segment.getName(), stepName, destStepMap));
             resolvedSteps.add(stepName);
         });
+        
+        linkMetaBlocks.addAll(findMetaBlocksWithRunIds(linkMetaBlocks, context, segment, resolvedSteps));
+        if (context.getLinkMetaBlockSets().isEmpty()) {
+            context.getLinkMetaBlockSets().add(new HashSet<>());
+        }
+        
+        context.setLinkMetaBlockSets(VerificationContextsProviderContext.permutateAndAddLinkMetaBlocks(linkMetaBlocks, context.getLinkMetaBlockSets()));
+    }
+    
+    private Set<LinkMetaBlock> findMetaBlocksWithRunIds(Set<LinkMetaBlock> linkMetaBlocks, VerificationContextsProviderContext context, LayoutSegment segment, Set<String> resolvedSteps) {
+        Set<LinkMetaBlock> foundRunIdBlocks = new HashSet<>();
         Set<String> runIds = findRunIds(linkMetaBlocks);
         
         log.info("Found runIds: {}", runIds);
@@ -151,11 +170,11 @@ public class VerificationContextsProvider {
                        segment.getName(),
                        resolvedSteps);
                log.info("[{}] LinkMetaBlocks found for: supply chain id: [{}] segment: [{}] runId: [{}] and already resolved steps", foundBlocks.size(), context.getSupplyChainId(), segment.getName(), runId);
-               linkMetaBlocks.addAll(foundBlocks);
+               foundRunIdBlocks.addAll(foundBlocks);
                
             }
         );
-        context.setLinkMetaBlockSets(VerificationContextsProviderContext.permutateAndAddLinkMetaBlocks(linkMetaBlocks, context.getLinkMetaBlockSets()));
+        return foundRunIdBlocks;
     }
     
     /*

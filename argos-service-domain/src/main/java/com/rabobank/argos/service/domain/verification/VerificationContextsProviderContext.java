@@ -27,7 +27,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
 import java.util.stream.Stream;
 
@@ -76,7 +75,6 @@ public class VerificationContextsProviderContext {
      */
     public void init() {
         linkMetaBlockSets = new HashSet<>();
-        linkMetaBlockSets.add(new HashSet<>());
         resolvedSegments = new HashSet<>();
         if (layout != null) {
             segmentGraph = createDirectedSegmentGraph(layout);
@@ -168,21 +166,14 @@ public class VerificationContextsProviderContext {
      * @return
      */
     public Map<String, Map<MatchRule, Set<Artifact>>> getFirstMatchRulesAndArtifacts() {
-        Set<Artifact> notConsumed = new HashSet<>(productsToVerify);
         Map<String, Map<MatchRule, Set<Artifact>>> destStepMap = new HashMap<>();
         layout.getExpectedEndProducts().forEach(rule -> {
             destStepMap.putIfAbsent(rule.getDestinationStepName(), new HashMap<>());
             destStepMap.get(rule.getDestinationStepName()).putIfAbsent(rule, new HashSet<>());
             destStepMap.get(rule.getDestinationStepName())
                 .get(rule)
-                .addAll(getDestinationArtifacts(notConsumed, rule));            
+                .addAll(getDestinationArtifacts(productsToVerify, rule));            
         });
-        
-        // check if all productsToVerify are consumed
-        if (!notConsumed.isEmpty()) {
-            log.info("Not all products to verify are consumed {} left.", notConsumed.size());
-            throw new ArgosError(String.format("Not all products to verify are consumed. Not consumed: [%s]", notConsumed));
-        }
         return destStepMap;
     }
     

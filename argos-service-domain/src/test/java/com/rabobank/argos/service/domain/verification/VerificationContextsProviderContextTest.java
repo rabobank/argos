@@ -141,9 +141,7 @@ class VerificationContextsProviderContextTest {
     void initTest() {
         VerificationContextsProviderContext context = VerificationContextsProviderContext.builder().layout(layout1).build();
         context.init();
-        Set<Set<LinkMetaBlock>> emptyBlocks = new HashSet<>();
-        emptyBlocks.add(new HashSet<>());
-        assertThat(context.getLinkMetaBlockSets(), is(emptyBlocks));
+        assertThat(context.getLinkMetaBlockSets(), is(new HashSet<>()));
         assertThat(context.getResolvedSegments(), is(Set.of()));
         assertThat(context.getResolvedSegments(), is(Set.of()));
 
@@ -172,8 +170,10 @@ class VerificationContextsProviderContextTest {
     void getFirstMatchRulesAndArtifactsTest() {
         Artifact artifact1 = new Artifact("file1", "hash1");
         Artifact artifact2 = new Artifact("file2", "hash2");
+        HashSet<Artifact> productsToVerify = new HashSet<>();
+        productsToVerify.add(artifact1);
         VerificationContextsProviderContext context = VerificationContextsProviderContext.builder()
-                .productsToVerify(Set.of(artifact1)).layout(layout1).build();
+                .productsToVerify(productsToVerify).layout(layout1).build();
         
         Map<String, Map<MatchRule, Set<Artifact>>> expectedStepMap = new HashMap<>();
         expectedStepMap.put("step1", new HashMap<>());
@@ -183,12 +183,14 @@ class VerificationContextsProviderContextTest {
         
         assertThat(actualStepMap, is(expectedStepMap));
         
-        Throwable exception = assertThrows(ArgosError.class, () -> {
-            VerificationContextsProviderContext context2 = VerificationContextsProviderContext.builder()
-                .productsToVerify(Set.of(artifact1, artifact2)).layout(layout1).build();
-            context2.getFirstMatchRulesAndArtifacts();
-        });
-        assertEquals("Not all products to verify are consumed. Not consumed: [[Artifact(uri=file2, hash=hash2)]]", exception.getMessage());        
+
+        productsToVerify.add(artifact1);
+        productsToVerify.add(artifact2);
+        
+        VerificationContextsProviderContext context2 = VerificationContextsProviderContext.builder()
+                .productsToVerify(productsToVerify).layout(layout1).build();
+        context2.getFirstMatchRulesAndArtifacts();
+        assertThat(context2.getProductsToVerify(), is(Set.of(artifact2)));        
         
     }
     
