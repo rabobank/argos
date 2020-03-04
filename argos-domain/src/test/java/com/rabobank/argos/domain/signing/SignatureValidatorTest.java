@@ -56,7 +56,7 @@ class SignatureValidatorTest {
     }
 
     @Test
-    void isValid() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    void isValid() throws InvalidKeyException, SignatureException, NoSuchAlgorithmException {
 
         Signature privateSignature = Signature.getInstance("SHA256withRSA");
         privateSignature.initSign(pair.getPrivate());
@@ -71,7 +71,7 @@ class SignatureValidatorTest {
     }
 
     @Test
-    void isNotValid() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    void isNotValid() throws InvalidKeyException, SignatureException, NoSuchAlgorithmException {
 
         Signature privateSignature = Signature.getInstance("SHA256withRSA");
         privateSignature.initSign(pair.getPrivate());

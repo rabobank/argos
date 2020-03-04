@@ -109,6 +109,7 @@ class NonPersonalAccountRepositoryImplTest {
     void updateFound() {
         when(nonPersonalAccount.getAccountId()).thenReturn(ACCOUNT_ID);
         when(template.getConverter()).thenReturn(converter);
+        when(template.findOne(any(), eq(NonPersonalAccount.class), eq(COLLECTION))).thenReturn(nonPersonalAccount);
         when(template.updateFirst(any(), any(), eq(NonPersonalAccount.class), eq(COLLECTION))).thenReturn(updateResult);
         repository.update(nonPersonalAccount);
         verify(template).updateFirst(queryArgumentCaptor.capture(), updateArgumentCaptor.capture(), eq(NonPersonalAccount.class), eq(COLLECTION));
@@ -121,6 +122,7 @@ class NonPersonalAccountRepositoryImplTest {
     void updateDuplicateKeyException() {
         when(nonPersonalAccount.getAccountId()).thenReturn(ACCOUNT_ID);
         when(template.getConverter()).thenReturn(converter);
+        when(template.findOne(any(), eq(NonPersonalAccount.class), eq(COLLECTION))).thenReturn(nonPersonalAccount);
         when(template.updateFirst(any(), any(), eq(NonPersonalAccount.class), eq(COLLECTION))).thenThrow(duplicateKeyException);
         ArgosError argosError = assertThrows(ArgosError.class, () -> repository.update(nonPersonalAccount));
         assertThat(argosError.getCause(), sameInstance(duplicateKeyException));

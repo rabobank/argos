@@ -17,6 +17,11 @@ package com.rabobank.argos.domain.key;
 
 import java.security.PublicKey;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 public interface KeyIdProvider {
-    String computeKeyId(PublicKey publicKey);
+    
+    public static String computeKeyId(PublicKey publicKey) {
+        return DigestUtils.sha256Hex(publicKey.getEncoded());
+    }
 }

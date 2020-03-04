@@ -24,7 +24,7 @@ import lombok.ToString;
 @Builder
 @Setter
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude={"signature"})
 @ToString
 public class Signature {
     private String keyId;
