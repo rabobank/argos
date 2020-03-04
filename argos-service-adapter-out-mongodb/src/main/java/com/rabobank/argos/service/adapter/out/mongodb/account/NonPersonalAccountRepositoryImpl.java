@@ -63,18 +63,31 @@ public class NonPersonalAccountRepositoryImpl implements NonPersonalAccountRepos
     @Override
     public Optional<NonPersonalAccount> update(String id, NonPersonalAccount account) {
         Query query = getPrimaryKeyQuery(id);
-        Document document = new Document();
-        template.getConverter().write(account, document);
-        try {
-            UpdateResult updateResult = template.updateFirst(query, Update.fromDocument(document), NonPersonalAccount.class, COLLECTION);
-            if (updateResult.getMatchedCount() > 0) {
-                account.setAccountId(id);
-                return Optional.of(account);
-            } else {
-                return Optional.empty();
+        NonPersonalAccount accountToUpdate = template.findOne(getPrimaryKeyQuery(id), NonPersonalAccount.class, COLLECTION);
+        if (accountToUpdate != null) {
+            accountToUpdate.setParentLabelId(account.getParentLabelId());
+            accountToUpdate.setName(account.getName());
+            accountToUpdate.setEmail(account.getEmail());
+            if (account.getActiveKeyPair() != null) {
+                accountToUpdate.setActiveKeyPair(account.getActiveKeyPair());
             }
-        } catch (DuplicateKeyException e) {
-            throw duplicateKeyException(account, e);
+            if (!account.getInactiveKeyPairs().isEmpty()) {
+                accountToUpdate.setInactiveKeyPairs(account.getInactiveKeyPairs());
+            }
+            Document document = new Document();
+            template.getConverter().write(accountToUpdate, document);
+            try {
+                UpdateResult updateResult = template.updateFirst(query, Update.fromDocument(document), NonPersonalAccount.class, COLLECTION);
+                if (updateResult.getMatchedCount() > 0) {
+                    return Optional.of(accountToUpdate);
+                } else {
+                    return Optional.empty();
+                }
+            } catch (DuplicateKeyException e) {
+                throw duplicateKeyException(account, e);
+            }
+        } else {
+            return Optional.empty();
         }
     }
 

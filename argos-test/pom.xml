@@ -269,7 +269,7 @@
                         <exclude>**/bob</exclude>
                     </excludes>
                     <useDefaultExcludes>true</useDefaultExcludes>
-                    <header>https://raw.github.com/rabobank/argos/develop/docs/header.txt</header>
+                    <header>https://raw.github.com/rabobank/argos/master/docs/header.txt</header>
                     <properties>
                         <lic.year>2020</lic.year>
                     </properties>
