@@ -17,12 +17,14 @@ package com.rabobank.argos.service.adapter.in.rest.layout;
 
 import com.rabobank.argos.domain.Signature;
 import com.rabobank.argos.domain.key.KeyIdProvider;
+import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.layout.LayoutSegment;
-import com.rabobank.argos.domain.layout.MatchFilter;
 import com.rabobank.argos.domain.layout.PublicKey;
 import com.rabobank.argos.domain.layout.Step;
+import com.rabobank.argos.domain.layout.rule.MatchRule;
+import com.rabobank.argos.service.adapter.in.rest.ArgosKeyHelper;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
@@ -32,7 +34,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
@@ -50,7 +51,6 @@ class LayoutValidatorServiceTest {
 
     private static final String SUPPLY_CHAIN_ID = "supplyChainId";
     private static final String KEY_ID_1 = "keyId1";
-    private static final String KEY_ID_2 = "keyId2";
 
     @Mock
     private SupplyChainRepository supplyChainRepository;
@@ -82,30 +82,22 @@ class LayoutValidatorServiceTest {
     private LayoutSegment layoutSegment2;
 
     @Mock
-    private MatchFilter matchFilter;
+    private MatchRule matchRule;
 
     @Mock
-    private MatchFilter matchFilter2;
+    private MatchRule matchRule2;
 
-    @Mock
-    private KeyIdProvider keyIdProvider;
+    private PublicKey publicKey1 = ArgosKeyHelper.generateArgosPublickKey();
 
-    @Mock
-    private PublicKey publicKey1;
+    private PublicKey publicKey2 = ArgosKeyHelper.generateArgosPublickKey();
 
-    @Mock
-    private PublicKey publicKey2;
+    private java.security.PublicKey key1 = ArgosKeyHelper.generatePublickKey();
 
-    @Mock
-    private java.security.PublicKey key1;
-
-    @Mock
-    private java.security.PublicKey key2;
+    private java.security.PublicKey key2 = ArgosKeyHelper.generatePublickKey();
 
     @BeforeEach
     void setUp() {
         service = new LayoutValidatorService(supplyChainRepository, signatureValidatorService, accountService);
-        ReflectionTestUtils.setField(service, "keyIdProvider", keyIdProvider);
         when(layoutMetaBlock.getLayout()).thenReturn(layout);
     }
 
@@ -117,32 +109,25 @@ class LayoutValidatorServiceTest {
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
         when(layoutMetaBlock.getSignatures()).thenReturn(singletonList(signature));
 
-        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey1.getId()));
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
         when(layoutSegment.getName()).thenReturn("segmentName");
         when(step.getName()).thenReturn("stepName");
-        when(layout.getExpectedEndProducts()).thenReturn(singletonList(matchFilter));
-        when(matchFilter.getDestinationSegmentName()).thenReturn("segmentName");
-        when(matchFilter.getDestinationStepName()).thenReturn("stepName");
-        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
+        when(layout.getExpectedEndProducts()).thenReturn(singletonList(matchRule));
+        when(matchRule.getDestinationSegmentName()).thenReturn("segmentName");
+        when(matchRule.getDestinationStepName()).thenReturn("stepName");
+        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey2.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(true);
-        when(accountService.keyPairExists(KEY_ID_2)).thenReturn(true);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
+        when(accountService.keyPairExists(publicKey2.getId())).thenReturn(true);
 
         service.validate(layoutMetaBlock);
         verify(signatureValidatorService).validateSignature(layout, signature);
     }
 
     private void mockPublicKeys() {
-        when(publicKey1.getId()).thenReturn(KEY_ID_1);
-        when(publicKey2.getId()).thenReturn(KEY_ID_2);
-        when(publicKey1.getKey()).thenReturn(key1);
-        when(publicKey2.getKey()).thenReturn(key2);
         when(layout.getKeys()).thenReturn(List.of(publicKey1, publicKey2));
-
-        when(keyIdProvider.computeKeyId(key1)).thenReturn(KEY_ID_1);
-        when(keyIdProvider.computeKeyId(key2)).thenReturn(KEY_ID_2);
     }
 
     @Test
@@ -151,16 +136,16 @@ class LayoutValidatorServiceTest {
         mockPublicKeys();
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
-        when(signature.getKeyId()).thenReturn(KEY_ID_1);
+        when(signature.getKeyId()).thenReturn(publicKey1.getId());
         when(layoutMetaBlock.getSignatures()).thenReturn(Arrays.asList(signature, signature));
 
-        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey1.getId()));
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
-        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
+        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey2.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(true);
-        when(accountService.keyPairExists(KEY_ID_2)).thenReturn(true);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
+        when(accountService.keyPairExists(publicKey2.getId())).thenReturn(true);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
@@ -170,21 +155,18 @@ class LayoutValidatorServiceTest {
     @Test
     void validateMissingPublicKey() {
 
-        when(publicKey1.getId()).thenReturn(KEY_ID_1);
-        when(publicKey1.getKey()).thenReturn(key1);
         when(layout.getKeys()).thenReturn(List.of(publicKey1));
 
-        when(keyIdProvider.computeKeyId(key1)).thenReturn(KEY_ID_1);
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
 
-        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey1.getId()));
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
-        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
+        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey2.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(true);
-        when(accountService.keyPairExists(KEY_ID_2)).thenReturn(true);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
+        when(accountService.keyPairExists(publicKey2.getId())).thenReturn(true);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
@@ -194,20 +176,17 @@ class LayoutValidatorServiceTest {
     @Test
     void validateOtherPublicKey() {
 
-        when(publicKey1.getId()).thenReturn(KEY_ID_1);
-        when(publicKey1.getKey()).thenReturn(key1);
         when(layout.getKeys()).thenReturn(List.of(publicKey1));
 
-        when(keyIdProvider.computeKeyId(key1)).thenReturn(KEY_ID_1);
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
 
-        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey2.getId()));
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
-        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
+        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey2.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_2)).thenReturn(true);
+        when(accountService.keyPairExists(publicKey2.getId())).thenReturn(true);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
@@ -217,24 +196,22 @@ class LayoutValidatorServiceTest {
     @Test
     void validateInvalidPublicKeyId() {
 
-        when(publicKey1.getId()).thenReturn(KEY_ID_1);
-        when(publicKey1.getKey()).thenReturn(key1);
         when(layout.getKeys()).thenReturn(List.of(publicKey1));
 
-        when(keyIdProvider.computeKeyId(key1)).thenReturn("otherKeyId");
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
 
-        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
+        publicKey1.setId("otherKeyId");
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey1.getId()));
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
-        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
+        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey1.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(true);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
-        assertThat(responseStatusException.getReason(), is("key with id keyId1 not matched computed key id from public key"));
+        assertThat(responseStatusException.getReason(), is(String.format("key with id %s not matched computed key id from public key", publicKey1.getId())));
     }
 
     @Test
@@ -242,19 +219,19 @@ class LayoutValidatorServiceTest {
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
 
-        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey1.getId()));
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment));
         when(layoutSegment.getSteps()).thenReturn(singletonList(step));
-        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_2));
+        when(step.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey2.getId()));
 
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(true);
-        when(accountService.keyPairExists(KEY_ID_2)).thenReturn(false);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
+        when(accountService.keyPairExists(publicKey2.getId())).thenReturn(false);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
             service.validate(layoutMetaBlock);
         });
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
-        assertThat(responseStatusException.getReason(), is("keyId keyId2 not found"));
+        assertThat(responseStatusException.getReason(), is(String.format("keyId %s not found", publicKey2.getId())));
     }
 
     @Test
@@ -262,14 +239,16 @@ class LayoutValidatorServiceTest {
         when(layoutMetaBlock.getSupplyChainId()).thenReturn(SUPPLY_CHAIN_ID);
         when(supplyChainRepository.exists(SUPPLY_CHAIN_ID)).thenReturn(true);
 
-        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(KEY_ID_1));
-        when(accountService.keyPairExists(KEY_ID_1)).thenReturn(false);
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(true);
+
+        when(layout.getAuthorizedKeyIds()).thenReturn(singletonList(publicKey1.getId()));
+        when(accountService.keyPairExists(publicKey1.getId())).thenReturn(false);
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
             service.validate(layoutMetaBlock);
         });
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
-        assertThat(responseStatusException.getReason(), is("keyId keyId1 not found"));
+        assertThat(responseStatusException.getReason(), is(String.format("keyId %s not found", publicKey1.getId())));
     }
 
     @Test
@@ -302,9 +281,9 @@ class LayoutValidatorServiceTest {
 
     @Test
     void validateDestinationStepNameNotFound() {
-        when(layout.getExpectedEndProducts()).thenReturn(singletonList(matchFilter));
-        when(matchFilter.getDestinationSegmentName()).thenReturn("segmentName");
-        when(matchFilter.getDestinationStepName()).thenReturn("otherStepName");
+        when(layout.getExpectedEndProducts()).thenReturn(singletonList(matchRule));
+        when(matchRule.getDestinationSegmentName()).thenReturn("segmentName");
+        when(matchRule.getDestinationStepName()).thenReturn("otherStepName");
         when(layoutSegment.getName()).thenReturn("segmentName");
         when(step.getName()).thenReturn("stepName");
         when(layoutSegment.getSteps()).thenReturn(List.of(step));
@@ -316,8 +295,8 @@ class LayoutValidatorServiceTest {
 
     @Test
     void validateDestinationSegmentNameNotFound() {
-        when(layout.getExpectedEndProducts()).thenReturn(singletonList(matchFilter));
-        when(matchFilter.getDestinationSegmentName()).thenReturn("otherSegmentName");
+        when(layout.getExpectedEndProducts()).thenReturn(singletonList(matchRule));
+        when(matchRule.getDestinationSegmentName()).thenReturn("otherSegmentName");
         when(layoutSegment.getName()).thenReturn("segmentName");
         when(step.getName()).thenReturn("stepName");
         when(layoutSegment.getSteps()).thenReturn(List.of(step));
@@ -335,11 +314,11 @@ class LayoutValidatorServiceTest {
         when(layoutSegment2.getName()).thenReturn("othersegmentName");
         when(layout.getLayoutSegments()).thenReturn(List.of(layoutSegment, layoutSegment2));
         when(step.getName()).thenReturn("stepName");
-        when(layout.getExpectedEndProducts()).thenReturn(List.of(matchFilter, matchFilter2));
-        when(matchFilter.getDestinationSegmentName()).thenReturn("segmentName");
-        when(matchFilter.getDestinationStepName()).thenReturn("stepName");
-        when(matchFilter2.getDestinationSegmentName()).thenReturn("othersegmentName");
-        when(matchFilter2.getDestinationStepName()).thenReturn("stepName");
+        when(layout.getExpectedEndProducts()).thenReturn(List.of(matchRule, matchRule2));
+        when(matchRule.getDestinationSegmentName()).thenReturn("segmentName");
+        when(matchRule.getDestinationStepName()).thenReturn("stepName");
+        when(matchRule2.getDestinationSegmentName()).thenReturn("othersegmentName");
+        when(matchRule2.getDestinationStepName()).thenReturn("stepName");
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
         assertThat(responseStatusException.getReason(), is("segment names for expectedProducts should all be the same"));

@@ -175,8 +175,6 @@
               {
                 "ruleType": "MATCH",
                 "pattern": "pom.xml",
-                "sourcePathPrefix": "target",
-                "destinationPathPrefix": "src",
                 "destinationType": "MATERIALS",
                 "destinationStepName": "build segment 2",
                 "destinationSegmentName": "segment 2"

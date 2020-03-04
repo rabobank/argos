@@ -6,3 +6,4 @@
 *.iml
 **/target
 argos-jenkins-plugin/work
+**/bin

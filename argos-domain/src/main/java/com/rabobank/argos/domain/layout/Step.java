@@ -17,21 +17,28 @@ package com.rabobank.argos.domain.layout;
 
 import com.rabobank.argos.domain.layout.rule.Rule;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Builder
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class Step {
     private String name;
-    private List<String> authorizedKeyIds;
+    @Builder.Default
+    private List<String> authorizedKeyIds = new ArrayList<>();
     private int requiredNumberOfLinks;
-    private List<String> expectedCommand;
-    private List<Rule> expectedMaterials;
-    private List<Rule> expectedProducts;
+    @Builder.Default
+    private List<String> expectedCommand = new ArrayList<>();
+    @Builder.Default
+    private List<Rule> expectedMaterials = new ArrayList<>();
+    @Builder.Default
+    private List<Rule> expectedProducts = new ArrayList<>();
 }

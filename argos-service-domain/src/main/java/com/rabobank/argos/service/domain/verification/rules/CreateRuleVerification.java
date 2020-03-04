@@ -23,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -38,9 +38,11 @@ public class CreateRuleVerification implements RuleVerification {
     public boolean verify(RuleVerificationContext<? extends Rule> context) {
         Set<Artifact> filteredArtifacts = context.getFilteredArtifacts();
         
-        Set<Artifact> complement = new HashSet<>(context.getProducts());
-        complement.removeAll(context.getMaterials());
-        if (filteredArtifacts.stream().allMatch(complement::contains)) {
+        Set<String> uris = context.getProducts().stream().map(Artifact::getUri).collect(Collectors.toSet());
+        
+        uris.removeAll(context.getMaterials().stream().map(Artifact::getUri).collect(Collectors.toSet()));
+        
+        if (filteredArtifacts.stream().map(Artifact::getUri).allMatch(uris::contains)) {
             context.consume(filteredArtifacts);
             logInfo(log, filteredArtifacts);
             return true;

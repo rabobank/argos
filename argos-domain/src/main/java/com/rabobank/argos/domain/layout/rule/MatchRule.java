@@ -21,9 +21,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.ToString;
 
 @Setter
 @Getter
+@ToString
 public class MatchRule extends Rule {
 
     private String sourcePathPrefix;

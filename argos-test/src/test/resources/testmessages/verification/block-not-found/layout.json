@@ -19,11 +19,9 @@
     ],
     "expectedEndProducts": [
       {
-        "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
-        "sourcePathPrefix": "target",
+        "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar",
         "destinationType": "PRODUCTS",
-        "destinationPathPrefix": "source",
-        "destinationStepName": "test",
+        "destinationStepName": "build",
         "destinationSegmentName": "segment 1"
       }
     ],
@@ -37,8 +35,15 @@
               "b91bec49e7aaaeeda162970c03193baef561c10337483a8bc0741d514dc63b9c"
             ],
             "requiredNumberOfLinks": 1,
-            "expectedCommand": [],
+            "expectedCommand": [
+              "expectedCommand 1",
+              "expectedCommand 2"
+            ],
             "expectedMaterials": [
+              {
+                "ruleType": "REQUIRE",
+                "pattern": "**Argos4jIT.java"
+              },
               {
                 "ruleType": "ALLOW",
                 "pattern": "**"
@@ -46,38 +51,20 @@
             ],
             "expectedProducts": [
               {
+                "ruleType": "MODIFY",
+                "pattern": "target/maven-archiver/pom.properties"
+              },
+              {
+                "ruleType": "CREATE",
+                "pattern": "target/argos-test-0.0.1-SNAPSHOT.jar"
+              },
+              {
+                "ruleType": "DELETE",
+                "pattern": "**/*.java"
+              },
+              {
                 "ruleType": "ALLOW",
                 "pattern": "**"
-              }
-            ]
-          },
-          {
-            "name": "test",
-            "authorizedKeyIds": [
-              "a97daeaf3afaed859472a367da7a860b4b90eefb97fe51384bd45e9eed020b5b"
-            ],
-            "requiredNumberOfLinks": 1,
-            "expectedCommand": [],
-            "expectedMaterials": [
-              {
-                "ruleType": "MATCH",
-                "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
-                "destinationType": "PRODUCTS",
-                "destinationStepName": "build",
-                "sourcePathPrefix": "",
-                "destinationPathPrefix": "target/",
-                "destinationSegmentName": "segment 1"
-              }
-            ],
-            "expectedProducts": [
-              {
-                "ruleType": "MATCH",
-                "pattern": "argos-test-0.0.1-SNAPSHOT.jar",
-                "destinationType": "MATERIALS",
-                "destinationStepName": "build",
-                "sourcePathPrefix": "source/",
-                "destinationPathPrefix": "",
-                "destinationSegmentName": "segment 1"
               }
             ]
           }
