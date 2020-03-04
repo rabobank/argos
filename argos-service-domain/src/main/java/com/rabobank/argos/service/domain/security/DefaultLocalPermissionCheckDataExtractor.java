@@ -39,17 +39,26 @@ public class DefaultLocalPermissionCheckDataExtractor implements LocalPermission
     public LocalPermissionCheckData extractLocalPermissionCheckData(Method method, Object[] argumentValues) {
 
         LocalPermissionCheckData.LocalPermissionCheckDataBuilder builder = LocalPermissionCheckData.builder();
-
         reflectionHelper.getParameterDataByAnnotation(method,
                 LabelIdCheckParam.class,
-                argumentValues).ifPresent(parameterData -> builder.labelId(getValue(parameterData.getValue(), parameterData.getAnnotation().propertyPath())));
+                argumentValues).ifPresent(parameterData ->
+                builder.labelId(getValue(
+                        parameterData.getValue(),
+                        parameterData.getAnnotation().propertyPath()
+                        )
+                )
+        );
 
         reflectionHelper.getParameterDataByAnnotation(method,
                 ParentLabelIdCheckParam.class,
-                argumentValues).ifPresent(parameterData -> builder.parentLabelId(getValue(parameterData.getValue(), parameterData.getAnnotation().propertyPath())));
-
+                argumentValues).ifPresent(parameterData ->
+                builder.parentLabelId(getValue(parameterData.getValue(),
+                        parameterData.getAnnotation()
+                                .propertyPath()
+                        )
+                )
+        );
         return builder.build();
-
     }
 
     private String getValue(Object value, String path) {

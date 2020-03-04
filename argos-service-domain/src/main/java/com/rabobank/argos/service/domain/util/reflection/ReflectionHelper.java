@@ -30,7 +30,7 @@ public class ReflectionHelper {
         return StreamUtils
                 .zipWithIndex(Arrays.stream(method.getParameters()))
                 .filter(p -> p.getValue().getAnnotation(annotation) != null)
-                .map(p -> new ParameterData<>(p.getValue().getAnnotation(annotation), p.getValue(), getArgumentValueByIndex(argumentValues, (int) p.getIndex())))
+                .map(p -> new ParameterData<>(p.getValue().getAnnotation(annotation), getArgumentValueByIndex(argumentValues, (int) p.getIndex())))
                 .findFirst();
     }
 
