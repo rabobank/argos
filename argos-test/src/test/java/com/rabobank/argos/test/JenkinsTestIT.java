@@ -25,6 +25,7 @@ import com.offbytwo.jenkins.model.Job;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
+import com.rabobank.argos.argos4j.internal.ArgosServiceClient;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
 import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
@@ -34,7 +35,6 @@ import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -109,7 +109,7 @@ public class JenkinsTestIT {
     private void createNpaWithActiveKey(String token, RestNonPersonalAccountKeyPair restKeyPair, String parentLabelId, String name) {
         NonPersonalAccountApi nonPersonalAccountApi = getNonPersonalAccountApi(token);
         RestNonPersonalAccount npa = nonPersonalAccountApi.createNonPersonalAccount(new RestNonPersonalAccount().parentLabelId(parentLabelId).name(name));
-        restKeyPair.setHashedKeyPassphrase(DigestUtils.sha256Hex(restKeyPair.getHashedKeyPassphrase()));
+        restKeyPair.setHashedKeyPassphrase(ArgosServiceClient.calculatePassphrase(restKeyPair.getKeyId(), restKeyPair.getHashedKeyPassphrase()));
         nonPersonalAccountApi.createNonPersonalAccountKeyById(npa.getId(), restKeyPair);
     }
 
