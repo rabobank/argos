@@ -15,10 +15,13 @@
  */
 package com.rabobank.argos.domain.hierarchy;
 
+import com.rabobank.argos.domain.permission.Permission;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.With;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -29,9 +32,32 @@ public class TreeNode {
     private String referenceId;
     private String name;
     private String parentLabelId;
-    private List<TreeNode> children;
+    @With
+    @Builder.Default
+    private List<TreeNode> children = new ArrayList<>();
     private Type type;
     private List<String> pathToRoot;
     private List<String> idPathToRoot;
     private boolean hasChildren;
+
+    @With
+    private List<Permission> userPermissions;
+
+    public boolean accept(TreeNodeVisitor treeNodeVisitor) {
+        if (nodeIsleaf()) {
+            return treeNodeVisitor.visitLeaf(this);
+        } else if (treeNodeVisitor.visitEnter(this)) {
+            children.forEach(child -> child.accept(treeNodeVisitor));
+
+        }
+        return treeNodeVisitor.visitExit(this);
+    }
+
+    private boolean nodeIsleaf() {
+        return Type.SUPPLY_CHAIN == type || Type.NON_PERSONAL_ACCOUNT == type;
+    }
+
+    public void addChild(TreeNode treeNode) {
+        children.add(treeNode);
+    }
 }

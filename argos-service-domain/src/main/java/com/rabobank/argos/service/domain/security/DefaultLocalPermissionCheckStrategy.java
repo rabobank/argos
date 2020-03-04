@@ -52,17 +52,24 @@ public class DefaultLocalPermissionCheckStrategy implements LocalPermissionCheck
 
         List<String> allLabelIdsUpTree = Optional.ofNullable(localPermissionCheckData.getLabelId())
                 .flatMap(labelId -> hierarchyRepository.getSubTree(labelId, HierarchyMode.NONE, 0))
-                .map(TreeNode::getIdPathToRoot).map(ArrayList::new)
+                .map(TreeNode::getIdPathToRoot)
+                .map(ArrayList::new)
                 .map(labelIds -> {
                     labelIds.add(localPermissionCheckData.getLabelId());
                     return labelIds;
                 }).orElse(new ArrayList<>());
 
 
-        Map<String, List<LocalPermissions>> localPermissionsMap = account.getLocalPermissions().stream().collect(Collectors.groupingBy(LocalPermissions::getLabelId));
+        Map<String, List<LocalPermissions>> localPermissionsMap = account.getLocalPermissions()
+                .stream()
+                .collect(Collectors.groupingBy(LocalPermissions::getLabelId));
 
-        Set<Permission> allLocalPermissions = allLabelIdsUpTree.stream().map(labelId -> localPermissionsMap.getOrDefault(labelId, emptyList()))
-                .flatMap(List::stream).map(LocalPermissions::getPermissions).flatMap(List::stream).collect(toSet());
+        Set<Permission> allLocalPermissions = allLabelIdsUpTree.stream()
+                .map(labelId -> localPermissionsMap.getOrDefault(labelId, emptyList()))
+                .flatMap(List::stream)
+                .map(LocalPermissions::getPermissions)
+                .flatMap(List::stream)
+                .collect(toSet());
 
         return allLocalPermissions.containsAll(permissionsToCheck);
     }
