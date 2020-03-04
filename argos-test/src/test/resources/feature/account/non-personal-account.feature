@@ -123,3 +123,19 @@ Feature: Non Personal Account
     When method GET
     Then status 401
 
+  Scenario: get an active non personal account key after update should return a 200
+    * def createResult = call read('create-non-personal-account.feature') { name: 'npa 1', parentLabelId: #(rootLabel.response.id)}
+    * def accountId = createResult.response.id
+    * def keyPair = read('classpath:testmessages/key/npa-keypair1.json')
+    * call read('create-non-personal-account-key.feature') {accountId: #(accountId), key: #(keyPair)}
+    * def restPathKey = '/api/nonpersonalaccount/'+accountId+'/key'
+    * def restPathUpdate = '/api/nonpersonalaccount/'+ accountId
+    Given path restPathUpdate
+    And request { name: 'npa 2', parentLabelId: #(rootLabel.response.id)}
+    When method PUT
+    Then status 200
+    Given path restPathKey
+    When method GET
+    Then status 200
+    And match response == {keyId: #(keyPair.keyId), publicKey: #(keyPair.publicKey), encryptedPrivateKey: #(keyPair.encryptedPrivateKey)}
+
