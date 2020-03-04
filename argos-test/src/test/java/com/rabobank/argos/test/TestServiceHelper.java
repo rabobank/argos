@@ -16,6 +16,7 @@
 package com.rabobank.argos.test;
 
 
+import com.rabobank.argos.argos4j.internal.ArgosServiceClient;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccount;
@@ -55,7 +56,7 @@ public class TestServiceHelper {
                 .keyId(restKeyPair.getKeyId())
                 .encryptedPrivateKey(restKeyPair.getEncryptedPrivateKey())
                 .publicKey(restKeyPair.getPublicKey())
-                .hashedKeyPassphrase(DigestUtils.sha256Hex(password)));
+                .hashedKeyPassphrase(ArgosServiceClient.calculatePassphrase(restKeyPair.getKeyId(), password)));
         return restKeyPair;
     }
 

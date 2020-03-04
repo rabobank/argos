@@ -154,6 +154,7 @@ public class ArgosRecorder extends Recorder {
 
 
         argos4j.store(ArgosJenkinsHelper.getPrivateKeyPassword(privateKeyCredentialId));
+        
         return true;
     }
 
