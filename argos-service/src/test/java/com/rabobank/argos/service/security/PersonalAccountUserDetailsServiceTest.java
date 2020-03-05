@@ -18,6 +18,7 @@ package com.rabobank.argos.service.security;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
+import com.rabobank.argos.service.domain.permission.RoleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,10 +42,12 @@ class PersonalAccountUserDetailsServiceTest {
 
     @Mock
     private PersonalAccount personalAccount;
+    @Mock
+    private RoleRepository roleRepository;
 
     @BeforeEach
     void setUp() {
-        personalAccountUserDetailsService = new PersonalAccountUserDetailsService(personalAccountRepository);
+        personalAccountUserDetailsService = new PersonalAccountUserDetailsService(personalAccountRepository, roleRepository);
     }
 
     @Test

@@ -16,9 +16,6 @@
 package com.rabobank.argos.service.domain.security;
 
 import com.rabobank.argos.domain.account.Account;
-import com.rabobank.argos.domain.account.PersonalAccount;
-import com.rabobank.argos.domain.permission.Role;
-import com.rabobank.argos.service.domain.permission.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -33,7 +30,6 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Aspect
 @Component
@@ -44,8 +40,6 @@ public class PermissionCheckAdvisor {
     private final AccountSecurityContext accountSecurityContext;
 
     private final ApplicationContext applicationContext;
-
-    private final RoleRepository roleRepository;
 
     @Pointcut("@annotation(permissionCheck)")
     public void permissionCheckPointCut(PermissionCheck permissionCheck) {
@@ -73,15 +67,11 @@ public class PermissionCheckAdvisor {
         }
     }
 
-    private boolean hasGlobalPermissions(PermissionCheck permissionCheck, Account account) {
-        if (account instanceof PersonalAccount) {
-            PersonalAccount personalAccount = (PersonalAccount) account;
-            if (!personalAccount.getRoleIds().isEmpty()) {
-                return roleRepository.findByIds(personalAccount.getRoleIds()).stream().map(Role::getPermissions).flatMap(List::stream).collect(Collectors.toSet())
-                        .containsAll(List.of(permissionCheck.permissions()));
-            }
-        }
-        return false;
+    private boolean hasGlobalPermissions(PermissionCheck permissionCheck) {
+        return accountSecurityContext
+                .getGlobalPermission()
+                .containsAll(List.of(permissionCheck.permissions()));
+
     }
 
     private boolean hasLocalPermissions(JoinPoint joinPoint, PermissionCheck permissionCheck, Account account) {

@@ -18,8 +18,6 @@ package com.rabobank.argos.service.domain.security;
 import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.permission.Permission;
-import com.rabobank.argos.domain.permission.Role;
-import com.rabobank.argos.service.domain.permission.RoleRepository;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.hamcrest.MatcherAssert;
@@ -36,6 +34,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -53,8 +52,6 @@ class PermissionCheckAdvisorTest {
     @Mock
     private ApplicationContext applicationContext;
 
-    @Mock
-    private RoleRepository roleRepository;
     private PermissionCheckAdvisor advisor;
 
     @Mock(lenient = true)
@@ -68,9 +65,6 @@ class PermissionCheckAdvisorTest {
 
     @Mock
     private NonPersonalAccount nonPersonalAccount;
-
-    @Mock
-    private Role role;
 
     @Mock
     private MethodSignature signature;
@@ -89,33 +83,21 @@ class PermissionCheckAdvisorTest {
 
     @BeforeEach
     void setUp() {
-        advisor = new PermissionCheckAdvisor(accountSecurityContext, applicationContext, roleRepository);
+        advisor = new PermissionCheckAdvisor(accountSecurityContext, applicationContext);
         when(joinPoint.getSignature()).thenReturn(signature);
     }
 
     @Test
-    void permissionCheckPointCut() {
-        advisor.permissionCheckPointCut(null);
-    }
-
-    @Test
     void checkPermissionsHasGlobalPermission() {
-
-        when(personalAccount.getRoleIds()).thenReturn(List.of(ROLE_ID));
-        when(roleRepository.findByIds(List.of(ROLE_ID))).thenReturn(List.of(role));
-        when(role.getPermissions()).thenReturn(List.of(Permission.READ, Permission.LOCAL_PERMISSION_EDIT));
         when(permissionCheck.permissions()).thenReturn(new Permission[]{Permission.LOCAL_PERMISSION_EDIT});
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
+        when(accountSecurityContext.getGlobalPermission()).thenReturn(Set.of(Permission.READ, Permission.LOCAL_PERMISSION_EDIT));
         advisor.checkPermissions(joinPoint, permissionCheck);
     }
 
     @Test
     void checkPermissionsHasWrongGlobalPermission() {
         mockPermissionCheck();
-
-        when(personalAccount.getRoleIds()).thenReturn(List.of(ROLE_ID));
-        when(roleRepository.findByIds(List.of(ROLE_ID))).thenReturn(List.of(role));
-        when(role.getPermissions()).thenReturn(List.of(Permission.READ));
         when(permissionCheck.permissions()).thenReturn(new Permission[]{Permission.LOCAL_PERMISSION_EDIT});
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
         AccessDeniedException accessDeniedException = assertThrows(AccessDeniedException.class, () -> advisor.checkPermissions(joinPoint, permissionCheck));
@@ -125,10 +107,9 @@ class PermissionCheckAdvisorTest {
     @Test
     void checkPermissionsHasNoGlobalPermission() {
         mockPermissionCheck();
-
-        when(personalAccount.getRoleIds()).thenReturn(Collections.emptyList());
         when(permissionCheck.permissions()).thenReturn(new Permission[]{Permission.LOCAL_PERMISSION_EDIT});
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
+        when(accountSecurityContext.getGlobalPermission()).thenReturn(Collections.emptySet());
         AccessDeniedException accessDeniedException = assertThrows(AccessDeniedException.class, () -> advisor.checkPermissions(joinPoint, permissionCheck));
         MatcherAssert.assertThat(accessDeniedException.getMessage(), is("Access denied"));
     }
@@ -136,10 +117,9 @@ class PermissionCheckAdvisorTest {
     @Test
     void checkPermissionsNpaHasNoGlobalPermission() {
         mockPermissionCheck();
-
-
         when(permissionCheck.permissions()).thenReturn(new Permission[]{Permission.LOCAL_PERMISSION_EDIT});
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(nonPersonalAccount));
+        when(accountSecurityContext.getGlobalPermission()).thenReturn(Collections.emptySet());
         AccessDeniedException accessDeniedException = assertThrows(AccessDeniedException.class, () -> advisor.checkPermissions(joinPoint, permissionCheck));
         MatcherAssert.assertThat(accessDeniedException.getMessage(), is("Access denied"));
     }
@@ -149,7 +129,7 @@ class PermissionCheckAdvisorTest {
         mockPermissionCheck();
         when(signature.getMethod()).thenReturn(method);
         when(permissionCheck.permissions()).thenReturn(new Permission[]{Permission.LOCAL_PERMISSION_EDIT});
-
+        when(accountSecurityContext.getGlobalPermission()).thenReturn(Collections.emptySet());
         Object[] args = new Object[]{};
         when(joinPoint.getArgs()).thenReturn(args);
         when(localPermissionCheckDataExtractor.extractLocalPermissionCheckData(method, args)).thenReturn(checkData);
