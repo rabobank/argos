@@ -24,6 +24,7 @@ import java.util.Optional;
 
 @Component
 public class AccountSecurityContextImpl implements AccountSecurityContext {
+
     @Override
     public Optional<Account> getAuthenticatedAccount() {
         return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
