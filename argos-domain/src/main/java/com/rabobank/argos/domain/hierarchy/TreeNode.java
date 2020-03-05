@@ -44,7 +44,7 @@ public class TreeNode {
     private List<Permission> userPermissions;
 
     public boolean accept(TreeNodeVisitor treeNodeVisitor) {
-        if (nodeIsleaf()) {
+        if (isLeafNode()) {
             return treeNodeVisitor.visitLeaf(this);
         } else if (treeNodeVisitor.visitEnter(this)) {
             children.forEach(child -> child.accept(treeNodeVisitor));
@@ -53,7 +53,8 @@ public class TreeNode {
         return treeNodeVisitor.visitExit(this);
     }
 
-    private boolean nodeIsleaf() {
+
+    public boolean isLeafNode() {
         return Type.SUPPLY_CHAIN == type || Type.NON_PERSONAL_ACCOUNT == type;
     }
 

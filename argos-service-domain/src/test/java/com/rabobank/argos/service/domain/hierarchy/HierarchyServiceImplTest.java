@@ -1,15 +1,38 @@
 package com.rabobank.argos.service.domain.hierarchy;
 
+import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
 import com.rabobank.argos.domain.hierarchy.TreeNodeVisitor;
+import com.rabobank.argos.service.domain.permission.RoleRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
+@ExtendWith(MockitoExtension.class)
 class HierarchyServiceImplTest {
+
+    public static final String ROOT_ID = "rootId";
+    public static final String CHILD_1_1_ID = "child1_1_Id";
+    public static final String CHILD_2_1_ID = "child2_1_Id";
+    public static final String CHILD_1_2_ID = "child1_2_Id";
+    public static final String CHILD_2_2_ID = "child2_2_id";
+    @Mock
+    private RoleRepository roleRepository;
+    private Account account;
+
+    @BeforeEach
+    void setup() {
+        // account = PersonalAccount.builder().name("test").
+
+    }
 
     @Test
     void getSubTree() {
@@ -18,17 +41,17 @@ class HierarchyServiceImplTest {
                 .pathToRoot(emptyList())
                 .idPathToRoot(emptyList())
                 .type(TreeNode.Type.LABEL)
-                .referenceId("rootId")
+                .referenceId(ROOT_ID)
                 .hasChildren(true)
                 .name("root")
                 .build();
 
         TreeNode child1_1 = TreeNode.builder()
-                .pathToRoot(singletonList("rootId"))
+                .pathToRoot(singletonList(ROOT_ID))
                 .idPathToRoot(singletonList("root"))
-                .parentLabelId("rootId")
+                .parentLabelId(ROOT_ID)
                 .type(TreeNode.Type.LABEL)
-                .referenceId("child1_1_Id")
+                .referenceId(CHILD_1_1_ID)
                 .hasChildren(true)
                 .name("child1_1")
                 .build();
@@ -36,10 +59,10 @@ class HierarchyServiceImplTest {
 
         TreeNode child2_1 = TreeNode.builder()
                 .pathToRoot(singletonList("root"))
-                .parentLabelId("rootId")
-                .idPathToRoot(singletonList("rootId"))
+                .parentLabelId(ROOT_ID)
+                .idPathToRoot(singletonList(ROOT_ID))
                 .type(TreeNode.Type.LABEL)
-                .referenceId("child2_1_Id")
+                .referenceId(CHILD_2_1_ID)
                 .hasChildren(true)
                 .name("child2_1")
                 .build();
@@ -48,10 +71,10 @@ class HierarchyServiceImplTest {
 
         TreeNode child1_2 = TreeNode.builder()
                 .pathToRoot(List.of("child1_1", "root"))
-                .idPathToRoot(List.of("child1_1_Id", "rootId"))
-                .parentLabelId("child1_1_Id")
+                .idPathToRoot(List.of(CHILD_1_1_ID, ROOT_ID))
+                .parentLabelId(CHILD_1_1_ID)
                 .type(TreeNode.Type.LABEL)
-                .referenceId("child1_2_Id")
+                .referenceId(CHILD_1_2_ID)
                 .hasChildren(true)
                 .name("child1_2")
                 .build();
@@ -60,10 +83,10 @@ class HierarchyServiceImplTest {
 
         TreeNode child2_2 = TreeNode.builder()
                 .pathToRoot(List.of("child1_2", "root"))
-                .idPathToRoot(List.of("child1_2_Id", "rootId"))
+                .idPathToRoot(List.of(CHILD_1_2_ID, ROOT_ID))
                 .type(TreeNode.Type.LABEL)
-                .parentLabelId("child2_1_Id")
-                .referenceId("child2_2_id")
+                .parentLabelId(CHILD_2_1_ID)
+                .referenceId(CHILD_2_2_ID)
                 .hasChildren(true)
                 .name("child2_2")
                 .build();
@@ -72,17 +95,19 @@ class HierarchyServiceImplTest {
 
         TreeNode child1_3 = TreeNode.builder()
                 .pathToRoot(List.of("child1_2", "child1_1", "root"))
-                .idPathToRoot(List.of("child1_2", "child1_1_Id", "rootId"))
+                .idPathToRoot(List.of(CHILD_1_2_ID, CHILD_1_1_ID, ROOT_ID))
                 .type(TreeNode.Type.SUPPLY_CHAIN)
                 .referenceId("child1_3_Id")
-                .parentLabelId("child1_2_Id")
+                .parentLabelId(CHILD_1_2_ID)
                 .hasChildren(false)
                 .name("supplyCain")
                 .build();
 
         child1_2.addChild(child1_3);
-        TreeNodeVisitor<TreeNode> permissionTreeNodeVisitor = new UserPermissionTreeNodeVisitor();
+
+        TreeNodeVisitor<Optional<TreeNode>> permissionTreeNodeVisitor = new UserPermissionTreeNodeVisitor(account, roleRepository);
         root.accept(permissionTreeNodeVisitor);
-        TreeNode treeNodeWithPermissions = permissionTreeNodeVisitor.result();
+        TreeNode treeNodeWithPermissions = permissionTreeNodeVisitor.result().get();
+
     }
 }
