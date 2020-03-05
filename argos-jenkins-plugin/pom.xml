@@ -185,7 +185,7 @@
                 <artifactId>maven-hpi-plugin</artifactId>
                 <configuration>
                     <minimumJavaVersion>8</minimumJavaVersion>
-                    <defaultPort>8099</defaultPort>
+                    <defaultPort>9080</defaultPort>
                 </configuration>
             </plugin>
             <plugin>
