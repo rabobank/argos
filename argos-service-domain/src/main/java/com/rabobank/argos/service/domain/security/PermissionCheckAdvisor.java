@@ -57,7 +57,7 @@ public class PermissionCheckAdvisor {
         );
 
 
-        if (!(hasGlobalPermissions(permissionCheck, account) || hasLocalPermissions(joinPoint, permissionCheck, account))) {
+        if (!(hasGlobalPermissions(permissionCheck) || hasLocalPermissions(joinPoint, permissionCheck, account))) {
             log.info("access denied for method:{} with permissions {} for account: {}",
                     joinPoint.getSignature().getName(),
                     permissionCheck.permissions(),
