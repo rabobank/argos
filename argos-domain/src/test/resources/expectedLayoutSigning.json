@@ -8,7 +8,8 @@
       "destinationSegmentName": "destinationSegmentName",
       "destinationStepName": "destinationStepName",
       "destinationType": "PRODUCTS",
-      "pattern": "MatchFiler"
+      "pattern": "MatchFiler",
+      "ruleType": "MATCH"
     }
   ],
   "keys": [
@@ -31,6 +32,7 @@
             "2",
             "1"
           ],
+          "expectedMaterials": [],
           "expectedProducts": [
             {
               "pattern": "DisAllowRule",
@@ -54,6 +56,8 @@
           "requiredNumberOfLinks": 23
         },
         {
+          "authorizedKeyIds": [],
+          "expectedCommand": [],
           "expectedMaterials": [
             {
               "pattern": "AllowRule",

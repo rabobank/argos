@@ -26,9 +26,12 @@ Every Layout is processed until one of them has a valid result.
 ```
     processLayouts
         artifacts = request.artifacts
+        resolvedSegments = []
+        // a set of sets of links
+        linkSets = [[]]
         for every Layout
-            matchFilters = layout.matchFilters
-            resolvedSegments, linkSets = processMatchFilters(matchFilters, endProducts)
+            matchRules = layout.expectedEndProducts.matchRules
+            resolvedSegments, linkSets = processMatchRules(matchRules, artifacts, resolvedSegments, linkSets)
             resolvedSegments, linkSets = processMatchRules(resolvedSegments, linkSets)
             verificationContexts = createVerificationContexts(layout, linkSets)
             for context in verificationContexts
@@ -38,68 +41,64 @@ Every Layout is processed until one of them has a valid result.
         return invalid
 ```
 ---
-The goal of `processMatchFilters` is to get sets of Link objects of the layout segments which have matched artifacts based on the `matchFilters` in the expected end products and the `artifacts` in the verification request. The validation will proof which of these different sets has delivered a valid end product.
+The goal of `processMatchRules` is to get sets of Link objects of the layout segments which have matched artifacts based on the `matchRules` in the expected end products and the `artifacts` in the verification request. The validation will proof which of these different sets has delivered a valid end product.
 
 The clients should set a runId which is as unique as possible. This runId is used to get all Link objects for steps which aren't a destination of a match filter or rule made during a run.
 
-```
-    processMatchFilters(matchFilters, artifacts)
-        map = {}
-        map = filter(matchFilters, artifacts)
-        // all artifacts should be in map
-        for artifact in artifacts
-            if artifact not in map
-                error
-        return getLinks(destSegment, map, [[]])
-                
-    filter(matchFilters, artifacts)
-        map = {}
-        for filter in matchFilters
-            map[filter.destStep] = { "destType": filter.destType, artifacts: match(filter.pattern, artifacts)}
-        return map
-```
 1. It is possible that the same end products are available in more than 1 different run of the supply chain with different runId's. For example if the run is only different in a disjunct part of all end products or if runs are not complete. Every runId with it's run should be checked on validity.
 
 ![several rule id's](images/several_ruleids.png)
 
----
-The next phase `processMatchRules` gets the not resolved upstream segments based on the `matchRules`
-
 ```
     processMatchRules(resolvedSegments, linkSets)
-        map = {} // map with srcSegment, srcStep, matchRules
-        destSegment, map = getSegmentStepsWithMatchRules(resolvedSegments)
-        resolvedSegments.add(destSegment)
-        if no matchRules
+        destSegment = None
+        if resolvedSegments is empty
+            stepMap = getFirstStepMap(expectedEndProducts, artifacts)
+            if not stepMap is empty
+                linkSets = getLinks(segment, stepMap, linkSets)
+                destSegment = segment
+        else
+            ruleMap = getRuleMapToResolveSegment(resolvedSegments)
+            if not ruleMap is empty
+                for linkSet in linkSets
+                    stepMap = getMatchRulesWithArtifacts(ruleMap, resolvedSegments, linkSet)
+                    linkSets = getLinks(segment, stepMap, linkSets)
+                destSegment = segment
+        if destSegment is None
             return resolvedSegments, linkSets
-        for linkSet in linkSets
-            stepMap = filter(map, linkSet)
-            linkSets = getLinks(segment, map, linkSets)
-        return processMatchRules(resolvedSegments, linkSets)
-                
-    filter(map, linkSet)
-        stepMap = {}
-        for segment in map
-            for step in segment
-                for rule in matchRules
-                    stepMap[filter.destStep] = { "destType": rule.destType, artifacts: match(rule.pattern, linkSet.segment.step.type.artifacts)}
-        return stepMap
+        else
+            resolvedSegments.add(destSegment)     
+        // next segment  
+        return processMatchRules(None, resolvedSegments, linkSets)
             
-    getSegmentStepsWithMatchRules(resolvedSegments)
-        map = group matchRules in resolvedSegments by destination segment not resolved, destination step and destType
-        return first segment and map with destSteps, destTypes and matchrules entries
-```
----
-Some helper functions 
+    getFirstMatchRulesWithArtifacts(expectedEndProducts, artifacts)
+        return group expectedEndProducts by src segment, src step, type
+ 
+    getRuleMapToResolveSegment(resolvedSegments)
+        return group ruleLists with MatchRules in resolvedSegments by destination segment not resolved, src segment, src step, type
+                
+    getMatchRulesWithArtifacts(ruleMap, resolvedSegments, linkSet)
+        stepMap = {}
+        for segment in ruleMap
+            for step in segment
+                for type in materials, products
+                    artifacts = link.type.artifacts
+                    stepMap[filter.destStep] = []
+                    for rule in rules
+                        if ruleType is Match and rule.destSegment is segment
+                            stepMap[filter.destStep].add({ "match_rule": rule, artifacts: match(rule.pattern, artifacts)})
+                            consume artifacts with rule
+                        else
+                            consume artifacts with rule
+        return stepMap
 
-```
-    getLinks(segment, map, linkSets)
+    getLinks(segment, stepMap, linkSets)
         resolvedSteps = []
         resultingLinkSets = []
         // get links of dest steps in segment
         links = []
-        for step in map
-            links.add(query(segment, step))
+        for step in stepMap
+            links.add(query(segment, step)) // step with its match rules and artifacts
             resolvedSteps.add(step)
                 
          // get the links of the other steps with the runIds
@@ -131,10 +130,10 @@ Some helper functions
         return temp
                     
     query(segment, step)
-        return query in database links with segment and step and step.artifacts
+        return query in database links with segment and step and all match rules with rule.rule.type and step.rule.artifacts
               
-    query(runId, segment, resolvedSteps)
-        return query in database links with runId and segment and not in resolvedSteps
+    query(runId, segment, links)
+        return query in database links with runId, segment and not in links
 ```
 
 

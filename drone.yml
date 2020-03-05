@@ -183,8 +183,6 @@ steps:
   when:
     event:
     - tag
-    branch:
-    - master
   depends_on:
   - regression test
 
@@ -204,8 +202,6 @@ steps:
   when:
     event:
     - tag
-    branch:
-    - master
   depends_on:
   - regression test
 
@@ -227,8 +223,6 @@ steps:
   when:
     event:
     - tag
-    branch:
-    - master
   depends_on:
   - sign artifacts
 
