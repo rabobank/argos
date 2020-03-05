@@ -1,8 +1,11 @@
 package com.rabobank.argos.service.domain.hierarchy;
 
 import com.rabobank.argos.domain.account.Account;
+import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
 import com.rabobank.argos.domain.hierarchy.TreeNodeVisitor;
+import com.rabobank.argos.domain.permission.LocalPermissions;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,12 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class HierarchyServiceImplTest {
 
@@ -30,8 +38,18 @@ class HierarchyServiceImplTest {
 
     @BeforeEach
     void setup() {
-        // account = PersonalAccount.builder().name("test").
+        List<LocalPermissions> localPermissions = new ArrayList<>();
+        localPermissions.add(LocalPermissions
+                .builder()
+                .labelId(ROOT_ID)
+                .permissions(List.of(Permission.READ))
+                .build());
 
+        account = PersonalAccount.builder()
+                .name("test")
+                .localPermissions(localPermissions)
+                .build();
+        when(roleRepository.findByIds(any())).thenReturn(emptyList());
     }
 
     @Test
@@ -47,8 +65,8 @@ class HierarchyServiceImplTest {
                 .build();
 
         TreeNode child1_1 = TreeNode.builder()
-                .pathToRoot(singletonList(ROOT_ID))
-                .idPathToRoot(singletonList("root"))
+                .pathToRoot(singletonList("root"))
+                .idPathToRoot(singletonList(ROOT_ID))
                 .parentLabelId(ROOT_ID)
                 .type(TreeNode.Type.LABEL)
                 .referenceId(CHILD_1_1_ID)
@@ -83,7 +101,7 @@ class HierarchyServiceImplTest {
 
         TreeNode child2_2 = TreeNode.builder()
                 .pathToRoot(List.of("child1_2", "root"))
-                .idPathToRoot(List.of(CHILD_1_2_ID, ROOT_ID))
+                .idPathToRoot(List.of(CHILD_2_1_ID, ROOT_ID))
                 .type(TreeNode.Type.LABEL)
                 .parentLabelId(CHILD_2_1_ID)
                 .referenceId(CHILD_2_2_ID)
@@ -107,7 +125,8 @@ class HierarchyServiceImplTest {
 
         TreeNodeVisitor<Optional<TreeNode>> permissionTreeNodeVisitor = new UserPermissionTreeNodeVisitor(account, roleRepository);
         root.accept(permissionTreeNodeVisitor);
+        assertThat(permissionTreeNodeVisitor.result().isPresent(), is(true));
         TreeNode treeNodeWithPermissions = permissionTreeNodeVisitor.result().get();
-
+        assertThat(treeNodeWithPermissions.getUserPermissions(), hasSize(1));
     }
 }

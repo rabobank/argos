@@ -54,7 +54,7 @@ public class UserPermissionTreeNodeVisitor implements TreeNodeVisitor<Optional<T
     }
 
     private List<Permission> determineAggregatedPermissions(TreeNode treeNode) {
-        List<String> labelIdsUpTree = treeNode.getIdPathToRoot();
+        List<String> labelIdsUpTree = new ArrayList<>(treeNode.getIdPathToRoot());
         if (!treeNode.isLeafNode()) {
             labelIdsUpTree.add(treeNode.getReferenceId());
         }
