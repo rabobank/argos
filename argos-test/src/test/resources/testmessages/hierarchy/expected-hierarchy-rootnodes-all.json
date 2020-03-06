@@ -16,15 +16,36 @@
             "type": "NON_PERSONAL_ACCOUNT",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": []
+            "children": [],
+            "userPermissions": [
+              "LOCAL_PERMISSION_EDIT",
+              "TREE_EDIT",
+              "READ",
+              "VERIFY",
+              "ASSIGN_ROLE"
+            ]
           },
           {
             "name": "supply-chain-1",
             "type": "SUPPLY_CHAIN",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": []
+            "children": [],
+            "userPermissions": [
+              "LOCAL_PERMISSION_EDIT",
+              "TREE_EDIT",
+              "READ",
+              "VERIFY",
+              "ASSIGN_ROLE"
+            ]
           }
+        ],
+        "userPermissions": [
+          "LOCAL_PERMISSION_EDIT",
+          "TREE_EDIT",
+          "READ",
+          "VERIFY",
+          "ASSIGN_ROLE"
         ]
       },
       {
@@ -32,8 +53,22 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": []
+        "children": [],
+        "userPermissions": [
+          "LOCAL_PERMISSION_EDIT",
+          "TREE_EDIT",
+          "READ",
+          "VERIFY",
+          "ASSIGN_ROLE"
+        ]
       }
+    ],
+    "userPermissions": [
+      "LOCAL_PERMISSION_EDIT",
+      "TREE_EDIT",
+      "READ",
+      "VERIFY",
+      "ASSIGN_ROLE"
     ]
   },
   {
@@ -53,15 +88,36 @@
             "type": "NON_PERSONAL_ACCOUNT",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": []
+            "children": [],
+            "userPermissions": [
+              "LOCAL_PERMISSION_EDIT",
+              "TREE_EDIT",
+              "READ",
+              "VERIFY",
+              "ASSIGN_ROLE"
+            ]
           },
           {
             "name": "supply-chain-2",
             "type": "SUPPLY_CHAIN",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": []
+            "children": [],
+            "userPermissions": [
+              "LOCAL_PERMISSION_EDIT",
+              "TREE_EDIT",
+              "READ",
+              "VERIFY",
+              "ASSIGN_ROLE"
+            ]
           }
+        ],
+        "userPermissions": [
+          "LOCAL_PERMISSION_EDIT",
+          "TREE_EDIT",
+          "READ",
+          "VERIFY",
+          "ASSIGN_ROLE"
         ]
       },
       {
@@ -69,8 +125,22 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": []
+        "children": [],
+        "userPermissions": [
+          "LOCAL_PERMISSION_EDIT",
+          "TREE_EDIT",
+          "READ",
+          "VERIFY",
+          "ASSIGN_ROLE"
+        ]
       }
+    ],
+    "userPermissions": [
+      "LOCAL_PERMISSION_EDIT",
+      "TREE_EDIT",
+      "READ",
+      "VERIFY",
+      "ASSIGN_ROLE"
     ]
   },
   {
@@ -83,32 +153,66 @@
         "name": "childaroot3",
         "type": "LABEL",
         "referenceId": "#uuid",
+        "hasChildren": true,
         "children": [
           {
             "name": "npa-3",
             "type": "NON_PERSONAL_ACCOUNT",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": []
+            "children": [],
+            "userPermissions": [
+              "LOCAL_PERMISSION_EDIT",
+              "TREE_EDIT",
+              "READ",
+              "VERIFY",
+              "ASSIGN_ROLE"
+            ]
           },
           {
             "name": "supply-chain-3",
             "type": "SUPPLY_CHAIN",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": []
+            "children": [],
+            "userPermissions": [
+              "LOCAL_PERMISSION_EDIT",
+              "TREE_EDIT",
+              "READ",
+              "VERIFY",
+              "ASSIGN_ROLE"
+            ]
           }
         ],
-        "hasChildren": true
-
+        "userPermissions": [
+          "LOCAL_PERMISSION_EDIT",
+          "TREE_EDIT",
+          "READ",
+          "VERIFY",
+          "ASSIGN_ROLE"
+        ]
       },
       {
         "name": "childbroot3",
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": []
+        "children": [],
+        "userPermissions": [
+          "LOCAL_PERMISSION_EDIT",
+          "TREE_EDIT",
+          "READ",
+          "VERIFY",
+          "ASSIGN_ROLE"
+        ]
       }
+    ],
+    "userPermissions": [
+      "LOCAL_PERMISSION_EDIT",
+      "TREE_EDIT",
+      "READ",
+      "VERIFY",
+      "ASSIGN_ROLE"
     ]
   }
 ]

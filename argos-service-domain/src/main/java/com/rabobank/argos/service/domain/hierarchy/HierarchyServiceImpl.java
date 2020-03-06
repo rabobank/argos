@@ -17,11 +17,45 @@ package com.rabobank.argos.service.domain.hierarchy;
 
 import com.rabobank.argos.domain.hierarchy.HierarchyMode;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
+import com.rabobank.argos.domain.hierarchy.TreeNodeVisitor;
+import com.rabobank.argos.service.domain.security.AccountSecurityContext;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
 public class HierarchyServiceImpl implements HierarchyService {
 
+    private final HierarchyRepository hierarchyRepository;
+    private final AccountSecurityContext accountSecurityContext;
+
     @Override
-    public TreeNode getSubTree(String referenceId, HierarchyMode hierarchyMode, Integer maxDepth) {
-        return null;
+    public Optional<TreeNode> getSubTree(String referenceId, HierarchyMode hierarchyMode, Integer maxDepth) {
+        TreeNodeVisitor<Optional<TreeNode>> treeNodeVisitor = new UserPermissionTreeNodeVisitor(accountSecurityContext);
+        hierarchyRepository
+                .getSubTree(referenceId, hierarchyMode, maxDepth)
+                .ifPresent(treeNode -> treeNode.accept(treeNodeVisitor)
+                );
+
+        return treeNodeVisitor.result();
+    }
+
+    @Override
+    public List<TreeNode> getRootNodes(HierarchyMode hierarchyMode, int maxDepth) {
+        return hierarchyRepository
+                .getRootNodes(hierarchyMode, maxDepth)
+                .stream()
+                .map(treeNode -> {
+                            TreeNodeVisitor<Optional<TreeNode>> treeNodeVisitor = new UserPermissionTreeNodeVisitor(accountSecurityContext);
+                            treeNode.accept(treeNodeVisitor);
+                            return treeNodeVisitor.result();
+                        }
+                ).filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 }

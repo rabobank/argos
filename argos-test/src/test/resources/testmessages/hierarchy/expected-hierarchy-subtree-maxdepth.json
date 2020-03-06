@@ -9,14 +9,35 @@
       "type": "LABEL",
       "referenceId": "#uuid",
       "hasChildren": true,
-      "children": []
+      "children": [],
+      "userPermissions": [
+        "LOCAL_PERMISSION_EDIT",
+        "TREE_EDIT",
+        "READ",
+        "VERIFY",
+        "ASSIGN_ROLE"
+      ]
     },
     {
       "name": "childbroot1",
       "type": "LABEL",
       "referenceId": "#uuid",
       "hasChildren": false,
-      "children": []
+      "children": [],
+      "userPermissions": [
+        "LOCAL_PERMISSION_EDIT",
+        "TREE_EDIT",
+        "READ",
+        "VERIFY",
+        "ASSIGN_ROLE"
+      ]
     }
+  ],
+  "userPermissions": [
+    "LOCAL_PERMISSION_EDIT",
+    "TREE_EDIT",
+    "READ",
+    "VERIFY",
+    "ASSIGN_ROLE"
   ]
 }

@@ -1310,6 +1310,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TreeNode"
+        userPermissions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Permission"
     HierarchyMode:
       type: string
       enum:

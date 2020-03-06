@@ -15,8 +15,6 @@
  */
 package com.rabobank.argos.service.domain.hierarchy;
 
-
-import com.rabobank.argos.domain.hierarchy.HierarchyMode;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
 import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.service.domain.security.AccountSecurityContext;
@@ -31,35 +29,32 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-@ExtendWith(MockitoExtension.class)
-class HierarchyServiceImplTest {
 
+@ExtendWith(MockitoExtension.class)
+class UserPermissionTreeNodeVisitorTest {
+    @Mock
+    private AccountSecurityContext accountSecurityContext;
+
+    private UserPermissionTreeNodeVisitor userPermissionTreeNodeVisitor;
     private static final String ROOT_ID = "rootId";
     private static final String CHILD_1_1_ID = "child1_1_Id";
     private static final String CHILD_2_1_ID = "child2_1_Id";
     private static final String CHILD_1_2_ID = "child1_2_Id";
     private static final String CHILD_2_2_ID = "child2_2_id";
 
-    @Mock
-    private AccountSecurityContext accountSecurityContext;
-
-    @Mock
-    private HierarchyRepository hierarchyRepository;
-
-    private HierarchyService hierarchyService;
     private TreeNode root;
     private TreeNode child1_1;
     private TreeNode child2_1;
     private TreeNode child1_2;
     private TreeNode child2_2;
     private TreeNode child1_3;
+
 
     @BeforeEach
     void setup() {
@@ -117,34 +112,42 @@ class HierarchyServiceImplTest {
                 .hasChildren(false)
                 .name("supplyCain")
                 .build();
+        createTreeNodeHierarchy();
 
-        hierarchyService = new HierarchyServiceImpl(hierarchyRepository, accountSecurityContext);
+        userPermissionTreeNodeVisitor = new UserPermissionTreeNodeVisitor(accountSecurityContext);
+
     }
 
     @Test
-    void getSubTreeShouldReturnTreeNodeWithPermissions() {
-        createTreeNodeHierarchy();
+    void visitEnter() {
         when(accountSecurityContext.allLocalPermissions(any())).thenReturn(Set.of(Permission.READ));
         when(accountSecurityContext.getGlobalPermission()).thenReturn(Set.of(Permission.TREE_EDIT));
-        when(hierarchyRepository.getSubTree(ROOT_ID, HierarchyMode.ALL, 0)).thenReturn(Optional.of(root));
-        Optional<TreeNode> optionalTreeNode = hierarchyService.getSubTree(ROOT_ID, HierarchyMode.ALL, 0);
+        assertThat(userPermissionTreeNodeVisitor.visitEnter(root), is(true));
+        assertThat(userPermissionTreeNodeVisitor.visitEnter(child1_1), is(true));
+        Optional<TreeNode> optionalTreeNode = userPermissionTreeNodeVisitor.result();
         assertThat(optionalTreeNode.isPresent(), is(true));
-        TreeNode treeNodeWithPermissions = optionalTreeNode.get();
-        assertThat(treeNodeWithPermissions.getUserPermissions(), hasSize(2));
-        assertThat(treeNodeWithPermissions.getChildren(), hasSize(2));
-        assertThat(treeNodeWithPermissions.getChildren().iterator().next().getUserPermissions(), hasSize(2));
-
-
+        assertThat(optionalTreeNode.get().getName(), is("root"));
+        assertThat(optionalTreeNode.get().getChildren(), hasSize(1));
+        assertThat(optionalTreeNode.get().getChildren().iterator().next().getName(), is("child1_1"));
     }
 
     @Test
-    void getSubTreeWithNoPermissionsShouldReturnEmpty() {
-        createTreeNodeHierarchy();
-        when(accountSecurityContext.allLocalPermissions(any())).thenReturn(emptySet());
-        when(accountSecurityContext.getGlobalPermission()).thenReturn(emptySet());
-        when(hierarchyRepository.getSubTree(ROOT_ID, HierarchyMode.ALL, 0)).thenReturn(Optional.of(root));
-        Optional<TreeNode> optionalTreeNode = hierarchyService.getSubTree(ROOT_ID, HierarchyMode.ALL, 0);
-        assertThat(optionalTreeNode.isEmpty(), is(true));
+    void visitExit() {
+        assertThat(userPermissionTreeNodeVisitor.visitExit(child1_3), is(true));
+    }
+
+    @Test
+    void visitLeaf() {
+        when(accountSecurityContext.allLocalPermissions(any())).thenReturn(Set.of(Permission.READ));
+        when(accountSecurityContext.getGlobalPermission()).thenReturn(Set.of(Permission.TREE_EDIT));
+        assertThat(userPermissionTreeNodeVisitor.visitEnter(child1_2), is(true));
+        assertThat(userPermissionTreeNodeVisitor.visitLeaf(child1_3), is(true));
+        Optional<TreeNode> optionalTreeNode = userPermissionTreeNodeVisitor.result();
+        assertThat(optionalTreeNode.isPresent(), is(true));
+        assertThat(optionalTreeNode.get().getName(), is("child1_2"));
+        assertThat(optionalTreeNode.get().getChildren(), hasSize(1));
+        assertThat(optionalTreeNode.get().getChildren().iterator().next().getName(), is("supplyCain"));
+
     }
 
     private void createTreeNodeHierarchy() {

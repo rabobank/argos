@@ -18,8 +18,11 @@ package com.rabobank.argos.service.domain.hierarchy;
 import com.rabobank.argos.domain.hierarchy.HierarchyMode;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface HierarchyService {
+    Optional<TreeNode> getSubTree(String referenceId, HierarchyMode hierarchyMode, Integer maxDepth);
 
-    TreeNode getSubTree(String referenceId, HierarchyMode hierarchyMode, Integer maxDepth);
-
+    List<TreeNode> getRootNodes(HierarchyMode hierarchyMode, int maxDepth);
 }

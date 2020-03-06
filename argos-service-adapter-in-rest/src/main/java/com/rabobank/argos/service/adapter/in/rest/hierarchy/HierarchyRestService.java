@@ -21,7 +21,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.handler.HierarchyApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestHierarchyMode;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLabel;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestTreeNode;
-import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
+import com.rabobank.argos.service.domain.hierarchy.HierarchyService;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ public class HierarchyRestService implements HierarchyApi {
 
     private final LabelMapper labelMapper;
 
-    private final HierarchyRepository hierarchyRepository;
+    private final HierarchyService hierarchyService;
 
     private final TreeNodeMapper treeNodeMapper;
 
@@ -99,13 +99,13 @@ public class HierarchyRestService implements HierarchyApi {
 
     @Override
     public ResponseEntity<List<RestTreeNode>> getRootNodes(RestHierarchyMode hierarchyMode, Integer maxDepth) {
-        return ResponseEntity.ok(hierarchyRepository.getRootNodes(HierarchyMode.valueOf(hierarchyMode.name()), maxDepth).stream()
+        return ResponseEntity.ok(hierarchyService.getRootNodes(HierarchyMode.valueOf(hierarchyMode.name()), maxDepth).stream()
                 .map(treeNodeMapper::convertToRestTreeNode).collect(Collectors.toList()));
     }
 
     @Override
     public ResponseEntity<RestTreeNode> getSubTree(String referenceId, RestHierarchyMode hierarchyMode, Integer maxDepth) {
-        return hierarchyRepository.getSubTree(referenceId, HierarchyMode.valueOf(hierarchyMode.name()), maxDepth)
+        return hierarchyService.getSubTree(referenceId, HierarchyMode.valueOf(hierarchyMode.name()), maxDepth)
                 .map(treeNodeMapper::convertToRestTreeNode).map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "subtree with referenceId: " + referenceId + " not found"));
     }
