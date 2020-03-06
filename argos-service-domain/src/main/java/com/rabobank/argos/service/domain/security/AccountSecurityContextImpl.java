@@ -16,11 +16,15 @@
 package com.rabobank.argos.service.domain.security;
 
 import com.rabobank.argos.domain.account.Account;
+import com.rabobank.argos.domain.permission.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.Set;
+
+import static java.util.Collections.emptySet;
 
 @Component
 public class AccountSecurityContextImpl implements AccountSecurityContext {
@@ -30,5 +34,19 @@ public class AccountSecurityContextImpl implements AccountSecurityContext {
                 .map(Authentication::getPrincipal)
                 .map(authentication -> (AccountUserDetailsAdapter) authentication)
                 .map(AccountUserDetailsAdapter::getAccount);
+    }
+
+    @Override
+    public Set<Permission> getGlobalPermission() {
+        AccountUserDetailsAdapter authentication = (AccountUserDetailsAdapter) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+        if (authentication != null) {
+            return authentication.getGlobalPermissions();
+        } else {
+            return emptySet();
+        }
+
     }
 }
