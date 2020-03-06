@@ -17,6 +17,7 @@ package com.rabobank.argos.service.security;
 
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.account.PersonalAccount;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.service.domain.security.AccountUserDetailsAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -41,11 +44,10 @@ class PersonalAccountAuthenticationProviderTest {
     private PersonalAccountUserDetailsService personalAccountUserDetailsService;
     private PersonalAccountAuthenticationProvider personalAccountAuthenticationProvider;
     private static final String NOT_AUTHENTICATED = "not authenticated";
-    private UserDetails userDetails = new AccountUserDetailsAdapter(PersonalAccount.builder().name("test").build());
 
+    private UserDetails userDetails = new AccountUserDetailsAdapter(PersonalAccount.builder().name("test").build(), Set.of(Permission.READ));
 
     private Authentication authentication = new PersonalAccountAuthenticationToken("id", null, null);
-
 
     @BeforeEach
     void setup() {

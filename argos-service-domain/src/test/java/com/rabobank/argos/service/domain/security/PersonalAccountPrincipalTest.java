@@ -16,12 +16,15 @@
 package com.rabobank.argos.service.domain.security;
 
 import com.rabobank.argos.domain.account.PersonalAccount;
+import com.rabobank.argos.domain.permission.Permission;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -34,24 +37,27 @@ class PersonalAccountPrincipalTest {
     @Mock
     private PersonalAccount personalAccount;
 
+    private Set<Permission> globalPermissions;
+
     @BeforeEach
     void setUp() {
         when(personalAccount.getName()).thenReturn("name");
+        globalPermissions = Set.of(Permission.READ);
     }
 
     @Test
     void getId() {
         when(personalAccount.getAccountId()).thenReturn("id");
-        assertThat(new AccountUserDetailsAdapter(personalAccount).getId(), is("id"));
+        assertThat(new AccountUserDetailsAdapter(personalAccount, globalPermissions).getId(), is("id"));
     }
 
     @Test
     void getPassword() {
-        assertThat(new AccountUserDetailsAdapter(personalAccount).getPassword(), is(""));
+        assertThat(new AccountUserDetailsAdapter(personalAccount, globalPermissions).getPassword(), is(""));
     }
 
     @Test
     void getAuthorities() {
-        assertThat(new AccountUserDetailsAdapter(personalAccount).getAuthorities(), contains(new SimpleGrantedAuthority("ROLE_USER")));
+        assertThat(new AccountUserDetailsAdapter(personalAccount, globalPermissions).getAuthorities(), contains(new SimpleGrantedAuthority("ROLE_USER")));
     }
 }

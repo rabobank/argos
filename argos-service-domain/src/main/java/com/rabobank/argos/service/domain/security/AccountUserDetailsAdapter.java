@@ -19,18 +19,23 @@ package com.rabobank.argos.service.domain.security;
 import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.account.PersonalAccount;
+import com.rabobank.argos.domain.permission.Permission;
 import lombok.EqualsAndHashCode;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 public class AccountUserDetailsAdapter extends org.springframework.security.core.userdetails.User {
     private final Account account;
+    private Set<Permission> globalPermissions = Collections.emptySet();
 
-    public AccountUserDetailsAdapter(PersonalAccount account) {
+    public AccountUserDetailsAdapter(PersonalAccount account, Set<Permission> globalPermissions) {
         super(account.getName(), "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
         this.account = account;
+        this.globalPermissions = globalPermissions;
     }
 
     public AccountUserDetailsAdapter(NonPersonalAccount nonPersonalAccount) {
@@ -45,4 +50,10 @@ public class AccountUserDetailsAdapter extends org.springframework.security.core
     public Account getAccount() {
         return account;
     }
+
+    public Set<Permission> getGlobalPermissions() {
+        return globalPermissions;
+    }
+
+
 }
