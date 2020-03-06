@@ -31,9 +31,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +51,9 @@ class DefaultLocalPermissionCheckStrategyTest {
     @Mock
     private LocalPermissionCheckData localPermissionCheckData;
 
+    @Mock
+    private AccountSecurityContext accountSecurityContext;
+
     private DefaultLocalPermissionCheckStrategy strategy;
 
     @Mock
@@ -59,9 +65,10 @@ class DefaultLocalPermissionCheckStrategyTest {
     @Mock
     private LocalPermissions localPermissions;
 
+
     @BeforeEach
     void setUp() {
-        strategy = new DefaultLocalPermissionCheckStrategy(hierarchyRepository);
+        strategy = new DefaultLocalPermissionCheckStrategy(hierarchyRepository, accountSecurityContext);
     }
 
     @Test
@@ -70,10 +77,9 @@ class DefaultLocalPermissionCheckStrategyTest {
         when(localPermissionCheckData.getLabelId()).thenReturn(LABEL_ID);
         when(hierarchyRepository.getSubTree(LABEL_ID, HierarchyMode.NONE, 0)).thenReturn(Optional.of(treeNode));
         when(treeNode.getIdPathToRoot()).thenReturn(Collections.emptyList());
-        when(account.getLocalPermissions()).thenReturn(List.of(localPermissions));
-        when(localPermissions.getPermissions()).thenReturn(List.of(Permission.READ));
-        when(localPermissions.getLabelId()).thenReturn(LABEL_ID);
-        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.READ)), account), is(true));
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
+        when(accountSecurityContext.allLocalPermissions(Collections.singletonList(LABEL_ID))).thenReturn(Set.of(Permission.READ));
+        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.READ))), is(true));
     }
 
     @Test
@@ -82,10 +88,9 @@ class DefaultLocalPermissionCheckStrategyTest {
         when(localPermissionCheckData.getLabelId()).thenReturn(LABEL_ID);
         when(hierarchyRepository.getSubTree(LABEL_ID, HierarchyMode.NONE, 0)).thenReturn(Optional.of(treeNode));
         when(treeNode.getIdPathToRoot()).thenReturn(List.of(PARENT_LABEL_ID));
-        when(account.getLocalPermissions()).thenReturn(List.of(localPermissions));
-        when(localPermissions.getPermissions()).thenReturn(List.of(Permission.READ));
-        when(localPermissions.getLabelId()).thenReturn(PARENT_LABEL_ID);
-        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.READ)), account), is(true));
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
+        when(accountSecurityContext.allLocalPermissions(List.of(PARENT_LABEL_ID, LABEL_ID))).thenReturn(Set.of(Permission.READ));
+        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.READ))), is(true));
     }
 
     @Test
@@ -94,19 +99,18 @@ class DefaultLocalPermissionCheckStrategyTest {
         when(localPermissionCheckData.getLabelId()).thenReturn(LABEL_ID);
         when(hierarchyRepository.getSubTree(LABEL_ID, HierarchyMode.NONE, 0)).thenReturn(Optional.of(treeNode));
         when(treeNode.getIdPathToRoot()).thenReturn(Collections.emptyList());
-        when(account.getLocalPermissions()).thenReturn(List.of(localPermissions));
-        when(localPermissions.getPermissions()).thenReturn(List.of(Permission.READ));
-        when(localPermissions.getLabelId()).thenReturn(LABEL_ID);
-        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.VERIFY)), account), is(false));
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
+        when(accountSecurityContext.allLocalPermissions(Collections.singletonList(LABEL_ID))).thenReturn(Set.of(Permission.READ));
+        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.VERIFY))), is(false));
     }
 
     @Test
     void hasNoLocalPermissionNoLabelId() {
         when(account.getName()).thenReturn(ACCOUNT_NAME);
         when(localPermissionCheckData.getLabelId()).thenReturn(null);
-        when(account.getLocalPermissions()).thenReturn(List.of(localPermissions));
-        when(localPermissions.getLabelId()).thenReturn(LABEL_ID);
-        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.VERIFY)), account), is(false));
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
+        when(accountSecurityContext.allLocalPermissions(any())).thenReturn(emptySet());
+        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.VERIFY))), is(false));
     }
 
     @Test
@@ -115,8 +119,9 @@ class DefaultLocalPermissionCheckStrategyTest {
         when(localPermissionCheckData.getLabelId()).thenReturn(LABEL_ID);
         when(hierarchyRepository.getSubTree(LABEL_ID, HierarchyMode.NONE, 0)).thenReturn(Optional.of(treeNode));
         when(treeNode.getIdPathToRoot()).thenReturn(Collections.emptyList());
-        when(account.getLocalPermissions()).thenReturn(Collections.emptyList());
-        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.READ)), account), is(false));
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
+        when(accountSecurityContext.allLocalPermissions(any())).thenReturn(emptySet());
+        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.READ))), is(false));
     }
 
     @Test
@@ -125,8 +130,8 @@ class DefaultLocalPermissionCheckStrategyTest {
         when(localPermissionCheckData.getLabelId()).thenReturn(LABEL_ID);
         when(hierarchyRepository.getSubTree(LABEL_ID, HierarchyMode.NONE, 0)).thenReturn(Optional.of(treeNode));
         when(treeNode.getIdPathToRoot()).thenReturn(Collections.emptyList());
-        when(account.getLocalPermissions()).thenReturn(List.of(localPermissions));
-        when(localPermissions.getLabelId()).thenReturn("otherLabel");
-        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.READ)), account), is(false));
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
+        when(accountSecurityContext.allLocalPermissions(any())).thenReturn(emptySet());
+        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.READ))), is(false));
     }
 }
