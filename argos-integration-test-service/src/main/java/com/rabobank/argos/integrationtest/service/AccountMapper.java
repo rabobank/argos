@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.domain.account;
+package com.rabobank.argos.integrationtest.service;
 
-import com.rabobank.argos.domain.key.KeyPair;
-import com.rabobank.argos.domain.permission.LocalPermissions;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import com.rabobank.argos.domain.account.PersonalAccount;
+import com.rabobank.argos.integrationtest.argos.service.api.model.RestPersonalAccountWithToken;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import java.io.Serializable;
-import java.util.List;
+@Mapper(componentModel = "spring")
+public interface AccountMapper {
 
-@Getter
-@Setter
-@AllArgsConstructor
-public abstract class Account implements Serializable {
-    private String accountId;
-    private String name;
-    private String email;
-    private KeyPair activeKeyPair;
-    private List<? extends KeyPair> inactiveKeyPairs;
-    private List<LocalPermissions> localPermissions;
+    @Mapping(target = "id", source = "accountId")
+    RestPersonalAccountWithToken map(PersonalAccount account);
 }

@@ -32,5 +32,6 @@ public class TreeNode {
     private List<TreeNode> children;
     private Type type;
     private List<String> pathToRoot;
+    private List<String> idPathToRoot;
     private boolean hasChildren;
 }

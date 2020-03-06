@@ -28,6 +28,7 @@
         <swagger-ui.version>3.24.3</swagger-ui.version>
         <sonar.skip>true</sonar.skip>
         <bouncycastle.version>1.64</bouncycastle.version>
+        <io.jsonwebtoken.version>0.10.7</io.jsonwebtoken.version>
     </properties>
 
     <artifactId>argos-integration-test-service</artifactId>
@@ -101,6 +102,23 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>${bouncycastle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${io.jsonwebtoken.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${io.jsonwebtoken.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${io.jsonwebtoken.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.openapitools</groupId>

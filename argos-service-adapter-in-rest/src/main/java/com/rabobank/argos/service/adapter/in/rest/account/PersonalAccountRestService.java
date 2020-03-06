@@ -21,6 +21,7 @@ import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.key.KeyIdProvider;
 import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.domain.permission.LocalPermissions;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.PersonalAccountApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermissions;
@@ -30,6 +31,8 @@ import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContext;
+import com.rabobank.argos.service.domain.security.LabelIdCheckParam;
+import com.rabobank.argos.service.domain.security.PermissionCheck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -91,6 +94,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     }
 
     @Override
+    @PermissionCheck(permissions = {Permission.ASSIGN_ROLE})
     public ResponseEntity<RestPersonalAccount> updatePersonalAccountRolesById(String accountId, List<String> roleNames) {
         return accountService.updatePersonalAccountRolesById(accountId, roleNames)
                 .map(personalAccountMapper::convertToRestPersonalAccount)
@@ -98,13 +102,15 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     }
 
     @Override
+    @PermissionCheck(permissions = {Permission.LOCAL_PERMISSION_EDIT})
     public ResponseEntity<List<RestLocalPermissions>> getAllLocalPermissions(String accountId) {
         return ResponseEntity.ok(accountService.getPersonalAccountById(accountId).map(PersonalAccount::getLocalPermissions)
                 .map(personalAccountMapper::convertToRestLocalPermissions).orElse(Collections.emptyList()));
     }
 
     @Override
-    public ResponseEntity<RestLocalPermissions> getLocalPermissionsForLabel(String accountId, String labelId) {
+    @PermissionCheck(permissions = {Permission.LOCAL_PERMISSION_EDIT})
+    public ResponseEntity<RestLocalPermissions> getLocalPermissionsForLabel(String accountId, @LabelIdCheckParam String labelId) {
         PersonalAccount personalAccount = accountService.getPersonalAccountById(accountId).orElseThrow(this::accountNotFound);
         return personalAccount.getLocalPermissions().stream()
                 .filter(localPermissions -> localPermissions.getLabelId().equals(labelId))
@@ -113,7 +119,8 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     }
 
     @Override
-    public ResponseEntity<RestLocalPermissions> updateLocalPermissionsForLabel(String accountId, String labelId, List<RestPermission> restLocalPermission) {
+    @PermissionCheck(permissions = {Permission.LOCAL_PERMISSION_EDIT})
+    public ResponseEntity<RestLocalPermissions> updateLocalPermissionsForLabel(String accountId, @LabelIdCheckParam String labelId, List<RestPermission> restLocalPermission) {
         verifyParentLabelExists(labelId);
         LocalPermissions newLocalPermissions = LocalPermissions.builder().labelId(labelId).permissions(personalAccountMapper.convertToLocalPermissions(restLocalPermission)).build();
         PersonalAccount personalAccount = accountService.updatePersonalAccountLocalPermissionsById(accountId, newLocalPermissions).orElseThrow(this::accountNotFound);
