@@ -17,6 +17,8 @@ package com.rabobank.argos.service.security;
 
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.account.PersonalAccount;
+import com.rabobank.argos.domain.permission.Permission;
+import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,11 +28,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +56,18 @@ class PersonalAccountUserDetailsServiceTest {
 
     @Test
     void loadUserById() {
+        Role role = Role.builder().name("test").permissions(List.of(Permission.READ)).roleId("id").build();
+        when(roleRepository.findByIds(any())).thenReturn(List.of(role));
+        when(personalAccountRepository.findByAccountId("id")).thenReturn(Optional.of(personalAccount));
+        when(personalAccount.getName()).thenReturn("name");
+        UserDetails userDetails = personalAccountUserDetailsService.loadUserById("id");
+        assertThat(userDetails.getUsername(), is("name"));
+    }
+
+    @Test
+    void loadUserByIdRolesWithNullPermissionsShouldNotFail() {
+        Role role = Role.builder().name("test").build();
+        when(roleRepository.findByIds(any())).thenReturn(List.of(role));
         when(personalAccountRepository.findByAccountId("id")).thenReturn(Optional.of(personalAccount));
         when(personalAccount.getName()).thenReturn("name");
         UserDetails userDetails = personalAccountUserDetailsService.loadUserById("id");

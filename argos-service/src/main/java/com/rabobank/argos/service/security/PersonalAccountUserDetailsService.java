@@ -18,6 +18,7 @@ package com.rabobank.argos.service.security;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.account.PersonalAccount;
 import com.rabobank.argos.domain.permission.Permission;
+import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.domain.account.PersonalAccountRepository;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import com.rabobank.argos.service.domain.security.AccountUserDetailsAdapter;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -36,15 +38,19 @@ public class PersonalAccountUserDetailsService {
 
     private final RoleRepository roleRepository;
 
-    public UserDetails loadUserById(String id) {
+    private static Stream<? extends Permission> apply(Role role) {
+        return role.getPermissions().stream();
+    }
+
+    UserDetails loadUserById(String id) {
         PersonalAccount personalAccount = personalAccountRepository.findByAccountId(id)
                 .orElseThrow(() -> new ArgosError("Personal account with id " + id + " not found"));
         Set<Permission> globalPermissions = roleRepository
                 .findByIds(personalAccount.getRoleIds())
                 .stream()
-                .flatMap(role -> role.getPermissions().stream())
+                .filter(role -> role.getPermissions() != null)
+                .flatMap(PersonalAccountUserDetailsService::apply)
                 .collect(Collectors.toSet());
-
         return new AccountUserDetailsAdapter(personalAccount, globalPermissions);
     }
 
