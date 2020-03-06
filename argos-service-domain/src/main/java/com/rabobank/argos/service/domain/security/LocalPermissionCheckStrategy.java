@@ -15,11 +15,10 @@
  */
 package com.rabobank.argos.service.domain.security;
 
-import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.permission.Permission;
 
 import java.util.Set;
 
 public interface LocalPermissionCheckStrategy {
-    boolean hasLocalPermission(LocalPermissionCheckData localPermissionCheckData, Set<Permission> permissionsToCheck, Account account);
+    boolean hasLocalPermission(LocalPermissionCheckData localPermissionCheckData, Set<Permission> permissionsToCheck);
 }

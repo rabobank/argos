@@ -136,7 +136,7 @@ class PermissionCheckAdvisorTest {
 
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
 
-        when(localPermissionCheckStrategy.hasLocalPermission(checkData, new HashSet<>(List.of(Permission.LOCAL_PERMISSION_EDIT)), personalAccount)).thenReturn(true);
+        when(localPermissionCheckStrategy.hasLocalPermission(checkData, new HashSet<>(List.of(Permission.LOCAL_PERMISSION_EDIT)))).thenReturn(true);
 
         advisor.checkPermissions(joinPoint, permissionCheck);
     }

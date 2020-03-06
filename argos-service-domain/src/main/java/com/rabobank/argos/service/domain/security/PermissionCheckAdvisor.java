@@ -57,7 +57,7 @@ public class PermissionCheckAdvisor {
         );
 
 
-        if (!(hasGlobalPermissions(permissionCheck) || hasLocalPermissions(joinPoint, permissionCheck, account))) {
+        if (!(hasGlobalPermissions(permissionCheck) || hasLocalPermissions(joinPoint, permissionCheck))) {
             log.info("access denied for method:{} with permissions {} for account: {}",
                     joinPoint.getSignature().getName(),
                     permissionCheck.permissions(),
@@ -74,15 +74,14 @@ public class PermissionCheckAdvisor {
 
     }
 
-    private boolean hasLocalPermissions(JoinPoint joinPoint, PermissionCheck permissionCheck, Account account) {
+    private boolean hasLocalPermissions(JoinPoint joinPoint, PermissionCheck permissionCheck) {
 
         LocalPermissionCheckDataExtractor localPermissionCheckDataExtractor = applicationContext
                 .getBean(permissionCheck.localPermissionDataExtractorBean(), LocalPermissionCheckDataExtractor.class);
         LocalPermissionCheckStrategy localPermissionCheckStrategy = applicationContext.getBean(permissionCheck.localPermissionCheckStrategyBean(), LocalPermissionCheckStrategy.class);
-
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         Object[] argumentValues = joinPoint.getArgs();
         LocalPermissionCheckData labelCheckData = localPermissionCheckDataExtractor.extractLocalPermissionCheckData(method, argumentValues);
-        return localPermissionCheckStrategy.hasLocalPermission(labelCheckData, new HashSet<>(List.of(permissionCheck.permissions())), account);
+        return localPermissionCheckStrategy.hasLocalPermission(labelCheckData, new HashSet<>(List.of(permissionCheck.permissions())));
     }
 }
