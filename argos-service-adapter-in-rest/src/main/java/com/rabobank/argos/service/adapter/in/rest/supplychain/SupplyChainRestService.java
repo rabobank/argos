@@ -22,7 +22,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.handler.SupplychainApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
-import com.rabobank.argos.service.domain.security.ParentLabelIdCheckParam;
+import com.rabobank.argos.service.domain.security.LabelIdCheckParam;
 import com.rabobank.argos.service.domain.security.PermissionCheck;
 import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +53,7 @@ public class SupplyChainRestService implements SupplychainApi {
 
     @Override
     @PermissionCheck(permissions = Permission.TREE_EDIT)
-    public ResponseEntity<RestSupplyChain> createSupplyChain(@ParentLabelIdCheckParam(propertyPath = "parentLabelId") RestSupplyChain restSupplyChain) {
+    public ResponseEntity<RestSupplyChain> createSupplyChain(@LabelIdCheckParam(propertyPath = "parentLabelId") RestSupplyChain restSupplyChain) {
         verifyParentLabelExists(restSupplyChain.getParentLabelId());
         SupplyChain supplyChain = converter.convertFromRestSupplyChainCommand(restSupplyChain);
 
@@ -69,8 +69,8 @@ public class SupplyChainRestService implements SupplychainApi {
     }
 
     @Override
-    @PermissionCheck(permissions = Permission.READ, localPermissionDataExtractorBean = SUPPLY_CHAIN_LOCAL_DATA_EXTRACTOR)
-    public ResponseEntity<RestSupplyChain> getSupplyChain(@ParentLabelIdCheckParam String supplyChainId) {
+    @PermissionCheck(permissions = Permission.READ)
+    public ResponseEntity<RestSupplyChain> getSupplyChain(@LabelIdCheckParam(dataExtractor = SUPPLY_CHAIN_LOCAL_DATA_EXTRACTOR) String supplyChainId) {
         SupplyChain supplyChain = supplyChainRepository
                 .findBySupplyChainId(supplyChainId)
                 .orElseThrow(() -> supplyChainNotFound(supplyChainId));
@@ -90,8 +90,8 @@ public class SupplyChainRestService implements SupplychainApi {
     }
 
     @Override
-    @PermissionCheck(permissions = Permission.TREE_EDIT, localPermissionDataExtractorBean = SUPPLY_CHAIN_LOCAL_DATA_EXTRACTOR)
-    public ResponseEntity<RestSupplyChain> updateSupplyChain(@ParentLabelIdCheckParam String supplyChainId, RestSupplyChain restSupplyChain) {
+    @PermissionCheck(permissions = Permission.TREE_EDIT)
+    public ResponseEntity<RestSupplyChain> updateSupplyChain(@LabelIdCheckParam(dataExtractor = SUPPLY_CHAIN_LOCAL_DATA_EXTRACTOR) String supplyChainId, @LabelIdCheckParam(propertyPath = "parentLabelId") RestSupplyChain restSupplyChain) {
         verifyParentLabelExists(restSupplyChain.getParentLabelId());
         SupplyChain supplyChain = converter.convertFromRestSupplyChainCommand(restSupplyChain);
         supplyChain.setSupplyChainId(supplyChainId);

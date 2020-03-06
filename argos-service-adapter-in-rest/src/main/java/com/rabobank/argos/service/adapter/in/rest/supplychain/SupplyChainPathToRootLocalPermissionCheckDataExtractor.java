@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
 
 @Component(SupplyChainPathToRootLocalPermissionCheckDataExtractor.SUPPLY_CHAIN_PATH_TO_ROOT_LOCAL_DATA_EXTRACTOR)
@@ -36,6 +37,6 @@ public class SupplyChainPathToRootLocalPermissionCheckDataExtractor implements L
     public LocalPermissionCheckData extractLocalPermissionCheckData(Method method, Object[] argumentValues) {
         String parentLabelId = hierarchyRepository.findByNamePathToRootAndType((String) argumentValues[0], (List<String>) argumentValues[1], TreeNode.Type.SUPPLY_CHAIN)
                 .map(TreeNode::getParentLabelId).orElse(null);
-        return LocalPermissionCheckData.builder().parentLabelId(parentLabelId).build();
+        return LocalPermissionCheckData.builder().labelIds(new HashSet<>(List.of(parentLabelId))).build();
     }
 }

@@ -15,15 +15,14 @@
  */
 package com.rabobank.argos.service.domain.security;
 
-import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.service.domain.util.reflection.ReflectionHelper;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.beanutils.BeanUtilsBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.rabobank.argos.service.domain.security.DefaultLocalPermissionCheckDataExtractor.DEFAULT_LOCAL_PERMISSION_CHECK_DATA_EXTRACTOR_BEAN_NAME;
 
@@ -33,42 +32,23 @@ public class DefaultLocalPermissionCheckDataExtractor implements LocalPermission
     public static final String DEFAULT_LOCAL_PERMISSION_CHECK_DATA_EXTRACTOR_BEAN_NAME = "defaultLocalPermissionCheckDataExtractor";
     private final ReflectionHelper reflectionHelper;
 
+    private final ApplicationContext applicationContext;
+
     @Override
     public LocalPermissionCheckData extractLocalPermissionCheckData(Method method, Object[] argumentValues) {
 
         LocalPermissionCheckData.LocalPermissionCheckDataBuilder builder = LocalPermissionCheckData.builder();
-        reflectionHelper.getParameterDataByAnnotation(method,
-                LabelIdCheckParam.class,
-                argumentValues).ifPresent(parameterData ->
-                builder.labelId(getValue(
-                        parameterData.getValue(),
-                        parameterData.getAnnotation().propertyPath()
-                        )
-                )
-        );
-
-        reflectionHelper.getParameterDataByAnnotation(method,
-                ParentLabelIdCheckParam.class,
-                argumentValues).ifPresent(parameterData ->
-                builder.parentLabelId(getValue(parameterData.getValue(),
-                        parameterData.getAnnotation()
-                                .propertyPath()
-                        )
-                )
-        );
+        builder.labelIds(
+                reflectionHelper.getParameterDataByAnnotation(method, LabelIdCheckParam.class, argumentValues)
+                        .map(parameterData -> getValue(parameterData.getValue(), parameterData.getAnnotation()
+                        )).flatMap(Optional::stream).collect(Collectors.toSet()));
         return builder.build();
     }
 
-    private String getValue(Object value, String path) {
-        if (StringUtils.isEmpty(path)) {
-            return (String) value;
-        } else {
-            try {
-                return BeanUtilsBean.getInstance().getProperty(value, path);
-            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                throw new ArgosError(e.getMessage(), e);
-            }
-        }
+    private Optional<String> getValue(Object value, LabelIdCheckParam checkParam) {
+        LabelIdExtractor labelIdExtractor = applicationContext.getBean(checkParam.dataExtractor(), LabelIdExtractor.class);
+        return labelIdExtractor.extractLabelId(checkParam, value);
+
     }
 
 }

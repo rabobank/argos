@@ -15,13 +15,8 @@
  */
 package com.rabobank.argos.service.domain.security;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Optional;
 
-@Target({ElementType.TYPE, ElementType.PARAMETER})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ParentLabelIdCheckParam {
-    String propertyPath() default "";
+public interface LabelIdExtractor {
+    Optional<String> extractLabelId(LabelIdCheckParam checkParam, Object value);
 }

@@ -81,7 +81,7 @@ public class SupplyChainRepositoryImpl implements SupplyChainRepository {
     public Optional<String> findParentLabelIdBySupplyChainId(String supplyChainId) {
         Query query = getPrimaryKeyQuery(supplyChainId);
         query.fields().include(PARENT_LABEL_ID_FIELD);
-        return Optional.ofNullable(template.findOne(query, String.class, COLLECTION));
+        return Optional.ofNullable(template.findOne(query, SupplyChain.class, COLLECTION)).map(SupplyChain::getParentLabelId);
     }
 
     private Query getPrimaryKeyQuery(String supplyChainId) {
