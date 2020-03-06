@@ -21,6 +21,7 @@ import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.service.domain.security.AccountSecurityContext;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -67,7 +68,9 @@ public class UserPermissionTreeNodeVisitor implements TreeNodeVisitor<Optional<T
         }
         aggregatedPermissions.addAll(accountSecurityContext.allLocalPermissions(labelIdsUpTree));
         aggregatedPermissions.addAll(accountSecurityContext.getGlobalPermission());
-        return new ArrayList<>(aggregatedPermissions);
+        List<Permission> arrayOfAggregatedPermissions = new ArrayList<>(aggregatedPermissions);
+        arrayOfAggregatedPermissions.sort(Comparator.comparing(Permission::name));
+        return arrayOfAggregatedPermissions;
     }
 
     @Override
