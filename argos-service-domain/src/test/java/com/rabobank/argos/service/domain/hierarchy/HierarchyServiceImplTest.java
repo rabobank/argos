@@ -37,15 +37,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class HierarchyServiceImplTest {
 
-    private static final String ROOT_ID = "rootId";
+    private static final String ROOT_1_ID = "root_1_Id";
     private static final String CHILD_1_1_ID = "child1_1_Id";
     private static final String CHILD_2_1_ID = "child2_1_Id";
     private static final String CHILD_1_2_ID = "child1_2_Id";
     private static final String CHILD_2_2_ID = "child2_2_id";
+
+
+    private static final String ROOT_2_ID = "root_2_Id";
+    private static final String CHILD_2_1_1_ID = "child2_1_1_Id";
+    private static final String CHILD_2_2_1_ID = "child2_2_1_Id";
+    private static final String CHILD_2_1_2_ID = "child2_1_2_Id";
+    private static final String CHILD_2_2_2_ID = "child2_2_2_id";
+
 
     @Mock
     private AccountSecurityContext accountSecurityContext;
@@ -54,28 +63,42 @@ class HierarchyServiceImplTest {
     private HierarchyRepository hierarchyRepository;
 
     private HierarchyService hierarchyService;
-    private TreeNode root;
+    private TreeNode root_1;
     private TreeNode child1_1;
     private TreeNode child2_1;
     private TreeNode child1_2;
     private TreeNode child2_2;
     private TreeNode child1_3;
 
+
+    private TreeNode root_2;
+    private TreeNode child_2_1_1;
+    private TreeNode child_2_2_1;
+    private TreeNode child_2_1_2;
+    private TreeNode child_2_2_2;
+    private TreeNode child_2_1_3;
+
     @BeforeEach
     void setup() {
 
-        root = TreeNode.builder()
+        createRootNode1();
+        createRootNode2();
+        hierarchyService = new HierarchyServiceImpl(hierarchyRepository, accountSecurityContext);
+    }
+
+    private void createRootNode1() {
+        root_1 = TreeNode.builder()
                 .pathToRoot(emptyList())
                 .idPathToRoot(emptyList())
                 .type(TreeNode.Type.LABEL)
-                .referenceId(ROOT_ID)
+                .referenceId(ROOT_1_ID)
                 .hasChildren(true)
                 .name("root")
                 .build();
         child1_1 = TreeNode.builder()
                 .pathToRoot(singletonList("root"))
-                .idPathToRoot(singletonList(ROOT_ID))
-                .parentLabelId(ROOT_ID)
+                .idPathToRoot(singletonList(ROOT_1_ID))
+                .parentLabelId(ROOT_1_ID)
                 .type(TreeNode.Type.LABEL)
                 .referenceId(CHILD_1_1_ID)
                 .hasChildren(true)
@@ -83,8 +106,8 @@ class HierarchyServiceImplTest {
                 .build();
         child2_1 = TreeNode.builder()
                 .pathToRoot(singletonList("root"))
-                .parentLabelId(ROOT_ID)
-                .idPathToRoot(singletonList(ROOT_ID))
+                .parentLabelId(ROOT_1_ID)
+                .idPathToRoot(singletonList(ROOT_1_ID))
                 .type(TreeNode.Type.LABEL)
                 .referenceId(CHILD_2_1_ID)
                 .hasChildren(true)
@@ -92,7 +115,7 @@ class HierarchyServiceImplTest {
                 .build();
         child1_2 = TreeNode.builder()
                 .pathToRoot(List.of("child1_1", "root"))
-                .idPathToRoot(List.of(CHILD_1_1_ID, ROOT_ID))
+                .idPathToRoot(List.of(CHILD_1_1_ID, ROOT_1_ID))
                 .parentLabelId(CHILD_1_1_ID)
                 .type(TreeNode.Type.LABEL)
                 .referenceId(CHILD_1_2_ID)
@@ -101,7 +124,7 @@ class HierarchyServiceImplTest {
                 .build();
         child2_2 = TreeNode.builder()
                 .pathToRoot(List.of("child1_2", "root"))
-                .idPathToRoot(List.of(CHILD_2_1_ID, ROOT_ID))
+                .idPathToRoot(List.of(CHILD_2_1_ID, ROOT_1_ID))
                 .type(TreeNode.Type.LABEL)
                 .parentLabelId(CHILD_2_1_ID)
                 .referenceId(CHILD_2_2_ID)
@@ -110,15 +133,69 @@ class HierarchyServiceImplTest {
                 .build();
         child1_3 = TreeNode.builder()
                 .pathToRoot(List.of("child1_2", "child1_1", "root"))
-                .idPathToRoot(List.of(CHILD_1_2_ID, CHILD_1_1_ID, ROOT_ID))
+                .idPathToRoot(List.of(CHILD_1_2_ID, CHILD_1_1_ID, ROOT_1_ID))
                 .type(TreeNode.Type.SUPPLY_CHAIN)
                 .referenceId("child1_3_Id")
                 .parentLabelId(CHILD_1_2_ID)
                 .hasChildren(false)
                 .name("supplyCain")
                 .build();
+    }
 
-        hierarchyService = new HierarchyServiceImpl(hierarchyRepository, accountSecurityContext);
+    private void createRootNode2() {
+        root_2 = TreeNode.builder()
+                .pathToRoot(emptyList())
+                .idPathToRoot(emptyList())
+                .type(TreeNode.Type.LABEL)
+                .referenceId(ROOT_2_ID)
+                .hasChildren(true)
+                .name("root")
+                .build();
+        child_2_1_1 = TreeNode.builder()
+                .pathToRoot(singletonList("root2"))
+                .idPathToRoot(singletonList(ROOT_2_ID))
+                .parentLabelId(ROOT_2_ID)
+                .type(TreeNode.Type.LABEL)
+                .referenceId(CHILD_2_1_1_ID)
+                .hasChildren(true)
+                .name("child1_1")
+                .build();
+        child_2_2_1 = TreeNode.builder()
+                .pathToRoot(singletonList("root2"))
+                .parentLabelId(ROOT_2_ID)
+                .idPathToRoot(singletonList(ROOT_2_ID))
+                .type(TreeNode.Type.LABEL)
+                .referenceId(CHILD_2_1_ID)
+                .hasChildren(true)
+                .name("child2_1")
+                .build();
+        child_2_1_2 = TreeNode.builder()
+                .pathToRoot(List.of("child1_1", "root2"))
+                .idPathToRoot(List.of(CHILD_2_1_1_ID, ROOT_2_ID))
+                .parentLabelId(CHILD_1_1_ID)
+                .type(TreeNode.Type.LABEL)
+                .referenceId(CHILD_1_2_ID)
+                .hasChildren(true)
+                .name("child1_2")
+                .build();
+        child_2_2_2 = TreeNode.builder()
+                .pathToRoot(List.of("child1_2", "root"))
+                .idPathToRoot(List.of(CHILD_2_2_1_ID, ROOT_2_ID))
+                .type(TreeNode.Type.LABEL)
+                .parentLabelId(CHILD_2_2_1_ID)
+                .referenceId(CHILD_2_2_2_ID)
+                .hasChildren(true)
+                .name("child2_2")
+                .build();
+        child_2_1_3 = TreeNode.builder()
+                .pathToRoot(List.of("child1_2", "child1_1", "root2"))
+                .idPathToRoot(List.of(CHILD_2_1_2_ID, CHILD_2_1_1_ID, ROOT_2_ID))
+                .type(TreeNode.Type.SUPPLY_CHAIN)
+                .referenceId("child1_3_Id")
+                .parentLabelId(CHILD_2_1_2_ID)
+                .hasChildren(false)
+                .name("supplyCain")
+                .build();
     }
 
     @Test
@@ -126,8 +203,8 @@ class HierarchyServiceImplTest {
         createTreeNodeHierarchy();
         when(accountSecurityContext.allLocalPermissions(any())).thenReturn(Set.of(Permission.READ));
         when(accountSecurityContext.getGlobalPermission()).thenReturn(Set.of(Permission.TREE_EDIT));
-        when(hierarchyRepository.getSubTree(ROOT_ID, HierarchyMode.ALL, 0)).thenReturn(Optional.of(root));
-        Optional<TreeNode> optionalTreeNode = hierarchyService.getSubTree(ROOT_ID, HierarchyMode.ALL, 0);
+        when(hierarchyRepository.getSubTree(ROOT_1_ID, HierarchyMode.ALL, 0)).thenReturn(Optional.of(root_1));
+        Optional<TreeNode> optionalTreeNode = hierarchyService.getSubTree(ROOT_1_ID, HierarchyMode.ALL, 0);
         assertThat(optionalTreeNode.isPresent(), is(true));
         TreeNode treeNodeWithPermissions = optionalTreeNode.get();
         assertThat(treeNodeWithPermissions.getUserPermissions(), hasSize(2));
@@ -142,16 +219,71 @@ class HierarchyServiceImplTest {
         createTreeNodeHierarchy();
         when(accountSecurityContext.allLocalPermissions(any())).thenReturn(emptySet());
         when(accountSecurityContext.getGlobalPermission()).thenReturn(emptySet());
-        when(hierarchyRepository.getSubTree(ROOT_ID, HierarchyMode.ALL, 0)).thenReturn(Optional.of(root));
-        Optional<TreeNode> optionalTreeNode = hierarchyService.getSubTree(ROOT_ID, HierarchyMode.ALL, 0);
+        when(hierarchyRepository.getSubTree(ROOT_1_ID, HierarchyMode.ALL, 0)).thenReturn(Optional.of(root_1));
+        Optional<TreeNode> optionalTreeNode = hierarchyService.getSubTree(ROOT_1_ID, HierarchyMode.ALL, 0);
         assertThat(optionalTreeNode.isEmpty(), is(true));
     }
 
+
+    @Test
+    void getRootNodesWithPartialPermissionsShouldFilteredResult() {
+        createTreeNodeHierarchy();
+        when(accountSecurityContext
+                .allLocalPermissions(argThat(stringList -> stringList != null && stringList.contains(ROOT_1_ID))))
+                .thenReturn(Set.of(Permission.READ));
+
+        when(accountSecurityContext
+                .allLocalPermissions(argThat(stringList -> stringList != null && stringList.contains(ROOT_2_ID))))
+                .thenReturn(emptySet());
+
+        when(accountSecurityContext.getGlobalPermission()).thenReturn(emptySet());
+        when(hierarchyRepository.getRootNodes(HierarchyMode.ALL, 0)).thenReturn(List.of(root_1, root_2));
+        List<TreeNode> rootNodes = hierarchyService.getRootNodes(HierarchyMode.ALL, 0);
+        assertThat(rootNodes.isEmpty(), is(false));
+        assertThat(rootNodes, hasSize(1));
+    }
+
+
+    @Test
+    void getRootNodesWithDifferentPermissionsUpTreeShouldResultInCorrectPermissions() {
+        createTreeNodeHierarchy();
+        when(accountSecurityContext
+                .allLocalPermissions(argThat(stringList -> stringList != null && stringList.contains(ROOT_1_ID))))
+                .thenReturn(Set.of(Permission.READ));
+
+        when(accountSecurityContext
+                .allLocalPermissions(argThat(stringList -> stringList != null &&
+                        stringList.contains(ROOT_1_ID) &&
+                        stringList.contains(CHILD_2_1_ID)
+                )))
+                .thenReturn(Set.of(Permission.READ, Permission.TREE_EDIT));
+
+        when(accountSecurityContext
+                .allLocalPermissions(argThat(stringList -> stringList != null && stringList.contains(ROOT_2_ID))))
+                .thenReturn(emptySet());
+
+        when(accountSecurityContext.getGlobalPermission()).thenReturn(emptySet());
+        when(hierarchyRepository.getRootNodes(HierarchyMode.ALL, 0)).thenReturn(List.of(root_1, root_2));
+        List<TreeNode> rootNodes = hierarchyService.getRootNodes(HierarchyMode.ALL, 0);
+        assertThat(rootNodes.isEmpty(), is(false));
+        assertThat(rootNodes, hasSize(1));
+        TreeNode childWithoutAddedPermissions = rootNodes.iterator().next().getChildren().get(0);
+        TreeNode childWithAddedPermissions = rootNodes.iterator().next().getChildren().get(1);
+        assertThat(childWithoutAddedPermissions.getUserPermissions(), is(List.of(Permission.READ)));
+        assertThat(childWithAddedPermissions.getUserPermissions(), is(List.of(Permission.READ, Permission.TREE_EDIT)));
+    }
+
     private void createTreeNodeHierarchy() {
-        root.addChild(child1_1);
-        root.addChild(child2_1);
+        root_1.addChild(child1_1);
+        root_1.addChild(child2_1);
         child1_1.addChild(child1_2);
         child1_2.addChild(child1_3);
         child2_1.addChild(child2_2);
+
+        root_2.addChild(child_2_1_1);
+        root_2.addChild(child_2_2_1);
+        child_2_1_1.addChild(child_2_1_2);
+        child_2_1_2.addChild(child_2_1_3);
+        child_2_2_1.addChild(child_2_2_2);
     }
 }
