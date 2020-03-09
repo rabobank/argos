@@ -17,11 +17,11 @@
           "hasChildren": false,
           "children": [],
           "userPermissions": [
+            "ASSIGN_ROLE",
             "LOCAL_PERMISSION_EDIT",
-            "TREE_EDIT",
             "READ",
-            "VERIFY",
-            "ASSIGN_ROLE"
+            "TREE_EDIT",
+            "VERIFY"
           ]
         },
         {
@@ -31,20 +31,20 @@
           "hasChildren": false,
           "children": [],
           "userPermissions": [
+            "ASSIGN_ROLE",
             "LOCAL_PERMISSION_EDIT",
-            "TREE_EDIT",
             "READ",
-            "VERIFY",
-            "ASSIGN_ROLE"
+            "TREE_EDIT",
+            "VERIFY"
           ]
         }
       ],
       "userPermissions": [
+        "ASSIGN_ROLE",
         "LOCAL_PERMISSION_EDIT",
-        "TREE_EDIT",
         "READ",
-        "VERIFY",
-        "ASSIGN_ROLE"
+        "TREE_EDIT",
+        "VERIFY"
       ]
     },
     {
@@ -54,19 +54,19 @@
       "hasChildren": false,
       "children": [],
       "userPermissions": [
+        "ASSIGN_ROLE",
         "LOCAL_PERMISSION_EDIT",
-        "TREE_EDIT",
         "READ",
-        "VERIFY",
-        "ASSIGN_ROLE"
+        "TREE_EDIT",
+        "VERIFY"
       ]
     }
   ],
   "userPermissions": [
+    "ASSIGN_ROLE",
     "LOCAL_PERMISSION_EDIT",
-    "TREE_EDIT",
     "READ",
-    "VERIFY",
-    "ASSIGN_ROLE"
+    "TREE_EDIT",
+    "VERIFY"
   ]
 }
