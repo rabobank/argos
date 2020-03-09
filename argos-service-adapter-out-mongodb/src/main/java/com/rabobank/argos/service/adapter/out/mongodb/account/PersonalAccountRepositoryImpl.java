@@ -23,6 +23,7 @@ import org.bson.Document;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.MongoRegexCreator;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.MongoRegexCreator.MatchMode.CONTAINING;
 
 @Component
 @RequiredArgsConstructor
@@ -81,11 +83,25 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     @Override
     public List<PersonalAccount> search(AccountSearchParams params) {
         Query query = params.getRoleId()
-                .map(roleId -> new Query(where(ROLE_ID_FIELD).in(roleId))).orElseGet(() ->
-                        params.getLocalPermissionsLabelId().map(labelId -> new Query(where(PERMISSIONS_LABEL_ID_FIELD).is(labelId)))
-                                .orElseGet(Query::new));
+                .map(this::roleIdQuery).orElseGet(() ->
+                        params.getLocalPermissionsLabelId().map(this::labelIdQuery)
+                                .orElseGet(() -> params.getName().map(this::nameQuery)
+                                        .orElseGet(Query::new)
+                                ));
         query.fields().include(ACCOUNT_ID).include(EMAIL).include(NAME_FIELD);
         return template.find(query.with(Sort.by(NAME_FIELD)), PersonalAccount.class, COLLECTION);
+    }
+
+    private Query nameQuery(String name) {
+        return new Query(where(NAME_FIELD).regex(MongoRegexCreator.INSTANCE.toRegularExpression(name, CONTAINING), "i"));
+    }
+
+    private Query labelIdQuery(String labelId) {
+        return new Query(where(PERMISSIONS_LABEL_ID_FIELD).is(labelId));
+    }
+
+    private Query roleIdQuery(String roleId) {
+        return new Query(where(ROLE_ID_FIELD).in(roleId));
     }
 
     @Override
