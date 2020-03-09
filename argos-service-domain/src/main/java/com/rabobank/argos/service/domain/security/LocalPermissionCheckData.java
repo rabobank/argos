@@ -19,10 +19,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Builder
 @Getter
 @ToString
 public class LocalPermissionCheckData {
-    private String labelId;
-    private String parentLabelId;
+
+    @Builder.Default
+    private Set<String> labelIds = new HashSet<>();
 }

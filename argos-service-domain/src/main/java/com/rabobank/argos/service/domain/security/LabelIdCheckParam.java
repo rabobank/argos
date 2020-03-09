@@ -20,8 +20,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import static com.rabobank.argos.service.domain.security.DefaultLabelIdExtractor.DEFAULT_LABEL_ID_EXTRACTOR;
+
 @Target({ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LabelIdCheckParam {
     String propertyPath() default "";
+
+    String dataExtractor() default DEFAULT_LABEL_ID_EXTRACTOR;
 }

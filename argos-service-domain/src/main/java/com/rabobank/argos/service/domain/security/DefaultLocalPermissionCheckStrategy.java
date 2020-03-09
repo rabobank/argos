@@ -27,10 +27,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.rabobank.argos.service.domain.security.DefaultLocalPermissionCheckStrategy.DEFAULT_LOCAL_PERMISSION_CHECK_STRATEGY_BEAN_NAME;
+import static java.util.Objects.requireNonNull;
 
 @Component(DEFAULT_LOCAL_PERMISSION_CHECK_STRATEGY_BEAN_NAME)
 @RequiredArgsConstructor
@@ -47,14 +47,23 @@ public class DefaultLocalPermissionCheckStrategy implements LocalPermissionCheck
     public boolean hasLocalPermission(LocalPermissionCheckData localPermissionCheckData, Set<Permission> permissionsToCheck) {
         Account account = accountSecurityContext.getAuthenticatedAccount().orElseThrow(() -> new AccessDeniedException("Access denied"));
         log.info("hasLocalPermission on label {} with permissionsToCheck : {} for account: {},", localPermissionCheckData, permissionsToCheck, account.getName());
-        List<String> allLabelIdsUpTree = Optional.ofNullable(localPermissionCheckData.getLabelId())
-                .flatMap(labelId -> hierarchyRepository.getSubTree(labelId, HierarchyMode.NONE, 0))
+
+        if (!localPermissionCheckData.getLabelIds().isEmpty()) {
+            return localPermissionCheckData.getLabelIds().stream().allMatch(labelId -> hasLocalPermission(permissionsToCheck, requireNonNull(labelId)));
+        }
+        return false;
+    }
+
+    private boolean hasLocalPermission(Set<Permission> permissionsToCheck, String labelId) {
+        return accountSecurityContext.allLocalPermissions(getAllLabelIdsUpTree(labelId)).containsAll(permissionsToCheck);
+    }
+
+    private ArrayList<String> getAllLabelIdsUpTree(String labelId) {
+        return hierarchyRepository.getSubTree(labelId, HierarchyMode.NONE, 0)
                 .map(TreeNode::getIdPathToRoot).map(ArrayList::new)
                 .map(labelIds -> {
-                    labelIds.add(localPermissionCheckData.getLabelId());
+                    labelIds.add(labelId);
                     return labelIds;
-                }).orElse(new ArrayList<>());
-
-        return accountSecurityContext.allLocalPermissions(allLabelIdsUpTree).containsAll(permissionsToCheck);
+                }).orElse(new ArrayList<>(List.of(labelId)));
     }
 }

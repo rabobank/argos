@@ -74,7 +74,7 @@ class DefaultLocalPermissionCheckStrategyTest {
     @Test
     void hasLocalPermissionOnLabel() {
         when(account.getName()).thenReturn(ACCOUNT_NAME);
-        when(localPermissionCheckData.getLabelId()).thenReturn(LABEL_ID);
+        when(localPermissionCheckData.getLabelIds()).thenReturn(new HashSet<>(List.of(LABEL_ID)));
         when(hierarchyRepository.getSubTree(LABEL_ID, HierarchyMode.NONE, 0)).thenReturn(Optional.of(treeNode));
         when(treeNode.getIdPathToRoot()).thenReturn(Collections.emptyList());
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
@@ -85,7 +85,7 @@ class DefaultLocalPermissionCheckStrategyTest {
     @Test
     void hasLocalPermissionOnParentLabel() {
         when(account.getName()).thenReturn(ACCOUNT_NAME);
-        when(localPermissionCheckData.getLabelId()).thenReturn(LABEL_ID);
+        when(localPermissionCheckData.getLabelIds()).thenReturn(new HashSet<>(List.of(LABEL_ID)));
         when(hierarchyRepository.getSubTree(LABEL_ID, HierarchyMode.NONE, 0)).thenReturn(Optional.of(treeNode));
         when(treeNode.getIdPathToRoot()).thenReturn(List.of(PARENT_LABEL_ID));
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
@@ -96,7 +96,7 @@ class DefaultLocalPermissionCheckStrategyTest {
     @Test
     void hasNoLocalPermissionOnLabel() {
         when(account.getName()).thenReturn(ACCOUNT_NAME);
-        when(localPermissionCheckData.getLabelId()).thenReturn(LABEL_ID);
+        when(localPermissionCheckData.getLabelIds()).thenReturn(new HashSet<>(List.of(LABEL_ID)));
         when(hierarchyRepository.getSubTree(LABEL_ID, HierarchyMode.NONE, 0)).thenReturn(Optional.of(treeNode));
         when(treeNode.getIdPathToRoot()).thenReturn(Collections.emptyList());
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
@@ -107,16 +107,15 @@ class DefaultLocalPermissionCheckStrategyTest {
     @Test
     void hasNoLocalPermissionNoLabelId() {
         when(account.getName()).thenReturn(ACCOUNT_NAME);
-        when(localPermissionCheckData.getLabelId()).thenReturn(null);
+        when(localPermissionCheckData.getLabelIds()).thenReturn(new HashSet<>());
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
-        when(accountSecurityContext.allLocalPermissions(any())).thenReturn(emptySet());
         assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.VERIFY))), is(false));
     }
 
     @Test
     void hasLocalPermissionOnLocalPermissions() {
         when(account.getName()).thenReturn(ACCOUNT_NAME);
-        when(localPermissionCheckData.getLabelId()).thenReturn(LABEL_ID);
+        when(localPermissionCheckData.getLabelIds()).thenReturn(new HashSet<>(List.of(LABEL_ID)));
         when(hierarchyRepository.getSubTree(LABEL_ID, HierarchyMode.NONE, 0)).thenReturn(Optional.of(treeNode));
         when(treeNode.getIdPathToRoot()).thenReturn(Collections.emptyList());
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
@@ -127,7 +126,7 @@ class DefaultLocalPermissionCheckStrategyTest {
     @Test
     void hasNoLocalPermissionOtherLocalPermissions() {
         when(account.getName()).thenReturn(ACCOUNT_NAME);
-        when(localPermissionCheckData.getLabelId()).thenReturn(LABEL_ID);
+        when(localPermissionCheckData.getLabelIds()).thenReturn(new HashSet<>(List.of(LABEL_ID)));
         when(hierarchyRepository.getSubTree(LABEL_ID, HierarchyMode.NONE, 0)).thenReturn(Optional.of(treeNode));
         when(treeNode.getIdPathToRoot()).thenReturn(Collections.emptyList());
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
