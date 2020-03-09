@@ -87,6 +87,14 @@ Feature: Personal Account
     Then status 200
     And match response == [{"id":"#uuid","name":"Extra Person","email":"extra@extra.go"},{"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp"}]
 
+  Scenario: search personal account by name should return 200
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    Given path '/api/personalaccount'
+    And param name = 'per'
+    When method GET
+    Then status 200
+    And match response == [{"id":"#uuid","name":"Extra Person","email":"extra@extra.go"}]
+
   Scenario: search by local permission label id personal account 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'search@extra.go'}
     * def label = call read('classpath:feature/label/create-label.feature') { name: 'label1'}
