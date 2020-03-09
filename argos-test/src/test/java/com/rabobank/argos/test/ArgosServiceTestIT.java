@@ -51,7 +51,7 @@ public class ArgosServiceTestIT {
 
     @Karate.Test
     Karate supplyChain() {
-        return new Karate().tags("bart").feature("classpath:feature/supplychain/supplychain.feature");
+        return new Karate().feature("classpath:feature/supplychain/supplychain.feature");
     }
 
     @Karate.Test
