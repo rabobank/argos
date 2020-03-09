@@ -144,5 +144,12 @@ class SupplyChainRepositoryImplTest {
         assertThat(argosError.getCause(), sameInstance(duplicateKeyException));
     }
 
-
+    @Test
+    void findParentLabelIdBySupplyChainId() {
+        when(supplyChain.getParentLabelId()).thenReturn(PARENT_LABEL_ID);
+        when(template.findOne(any(), eq(SupplyChain.class), eq(COLLECTION))).thenReturn(supplyChain);
+        assertThat(repository.findParentLabelIdBySupplyChainId(SUPPLY_CHAIN_ID), is(Optional.of(PARENT_LABEL_ID)));
+        verify(template).findOne(queryArgumentCaptor.capture(), eq(SupplyChain.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"supplyChainId\" : \"supplyChainId\"}, Fields: { \"parentLabelId\" : 1}, Sort: {}"));
+    }
 }

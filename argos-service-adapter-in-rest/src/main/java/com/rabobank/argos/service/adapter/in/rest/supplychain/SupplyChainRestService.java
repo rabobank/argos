@@ -37,7 +37,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
-import static com.rabobank.argos.service.adapter.in.rest.supplychain.SupplyChainLocalPermissionCheckDataExtractor.SUPPLY_CHAIN_LOCAL_DATA_EXTRACTOR;
+import static com.rabobank.argos.service.adapter.in.rest.supplychain.SupplyChainLabelIdExtractor.SUPPLY_CHAIN_LABEL_ID_EXTRACTOR;
 import static com.rabobank.argos.service.adapter.in.rest.supplychain.SupplyChainPathToRootLocalPermissionCheckDataExtractor.SUPPLY_CHAIN_PATH_TO_ROOT_LOCAL_DATA_EXTRACTOR;
 
 @RestController
@@ -70,7 +70,7 @@ public class SupplyChainRestService implements SupplychainApi {
 
     @Override
     @PermissionCheck(permissions = Permission.READ)
-    public ResponseEntity<RestSupplyChain> getSupplyChain(@LabelIdCheckParam(dataExtractor = SUPPLY_CHAIN_LOCAL_DATA_EXTRACTOR) String supplyChainId) {
+    public ResponseEntity<RestSupplyChain> getSupplyChain(@LabelIdCheckParam(dataExtractor = SUPPLY_CHAIN_LABEL_ID_EXTRACTOR) String supplyChainId) {
         SupplyChain supplyChain = supplyChainRepository
                 .findBySupplyChainId(supplyChainId)
                 .orElseThrow(() -> supplyChainNotFound(supplyChainId));
@@ -91,7 +91,7 @@ public class SupplyChainRestService implements SupplychainApi {
 
     @Override
     @PermissionCheck(permissions = Permission.TREE_EDIT)
-    public ResponseEntity<RestSupplyChain> updateSupplyChain(@LabelIdCheckParam(dataExtractor = SUPPLY_CHAIN_LOCAL_DATA_EXTRACTOR) String supplyChainId, @LabelIdCheckParam(propertyPath = "parentLabelId") RestSupplyChain restSupplyChain) {
+    public ResponseEntity<RestSupplyChain> updateSupplyChain(@LabelIdCheckParam(dataExtractor = SUPPLY_CHAIN_LABEL_ID_EXTRACTOR) String supplyChainId, @LabelIdCheckParam(propertyPath = "parentLabelId") RestSupplyChain restSupplyChain) {
         verifyParentLabelExists(restSupplyChain.getParentLabelId());
         SupplyChain supplyChain = converter.convertFromRestSupplyChainCommand(restSupplyChain);
         supplyChain.setSupplyChainId(supplyChainId);
