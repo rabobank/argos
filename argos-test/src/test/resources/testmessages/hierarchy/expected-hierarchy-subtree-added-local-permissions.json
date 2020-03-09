@@ -1,0 +1,55 @@
+{
+  "name": "root1",
+  "type": "LABEL",
+  "referenceId": "#uuid",
+  "hasChildren": true,
+  "children": [
+    {
+      "name": "childaroot1",
+      "type": "LABEL",
+      "referenceId": "#uuid",
+      "hasChildren": true,
+      "children": [
+        {
+          "name": "npa-1",
+          "type": "NON_PERSONAL_ACCOUNT",
+          "referenceId": "#uuid",
+          "hasChildren": false,
+          "children": [],
+          "userPermissions": [
+            "LOCAL_PERMISSION_EDIT",
+            "READ"
+          ]
+        },
+        {
+          "name": "supply-chain-1",
+          "type": "SUPPLY_CHAIN",
+          "referenceId": "#uuid",
+          "hasChildren": false,
+          "children": [],
+          "userPermissions": [
+            "LOCAL_PERMISSION_EDIT",
+            "READ"
+          ]
+        }
+      ],
+      "userPermissions": [
+        "LOCAL_PERMISSION_EDIT",
+        "READ"
+      ]
+    },
+    {
+      "name": "childbroot1",
+      "type": "LABEL",
+      "referenceId": "#uuid",
+      "hasChildren": false,
+      "children": [],
+      "userPermissions": [
+        "READ"
+      ]
+    }
+  ],
+  "userPermissions": [
+    "READ"
+  ]
+}
