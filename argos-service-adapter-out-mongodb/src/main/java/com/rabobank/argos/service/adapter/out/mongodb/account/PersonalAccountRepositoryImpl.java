@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Objects.requireNonNull;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.MongoRegexCreator.MatchMode.CONTAINING;
 
@@ -45,6 +46,7 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     static final String NAME_FIELD = "name";
     static final String ROLE_ID_FIELD = "roleIds";
     static final String PERMISSIONS_LABEL_ID_FIELD = "localPermissions.labelId";
+    private static final String CASE_INSENSITIVE = "i";
     private final MongoTemplate template;
 
     @Override
@@ -93,7 +95,7 @@ public class PersonalAccountRepositoryImpl implements PersonalAccountRepository 
     }
 
     private Query nameQuery(String name) {
-        return new Query(where(NAME_FIELD).regex(MongoRegexCreator.INSTANCE.toRegularExpression(name, CONTAINING), "i"));
+        return new Query(where(NAME_FIELD).regex(requireNonNull(MongoRegexCreator.INSTANCE.toRegularExpression(name, CONTAINING)), CASE_INSENSITIVE));
     }
 
     private Query labelIdQuery(String labelId) {
