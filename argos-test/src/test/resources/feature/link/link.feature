@@ -29,6 +29,45 @@ Feature: Link
   Scenario: store link with valid specifications should return a 204
     * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}
 
+  Scenario: NPA can store a link with valid specifications and should return a 204
+    * def childLabelResult = call read('classpath:feature/label/create-label.feature') {name: child_label, parentLabelId: #(supplyChain.response.parentLabelId)}
+    * def otherSupplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { supplyChainName: 'other', parentLabelId: #(childLabelResult.response.id)}
+    * call read('create-link.feature') {supplyChainId:#(otherSupplyChain.response.id), json:#(validLink), keyNumber:1}
+
+  Scenario: user with local permission LINK_ADD can store a link
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["LINK_ADD"]}
+    * def otherSupplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: other-supply-chain, parentLabelId: #(info.labelId)}
+    * def layoutToSign = read(validLink)
+    * def signedLink = call read('classpath:feature/link/sign-link.feature') {json:#(layoutToSign),keyNumber:1}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+    Given path '/api/supplychain/'+ otherSupplyChain.response.id + '/link'
+    And request signedLink.response
+    When method POST
+    Then status 204
+
+  Scenario: user without local permission LINK_ADD can store a link
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["READ"]}
+    * def otherSupplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: other-supply-chain, parentLabelId: #(info.labelId)}
+    * def layoutToSign = read(validLink)
+    * def signedLink = call read('classpath:feature/link/sign-link.feature') {json:#(layoutToSign),keyNumber:1}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+    Given path '/api/supplychain/'+ otherSupplyChain.response.id + '/link'
+    And request signedLink.response
+    When method POST
+    Then status 403
+
+  Scenario: NPA in other root label can not store a link
+    * def otherRootLabel = call read('classpath:feature/label/create-label.feature') { name: 'other_root_label'}
+    * def otherSupplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: other-supply-chain, parentLabelId: #(otherRootLabel.response.id)}
+    * def layoutToSign = read(validLink)
+    * def signedLink = call read('classpath:feature/link/sign-link.feature') {json:#(layoutToSign),keyNumber:1}
+    * def keyPair = read('classpath:testmessages/key/keypair1.json')
+    * configure headers = call read('classpath:headers.js') { username: #(keyPair.keyId),password:test}
+    Given path '/api/supplychain/'+ otherSupplyChain.response.id + '/link'
+    And request signedLink.response
+    When method POST
+    Then status 403
+
   Scenario: store link with invalid specifications should return a 400 error
     Given path linkPath
     And request read('classpath:testmessages/link/invalid-link.json')
@@ -66,3 +105,24 @@ Feature: Link
     When method GET
     Then status 200
     And match response[*] contains read('classpath:testmessages/link/valid-link-response.json')
+
+  Scenario: user with READ local permission can find link with valid supplychainid and optionalHash should return a 200
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["READ"]}
+    * call read('classpath:feature/account/set-local-permissions.feature') {accountId: #(info.accountId), labelId: #(supplyChain.response.parentLabelId), permissions: '["READ"]'}
+    * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+    Given path linkPath
+    And param optionalHash = '74a88c1cb96211a8f648af3509a1207b2d4a15c0202cfaa10abad8cc26300c63'
+    When method GET
+    Then status 200
+    And match response[*] contains read('classpath:testmessages/link/valid-link-response.json')
+
+  Scenario: user without READ local permission can find link with valid supplychainid and optionalHash should return a 200
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["LINK_ADD"]}
+    * call read('classpath:feature/account/set-local-permissions.feature') {accountId: #(info.accountId), labelId: #(supplyChain.response.parentLabelId), permissions: '["LINK_ADD"]'}
+    * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+    Given path linkPath
+    And param optionalHash = '74a88c1cb96211a8f648af3509a1207b2d4a15c0202cfaa10abad8cc26300c63'
+    When method GET
+    Then status 403
