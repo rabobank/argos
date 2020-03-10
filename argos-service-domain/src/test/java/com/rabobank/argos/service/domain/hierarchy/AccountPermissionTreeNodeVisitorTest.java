@@ -50,7 +50,7 @@ class AccountPermissionTreeNodeVisitorTest {
     private TreeNode child1_2;
     private TreeNode child1_3;
 
-    /**
+    /*
      * Hierarchy tree node structure created for test
      * root---child1_1---child1_2---child1_3
      */

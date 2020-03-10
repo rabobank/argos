@@ -104,7 +104,7 @@ class HierarchyServiceImplTest {
      *          --- child_2_1_1 --- child_2_1_2 ---  child_2_1_3
      * root_2
      *          --- child_2_2_1 --- child_2_2_2
-     * */
+     */
     @BeforeEach
     void setup() {
         createRootNode1();
