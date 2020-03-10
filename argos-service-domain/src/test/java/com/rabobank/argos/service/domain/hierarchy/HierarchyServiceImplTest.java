@@ -24,6 +24,7 @@ import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.service.domain.security.AccountSecurityContext;
 import com.rabobank.argos.service.domain.security.AccountSecurityContextImpl;
 import com.rabobank.argos.service.domain.security.AccountUserDetailsAdapter;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -112,6 +113,10 @@ class HierarchyServiceImplTest {
         hierarchyService = new HierarchyServiceImpl(hierarchyRepository, accountSecurityContext);
     }
 
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
     private void createRootNode1() {
         root_1 = TreeNode.builder()
                 .pathToRoot(emptyList())
