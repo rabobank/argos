@@ -17,7 +17,6 @@ package com.rabobank.argos.domain.account;
 
 import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.domain.permission.LocalPermissions;
-import com.rabobank.argos.domain.permission.Permission;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,12 +24,6 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toSet;
 
 @Getter
 @Setter
@@ -43,16 +36,4 @@ public abstract class Account implements Serializable {
     private KeyPair activeKeyPair;
     private List<? extends KeyPair> inactiveKeyPairs;
     private List<LocalPermissions> localPermissions;
-
-    public Set<Permission> allLocalPermissions(List<String> allLabelIdsUpTree) {
-        Map<String, List<LocalPermissions>> localPermissionsMap = localPermissions
-                .stream()
-                .collect(Collectors.groupingBy(LocalPermissions::getLabelId));
-        return allLabelIdsUpTree.stream()
-                .map(labelId -> localPermissionsMap.getOrDefault(labelId, emptyList()))
-                .flatMap(List::stream)
-                .map(LocalPermissions::getPermissions)
-                .flatMap(List::stream)
-                .collect(toSet());
-    }
 }
