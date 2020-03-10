@@ -37,7 +37,7 @@
 	</modules>
 	<groupId>com.rabobank.argos</groupId>
 	<artifactId>argos-parent</artifactId>
-	<version>0.0.1-RC2</version>
+	<version>0.0.1-RC3</version>
 	<description>Argos Supply Chain Notary</description>
 	<url>https://github.com/rabobank/argos</url>
 

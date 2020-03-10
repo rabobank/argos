@@ -19,6 +19,7 @@ import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.domain.permission.LocalPermissions;
 import com.rabobank.argos.domain.permission.Permission;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,6 +35,7 @@ import static java.util.stream.Collectors.toSet;
 @Getter
 @Setter
 @AllArgsConstructor
+@EqualsAndHashCode
 public abstract class Account implements Serializable {
     private String accountId;
     private String name;
