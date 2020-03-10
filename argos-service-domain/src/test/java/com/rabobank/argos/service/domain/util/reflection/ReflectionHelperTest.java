@@ -18,9 +18,11 @@ package com.rabobank.argos.service.domain.util.reflection;
 import com.rabobank.argos.service.domain.security.LabelIdCheckParam;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
 class ReflectionHelperTest {
@@ -29,15 +31,15 @@ class ReflectionHelperTest {
 
     @Test
     void getParameterDataByAnnotation() throws NoSuchMethodException {
-        Optional<ParameterData<LabelIdCheckParam, Object>> data = new ReflectionHelper().getParameterDataByAnnotation(TestClass.class.getMethod("test", String.class, String.class), LabelIdCheckParam.class, new Object[]{"arg1", LABEL_ID});
-        ParameterData<LabelIdCheckParam, Object> labelIdCheckParamObjectParameterData = data.get();
+        Stream<ParameterData<LabelIdCheckParam, Object>> data = new ReflectionHelper().getParameterDataByAnnotation(TestClass.class.getMethod("test", String.class, String.class), LabelIdCheckParam.class, new Object[]{"arg1", LABEL_ID});
+        ParameterData<LabelIdCheckParam, Object> labelIdCheckParamObjectParameterData = data.findFirst().orElseThrow();
         assertThat(labelIdCheckParamObjectParameterData.getValue(), is(LABEL_ID));
         assertThat(labelIdCheckParamObjectParameterData.getAnnotation().propertyPath(), is(""));
     }
 
     @Test
     void getParameterDataByAnnotationNotFound() throws NoSuchMethodException {
-        assertThat(new ReflectionHelper().getParameterDataByAnnotation(TestClass.class.getMethod("testWithoutAnnotation", String.class, String.class), LabelIdCheckParam.class, new Object[]{"arg1", LABEL_ID}), is(Optional.empty()));
+        assertThat(new ReflectionHelper().getParameterDataByAnnotation(TestClass.class.getMethod("testWithoutAnnotation", String.class, String.class), LabelIdCheckParam.class, new Object[]{"arg1", LABEL_ID}).collect(Collectors.toList()), empty());
     }
 
     private class TestClass {

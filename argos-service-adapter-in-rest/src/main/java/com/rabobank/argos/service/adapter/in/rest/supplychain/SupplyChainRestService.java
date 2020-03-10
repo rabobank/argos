@@ -16,11 +16,14 @@
 package com.rabobank.argos.service.adapter.in.rest.supplychain;
 
 import com.rabobank.argos.domain.hierarchy.TreeNode;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.domain.supplychain.SupplyChain;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.SupplychainApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
+import com.rabobank.argos.service.domain.security.LabelIdCheckParam;
+import com.rabobank.argos.service.domain.security.PermissionCheck;
 import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +37,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+import static com.rabobank.argos.service.adapter.in.rest.supplychain.SupplyChainLabelIdExtractor.SUPPLY_CHAIN_LABEL_ID_EXTRACTOR;
+import static com.rabobank.argos.service.adapter.in.rest.supplychain.SupplyChainPathLocalPermissionCheckDataExtractor.SUPPLY_CHAIN_PATH_LOCAL_DATA_EXTRACTOR;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -46,7 +52,8 @@ public class SupplyChainRestService implements SupplychainApi {
     private final LabelRepository labelRepository;
 
     @Override
-    public ResponseEntity<RestSupplyChain> createSupplyChain(RestSupplyChain restSupplyChain) {
+    @PermissionCheck(permissions = Permission.TREE_EDIT)
+    public ResponseEntity<RestSupplyChain> createSupplyChain(@LabelIdCheckParam(propertyPath = "parentLabelId") RestSupplyChain restSupplyChain) {
         verifyParentLabelExists(restSupplyChain.getParentLabelId());
         SupplyChain supplyChain = converter.convertFromRestSupplyChainCommand(restSupplyChain);
 
@@ -62,7 +69,8 @@ public class SupplyChainRestService implements SupplychainApi {
     }
 
     @Override
-    public ResponseEntity<RestSupplyChain> getSupplyChain(String supplyChainId) {
+    @PermissionCheck(permissions = Permission.READ)
+    public ResponseEntity<RestSupplyChain> getSupplyChain(@LabelIdCheckParam(dataExtractor = SUPPLY_CHAIN_LABEL_ID_EXTRACTOR) String supplyChainId) {
         SupplyChain supplyChain = supplyChainRepository
                 .findBySupplyChainId(supplyChainId)
                 .orElseThrow(() -> supplyChainNotFound(supplyChainId));
@@ -71,6 +79,7 @@ public class SupplyChainRestService implements SupplychainApi {
 
 
     @Override
+    @PermissionCheck(permissions = Permission.READ, localPermissionDataExtractorBean = SUPPLY_CHAIN_PATH_LOCAL_DATA_EXTRACTOR)
     public ResponseEntity<RestSupplyChain> getSupplyChainByPathToRoot(String supplyChainName, List<String> pathToRoot) {
         return hierarchyRepository.findByNamePathToRootAndType(supplyChainName, pathToRoot, TreeNode.Type.SUPPLY_CHAIN)
                 .map(TreeNode::getReferenceId)
@@ -81,7 +90,8 @@ public class SupplyChainRestService implements SupplychainApi {
     }
 
     @Override
-    public ResponseEntity<RestSupplyChain> updateSupplyChain(String supplyChainId, RestSupplyChain restSupplyChain) {
+    @PermissionCheck(permissions = Permission.TREE_EDIT)
+    public ResponseEntity<RestSupplyChain> updateSupplyChain(@LabelIdCheckParam(dataExtractor = SUPPLY_CHAIN_LABEL_ID_EXTRACTOR) String supplyChainId, @LabelIdCheckParam(propertyPath = "parentLabelId") RestSupplyChain restSupplyChain) {
         verifyParentLabelExists(restSupplyChain.getParentLabelId());
         SupplyChain supplyChain = converter.convertFromRestSupplyChainCommand(restSupplyChain);
         supplyChain.setSupplyChainId(supplyChainId);

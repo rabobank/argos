@@ -21,16 +21,15 @@ import org.springframework.stereotype.Component;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.stream.Stream;
 
 @Component
 public class ReflectionHelper {
 
-    public <T extends Annotation, S> Optional<ParameterData<T, S>> getParameterDataByAnnotation(Method method, Class<T> annotation, S[] argumentValues) {
+    public <T extends Annotation, S> Stream<ParameterData<T, S>> getParameterDataByAnnotation(Method method, Class<T> annotation, S[] argumentValues) {
         return StreamUtils
                 .zipWithIndex(Arrays.stream(method.getParameters()))
                 .filter(p -> p.getValue().getAnnotation(annotation) != null)
-                .map(p -> new ParameterData<>(p.getValue().getAnnotation(annotation), argumentValues[(int) p.getIndex()]))
-                .findFirst();
+                .map(p -> new ParameterData<>(p.getValue().getAnnotation(annotation), argumentValues[(int) p.getIndex()]));
     }
 }
