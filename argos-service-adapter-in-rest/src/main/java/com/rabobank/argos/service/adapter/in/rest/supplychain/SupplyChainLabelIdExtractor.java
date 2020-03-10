@@ -23,10 +23,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Component(SupplyChainLocalPermissionCheckDataExtractor.SUPPLY_CHAIN_LOCAL_DATA_EXTRACTOR)
+@Component(SupplyChainLabelIdExtractor.SUPPLY_CHAIN_LABEL_ID_EXTRACTOR)
 @RequiredArgsConstructor
-public class SupplyChainLocalPermissionCheckDataExtractor implements LabelIdExtractor {
-    public static final String SUPPLY_CHAIN_LOCAL_DATA_EXTRACTOR = "SupplyChainLocalPermissionCheckDataExtractor";
+public class SupplyChainLabelIdExtractor implements LabelIdExtractor {
+    public static final String SUPPLY_CHAIN_LABEL_ID_EXTRACTOR = "SupplyChainLabelIdExtractor";
 
     private final SupplyChainRepository supplyChainRepository;
 
