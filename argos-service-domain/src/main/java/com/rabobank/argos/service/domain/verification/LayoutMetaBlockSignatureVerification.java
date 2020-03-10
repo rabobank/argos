@@ -15,6 +15,8 @@
  */
 package com.rabobank.argos.service.domain.verification;
 
+import com.rabobank.argos.domain.Signature;
+import com.rabobank.argos.domain.layout.Layout;
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.signing.SignatureValidator;
 import lombok.RequiredArgsConstructor;
@@ -47,20 +49,32 @@ public class LayoutMetaBlockSignatureVerification implements Verification {
         boolean isValid = layoutMetaBlock
                 .getSignatures()
                 .stream()
-                .allMatch(signature -> getPublicKey(layoutMetaBlock, signature.getKeyId())
-                        .map(publicKey -> signatureValidator.isValid(layoutMetaBlock.getLayout(), signature.getSignature(), publicKey))
-                        .orElse(false));
+                .allMatch(signature -> isValidSignature(signature, layoutMetaBlock.getLayout()));
+                        
         if (!isValid) {
-            log.info("failed LayoutMetaBlockSignatureVerification ");
+            log.info("failed LayoutMetaBlockSignatureVerification");
         }
         return VerificationRunResult.builder()
                 .runIsValid(isValid)
                 .build();
 
     }
+    
+    private boolean isValidSignature(Signature signature, Layout layout) {
+        Optional<PublicKey> publicKey = getPublicKey(layout, signature.getKeyId());
+        if (publicKey.isEmpty()) {
+            log.info("Public Key with id [{}] is not avaiable in the layout.", signature.getKeyId());
+            return false;
+        }
+        if (!signatureValidator.isValid(layout, signature.getSignature(), publicKey.get())) {
+            log.info("Signature of layout with keyId [{}] is not valid.", signature.getKeyId());
+            return false;
+        }
+        return true;
+    }
 
-    private Optional<PublicKey> getPublicKey(LayoutMetaBlock layoutMetaBlock, String keyId) {
-        return layoutMetaBlock.getLayout().getKeys().stream()
+    private Optional<PublicKey> getPublicKey(Layout layout, String keyId) {
+        return layout.getKeys().stream()
                 .filter(publicKey -> publicKey.getId().equals(keyId))
                 .map(com.rabobank.argos.domain.layout.PublicKey::getKey).findFirst();
     }

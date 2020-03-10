@@ -25,6 +25,7 @@ import org.kohsuke.stapler.QueryParameter;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 @Extension
@@ -38,17 +39,11 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
         return GlobalConfiguration.all().get(ArgosServiceConfiguration.class);
     }
 
-    private String hostname;
-
-    private Integer port;
-
-    private boolean secure;
-
+    private String url;
+    
     @DataBoundConstructor
-    public ArgosServiceConfiguration(String hostname, Integer port, Boolean secure) {
-        this.hostname = hostname;
-        this.port = port;
-        this.secure = secure;
+    public ArgosServiceConfiguration(String url) {
+        this.url = url;
     }
 
     public ArgosServiceConfiguration() {
@@ -56,82 +51,43 @@ public class ArgosServiceConfiguration extends GlobalConfiguration {
         load();
     }
 
-    public Integer getPort() {
-        return port;
+    public String getUrl() {
+        return url;
     }
 
-
-    public void setPort(Integer port) {
-        this.port = port;
+    public void setUrl(String url) {
+        this.url = url;
         save();
     }
 
-    public boolean isSecure() {
-        return secure;
-    }
-
-    public void setSecure(boolean secure) {
-        this.secure = secure;
-        save();
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-        save();
-    }
-
-    public FormValidation doCheckHostname(@QueryParameter String value) {
+    public FormValidation doCheckUrl(@QueryParameter String value) {
         if (StringUtils.isEmpty(value)) {
             return FormValidation.warning("Please specify a hostname.");
         }
         return FormValidation.ok();
     }
+     
 
-    public FormValidation doValidateConnection(@QueryParameter String hostname, @QueryParameter int port,
-                                               @QueryParameter boolean secure) {
+    public FormValidation doValidateConnection(@QueryParameter String url) {
         FormValidation formValidation;
-        String spec = determineUrl(hostname, port, secure) + "/actuator/health";
+        String inputUrl = url + "/actuator/health";
         try {
-            URL url = new URL(spec);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            URL conUrl = new URL(inputUrl);
+            HttpURLConnection con = (HttpURLConnection) conUrl.openConnection();
             con.setRequestMethod("GET");
             if (con.getResponseCode() == 200) {
-                formValidation = FormValidation.ok("Your In argos Service instance [%s] is alive!", url);
+                formValidation = FormValidation.ok("Your In argos Service instance [%s] is alive!", conUrl);
             } else {
-                formValidation = FormValidation.error("status code " + con.getResponseCode() + "on" + url);
+                formValidation = FormValidation.error("status code " + con.getResponseCode() + " on " + conUrl);
             }
             con.disconnect();
         } catch (IOException e) {
-            formValidation = FormValidation.error("Error " + e.getMessage() + "on" + spec);
+            formValidation = FormValidation.error("Error " + e.getMessage() + " on " + inputUrl);
         }
         return formValidation;
     }
 
-    private String determineUrl(String hostname, int port, boolean secure) {
-        String protocol = secure ? "https://" : "http://";
-        return protocol + hostname + ":" + port;
-    }
-
-    public FormValidation doCheckPort(@QueryParameter String value) {
-        if (StringUtils.isEmpty(value)) {
-            return FormValidation.warning("Please specify a port.");
-        }
-        try {
-            Integer.parseInt(value);
-        } catch (NumberFormatException exc) {
-            return FormValidation.warning("[%s] is not a number.", value);
-        }
-        if (Integer.parseInt(value) <= 0) {
-            return FormValidation.warning("0 or negative port isn't allowed.");
-        }
-        return FormValidation.ok();
-    }
-
     public String getArgosServiceBaseUrl() {
-        return determineUrl(hostname, port, secure);
+        return this.url;
     }
 }

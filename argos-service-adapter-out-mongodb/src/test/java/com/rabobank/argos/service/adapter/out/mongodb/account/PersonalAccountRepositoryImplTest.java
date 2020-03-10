@@ -52,7 +52,7 @@ class PersonalAccountRepositoryImplTest {
     private static final String ACTIVE_KEY_ID = "activeKeyId";
     private static final long COUNT = 12334L;
     private static final String ROLE_ID = "roleId";
-    private static final String LABEL_ID = "labelId";
+    private static final String NAME = "name";
     @Mock
     private MongoTemplate template;
 
@@ -156,8 +156,9 @@ class PersonalAccountRepositoryImplTest {
     @Test
     void searchByLocalPermissionsLabelId() {
         when(template.find(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(List.of(personalAccount));
-        assertThat(repository.search(AccountSearchParams.builder().localPermissionsLabelId(LABEL_ID).build()), contains(personalAccount));
+        assertThat(repository.search(AccountSearchParams.builder().name(NAME).build()), contains(personalAccount));
         verify(template).find(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
-        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"localPermissions.labelId\" : \"labelId\"}, Fields: { \"accountId\" : 1, \"name\" : 1, \"email\" : 1}, Sort: { \"name\" : 1}"));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"name\" : { \"$regex\" : \".*name.*\", \"$options\" : \"i\"}}, Fields: { \"accountId\" : 1, \"name\" : 1, \"email\" : 1}, Sort: { \"name\" : 1}"));
     }
+
 }
