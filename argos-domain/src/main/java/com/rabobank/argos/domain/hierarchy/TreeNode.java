@@ -53,7 +53,7 @@ public class TreeNode {
     private boolean hasChildren;
 
     @With
-    private List<Permission> userPermissions;
+    private List<Permission> permissions;
 
     public boolean accept(TreeNodeVisitor treeNodeVisitor) {
         if (isLeafNode()) {

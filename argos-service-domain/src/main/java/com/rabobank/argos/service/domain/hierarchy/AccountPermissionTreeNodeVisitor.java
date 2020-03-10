@@ -43,9 +43,9 @@ public class AccountPermissionTreeNodeVisitor implements TreeNodeVisitor<Optiona
 
         TreeNode copyOfTreeNode = treeNode
                 .withChildren(new ArrayList<>())
-                .withUserPermissions(determineAggregatedPermissions(treeNode));
+                .withPermissions(determineAggregatedPermissions(treeNode));
 
-        if (copyOfTreeNode.getUserPermissions().isEmpty()) {
+        if (copyOfTreeNode.getPermissions().isEmpty()) {
             return false;
         }
 
@@ -80,9 +80,9 @@ public class AccountPermissionTreeNodeVisitor implements TreeNodeVisitor<Optiona
 
     @Override
     public boolean visitLeaf(TreeNode treeNode) {
-        TreeNode copyOfTreeNode = treeNode.withUserPermissions(determineAggregatedPermissions(treeNode));
+        TreeNode copyOfTreeNode = treeNode.withPermissions(determineAggregatedPermissions(treeNode));
 
-        if (copyOfTreeNode.getUserPermissions().isEmpty()) {
+        if (copyOfTreeNode.getPermissions().isEmpty()) {
             return false;
         }
         TreeNode parent = parentRegistry.get(copyOfTreeNode.getParentLabelId());

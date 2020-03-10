@@ -245,9 +245,9 @@ class HierarchyServiceImplTest {
         Optional<TreeNode> optionalTreeNode = hierarchyService.getSubTree(ROOT_1_ID, HierarchyMode.ALL, 0);
         assertThat(optionalTreeNode.isPresent(), is(true));
         TreeNode treeNodeWithPermissions = optionalTreeNode.get();
-        assertThat(treeNodeWithPermissions.getUserPermissions(), hasSize(2));
+        assertThat(treeNodeWithPermissions.getPermissions(), hasSize(2));
         assertThat(treeNodeWithPermissions.getChildren(), hasSize(2));
-        assertThat(treeNodeWithPermissions.getChildren().iterator().next().getUserPermissions(), hasSize(2));
+        assertThat(treeNodeWithPermissions.getChildren().iterator().next().getPermissions(), hasSize(2));
 
 
     }
@@ -313,8 +313,8 @@ class HierarchyServiceImplTest {
         assertThat(rootNodes, hasSize(1));
         TreeNode childWithoutAddedPermissions = rootNodes.iterator().next().getChildren().get(0);
         TreeNode childWithAddedPermissions = rootNodes.iterator().next().getChildren().get(1);
-        assertThat(childWithoutAddedPermissions.getUserPermissions(), is(List.of(Permission.READ)));
-        assertThat(childWithAddedPermissions.getUserPermissions(), is(List.of(Permission.READ, Permission.TREE_EDIT)));
+        assertThat(childWithoutAddedPermissions.getPermissions(), is(List.of(Permission.READ)));
+        assertThat(childWithAddedPermissions.getPermissions(), is(List.of(Permission.READ, Permission.TREE_EDIT)));
     }
 
     private void createTreeNodeHierarchy() {

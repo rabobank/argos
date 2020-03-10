@@ -948,7 +948,6 @@ components:
     basicAuth:
       type: http
       scheme: basic
-
   responses:
     ValidationError:
       description: validation error
@@ -1315,7 +1314,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TreeNode"
-        userPermissions:
+        permissions:
           type: array
           items:
             $ref: "#/components/schemas/Permission"
