@@ -75,8 +75,7 @@ mp.getSourcesList().add(new BranchSource(scms, new DefaultBranchPropertyStrategy
 
 argosConfig = instance.getExtensionList(ArgosServiceConfiguration)[0]
 
-argosConfig.setHostname("argos-service")
-argosConfig.setPort(8080)
+argosConfig.setUrl("http://argos-service:8080")
 
 FreeStyleProject fp = instance.createProject(FreeStyleProject.class, "argos-test-app-freestyle-recording")
 fp.setScm(new GitSCM("https://github.com/rabobank/argos-test-app.git"))

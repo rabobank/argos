@@ -19,15 +19,9 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
     <f:section title="${%In Argos Configuration}">
-        <f:entry field="hostname" title="${%hostname}">
+        <f:entry field="url" title="${%Argos base url}">
             <f:textbox/>
         </f:entry>
-        <f:entry field="port" title="${%port}">
-            <f:textbox />
-        </f:entry>
-        <f:entry field="isSecure" title="${%Is secure}">
-            <f:checkbox checked="${instance.isSecure}"/>
-        </f:entry>
     </f:section>
-    <f:validateButton title="${%Test Connection}" with="hostname,port,isSecure" method="validateConnection"/>
+    <f:validateButton title="${%Test Connection}" with="url" method="validateConnection"/>
 </j:jelly>
