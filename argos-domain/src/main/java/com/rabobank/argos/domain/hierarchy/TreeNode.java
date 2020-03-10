@@ -28,7 +28,19 @@ import java.util.List;
 @Getter
 @Setter
 public class TreeNode {
-    public enum Type {LABEL, SUPPLY_CHAIN, NON_PERSONAL_ACCOUNT}
+    public enum Type {
+        LABEL(false), SUPPLY_CHAIN(true), NON_PERSONAL_ACCOUNT(true);
+        private boolean isLeafNode;
+
+        Type(boolean isLeafNode) {
+            this.isLeafNode = isLeafNode;
+        }
+
+        boolean isLeafNode() {
+            return this.isLeafNode;
+        }
+    }
+
     private String referenceId;
     private String name;
     private String parentLabelId;
@@ -53,9 +65,8 @@ public class TreeNode {
         return treeNodeVisitor.visitExit(this);
     }
 
-
     public boolean isLeafNode() {
-        return Type.SUPPLY_CHAIN == type || Type.NON_PERSONAL_ACCOUNT == type;
+        return type.isLeafNode();
     }
 
     public void addChild(TreeNode treeNode) {

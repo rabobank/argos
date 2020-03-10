@@ -37,25 +37,23 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserPermissionTreeNodeVisitorTest {
+class AccountPermissionTreeNodeVisitorTest {
     @Mock
     private AccountSecurityContext accountSecurityContext;
 
-    private UserPermissionTreeNodeVisitor userPermissionTreeNodeVisitor;
+    private AccountPermissionTreeNodeVisitor accountPermissionTreeNodeVisitor;
     private static final String ROOT_ID = "rootId";
     private static final String CHILD_1_1_ID = "child1_1_Id";
-    private static final String CHILD_2_1_ID = "child2_1_Id";
     private static final String CHILD_1_2_ID = "child1_2_Id";
-    private static final String CHILD_2_2_ID = "child2_2_id";
-
     private TreeNode root;
     private TreeNode child1_1;
-    private TreeNode child2_1;
     private TreeNode child1_2;
-    private TreeNode child2_2;
     private TreeNode child1_3;
 
-
+    /**
+     * Hierarchy tree node structure created for test
+     * root---child1_1---child1_2---child1_3
+     */
     @BeforeEach
     void setup() {
 
@@ -76,15 +74,7 @@ class UserPermissionTreeNodeVisitorTest {
                 .hasChildren(true)
                 .name("child1_1")
                 .build();
-        child2_1 = TreeNode.builder()
-                .pathToRoot(singletonList("root"))
-                .parentLabelId(ROOT_ID)
-                .idPathToRoot(singletonList(ROOT_ID))
-                .type(TreeNode.Type.LABEL)
-                .referenceId(CHILD_2_1_ID)
-                .hasChildren(true)
-                .name("child2_1")
-                .build();
+
         child1_2 = TreeNode.builder()
                 .pathToRoot(List.of("child1_1", "root"))
                 .idPathToRoot(List.of(CHILD_1_1_ID, ROOT_ID))
@@ -94,15 +84,7 @@ class UserPermissionTreeNodeVisitorTest {
                 .hasChildren(true)
                 .name("child1_2")
                 .build();
-        child2_2 = TreeNode.builder()
-                .pathToRoot(List.of("child1_2", "root"))
-                .idPathToRoot(List.of(CHILD_2_1_ID, ROOT_ID))
-                .type(TreeNode.Type.LABEL)
-                .parentLabelId(CHILD_2_1_ID)
-                .referenceId(CHILD_2_2_ID)
-                .hasChildren(true)
-                .name("child2_2")
-                .build();
+
         child1_3 = TreeNode.builder()
                 .pathToRoot(List.of("child1_2", "child1_1", "root"))
                 .idPathToRoot(List.of(CHILD_1_2_ID, CHILD_1_1_ID, ROOT_ID))
@@ -113,18 +95,16 @@ class UserPermissionTreeNodeVisitorTest {
                 .name("supplyCain")
                 .build();
         createTreeNodeHierarchy();
-
-        userPermissionTreeNodeVisitor = new UserPermissionTreeNodeVisitor(accountSecurityContext);
-
+        accountPermissionTreeNodeVisitor = new AccountPermissionTreeNodeVisitor(accountSecurityContext);
     }
 
     @Test
     void visitEnter() {
         when(accountSecurityContext.allLocalPermissions(any())).thenReturn(Set.of(Permission.READ));
         when(accountSecurityContext.getGlobalPermission()).thenReturn(Set.of(Permission.TREE_EDIT));
-        assertThat(userPermissionTreeNodeVisitor.visitEnter(root), is(true));
-        assertThat(userPermissionTreeNodeVisitor.visitEnter(child1_1), is(true));
-        Optional<TreeNode> optionalTreeNode = userPermissionTreeNodeVisitor.result();
+        assertThat(accountPermissionTreeNodeVisitor.visitEnter(root), is(true));
+        assertThat(accountPermissionTreeNodeVisitor.visitEnter(child1_1), is(true));
+        Optional<TreeNode> optionalTreeNode = accountPermissionTreeNodeVisitor.result();
         assertThat(optionalTreeNode.isPresent(), is(true));
         assertThat(optionalTreeNode.get().getName(), is("root"));
         assertThat(optionalTreeNode.get().getChildren(), hasSize(1));
@@ -133,16 +113,16 @@ class UserPermissionTreeNodeVisitorTest {
 
     @Test
     void visitExit() {
-        assertThat(userPermissionTreeNodeVisitor.visitExit(child1_3), is(true));
+        assertThat(accountPermissionTreeNodeVisitor.visitExit(child1_3), is(true));
     }
 
     @Test
     void visitLeaf() {
         when(accountSecurityContext.allLocalPermissions(any())).thenReturn(Set.of(Permission.READ));
         when(accountSecurityContext.getGlobalPermission()).thenReturn(Set.of(Permission.TREE_EDIT));
-        assertThat(userPermissionTreeNodeVisitor.visitEnter(child1_2), is(true));
-        assertThat(userPermissionTreeNodeVisitor.visitLeaf(child1_3), is(true));
-        Optional<TreeNode> optionalTreeNode = userPermissionTreeNodeVisitor.result();
+        assertThat(accountPermissionTreeNodeVisitor.visitEnter(child1_2), is(true));
+        assertThat(accountPermissionTreeNodeVisitor.visitLeaf(child1_3), is(true));
+        Optional<TreeNode> optionalTreeNode = accountPermissionTreeNodeVisitor.result();
         assertThat(optionalTreeNode.isPresent(), is(true));
         assertThat(optionalTreeNode.get().getName(), is("child1_2"));
         assertThat(optionalTreeNode.get().getChildren(), hasSize(1));
@@ -152,9 +132,7 @@ class UserPermissionTreeNodeVisitorTest {
 
     private void createTreeNodeHierarchy() {
         root.addChild(child1_1);
-        root.addChild(child2_1);
         child1_1.addChild(child1_2);
         child1_2.addChild(child1_3);
-        child2_1.addChild(child2_2);
     }
 }

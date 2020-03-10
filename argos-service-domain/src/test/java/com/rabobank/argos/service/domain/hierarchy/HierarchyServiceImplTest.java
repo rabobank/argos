@@ -16,16 +16,23 @@
 package com.rabobank.argos.service.domain.hierarchy;
 
 
+import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.hierarchy.HierarchyMode;
 import com.rabobank.argos.domain.hierarchy.TreeNode;
+import com.rabobank.argos.domain.permission.LocalPermissions;
 import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.service.domain.security.AccountSecurityContext;
+import com.rabobank.argos.service.domain.security.AccountSecurityContextImpl;
+import com.rabobank.argos.service.domain.security.AccountUserDetailsAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -36,9 +43,8 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class HierarchyServiceImplTest {
 
@@ -56,20 +62,28 @@ class HierarchyServiceImplTest {
     private static final String CHILD_2_2_2_ID = "child2_2_2_id";
 
 
-    @Mock
     private AccountSecurityContext accountSecurityContext;
 
     @Mock
     private HierarchyRepository hierarchyRepository;
 
     private HierarchyService hierarchyService;
+
+    @Mock
+    private AccountUserDetailsAdapter accountUserDetailsAdapter;
+
+    @Mock
+    private Account account;
+
+    @Mock
+    private Authentication authentication;
+
     private TreeNode root_1;
     private TreeNode child1_1;
     private TreeNode child2_1;
     private TreeNode child1_2;
     private TreeNode child2_2;
     private TreeNode child1_3;
-
 
     private TreeNode root_2;
     private TreeNode child_2_1_1;
@@ -78,11 +92,23 @@ class HierarchyServiceImplTest {
     private TreeNode child_2_2_2;
     private TreeNode child_2_1_3;
 
+    /*
+     *   Hierarchy tree node structure created for test
+     *
+     *          --- child1_1 --- child1_2 ---  child1_3
+     * root_1
+     *          --- child2_1 --- child2_2
+     *
+     *
+     *          --- child_2_1_1 --- child_2_1_2 ---  child_2_1_3
+     * root_2
+     *          --- child_2_2_1 --- child_2_2_2
+     * */
     @BeforeEach
     void setup() {
-
         createRootNode1();
         createRootNode2();
+        accountSecurityContext = new AccountSecurityContextImpl();
         hierarchyService = new HierarchyServiceImpl(hierarchyRepository, accountSecurityContext);
     }
 
@@ -201,8 +227,15 @@ class HierarchyServiceImplTest {
     @Test
     void getSubTreeShouldReturnTreeNodeWithPermissions() {
         createTreeNodeHierarchy();
-        when(accountSecurityContext.allLocalPermissions(any())).thenReturn(Set.of(Permission.READ));
-        when(accountSecurityContext.getGlobalPermission()).thenReturn(Set.of(Permission.TREE_EDIT));
+        List<LocalPermissions> localPermissions = Collections.singletonList(LocalPermissions.builder()
+                .labelId(ROOT_1_ID)
+                .permissions(List.of(Permission.READ))
+                .build());
+        when(account.getLocalPermissions()).thenReturn(localPermissions);
+        when(authentication.getPrincipal()).thenReturn(accountUserDetailsAdapter);
+        when(accountUserDetailsAdapter.getAccount()).thenReturn(account);
+        when(accountUserDetailsAdapter.getGlobalPermissions()).thenReturn(Set.of(Permission.TREE_EDIT));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         when(hierarchyRepository.getSubTree(ROOT_1_ID, HierarchyMode.ALL, 0)).thenReturn(Optional.of(root_1));
         Optional<TreeNode> optionalTreeNode = hierarchyService.getSubTree(ROOT_1_ID, HierarchyMode.ALL, 0);
         assertThat(optionalTreeNode.isPresent(), is(true));
@@ -217,8 +250,11 @@ class HierarchyServiceImplTest {
     @Test
     void getSubTreeWithNoPermissionsShouldReturnEmpty() {
         createTreeNodeHierarchy();
-        when(accountSecurityContext.allLocalPermissions(any())).thenReturn(emptySet());
-        when(accountSecurityContext.getGlobalPermission()).thenReturn(emptySet());
+        when(account.getLocalPermissions()).thenReturn(emptyList());
+        when(authentication.getPrincipal()).thenReturn(accountUserDetailsAdapter);
+        when(accountUserDetailsAdapter.getAccount()).thenReturn(account);
+        when(accountUserDetailsAdapter.getGlobalPermissions()).thenReturn(emptySet());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         when(hierarchyRepository.getSubTree(ROOT_1_ID, HierarchyMode.ALL, 0)).thenReturn(Optional.of(root_1));
         Optional<TreeNode> optionalTreeNode = hierarchyService.getSubTree(ROOT_1_ID, HierarchyMode.ALL, 0);
         assertThat(optionalTreeNode.isEmpty(), is(true));
@@ -226,17 +262,17 @@ class HierarchyServiceImplTest {
 
 
     @Test
-    void getRootNodesWithPartialPermissionsShouldFilteredResult() {
+    void getRootNodesWithPartialPermissionsShouldFilterResult() {
         createTreeNodeHierarchy();
-        when(accountSecurityContext
-                .allLocalPermissions(argThat(stringList -> stringList != null && stringList.contains(ROOT_1_ID))))
-                .thenReturn(Set.of(Permission.READ));
-
-        when(accountSecurityContext
-                .allLocalPermissions(argThat(stringList -> stringList != null && stringList.contains(ROOT_2_ID))))
-                .thenReturn(emptySet());
-
-        when(accountSecurityContext.getGlobalPermission()).thenReturn(emptySet());
+        List<LocalPermissions> localPermissions = Collections.singletonList(LocalPermissions.builder()
+                .labelId(ROOT_1_ID)
+                .permissions(List.of(Permission.READ))
+                .build());
+        when(account.getLocalPermissions()).thenReturn(localPermissions);
+        when(authentication.getPrincipal()).thenReturn(accountUserDetailsAdapter);
+        when(accountUserDetailsAdapter.getAccount()).thenReturn(account);
+        when(accountUserDetailsAdapter.getGlobalPermissions()).thenReturn(emptySet());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         when(hierarchyRepository.getRootNodes(HierarchyMode.ALL, 0)).thenReturn(List.of(root_1, root_2));
         List<TreeNode> rootNodes = hierarchyService.getRootNodes(HierarchyMode.ALL, 0);
         assertThat(rootNodes.isEmpty(), is(false));
@@ -247,21 +283,24 @@ class HierarchyServiceImplTest {
     @Test
     void getRootNodesWithDifferentPermissionsUpTreeShouldResultInCorrectPermissions() {
         createTreeNodeHierarchy();
-        when(accountSecurityContext
-                .allLocalPermissions(argThat(stringList -> stringList != null && stringList.contains(ROOT_1_ID))))
-                .thenReturn(Set.of(Permission.READ));
+        List<LocalPermissions> localPermissions = List.of(
+                LocalPermissions
+                        .builder()
+                        .labelId(ROOT_1_ID)
+                        .permissions(List.of(Permission.READ))
+                        .build(),
+                LocalPermissions
+                        .builder()
+                        .labelId(CHILD_2_1_ID)
+                        .permissions(List.of(Permission.TREE_EDIT))
+                        .build()
 
-        when(accountSecurityContext
-                .allLocalPermissions(argThat(stringList -> stringList != null &&
-                        stringList.contains(ROOT_1_ID) &&
-                        stringList.contains(CHILD_2_1_ID)
-                )))
-                .thenReturn(Set.of(Permission.READ, Permission.TREE_EDIT));
-
-        when(accountSecurityContext
-                .allLocalPermissions(argThat(stringList -> stringList != null && stringList.contains(ROOT_2_ID))))
-                .thenReturn(emptySet());
-
+        );
+        when(account.getLocalPermissions()).thenReturn(localPermissions);
+        when(authentication.getPrincipal()).thenReturn(accountUserDetailsAdapter);
+        when(accountUserDetailsAdapter.getAccount()).thenReturn(account);
+        when(accountUserDetailsAdapter.getGlobalPermissions()).thenReturn(emptySet());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         when(accountSecurityContext.getGlobalPermission()).thenReturn(emptySet());
         when(hierarchyRepository.getRootNodes(HierarchyMode.ALL, 0)).thenReturn(List.of(root_1, root_2));
         List<TreeNode> rootNodes = hierarchyService.getRootNodes(HierarchyMode.ALL, 0);

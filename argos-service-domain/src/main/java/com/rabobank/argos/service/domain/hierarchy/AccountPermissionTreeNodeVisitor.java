@@ -28,13 +28,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class UserPermissionTreeNodeVisitor implements TreeNodeVisitor<Optional<TreeNode>> {
+public class AccountPermissionTreeNodeVisitor implements TreeNodeVisitor<Optional<TreeNode>> {
 
     private TreeNode treeNodeWithUserPermissions;
     private HashMap<String, TreeNode> parentRegistry = new HashMap<>();
     private final AccountSecurityContext accountSecurityContext;
 
-    UserPermissionTreeNodeVisitor(final AccountSecurityContext accountSecurityContext) {
+    AccountPermissionTreeNodeVisitor(final AccountSecurityContext accountSecurityContext) {
         this.accountSecurityContext = accountSecurityContext;
     }
 
