@@ -16,7 +16,7 @@
           "referenceId": "#uuid",
           "hasChildren": false,
           "children": [],
-          "userPermissions": [
+          "permissions": [
             "LOCAL_PERMISSION_EDIT",
             "READ"
           ]
@@ -27,13 +27,13 @@
           "referenceId": "#uuid",
           "hasChildren": false,
           "children": [],
-          "userPermissions": [
+          "permissions": [
             "LOCAL_PERMISSION_EDIT",
             "READ"
           ]
         }
       ],
-      "userPermissions": [
+      "permissions": [
         "LOCAL_PERMISSION_EDIT",
         "READ"
       ]
@@ -44,12 +44,12 @@
       "referenceId": "#uuid",
       "hasChildren": false,
       "children": [],
-      "userPermissions": [
+      "permissions": [
         "READ"
       ]
     }
   ],
-  "userPermissions": [
+  "permissions": [
     "READ"
   ]
 }

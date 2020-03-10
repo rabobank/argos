@@ -16,7 +16,7 @@
           "referenceId": "#uuid",
           "hasChildren": false,
           "children": [],
-          "userPermissions": [
+          "permissions": [
             "ASSIGN_ROLE",
             "LOCAL_PERMISSION_EDIT",
             "READ",
@@ -30,7 +30,7 @@
           "referenceId": "#uuid",
           "hasChildren": false,
           "children": [],
-          "userPermissions": [
+          "permissions": [
             "ASSIGN_ROLE",
             "LOCAL_PERMISSION_EDIT",
             "READ",
@@ -39,7 +39,7 @@
           ]
         }
       ],
-      "userPermissions": [
+      "permissions": [
         "ASSIGN_ROLE",
         "LOCAL_PERMISSION_EDIT",
         "READ",
@@ -53,7 +53,7 @@
       "referenceId": "#uuid",
       "hasChildren": false,
       "children": [],
-      "userPermissions": [
+      "permissions": [
         "ASSIGN_ROLE",
         "LOCAL_PERMISSION_EDIT",
         "READ",
@@ -62,7 +62,7 @@
       ]
     }
   ],
-  "userPermissions": [
+  "permissions": [
     "ASSIGN_ROLE",
     "LOCAL_PERMISSION_EDIT",
     "READ",

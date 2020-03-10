@@ -5,7 +5,7 @@
     "referenceId": "#uuid",
     "hasChildren": true,
     "children": [],
-    "userPermissions": [
+    "permissions": [
       "ASSIGN_ROLE",
       "LOCAL_PERMISSION_EDIT",
       "READ",
@@ -19,7 +19,7 @@
     "referenceId": "#uuid",
     "hasChildren": true,
     "children": [],
-    "userPermissions": [
+    "permissions": [
       "ASSIGN_ROLE",
       "LOCAL_PERMISSION_EDIT",
       "READ",
@@ -33,7 +33,7 @@
     "referenceId": "#uuid",
     "hasChildren": true,
     "children": [],
-    "userPermissions": [
+    "permissions": [
       "ASSIGN_ROLE",
       "LOCAL_PERMISSION_EDIT",
       "READ",

@@ -5,7 +5,7 @@
     "referenceId": "#uuid",
     "hasChildren": true,
     "children": [],
-    "userPermissions": [
+    "permissions": [
       "READ"
     ]
   }
