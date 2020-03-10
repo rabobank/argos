@@ -38,7 +38,7 @@ import java.net.URI;
 import java.util.List;
 
 import static com.rabobank.argos.service.adapter.in.rest.supplychain.SupplyChainLabelIdExtractor.SUPPLY_CHAIN_LABEL_ID_EXTRACTOR;
-import static com.rabobank.argos.service.adapter.in.rest.supplychain.SupplyChainPathToRootLocalPermissionCheckDataExtractor.SUPPLY_CHAIN_PATH_TO_ROOT_LOCAL_DATA_EXTRACTOR;
+import static com.rabobank.argos.service.adapter.in.rest.supplychain.SupplyChainPathLocalPermissionCheckDataExtractor.SUPPLY_CHAIN_PATH_LOCAL_DATA_EXTRACTOR;
 
 @RestController
 @Slf4j
@@ -79,7 +79,7 @@ public class SupplyChainRestService implements SupplychainApi {
 
 
     @Override
-    @PermissionCheck(permissions = Permission.READ, localPermissionDataExtractorBean = SUPPLY_CHAIN_PATH_TO_ROOT_LOCAL_DATA_EXTRACTOR)
+    @PermissionCheck(permissions = Permission.READ, localPermissionDataExtractorBean = SUPPLY_CHAIN_PATH_LOCAL_DATA_EXTRACTOR)
     public ResponseEntity<RestSupplyChain> getSupplyChainByPathToRoot(String supplyChainName, List<String> pathToRoot) {
         return hierarchyRepository.findByNamePathToRootAndType(supplyChainName, pathToRoot, TreeNode.Type.SUPPLY_CHAIN)
                 .map(TreeNode::getReferenceId)
