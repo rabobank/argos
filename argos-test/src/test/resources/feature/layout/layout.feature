@@ -19,30 +19,43 @@ Feature: Layout
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def token = karate.properties['bearer.token']
-    * configure headers = call read('classpath:headers.js') { token: #(token)}
+    * def tokenWithoutLayoutAddPermissions = karate.properties['bearer.token']
+    * configure headers = call read('classpath:headers.js') { token: #(tokenWithoutLayoutAddPermissions)}
     * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
+    * def authorizedAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Layout authorized person',email: 'local.permissions@layout.go'}
+    * call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(authorizedAccount.response.id),labelId: #(supplyChain.response.parentLabelId), permissions: ["READ","LAYOUT_ADD"]}
+    * def accountWithNoReadPermissions = call read('classpath:feature/account/create-personal-account.feature') {name: 'account with no read permissions person',email: 'local.permissions@LAYOUT_ADD.go'}
+    * call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(accountWithNoReadPermissions.response.id),labelId: #(supplyChain.response.parentLabelId), permissions: ["LAYOUT_ADD"]}
     * call read('classpath:feature/account/insert-test-key-pairs.feature') {parentLabelId: #(supplyChain.response.parentLabelId)}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
     * def validLayout = 'classpath:testmessages/layout/valid-layout.json'
-
+    * configure headers = call read('classpath:headers.js') { token: #(authorizedAccount.response.token)}
   Scenario: store layout with valid specifications should return a 200
     * call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
 
-  Scenario: store link with invalid specifications should return a 400 error
+  Scenario: store layout with invalid specifications should return a 400 error
     Given path layoutPath
     And request read('classpath:testmessages/layout/invalid-layout.json')
     When method POST
     Then status 400
     And match response contains read('classpath:testmessages/layout/invalid-layout-response.json')
 
-  Scenario: store link without authorization should return a 401 error
+  Scenario: store layout without authorization should return a 401 error
     * configure headers = null
     Given path layoutPath
     And header Content-Type = 'application/json'
     And request read(validLayout)
     When method POST
     Then status 401
+
+  Scenario: store layout without LAYOUT_ADD permission should return a 403 error
+    * configure headers = call read('classpath:headers.js') { token: #(tokenWithoutLayoutAddPermissions)}
+    * def layout2BSigned = read(validLayout)
+    * def signedLayout = call read('classpath:feature/layout/sign-layout.feature') {json:#(layout2BSigned),keyNumber:2}
+    Given path layoutPath
+    And request signedLayout.response
+    When method POST
+    Then status 403
 
   Scenario: find layout with valid supplychainid should return a 200
     * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
@@ -61,6 +74,13 @@ Feature: Layout
     When method GET
     Then status 401
 
+  Scenario: find layout without READ permission should return a 403
+    * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
+    * configure headers = call read('classpath:headers.js') { token: #(accountWithNoReadPermissions.response.token)}
+    Given path layoutPath
+    When method GET
+    Then status 403
+
   Scenario: update a layout should return a 200
     * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
     * def layoutId = layoutResponse.response.id
@@ -73,6 +93,17 @@ Feature: Layout
     * def layoutId = layoutResponse.response.id
     * def expectedResponse = read('classpath:testmessages/layout/valid-update-layout-response.json')
     And match response contains expectedResponse
+
+  Scenario: update a layout without LAYOUT_ADD permission should return a 403
+    * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
+    * def layoutId = layoutResponse.response.id
+    * def layoutToBeSigned = read('classpath:testmessages/layout/valid-update-layout.json')
+    * def requestBody = call read('sign-layout.feature') {json:#(layoutToBeSigned),keyNumber:3}
+    * configure headers = call read('classpath:headers.js') { token: #(tokenWithoutLayoutAddPermissions)}
+    Given path layoutPath + '/' + layoutId
+    And request requestBody.response
+    When method PUT
+    Then status 403
 
   Scenario: update a layout without authorization should return a 401 error
     * def layoutResponse = call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:2}
