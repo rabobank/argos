@@ -86,10 +86,12 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     }
 
     @Override
-    public ResponseEntity<List<RestPersonalAccount>> searchPersonalAccounts(String roleName, String localPermissionsLabelId) {
+    public ResponseEntity<List<RestPersonalAccount>> searchPersonalAccounts(String roleName, String localPermissionsLabelId, String name) {
         return ResponseEntity.ok(accountService.searchPersonalAccounts(AccountSearchParams.builder()
                 .roleId(personalAccountMapper.convertToRoleId(roleName))
-                .localPermissionsLabelId(localPermissionsLabelId).build()).stream()
+                .localPermissionsLabelId(localPermissionsLabelId)
+                .name(name)
+                .build()).stream()
                 .map(personalAccountMapper::convertToRestPersonalAccountWithoutRoles).collect(Collectors.toList()));
     }
 

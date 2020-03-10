@@ -197,13 +197,14 @@ class PersonalAccountRestServiceTest {
         when(personalAccountMapper.convertToRoleId(ROLE_NAME)).thenReturn(ROLE_ID);
         when(accountService.searchPersonalAccounts(any(AccountSearchParams.class))).thenReturn(List.of(personalAccount));
         when(personalAccountMapper.convertToRestPersonalAccountWithoutRoles(personalAccount)).thenReturn(restPersonalAccount);
-        ResponseEntity<List<RestPersonalAccount>> response = service.searchPersonalAccounts(ROLE_NAME, LABEL_ID);
+        ResponseEntity<List<RestPersonalAccount>> response = service.searchPersonalAccounts(ROLE_NAME, LABEL_ID, NAME);
         assertThat(response.getBody(), contains(restPersonalAccount));
         assertThat(response.getStatusCodeValue(), Matchers.is(200));
         verify(accountService).searchPersonalAccounts(searchParamsArgumentCaptor.capture());
         AccountSearchParams searchParams = searchParamsArgumentCaptor.getValue();
         assertThat(searchParams.getLocalPermissionsLabelId(), is(Optional.of(LABEL_ID)));
         assertThat(searchParams.getRoleId(), is(Optional.of(ROLE_ID)));
+        assertThat(searchParams.getName(), is(Optional.of(NAME)));
     }
 
     @Test

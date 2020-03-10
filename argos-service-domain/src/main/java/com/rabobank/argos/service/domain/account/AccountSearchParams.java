@@ -23,6 +23,7 @@ import java.util.Optional;
 public class AccountSearchParams {
     private final String roleId;
     private final String localPermissionsLabelId;
+    private final String name;
 
     public Optional<String> getRoleId() {
         return Optional.ofNullable(roleId);
@@ -30,5 +31,9 @@ public class AccountSearchParams {
 
     public Optional<String> getLocalPermissionsLabelId() {
         return Optional.ofNullable(localPermissionsLabelId);
+    }
+
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 }
