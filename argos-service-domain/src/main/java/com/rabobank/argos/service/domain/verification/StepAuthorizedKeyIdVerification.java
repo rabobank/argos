@@ -43,7 +43,9 @@ public class StepAuthorizedKeyIdVerification implements Verification {
                 .collect(Collectors.toList());
 
         if (!failedLinkAuthorizedKeyIdVerifications.isEmpty()) {
-            log.info("the following links were invalid and will be removed from the context: {}", failedLinkAuthorizedKeyIdVerifications);
+            failedLinkAuthorizedKeyIdVerifications
+                .forEach(block -> log.info("LinkMetaBlock for step [{}] is signed with the not authorized key [{}] the linkMetaBlock will be removed from the context",
+                        block.getLink().getStepName(), block.getSignature().getKeyId()));
             context.removeLinkMetaBlocks(failedLinkAuthorizedKeyIdVerifications);
         }
 
