@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.service.domain.security;
+package com.rabobank.argos.domain.hierarchy;
 
-import com.rabobank.argos.domain.account.Account;
-import com.rabobank.argos.domain.permission.Permission;
+public interface TreeNodeVisitor<R> {
+    boolean visitEnter(TreeNode treeNode);
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+    boolean visitExit(TreeNode treeNode);
 
-public interface AccountSecurityContext {
-    Optional<Account> getAuthenticatedAccount();
-    Set<Permission> getGlobalPermission();
-    Set<Permission> allLocalPermissions(List<String> allLabelIdsUpTree);
+    boolean visitLeaf(TreeNode treeNode);
+
+    R result();
 }
-

@@ -16,6 +16,8 @@
 package com.rabobank.argos.service.domain.security;
 
 import com.rabobank.argos.domain.account.Account;
+import com.rabobank.argos.domain.permission.LocalPermissions;
+import com.rabobank.argos.domain.permission.Permission;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +27,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -34,6 +39,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AccountSecurityContextImplTest {
 
+    private static final String LABEL_ID = "label_id";
     private AccountSecurityContextImpl context;
 
     @Mock
@@ -61,6 +67,45 @@ class AccountSecurityContextImplTest {
         when(accountUserDetailsAdapter.getAccount()).thenReturn(account);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         assertThat(context.getAuthenticatedAccount(), is(Optional.of(account)));
+    }
+
+    @Test
+    void getAllPermissionsWithCorrectIdsShouldReturnCorrectSet() {
+        List<LocalPermissions> localPermissions = Collections.singletonList(LocalPermissions.builder()
+                .labelId(LABEL_ID)
+                .permissions(List.of(Permission.READ))
+                .build());
+        when(account.getLocalPermissions()).thenReturn(localPermissions);
+        when(authentication.getPrincipal()).thenReturn(accountUserDetailsAdapter);
+        when(accountUserDetailsAdapter.getAccount()).thenReturn(account);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Set<Permission> permissions = context.allLocalPermissions(List.of(LABEL_ID));
+        assertThat(permissions, is(Set.of(Permission.READ)));
+    }
+
+    @Test
+    void getAllPermissionsWithNoAuthenticationShouldReturnEmptySet() {
+        when(authentication.getPrincipal()).thenReturn(null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Set<Permission> permissions = context.allLocalPermissions(List.of(LABEL_ID));
+        assertThat(permissions.isEmpty(), is(true));
+    }
+
+    @Test
+    void getGlobalPermisionsShouldReturnResult() {
+        when(authentication.getPrincipal()).thenReturn(accountUserDetailsAdapter);
+        when(accountUserDetailsAdapter.getGlobalPermissions()).thenReturn(Set.of(Permission.READ));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Set<Permission> permissions = context.getGlobalPermission();
+        assertThat(permissions, is(Set.of(Permission.READ)));
+    }
+
+    @Test
+    void getGlobalPermisionsEmptyAccountShouldReturnEmpty() {
+        when(authentication.getPrincipal()).thenReturn(null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Set<Permission> permissions = context.getGlobalPermission();
+        assertThat(permissions.isEmpty(), is(true));
     }
 
     @AfterEach

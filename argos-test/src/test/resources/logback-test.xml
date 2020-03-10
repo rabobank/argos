@@ -25,7 +25,7 @@
 
     <logger name="com.intuit.karate" level="INFO"/>
 
-    <logger name="feign.Logger" level="INFO" />
+    <logger name="feign.Logger" level="INFO"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
