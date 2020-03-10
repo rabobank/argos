@@ -58,7 +58,6 @@ public class AccountSecurityContextImpl implements AccountSecurityContext {
     public Set<Permission> allLocalPermissions(List<String> allLabelIdsUpTree) {
         AccountUserDetailsAdapter authentication = getAccountUserDetailsAdapter();
         if (authentication != null) {
-
             Map<String, List<LocalPermissions>> localPermissionsMap = authentication.getAccount().getLocalPermissions()
                     .stream()
                     .collect(Collectors.groupingBy(LocalPermissions::getLabelId));
@@ -69,7 +68,6 @@ public class AccountSecurityContextImpl implements AccountSecurityContext {
                     .flatMap(List::stream)
                     .collect(toSet());
         } else {
-
             return emptySet();
         }
 

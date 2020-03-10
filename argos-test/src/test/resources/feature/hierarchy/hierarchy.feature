@@ -87,12 +87,36 @@ Feature: Hierarchy
     * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-rootnodes-maxdepth.json')
     And match response == expectedResponse
 
+  Scenario: get root nodes with no permissions should return only root nodes with permissions
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person',email: 'local.permissions@extra.go'}
+    * def localPermissionsForRoot = call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(extraAccount.response.id),labelId: #(root1.response.id), permissions: ["READ"]}
+    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
+    Given path '/api/hierarchy'
+    And param HierarchyMode = 'NONE'
+    When method GET
+    Then status 200
+    * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-rootnodes-partial-permissions.json')
+    And match response == expectedResponse
+
   Scenario: get subtree with HierarchyMode all should return full tree
     Given path '/api/hierarchy/' + root1.response.id
     And param HierarchyMode = 'ALL'
     When method GET
     Then status 200
     * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-subtree-all.json')
+    And match response == expectedResponse
+
+  Scenario: get subtree with added permissions uptree should return correct permissions
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person',email: 'local.permissions@extra.go'}
+    * def localPermissionsForRoot = call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(extraAccount.response.id),labelId: #(root1.response.id), permissions: ["READ"]}
+    * def root1ChildPermissions = call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(extraAccount.response.id),labelId: #(root1ChildResponse.response.id), permissions: ["LOCAL_PERMISSION_EDIT"]}
+    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
+    * print extraAccount.response.token
+    Given path '/api/hierarchy/' + root1.response.id
+    And param HierarchyMode = 'ALL'
+    When method GET
+    Then status 200
+    * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-subtree-added-local-permissions.json')
     And match response == expectedResponse
 
   Scenario: get subtree with HierarchyMode none should return only root

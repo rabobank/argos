@@ -26,10 +26,10 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 
-@Component(SupplyChainPathToRootLocalPermissionCheckDataExtractor.SUPPLY_CHAIN_PATH_TO_ROOT_LOCAL_DATA_EXTRACTOR)
+@Component(SupplyChainPathLocalPermissionCheckDataExtractor.SUPPLY_CHAIN_PATH_LOCAL_DATA_EXTRACTOR)
 @RequiredArgsConstructor
-public class SupplyChainPathToRootLocalPermissionCheckDataExtractor implements LocalPermissionCheckDataExtractor {
-    public static final String SUPPLY_CHAIN_PATH_TO_ROOT_LOCAL_DATA_EXTRACTOR = "SupplyChainPathToRootLocalPermissionCheckDataExtractor";
+public class SupplyChainPathLocalPermissionCheckDataExtractor implements LocalPermissionCheckDataExtractor {
+    public static final String SUPPLY_CHAIN_PATH_LOCAL_DATA_EXTRACTOR = "SupplyChainPathLocalPermissionCheckDataExtractor";
 
     private final HierarchyRepository hierarchyRepository;
 

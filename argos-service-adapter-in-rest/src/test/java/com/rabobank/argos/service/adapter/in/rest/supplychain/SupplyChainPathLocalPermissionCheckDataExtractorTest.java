@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SupplyChainPathToRootLocalPermissionCheckDataExtractorTest {
+class SupplyChainPathLocalPermissionCheckDataExtractorTest {
 
     private static final String OBJECT_VALUE = "value";
     private static final String LABEL_ID = "labelId";
@@ -43,14 +43,14 @@ class SupplyChainPathToRootLocalPermissionCheckDataExtractorTest {
     @Mock
     private TreeNode treeNode;
 
-    private SupplyChainPathToRootLocalPermissionCheckDataExtractor extractor;
+    private SupplyChainPathLocalPermissionCheckDataExtractor extractor;
 
     @Mock
     private Method method;
 
     @BeforeEach
     void setUp() {
-        extractor = new SupplyChainPathToRootLocalPermissionCheckDataExtractor(hierarchyRepository);
+        extractor = new SupplyChainPathLocalPermissionCheckDataExtractor(hierarchyRepository);
     }
 
     @Test

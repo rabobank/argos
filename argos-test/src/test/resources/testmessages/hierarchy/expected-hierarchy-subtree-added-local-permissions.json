@@ -17,11 +17,8 @@
           "hasChildren": false,
           "children": [],
           "permissions": [
-            "ASSIGN_ROLE",
             "LOCAL_PERMISSION_EDIT",
-            "READ",
-            "TREE_EDIT",
-            "VERIFY"
+            "READ"
           ]
         },
         {
@@ -31,20 +28,14 @@
           "hasChildren": false,
           "children": [],
           "permissions": [
-            "ASSIGN_ROLE",
             "LOCAL_PERMISSION_EDIT",
-            "READ",
-            "TREE_EDIT",
-            "VERIFY"
+            "READ"
           ]
         }
       ],
       "permissions": [
-        "ASSIGN_ROLE",
         "LOCAL_PERMISSION_EDIT",
-        "READ",
-        "TREE_EDIT",
-        "VERIFY"
+        "READ"
       ]
     },
     {
@@ -54,19 +45,11 @@
       "hasChildren": false,
       "children": [],
       "permissions": [
-        "ASSIGN_ROLE",
-        "LOCAL_PERMISSION_EDIT",
-        "READ",
-        "TREE_EDIT",
-        "VERIFY"
+        "READ"
       ]
     }
   ],
   "permissions": [
-    "ASSIGN_ROLE",
-    "LOCAL_PERMISSION_EDIT",
-    "READ",
-    "TREE_EDIT",
-    "VERIFY"
+    "READ"
   ]
 }

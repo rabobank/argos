@@ -101,6 +101,7 @@
               "name": 1,
               "type": 1,
               "pathToRoot": [],
+              "idPathToRoot": [],
               "hasChildren": {
                 "$gt": [
                   {
