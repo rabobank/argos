@@ -15,28 +15,24 @@
  */
 package com.rabobank.argos.argos4j;
 
-import com.rabobank.argos.argos4j.internal.LinkBuilderImpl;
-import com.rabobank.argos.argos4j.internal.VerifyBuilderImpl;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-import java.io.Serializable;
+import java.net.URI;
 
-@RequiredArgsConstructor
-public class Argos4j implements Serializable {
+@Builder
+@Getter
+public class FileCollector {
 
-    @Getter
-    private final Argos4jSettings settings;
+    private final FileCollectorType type;
+    private final URI uri;
+    private final FileCollectorSettings settings;
 
-    public LinkBuilder getLinkBuilder(LinkBuilderSettings linkBuilderSettings) {
-        return new LinkBuilderImpl(settings, linkBuilderSettings);
-    }
-
-    public VerifyBuilder getVerifyBuilder() {
-        return new VerifyBuilderImpl(settings);
-    }
-
-    public static String getVersion() {
-        return VersionInfo.getInfo();
+    public enum FileCollectorType {
+        LOCAL_DIRECTORY,
+        LOCAL_FILE,
+        LOCAL_ZIP,
+        REMOTE_FILE,
+        REMOTE_ZIP
     }
 }

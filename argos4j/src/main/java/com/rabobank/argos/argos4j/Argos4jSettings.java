@@ -25,22 +25,8 @@ import java.util.List;
 @Getter
 public class Argos4jSettings implements Serializable {
 
-    public static final String DEFAULT_EXCLUDE_PATTERNS = "**.{git,link}**";
-
-    @Builder.Default
-    private final String excludePatterns = DEFAULT_EXCLUDE_PATTERNS;
-
-    @Builder.Default
-    private final boolean followSymlinkDirs = true;
-
-    @Builder.Default
-    private final boolean normalizeLineEndings = false;
-
     private final String supplyChainName;
     private final List<String> pathToLabelRoot;
-    private final String runId;
-    private final String layoutSegmentName;
-    private final String stepName;
     private final String signingKeyId;
     private final String argosServerBaseUrl;
 

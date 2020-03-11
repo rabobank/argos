@@ -17,6 +17,10 @@ package com.rabobank.argos.test;
 
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jSettings;
+import com.rabobank.argos.argos4j.FileCollector;
+import com.rabobank.argos.argos4j.FileCollectorSettings;
+import com.rabobank.argos.argos4j.LinkBuilder;
+import com.rabobank.argos.argos4j.LinkBuilderSettings;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
@@ -36,9 +40,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
+import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL_DIRECTORY;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getToken;
@@ -65,7 +69,7 @@ public class Argos4jIT {
     }
 
     @Test
-    void postLinkMetaBlockWithSignatureValidationAndVerify() throws IOException {
+    void postLinkMetaBlockWithSignatureValidationAndVerify() {
 
 
         String token = getToken();
@@ -81,17 +85,15 @@ public class Argos4jIT {
 
         Argos4jSettings settings = Argos4jSettings.builder()
                 .argosServerBaseUrl(properties.getApiBaseUrl() + "/api")
-                .layoutSegmentName("layoutSegmentName")
-                .stepName("build")
-                .runId("runId")
                 .supplyChainName("test-supply-chain")
                 .pathToLabelRoot(List.of("child_label", "root_label"))
                 .signingKeyId(keyPair.getKeyId())
                 .build();
-        Argos4j argos4j = new Argos4j(settings);
-        argos4j.collectProducts(new File("."));
-        argos4j.collectMaterials(new File("."));
-        argos4j.store("test".toCharArray());
+        LinkBuilder linkBuilder = new Argos4j(settings).getLinkBuilder(LinkBuilderSettings.builder().layoutSegmentName("layoutSegmentName").stepName("build").runId("runId").build());
+        FileCollector fileCollector = FileCollector.builder().uri(new File(".").toURI()).type(LOCAL_DIRECTORY).settings(FileCollectorSettings.builder().build()).build();
+        linkBuilder.collectProducts(fileCollector);
+        linkBuilder.collectMaterials(fileCollector);
+        linkBuilder.store("test".toCharArray());
 
         RestVerificationResult verificationResult = getVerificationApi(token).performVerification(supplyChainId, new RestVerifyCommand()
                 .addExpectedProductsItem(new RestArtifact().uri("src/test/resources/karate-config.js").hash("9b33afe5598c5ea4cc702b231b2a98a906bc2fdcd10ebab103bbb20596db07a2")));

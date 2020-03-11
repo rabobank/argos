@@ -15,28 +15,21 @@
  */
 package com.rabobank.argos.argos4j;
 
-import com.rabobank.argos.argos4j.internal.LinkBuilderImpl;
-import com.rabobank.argos.argos4j.internal.VerifyBuilderImpl;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-import java.io.Serializable;
+@Builder
+@Getter
+public class FileCollectorSettings {
 
-@RequiredArgsConstructor
-public class Argos4j implements Serializable {
+    public static final String DEFAULT_EXCLUDE_PATTERNS = "**.{git,link}**";
 
-    @Getter
-    private final Argos4jSettings settings;
+    @Builder.Default
+    private final String excludePatterns = DEFAULT_EXCLUDE_PATTERNS;
 
-    public LinkBuilder getLinkBuilder(LinkBuilderSettings linkBuilderSettings) {
-        return new LinkBuilderImpl(settings, linkBuilderSettings);
-    }
+    @Builder.Default
+    private final boolean followSymlinkDirs = true;
 
-    public VerifyBuilder getVerifyBuilder() {
-        return new VerifyBuilderImpl(settings);
-    }
-
-    public static String getVersion() {
-        return VersionInfo.getInfo();
-    }
+    @Builder.Default
+    private final boolean normalizeLineEndings = false;
 }

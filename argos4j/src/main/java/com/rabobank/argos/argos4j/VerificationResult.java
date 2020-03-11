@@ -15,28 +15,11 @@
  */
 package com.rabobank.argos.argos4j;
 
-import com.rabobank.argos.argos4j.internal.LinkBuilderImpl;
-import com.rabobank.argos.argos4j.internal.VerifyBuilderImpl;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-import java.io.Serializable;
-
-@RequiredArgsConstructor
-public class Argos4j implements Serializable {
-
-    @Getter
-    private final Argos4jSettings settings;
-
-    public LinkBuilder getLinkBuilder(LinkBuilderSettings linkBuilderSettings) {
-        return new LinkBuilderImpl(settings, linkBuilderSettings);
-    }
-
-    public VerifyBuilder getVerifyBuilder() {
-        return new VerifyBuilderImpl(settings);
-    }
-
-    public static String getVersion() {
-        return VersionInfo.getInfo();
-    }
+@Builder
+@Getter
+public class VerificationResult {
+    private boolean success;
 }

@@ -13,30 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.argos4j;
+package com.rabobank.argos.argos4j.internal;
 
-import com.rabobank.argos.argos4j.internal.LinkBuilderImpl;
-import com.rabobank.argos.argos4j.internal.VerifyBuilderImpl;
-import lombok.Getter;
+import com.rabobank.argos.argos4j.Argos4jSettings;
+import com.rabobank.argos.argos4j.FileCollector;
+import com.rabobank.argos.argos4j.VerificationResult;
+import com.rabobank.argos.argos4j.VerifyBuilder;
 import lombok.RequiredArgsConstructor;
 
-import java.io.Serializable;
-
 @RequiredArgsConstructor
-public class Argos4j implements Serializable {
+public class VerifyBuilderImpl implements VerifyBuilder {
 
-    @Getter
     private final Argos4jSettings settings;
 
-    public LinkBuilder getLinkBuilder(LinkBuilderSettings linkBuilderSettings) {
-        return new LinkBuilderImpl(settings, linkBuilderSettings);
+    @Override
+    public VerifyBuilder addFileCollector(FileCollector collector) {
+        return null;
     }
 
-    public VerifyBuilder getVerifyBuilder() {
-        return new VerifyBuilderImpl(settings);
-    }
-
-    public static String getVersion() {
-        return VersionInfo.getInfo();
+    @Override
+    public VerificationResult verify() {
+        return null;
     }
 }
