@@ -1334,10 +1334,8 @@ components:
           readOnly: true
         name:
           type: string
-          readOnly: true
         email:
           type: string
-          readOnly: true
           format: email
         roles:
           type: array

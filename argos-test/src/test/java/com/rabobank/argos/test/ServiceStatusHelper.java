@@ -22,6 +22,7 @@ import com.rabobank.argos.argos4j.rest.api.client.HierarchyApi;
 import com.rabobank.argos.argos4j.rest.api.client.LayoutApi;
 import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
+import com.rabobank.argos.argos4j.rest.api.client.PersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
 import com.rabobank.argos.argos4j.rest.api.client.VerificationApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
@@ -111,6 +112,10 @@ public class ServiceStatusHelper {
 
     public static boolean isValidEndProduct(String bearerToken, String supplyChainId, RestVerifyCommand verifyCommand) {
         return getVerificationApi(bearerToken).performVerification(supplyChainId, verifyCommand).getRunIsValid();
+    }
+
+    public static PersonalAccountApi getPersonalAccountApi(String bearerToken) {
+        return getApiClient(bearerToken).buildClient(PersonalAccountApi.class);
     }
 
     public static NonPersonalAccountApi getNonPersonalAccountApi(String bearerToken) {

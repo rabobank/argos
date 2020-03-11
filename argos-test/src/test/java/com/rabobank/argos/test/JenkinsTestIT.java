@@ -27,13 +27,18 @@ import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
 import com.rabobank.argos.argos4j.internal.ArgosServiceClient;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
+import com.rabobank.argos.argos4j.rest.api.client.PersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
 import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccount;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
+import com.rabobank.argos.argos4j.rest.api.model.RestPermission;
 import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
 import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
+import com.rabobank.argos.test.rest.api.client.IntegrationTestServiceApi;
+import com.rabobank.argos.test.rest.api.model.TestPersonalAccount;
+import com.rabobank.argos.test.rest.api.model.TestPersonalAccountWithToken;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,24 +50,29 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.rabobank.argos.test.NexusHelper.getWarSnapshotHash;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getNonPersonalAccountApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getPersonalAccountApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getToken;
 import static com.rabobank.argos.test.ServiceStatusHelper.isValidEndProduct;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
+import static com.rabobank.argos.test.TestServiceHelper.getTestApi;
 import static com.rabobank.argos.test.TestServiceHelper.signAndStoreLayout;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 public class JenkinsTestIT {
@@ -102,8 +112,21 @@ public class JenkinsTestIT {
         createNpaWithActiveKey(token, restKeyPairExt, childLabel.getId(), "npa2");
         restKeyPairExt = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair3.json"), RestNonPersonalAccountKeyPair.class);
         createNpaWithActiveKey(token, restKeyPairExt, childLabel.getId(), "npa3");
-        createLayout();
+        String accountWithLayoutPermissionsToken = createPersonalAccountWithLayoutPermissions(token, restSupplyChainItem.getParentLabelId());
+
+        createLayout(accountWithLayoutPermissionsToken);
         jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
+    }
+
+    private String createPersonalAccountWithLayoutPermissions(String token, String parentLabelId) {
+        IntegrationTestServiceApi testApi = getTestApi();
+        TestPersonalAccount testPersonalAccount = new TestPersonalAccount();
+        testPersonalAccount.setName("Layout manager");
+        testPersonalAccount.setEmail("layoutmanager@nl.nl");
+        TestPersonalAccountWithToken personalAccountWithToken = testApi.createPersonalAccount(testPersonalAccount);
+        PersonalAccountApi personalAccountApi = getPersonalAccountApi(token);
+        personalAccountApi.updateLocalPermissionsForLabel(personalAccountWithToken.getId(), parentLabelId, List.of(RestPermission.LAYOUT_ADD, RestPermission.READ));
+        return personalAccountWithToken.getToken();
     }
 
     private void createNpaWithActiveKey(String token, RestNonPersonalAccountKeyPair restKeyPair, String parentLabelId, String name) {
@@ -132,7 +155,7 @@ public class JenkinsTestIT {
         log.info("jenkins started");
     }
 
-    private void createLayout()  {
+    private void createLayout(String token) {
         try {
             signAndStoreLayout(token, supplyChainId, new ObjectMapper().readValue(getClass().getResourceAsStream("/to-verify-layout.json"), RestLayoutMetaBlock.class), keyIdBob, KEY_PASSWORD);
         } catch (IOException e) {
