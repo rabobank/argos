@@ -15,29 +15,28 @@
  */
 package com.rabobank.argos.test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.fail;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.HttpClient.Redirect;
 import java.security.MessageDigest;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-
-import lombok.extern.slf4j.Slf4j;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-public class NexusHelper {
+class NexusHelper {
     
     private static Properties properties = Properties.getInstance();
-    
-    public static String getWarSnapshotHash() {
+
+    static String getWarSnapshotHash() {
         try {
             HttpClient client = HttpClient.newBuilder().followRedirects(Redirect.ALWAYS).build();
             HttpRequest request = HttpRequest.newBuilder()
@@ -48,8 +47,7 @@ public class NexusHelper {
             assertThat(send.statusCode(), is(200));
             MessageDigest digest = DigestUtils.getSha256Digest();
             digest.update(send.body(), 0, send.body().length);
-            String hash = Hex.encodeHexString(digest.digest());
-            return hash;
+            return Hex.encodeHexString(digest.digest());
         } catch (IOException | InterruptedException e) {
             fail(e.getMessage());
         }
@@ -67,8 +65,7 @@ public class NexusHelper {
             assertThat(send.statusCode(), is(200));
             MessageDigest digest = DigestUtils.getSha256Digest();
             digest.update(send.body(), 0, send.body().length);
-            String hash = Hex.encodeHexString(digest.digest());
-            return hash;
+            return Hex.encodeHexString(digest.digest());
         } catch (IOException | InterruptedException e) {
             fail(e.getMessage());
         }
