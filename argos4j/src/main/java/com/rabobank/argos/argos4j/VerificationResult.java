@@ -21,5 +21,5 @@ import lombok.Getter;
 @Builder
 @Getter
 public class VerificationResult {
-    private boolean success;
+    private boolean runIsValid;
 }

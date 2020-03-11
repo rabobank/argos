@@ -30,8 +30,14 @@ public class ArtifactCollectorFactory {
             case LOCAL_FILE:
             case LOCAL_DIRECTORY:
                 return new LocalArtifactCollector(fileCollector);
+            case LOCAL_ZIP:
+                return new ZipArtifactCollector(fileCollector);
+            case REMOTE_ZIP:
+            case REMOTE_FILE:
+                return new RemoteArtifactCollector(fileCollector);
             default:
                 throw new Argos4jError(fileCollector.getType() + " not implemented");
+
         }
     }
 }

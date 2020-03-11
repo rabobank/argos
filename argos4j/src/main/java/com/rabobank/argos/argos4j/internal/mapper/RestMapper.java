@@ -16,14 +16,20 @@
 package com.rabobank.argos.argos4j.internal.mapper;
 
 
+import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
 import com.rabobank.argos.argos4j.rest.api.model.RestLinkMetaBlock;
+import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import org.mapstruct.Mapper;
 
+import java.util.List;
+
 @Mapper
-public interface LinkMetaBlockMapper {
+public interface RestMapper {
 
     LinkMetaBlock convertFromRestLinkMetaBlock(RestLinkMetaBlock metaBlock);
 
     RestLinkMetaBlock convertToRestLinkMetaBlock(LinkMetaBlock metaBlock);
+
+    List<RestArtifact> convertToRestArtifacts(List<Artifact> artifacts);
 }

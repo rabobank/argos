@@ -21,20 +21,16 @@ import com.rabobank.argos.argos4j.FileCollector;
 import com.rabobank.argos.argos4j.FileCollectorSettings;
 import com.rabobank.argos.domain.link.Artifact;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.input.UnixLineEndingInputStream;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +72,7 @@ public class LocalArtifactCollector implements ArtifactCollector {
     }
 
     private void recurseAndCollect(String file) {
-        if (this.matcher.matches(Paths.get(file))) {
+        if (matcher.matches(Paths.get(file))) {
             return;
         }
 
@@ -117,19 +113,12 @@ public class LocalArtifactCollector implements ArtifactCollector {
     }
 
     private String createHash(String filename) {
-        MessageDigest digest = DigestUtils.getSha256Digest();
-        byte[] result = new byte[digest.getDigestLength()];
-        try (InputStream file = settings.isNormalizeLineEndings() ?
-                new UnixLineEndingInputStream(new FileInputStream(filename), false) :
-                new FileInputStream(filename)) {
-            int length;
-            while ((length = file.read(result)) != -1) {
-                digest.update(result, 0, length);
-            }
+        try (FileInputStream fis = new FileInputStream(filename);
+             BufferedInputStream bis = new BufferedInputStream(fis)) {
+            return HashUtil.createHash(bis, filename, settings.isNormalizeLineEndings());
         } catch (IOException e) {
             throw new Argos4jError("The file " + filename + " couldn't be recorded: " + e.getMessage());
         }
-        return Hex.encodeHexString(digest.digest());
     }
 
 }

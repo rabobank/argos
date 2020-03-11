@@ -19,5 +19,5 @@ public interface VerifyBuilder {
 
     VerifyBuilder addFileCollector(FileCollector collector);
 
-    VerificationResult verify();
+    VerificationResult verify(char[] keyPassphrase);
 }

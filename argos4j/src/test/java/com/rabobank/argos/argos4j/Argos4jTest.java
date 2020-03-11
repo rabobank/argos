@@ -59,6 +59,7 @@ class Argos4jTest {
     private String keyId;
     private String restKeyPairRest;
     private LinkBuilder linkBuilder;
+    private VerifyBuilder verifyBuilder;
 
     @BeforeAll
     static void setUpBefore() throws IOException {
@@ -90,7 +91,7 @@ class Argos4jTest {
 
         argos4j = new Argos4j(settings);
         linkBuilder = argos4j.getLinkBuilder(LinkBuilderSettings.builder().stepName("build").runId("runId").layoutSegmentName("layoutSegmentName").build());
-
+        verifyBuilder = argos4j.getVerifyBuilder();
     }
 
     private static Integer findRandomPort() throws IOException {
@@ -138,5 +139,16 @@ class Argos4jTest {
         wireMockServer.stubFor(get(urlEqualTo("/api/nonpersonalaccount/me/activekey")).willReturn(notFound()));
         Argos4jError error = assertThrows(Argos4jError.class, () -> linkBuilder.store(KEY_PASSPHRASE));
         assertThat(error.getMessage(), is("404 "));
+    }
+
+    @Test
+    void verify() {
+        wireMockServer.stubFor(get(urlEqualTo("/api/supplychain?supplyChainName=supplyChainName&pathToRoot=rootLabel&pathToRoot=subLabel"))
+                .willReturn(ok().withBody("{\"name\":\"supplyChainName\",\"id\":\"supplyChainId\",\"parentLabelId\":\"parentLabelId\"}")));
+        wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/verification"))
+                .willReturn(ok().withBody("{\"runIsValid\":true}")));
+
+        verifyBuilder.addFileCollector(FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL_DIRECTORY).settings(FileCollectorSettings.builder().build()).build());
+        assertThat(verifyBuilder.verify("test".toCharArray()).isRunIsValid(), is(true));
     }
 }

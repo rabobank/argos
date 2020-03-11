@@ -15,21 +15,20 @@
  */
 package com.rabobank.argos.argos4j.internal;
 
-import com.rabobank.argos.argos4j.internal.mapper.LinkMetaBlockMapper;
+import com.rabobank.argos.argos4j.internal.mapper.RestMapper;
 import com.rabobank.argos.argos4j.rest.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.domain.link.Link;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
-
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class LinkMetaBlockMapperTest {
+class RestMapperTest {
 
     @Test
     void testOnNullValues() {
-        LinkMetaBlockMapper mapper = Mappers.getMapper(LinkMetaBlockMapper.class);
+        RestMapper mapper = Mappers.getMapper(RestMapper.class);
         LinkMetaBlock linkMetaBlock = LinkMetaBlock.builder().link(Link.builder().build()).build();
         RestLinkMetaBlock metablock = mapper.convertToRestLinkMetaBlock(linkMetaBlock);
 

@@ -19,20 +19,30 @@ import com.rabobank.argos.argos4j.Argos4jSettings;
 import com.rabobank.argos.argos4j.FileCollector;
 import com.rabobank.argos.argos4j.VerificationResult;
 import com.rabobank.argos.argos4j.VerifyBuilder;
+import com.rabobank.argos.domain.link.Artifact;
 import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class VerifyBuilderImpl implements VerifyBuilder {
 
     private final Argos4jSettings settings;
 
+    private List<FileCollector> fileCollectors = new ArrayList<>();
+
     @Override
     public VerifyBuilder addFileCollector(FileCollector collector) {
-        return null;
+        fileCollectors.add(collector);
+        return this;
     }
 
     @Override
-    public VerificationResult verify() {
-        return null;
+    public VerificationResult verify(char[] keyPassphrase) {
+        List<Artifact> artifacts = fileCollectors.stream().map(ArtifactCollectorFactory::build).map(ArtifactCollector::collect).flatMap(List::stream).collect(Collectors.toList());
+        return new ArgosServiceClient(settings, keyPassphrase).verify(artifacts);
     }
+
 }
