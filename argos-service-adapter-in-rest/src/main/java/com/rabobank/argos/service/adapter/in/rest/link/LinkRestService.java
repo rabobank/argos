@@ -17,10 +17,13 @@ package com.rabobank.argos.service.adapter.in.rest.link;
 
 
 import com.rabobank.argos.domain.link.LinkMetaBlock;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.service.adapter.in.rest.SignatureValidatorService;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.LinkApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.service.domain.link.LinkMetaBlockRepository;
+import com.rabobank.argos.service.domain.security.LabelIdCheckParam;
+import com.rabobank.argos.service.domain.security.PermissionCheck;
 import com.rabobank.argos.service.domain.supplychain.SupplyChainRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 
+import static com.rabobank.argos.service.adapter.in.rest.supplychain.SupplyChainLabelIdExtractor.SUPPLY_CHAIN_LABEL_ID_EXTRACTOR;
 import static java.util.stream.Collectors.toList;
 
 @RestController
@@ -50,7 +54,8 @@ public class LinkRestService implements LinkApi {
     private final SignatureValidatorService signatureValidatorService;
 
     @Override
-    public ResponseEntity<Void> createLink(String supplyChainId, RestLinkMetaBlock restLinkMetaBlock) {
+    @PermissionCheck(permissions = Permission.LINK_ADD)
+    public ResponseEntity<Void> createLink(@LabelIdCheckParam(dataExtractor = SUPPLY_CHAIN_LABEL_ID_EXTRACTOR) String supplyChainId, RestLinkMetaBlock restLinkMetaBlock) {
         log.info("createLink supplyChainId : {}", supplyChainId);
         if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId);
@@ -64,7 +69,8 @@ public class LinkRestService implements LinkApi {
     }
 
     @Override
-    public ResponseEntity<List<RestLinkMetaBlock>> findLink(String supplyChainId, String optionalHash) {
+    @PermissionCheck(permissions = Permission.READ)
+    public ResponseEntity<List<RestLinkMetaBlock>> findLink(@LabelIdCheckParam(dataExtractor = SUPPLY_CHAIN_LABEL_ID_EXTRACTOR) String supplyChainId, String optionalHash) {
         if (supplyChainRepository.findBySupplyChainId(supplyChainId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "supply chain not found : " + supplyChainId);
         }

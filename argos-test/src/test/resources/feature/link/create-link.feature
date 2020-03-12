@@ -22,8 +22,11 @@ Feature: create a valid link
     * def linkPath = '/api/supplychain/'+ __arg.supplyChainId + '/link'
     * def linkToBeSigned = read(__arg.json)
     * def keyNumber = __arg.keyNumber
+
   Scenario: store link with valid specifications should return a 204
     * def signedLink = call read('classpath:feature/link/sign-link.feature') {json:#(linkToBeSigned),keyNumber:#(keyNumber)}
+    * def keyPair = read('classpath:testmessages/key/keypair'+keyNumber+'.json')
+    * configure headers = call read('classpath:headers.js') { username: #(keyPair.keyId),password:test}
     Given path linkPath
     And request signedLink.response
     When method POST
