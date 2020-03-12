@@ -50,7 +50,7 @@ public class ZipStreamArtifactCollector {
                 String fileName = entry.getName();
                 if (!entry.isDirectory() && !matcher.matches(Paths.get(fileName))) {
                     artifacts.add(Artifact.builder()
-                            .uri(fileName)
+                            .uri(fileName.replace("\\", "/"))
                             .hash(HashUtil.createHash(zis, fileName, settings.isNormalizeLineEndings()))
                             .build());
                 }

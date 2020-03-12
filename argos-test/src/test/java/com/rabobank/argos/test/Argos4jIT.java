@@ -21,7 +21,7 @@ import com.rabobank.argos.argos4j.FileCollector;
 import com.rabobank.argos.argos4j.FileCollectorSettings;
 import com.rabobank.argos.argos4j.LinkBuilder;
 import com.rabobank.argos.argos4j.LinkBuilderSettings;
-import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
+import com.rabobank.argos.argos4j.VerifyBuilder;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayout;
@@ -32,21 +32,20 @@ import com.rabobank.argos.argos4j.rest.api.model.RestPublicKey;
 import com.rabobank.argos.argos4j.rest.api.model.RestRule;
 import com.rabobank.argos.argos4j.rest.api.model.RestStep;
 import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
-import com.rabobank.argos.argos4j.rest.api.model.RestVerificationResult;
-import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
-import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL_DIRECTORY;
+import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getToken;
-import static com.rabobank.argos.test.ServiceStatusHelper.getVerificationApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
 import static com.rabobank.argos.test.TestServiceHelper.createAndStoreKeyPair;
@@ -69,7 +68,7 @@ public class Argos4jIT {
     }
 
     @Test
-    void postLinkMetaBlockWithSignatureValidationAndVerify() {
+    void postLinkMetaBlockWithSignatureValidationAndVerify() throws URISyntaxException {
 
 
         String token = getToken();
@@ -89,15 +88,26 @@ public class Argos4jIT {
                 .pathToLabelRoot(List.of("child_label", "root_label"))
                 .signingKeyId(keyPair.getKeyId())
                 .build();
-        LinkBuilder linkBuilder = new Argos4j(settings).getLinkBuilder(LinkBuilderSettings.builder().layoutSegmentName("layoutSegmentName").stepName("build").runId("runId").build());
-        FileCollector fileCollector = FileCollector.builder().uri(new File(".").toURI()).type(LOCAL_DIRECTORY).settings(FileCollectorSettings.builder().build()).build();
+        Argos4j argos4j = new Argos4j(settings);
+        LinkBuilder linkBuilder = argos4j.getLinkBuilder(LinkBuilderSettings.builder().layoutSegmentName("layoutSegmentName").stepName("build").runId("runId").build());
+        FileCollector fileCollector = FileCollector.builder().uri(new File("").toURI()).type(LOCAL).settings(
+                FileCollectorSettings.builder().bashPath(new File("").toURI().getPath()).build()).build();
         linkBuilder.collectProducts(fileCollector);
         linkBuilder.collectMaterials(fileCollector);
         linkBuilder.store("test".toCharArray());
 
-        RestVerificationResult verificationResult = getVerificationApi(token).performVerification(supplyChainId, new RestVerifyCommand()
-                .addExpectedProductsItem(new RestArtifact().uri("src/test/resources/karate-config.js").hash("9b33afe5598c5ea4cc702b231b2a98a906bc2fdcd10ebab103bbb20596db07a2")));
-        assertThat(verificationResult.getRunIsValid(), Matchers.is(true));
+
+        VerifyBuilder verifyBuilder = argos4j.getVerifyBuilder();
+
+        URI uri = new File("src/test/resources/karate-config.js").toURI();
+
+        boolean runIsValid = verifyBuilder.addFileCollector(FileCollector.builder()
+                .uri(uri)
+                .type(LOCAL)
+                .settings(FileCollectorSettings.builder().bashPath(new File("").toURI().getPath()).build()).build())
+                .verify("test".toCharArray()).isRunIsValid();
+
+        assertThat(runIsValid, Matchers.is(true));
     }
 
     private RestLayout createLayout() {

@@ -41,7 +41,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL_DIRECTORY;
+import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasSize;
@@ -106,7 +106,7 @@ class Argos4jTest {
                 .willReturn(ok().withBody("{\"name\":\"supplyChainName\",\"id\":\"supplyChainId\",\"parentLabelId\":\"parentLabelId\"}")));
         wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link")).willReturn(noContent()));
         wireMockServer.stubFor(get(urlEqualTo("/api/nonpersonalaccount/me/activekey")).willReturn(ok().withBody(restKeyPairRest)));
-        FileCollector fileCollector = FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL_DIRECTORY).settings(FileCollectorSettings.builder().build()).build();
+        FileCollector fileCollector = FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL).settings(FileCollectorSettings.builder().bashPath(sharedTempDir.toURI().getPath()).build()).build();
         linkBuilder.collectMaterials(fileCollector);
         linkBuilder.collectProducts(fileCollector);
         linkBuilder.store(KEY_PASSPHRASE);
@@ -148,7 +148,7 @@ class Argos4jTest {
         wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/verification"))
                 .willReturn(ok().withBody("{\"runIsValid\":true}")));
 
-        verifyBuilder.addFileCollector(FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL_DIRECTORY).settings(FileCollectorSettings.builder().build()).build());
+        verifyBuilder.addFileCollector(FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL).settings(FileCollectorSettings.builder().build()).build());
         assertThat(verifyBuilder.verify("test".toCharArray()).isRunIsValid(), is(true));
     }
 }

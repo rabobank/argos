@@ -21,12 +21,14 @@ import com.rabobank.argos.argos4j.VerificationResult;
 import com.rabobank.argos.argos4j.VerifyBuilder;
 import com.rabobank.argos.domain.link.Artifact;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Slf4j
 public class VerifyBuilderImpl implements VerifyBuilder {
 
     private final Argos4jSettings settings;
@@ -42,6 +44,7 @@ public class VerifyBuilderImpl implements VerifyBuilder {
     @Override
     public VerificationResult verify(char[] keyPassphrase) {
         List<Artifact> artifacts = fileCollectors.stream().map(ArtifactCollectorFactory::build).map(ArtifactCollector::collect).flatMap(List::stream).collect(Collectors.toList());
+        log.info("verify artifacts {}", artifacts);
         return new ArgosServiceClient(settings, keyPassphrase).verify(artifacts);
     }
 

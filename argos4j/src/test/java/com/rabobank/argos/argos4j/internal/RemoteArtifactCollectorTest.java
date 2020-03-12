@@ -38,24 +38,20 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 @Slf4j
 class RemoteArtifactCollectorTest {
 
     private ArtifactCollector collector;
     private WireMockServer wireMockServer;
+    private Integer randomPort;
 
     @BeforeEach
     void setUp() throws IOException {
-
-        Integer randomPort = findRandomPort();
+        randomPort = findRandomPort();
         wireMockServer = new WireMockServer(randomPort);
         wireMockServer.start();
-
-        collector = ArtifactCollectorFactory.build(FileCollector.builder()
-                .type(FileCollector.FileCollectorType.REMOTE_ZIP)
-                .settings(FileCollectorSettings.builder().build())
-                .uri(URI.create("http://bart:secret@localhost:" + randomPort + "/argos-test-app-1.0-SNAPSHOT.dar")).build());
     }
 
     @AfterEach
@@ -64,7 +60,13 @@ class RemoteArtifactCollectorTest {
     }
 
     @Test
-    void collect() throws IOException {
+    void collectRemoteZip() throws IOException {
+
+        collector = ArtifactCollectorFactory.build(FileCollector.builder()
+                .type(FileCollector.FileCollectorType.REMOTE_ZIP)
+                .settings(FileCollectorSettings.builder().build())
+                .uri(URI.create("http://bart:secret@localhost:" + randomPort + "/argos-test-app-1.0-SNAPSHOT.dar")).build());
+
         wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar"))
                 .willReturn(ok().withBody(IOUtils.toByteArray(getClass().getResourceAsStream("/argos-test-app-1.0-SNAPSHOT.dar")))));
         List<Artifact> collect = collector.collect();
@@ -75,6 +77,24 @@ class RemoteArtifactCollectorTest {
 
         List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
         assertThat(requests.get(0).getHeader("Authorization"), is("Basic YmFydDpzZWNyZXQ="));
+    }
+
+    @Test
+    void collectRemoteFile() throws IOException {
+
+        collector = ArtifactCollectorFactory.build(FileCollector.builder()
+                .type(FileCollector.FileCollectorType.REMOTE_FILE)
+                .settings(FileCollectorSettings.builder().build())
+                .uri(URI.create("http://localhost:" + randomPort + "/argos-test-app-1.0-SNAPSHOT.dar")).build());
+
+        wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar"))
+                .willReturn(ok().withBody(IOUtils.toByteArray(getClass().getResourceAsStream("/argos-test-app-1.0-SNAPSHOT.dar")))));
+        List<Artifact> collect = collector.collect();
+        assertThat(collect, contains(
+                Artifact.builder().uri("argos-test-app-1.0-SNAPSHOT.dar").hash("95540f95db610e211bed84c09f1badb42560806d940e7f4d8209c4f2d3880b7d").build()));
+
+        List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
+        assertThat(requests.get(0).getHeader("Authorization"), nullValue());
     }
 
     private static Integer findRandomPort() throws IOException {

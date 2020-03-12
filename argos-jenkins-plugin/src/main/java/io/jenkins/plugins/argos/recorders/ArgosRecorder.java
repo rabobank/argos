@@ -46,9 +46,10 @@ import org.kohsuke.stapler.QueryParameter;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Optional;
 
-import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL_DIRECTORY;
+import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL;
 
 /**
  * Jenkins recorder plugin to output signed link metadata for Jenkins pipeline
@@ -145,10 +146,11 @@ public class ArgosRecorder extends Recorder {
     }
 
     private FileCollector createFileCollector(String cwdStr) {
+        URI uri = new File(cwdStr).toURI();
         return FileCollector.builder()
-                .uri(new File(cwdStr).toURI())
-                .type(LOCAL_DIRECTORY)
-                .settings(FileCollectorSettings.builder().build()).build();
+                .uri(uri)
+                .type(LOCAL)
+                .settings(FileCollectorSettings.builder().bashPath(uri.getPath()).build()).build();
     }
 
     private String getCwdStr(AbstractBuild<?, ?> build) {

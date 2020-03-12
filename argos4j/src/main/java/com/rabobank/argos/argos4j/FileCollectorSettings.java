@@ -24,6 +24,16 @@ public class FileCollectorSettings {
 
     public static final String DEFAULT_EXCLUDE_PATTERNS = "**.{git,link}**";
 
+    /**
+     * used in the local file collector to make all artifact uris relative from the base path
+     */
+    private final String bashPath;
+
+    /**
+     * used in the remote file collector to specify the artifact uri when not set the last part of the uri is used
+     */
+    private final String artifactUri;
+
     @Builder.Default
     private final String excludePatterns = DEFAULT_EXCLUDE_PATTERNS;
 

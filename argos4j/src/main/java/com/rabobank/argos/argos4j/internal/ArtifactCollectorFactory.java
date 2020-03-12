@@ -27,8 +27,7 @@ public class ArtifactCollectorFactory {
         Objects.requireNonNull(fileCollector.getUri());
         Objects.requireNonNull(fileCollector.getSettings());
         switch (fileCollector.getType()) {
-            case LOCAL_FILE:
-            case LOCAL_DIRECTORY:
+            case LOCAL:
                 return new LocalArtifactCollector(fileCollector);
             case LOCAL_ZIP:
                 return new ZipArtifactCollector(fileCollector);
@@ -37,7 +36,6 @@ public class ArtifactCollectorFactory {
                 return new RemoteArtifactCollector(fileCollector);
             default:
                 throw new Argos4jError(fileCollector.getType() + " not implemented");
-
         }
     }
 }

@@ -33,8 +33,9 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.File;
 import java.io.Serializable;
+import java.net.URI;
 
-import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL_DIRECTORY;
+import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL;
 
 /**
  * Jenkins recorder plugin to output signed link metadata for Jenkins pipeline
@@ -152,10 +153,11 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
     }
 
     private FileCollector createFileCollector(FilePath workspace) {
+        URI uri = new File(workspace.getRemote()).toURI();
         return FileCollector.builder()
-                .settings(FileCollectorSettings.builder().build())
-                .uri(new File(workspace.getRemote()).toURI())
-                .type(LOCAL_DIRECTORY)
+                .settings(FileCollectorSettings.builder().bashPath(uri.getPath()).build())
+                .uri(uri)
+                .type(LOCAL)
                 .build();
     }
 }

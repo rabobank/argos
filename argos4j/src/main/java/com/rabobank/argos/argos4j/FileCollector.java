@@ -26,11 +26,12 @@ public class FileCollector {
 
     private final FileCollectorType type;
     private final URI uri;
-    private final FileCollectorSettings settings;
+
+    @Builder.Default
+    private final FileCollectorSettings settings = FileCollectorSettings.builder().build();
 
     public enum FileCollectorType {
-        LOCAL_DIRECTORY,
-        LOCAL_FILE,
+        LOCAL,
         LOCAL_ZIP,
         REMOTE_FILE,
         REMOTE_ZIP
