@@ -128,3 +128,15 @@ Feature: Verification
     And request defaultVerificationRequest
     When method POST
     Then status 401
+
+  Scenario: verification without permission VERIFY should return a 403 error
+    * url karate.properties['server.baseurl']
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
+    * def supplyChainPath = '/api/supplychain/'+ supplyChain.response.id
+    * def accounWithNoVerifyPermission = call read('classpath:feature/account/create-personal-account.feature') {name: 'Verify unauthorized person',email: 'local.noverify@extra.nogo'}
+    * call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(accounWithNoVerifyPermission.response.id),labelId: #(supplyChain.response.parentLabelId), permissions: ["READ"]}
+    * configure headers = call read('classpath:headers.js') { token: #(accounWithNoVerifyPermission.response.token)}
+    Given path supplyChainPath + '/verification'
+    And request defaultVerificationRequest
+    When method POST
+    Then status 403
