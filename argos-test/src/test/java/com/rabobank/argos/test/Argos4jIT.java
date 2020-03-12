@@ -36,7 +36,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
@@ -46,10 +45,11 @@ import static com.rabobank.argos.test.ServiceStatusHelper.getVerificationApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
 import static com.rabobank.argos.test.TestServiceHelper.createAndStoreKeyPair;
+import static com.rabobank.argos.test.TestServiceHelper.createPersonalAccountTokenWithLayoutPermissions;
 import static com.rabobank.argos.test.TestServiceHelper.signAndStoreLayout;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class Argos4jIT {
+class Argos4jIT {
 
     private static Properties properties = Properties.getInstance();
     private RestKeyPair keyPair;
@@ -65,20 +65,16 @@ public class Argos4jIT {
     }
 
     @Test
-    void postLinkMetaBlockWithSignatureValidationAndVerify() throws IOException {
+    void postLinkMetaBlockWithSignatureValidationAndVerify() {
 
-
-        String token = getToken();
-        RestLabel rootLabel = getHierarchyApi(token).createLabel(new RestLabel().name("root_label"));
-        RestLabel childLabel = getHierarchyApi(token).createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
-        String supplyChainId = getSupplychainApi(token).createSupplyChain(new RestSupplyChain().name("test-supply-chain").parentLabelId(childLabel.getId())).getId();
-
-        keyPair = createAndStoreKeyPair(token, "test", childLabel.getId());
-
+        String adminAccountToken = getToken();
+        RestLabel rootLabel = getHierarchyApi(adminAccountToken).createLabel(new RestLabel().name("root_label"));
+        RestLabel childLabel = getHierarchyApi(adminAccountToken).createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
+        String supplyChainId = getSupplychainApi(adminAccountToken).createSupplyChain(new RestSupplyChain().name("test-supply-chain").parentLabelId(childLabel.getId())).getId();
+        keyPair = createAndStoreKeyPair(adminAccountToken, "test", childLabel.getId());
         RestLayoutMetaBlock layout = new RestLayoutMetaBlock().layout(createLayout());
-        signAndStoreLayout(token, supplyChainId, layout, keyPair.getKeyId(), "test");
-
-
+        String accountWithLayoutPermissionsToken = createPersonalAccountTokenWithLayoutPermissions(adminAccountToken, childLabel.getId());
+        signAndStoreLayout(accountWithLayoutPermissionsToken, supplyChainId, layout, keyPair.getKeyId(), "test");
         Argos4jSettings settings = Argos4jSettings.builder()
                 .argosServerBaseUrl(properties.getApiBaseUrl() + "/api")
                 .layoutSegmentName("layoutSegmentName")
@@ -93,7 +89,7 @@ public class Argos4jIT {
         argos4j.collectMaterials(new File("."));
         argos4j.store("test".toCharArray());
 
-        RestVerificationResult verificationResult = getVerificationApi(token).performVerification(supplyChainId, new RestVerifyCommand()
+        RestVerificationResult verificationResult = getVerificationApi(adminAccountToken).performVerification(supplyChainId, new RestVerifyCommand()
                 .addExpectedProductsItem(new RestArtifact().uri("src/test/resources/karate-config.js").hash("9b33afe5598c5ea4cc702b231b2a98a906bc2fdcd10ebab103bbb20596db07a2")));
         assertThat(verificationResult.getRunIsValid(), Matchers.is(true));
     }

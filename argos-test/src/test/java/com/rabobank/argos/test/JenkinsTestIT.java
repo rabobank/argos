@@ -56,16 +56,19 @@ import static com.rabobank.argos.test.ServiceStatusHelper.getToken;
 import static com.rabobank.argos.test.ServiceStatusHelper.isValidEndProduct;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
+import static com.rabobank.argos.test.TestServiceHelper.createPersonalAccountTokenWithLayoutPermissions;
 import static com.rabobank.argos.test.TestServiceHelper.signAndStoreLayout;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-public class JenkinsTestIT {
+class JenkinsTestIT {
 
 
     private static final String KEY_PASSWORD = "test";
@@ -75,7 +78,7 @@ public class JenkinsTestIT {
     private JenkinsServer jenkins;
     private String supplyChainId;
     private String keyIdBob;
-    private String token = getToken();
+    private String adminAccountToken = getToken();
 
     @BeforeAll
     static void startup() {
@@ -89,25 +92,27 @@ public class JenkinsTestIT {
     @BeforeEach
     void setUp() throws URISyntaxException, IOException {
         clearDatabase();
-        token = getToken();
-        RestLabel rootLabel = getHierarchyApi(token).createLabel(new RestLabel().name("root_label"));
-        RestLabel childLabel = getHierarchyApi(token).createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
+        adminAccountToken = getToken();
+        RestLabel rootLabel = getHierarchyApi(adminAccountToken).createLabel(new RestLabel().name("root_label"));
+        RestLabel childLabel = getHierarchyApi(adminAccountToken).createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
 
-        RestSupplyChain restSupplyChainItem = getSupplychainApi(token).createSupplyChain(new RestSupplyChain().name("argos-test-app").parentLabelId(childLabel.getId()));
+        RestSupplyChain restSupplyChainItem = getSupplychainApi(adminAccountToken).createSupplyChain(new RestSupplyChain().name("argos-test-app").parentLabelId(childLabel.getId()));
         this.supplyChainId = restSupplyChainItem.getId();
         RestNonPersonalAccountKeyPair restKeyPair = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair1.json"), RestNonPersonalAccountKeyPair.class);
         keyIdBob = restKeyPair.getKeyId();
-        createNpaWithActiveKey(token, restKeyPair, childLabel.getId(), "npa1");
+        createNpaWithActiveKey(restKeyPair, childLabel.getId(), "npa1");
         RestNonPersonalAccountKeyPair restKeyPairExt = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair2.json"), RestNonPersonalAccountKeyPair.class);
-        createNpaWithActiveKey(token, restKeyPairExt, childLabel.getId(), "npa2");
+        createNpaWithActiveKey(restKeyPairExt, childLabel.getId(), "npa2");
         restKeyPairExt = new ObjectMapper().readValue(getClass().getResourceAsStream("/testmessages/key/keypair3.json"), RestNonPersonalAccountKeyPair.class);
-        createNpaWithActiveKey(token, restKeyPairExt, childLabel.getId(), "npa3");
-        createLayout();
+        createNpaWithActiveKey(restKeyPairExt, childLabel.getId(), "npa3");
+        String accountWithLayoutPermissionsToken = createPersonalAccountTokenWithLayoutPermissions(adminAccountToken, restSupplyChainItem.getParentLabelId());
+        createLayout(accountWithLayoutPermissionsToken);
         jenkins = new JenkinsServer(new URI(properties.getJenkinsBaseUrl()), "admin", "admin");
     }
 
-    private void createNpaWithActiveKey(String token, RestNonPersonalAccountKeyPair restKeyPair, String parentLabelId, String name) {
-        NonPersonalAccountApi nonPersonalAccountApi = getNonPersonalAccountApi(token);
+
+    private void createNpaWithActiveKey(RestNonPersonalAccountKeyPair restKeyPair, String parentLabelId, String name) {
+        NonPersonalAccountApi nonPersonalAccountApi = getNonPersonalAccountApi(adminAccountToken);
         RestNonPersonalAccount npa = nonPersonalAccountApi.createNonPersonalAccount(new RestNonPersonalAccount().parentLabelId(parentLabelId).name(name));
         restKeyPair.setHashedKeyPassphrase(ArgosServiceClient.calculatePassphrase(restKeyPair.getKeyId(), restKeyPair.getHashedKeyPassphrase()));
         nonPersonalAccountApi.createNonPersonalAccountKeyById(npa.getId(), restKeyPair);
@@ -132,7 +137,7 @@ public class JenkinsTestIT {
         log.info("jenkins started");
     }
 
-    private void createLayout()  {
+    private void createLayout(String token) {
         try {
             signAndStoreLayout(token, supplyChainId, new ObjectMapper().readValue(getClass().getResourceAsStream("/to-verify-layout.json"), RestLayoutMetaBlock.class), keyIdBob, KEY_PASSWORD);
         } catch (IOException e) {
@@ -141,13 +146,13 @@ public class JenkinsTestIT {
     }
 
     @Test
-    public void testFreestyle() throws IOException {
+    void testFreestyle() throws IOException {
         int buildNumber = runBuild(getJob("argos-test-app-freestyle-recording"));
         verifyJobResult(getJob("argos-test-app-freestyle-recording"), buildNumber);
     }
 
     @Test
-    public void testPipeline() throws IOException {
+    void testPipeline() throws IOException {
         
           JobWithDetails pipeLineJob = getJob("argos-test-app-pipeline"); if
           (!hasMaster(pipeLineJob)) { pipeLineJob.build(); await().atMost(1,
@@ -192,12 +197,12 @@ public class JenkinsTestIT {
         assertThat(build.details().getResult(), is(BuildResult.SUCCESS));
     }
 
-    public void verifyEndProducts() {
+    private void verifyEndProducts() {
         String hash = getWarSnapshotHash();
-        assertTrue(isValidEndProduct(token, supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash))));
+        assertTrue(isValidEndProduct(adminAccountToken, supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash))));
         
         String hash2 = "0123456789012345678901234567890123456789012345678901234567890123";
-        assertFalse(isValidEndProduct(token, supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash2))));
+        assertFalse(isValidEndProduct(adminAccountToken, supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash2))));
     }
 
     private JobWithDetails getJob(String name) throws IOException {
