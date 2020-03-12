@@ -111,7 +111,6 @@ Feature: Hierarchy
     * def localPermissionsForRoot = call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(extraAccount.response.id),labelId: #(root1.response.id), permissions: ["READ"]}
     * def root1ChildPermissions = call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(extraAccount.response.id),labelId: #(root1ChildResponse.response.id), permissions: ["LOCAL_PERMISSION_EDIT"]}
     * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
-    * print extraAccount.response.token
     Given path '/api/hierarchy/' + root1.response.id
     And param HierarchyMode = 'ALL'
     When method GET

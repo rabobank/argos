@@ -54,7 +54,7 @@ Feature: SupplyChain
     When method POST
     Then status 201
 
-  Scenario: store supplychain with with local permission READ should return a 403
+  Scenario: store supplychain with local permission READ should return a 403
     * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["READ"]}
     * configure headers = call read('classpath:headers.js') { token: #(info.token)}
 
