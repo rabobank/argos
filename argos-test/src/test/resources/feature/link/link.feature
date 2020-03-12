@@ -45,7 +45,7 @@ Feature: Link
     When method POST
     Then status 204
 
-  Scenario: user without local permission LINK_ADD can store a link
+  Scenario: user without local permission LINK_ADD cannot store a link
     * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["READ"]}
     * def otherSupplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: other-supply-chain, parentLabelId: #(info.labelId)}
     * def layoutToSign = read(validLink)
@@ -56,7 +56,7 @@ Feature: Link
     When method POST
     Then status 403
 
-  Scenario: NPA in other root label can not store a link
+  Scenario: NPA in other root label cannot store a link
     * def otherRootLabel = call read('classpath:feature/label/create-label.feature') { name: 'other_root_label'}
     * def otherSupplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: other-supply-chain, parentLabelId: #(otherRootLabel.response.id)}
     * def layoutToSign = read(validLink)
@@ -117,7 +117,7 @@ Feature: Link
     Then status 200
     And match response[*] contains read('classpath:testmessages/link/valid-link-response.json')
 
-  Scenario: user without READ local permission can find link with valid supplychainid and optionalHash should return a 200
+  Scenario: user without READ local permission cannot find link with valid supplychainid and optionalHash should return a 403
     * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["LINK_ADD"]}
     * call read('classpath:feature/account/set-local-permissions.feature') {accountId: #(info.accountId), labelId: #(supplyChain.response.parentLabelId), permissions: '["LINK_ADD"]'}
     * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}
