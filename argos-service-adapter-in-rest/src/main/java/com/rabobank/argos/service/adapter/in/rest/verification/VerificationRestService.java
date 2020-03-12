@@ -17,10 +17,13 @@ package com.rabobank.argos.service.adapter.in.rest.verification;
 
 import com.rabobank.argos.domain.layout.LayoutMetaBlock;
 import com.rabobank.argos.domain.link.Artifact;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.VerificationApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestVerificationResult;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestVerifyCommand;
 import com.rabobank.argos.service.domain.layout.LayoutMetaBlockRepository;
+import com.rabobank.argos.service.domain.security.LabelIdCheckParam;
+import com.rabobank.argos.service.domain.security.PermissionCheck;
 import com.rabobank.argos.service.domain.verification.VerificationProvider;
 import com.rabobank.argos.service.domain.verification.VerificationRunResult;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
+
+import static com.rabobank.argos.service.adapter.in.rest.supplychain.SupplyChainLabelIdExtractor.SUPPLY_CHAIN_LABEL_ID_EXTRACTOR;
 
 @RestController
 @Slf4j
@@ -49,7 +54,8 @@ public class VerificationRestService implements VerificationApi {
     private final VerificationResultMapper verificationResultMapper;
 
     @Override
-    public ResponseEntity<RestVerificationResult> performVerification(String supplyChainId, @Valid RestVerifyCommand restVerifyCommand) {
+    @PermissionCheck(permissions = Permission.VERIFY)
+    public ResponseEntity<RestVerificationResult> performVerification(@LabelIdCheckParam(dataExtractor = SUPPLY_CHAIN_LABEL_ID_EXTRACTOR) String supplyChainId, @Valid RestVerifyCommand restVerifyCommand) {
 
         List<LayoutMetaBlock> layoutMetaBlocks = repository.findBySupplyChainId(supplyChainId);
         if (layoutMetaBlocks.isEmpty()) {
