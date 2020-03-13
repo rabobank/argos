@@ -25,15 +25,19 @@ import feign.Response;
 import feign.auth.BasicAuthRequestInterceptor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.REMOTE_ZIP;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Slf4j
 public class RemoteArtifactCollector implements ArtifactCollector {
@@ -55,10 +59,19 @@ public class RemoteArtifactCollector implements ArtifactCollector {
             if (response.status() == 200) {
                 return getArtifactsFromResponse(uri, response);
             } else {
-                throw new Argos4jError("status code : " + response.status() + " returned");
+                String bodyAsString = Optional.ofNullable(response.body()).map(this::convert).filter(body -> !body.isEmpty()).map(body -> " with body : " + body).orElse("");
+                throw new Argos4jError("call to " + request.url() + " returned " + response.status() + bodyAsString);
             }
         } catch (IOException e) {
-            throw new Argos4jError(e.getMessage(), e);
+            throw new Argos4jError(request.url() + " got error " + e.getMessage(), e);
+        }
+    }
+
+    public String convert(Response.Body body) {
+        try (BufferedReader br = new BufferedReader(body.asReader(UTF_8))) {
+            return br.lines().collect(Collectors.joining("\n"));
+        } catch (IOException e) {
+            return e.getMessage();
         }
     }
 
@@ -76,13 +89,18 @@ public class RemoteArtifactCollector implements ArtifactCollector {
     private RequestTemplate createRequest(URI uri) {
         RequestTemplate requestTemplate = new RequestTemplate();
         requestTemplate.method(Request.HttpMethod.GET);
-        try {
-            requestTemplate.target(uri.toURL().toString());
-        } catch (MalformedURLException e) {
-            throw new Argos4jError(e.getMessage(), e);
-        }
+        requestTemplate.target(getTarget(uri));
         addAuthorization(uri, requestTemplate);
         return requestTemplate;
+    }
+
+    private String getTarget(URI uri) {
+        try {
+            URI uriWithoutUserInfo = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+            return uriWithoutUserInfo.toURL().toString();
+        } catch (MalformedURLException | URISyntaxException e) {
+            throw new Argos4jError(e.getMessage(), e);
+        }
     }
 
     private void addAuthorization(URI uri, RequestTemplate requestTemplate) {

@@ -40,12 +40,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.notFound;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
+import static com.github.tomakehurst.wiremock.client.WireMock.status;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -124,7 +127,7 @@ class Argos4jTest {
         wireMockServer.stubFor(get(urlEqualTo("/api/nonpersonalaccount/me/activekey")).willReturn(ok().withBody(restKeyPairRest)));
         wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link")).willReturn(serverError()));
         Argos4jError error = assertThrows(Argos4jError.class, () -> linkBuilder.store(KEY_PASSPHRASE));
-        assertThat(error.getMessage(), is("500 "));
+        assertThat(error.getMessage(), containsString("500"));
     }
 
     @Test
@@ -133,14 +136,14 @@ class Argos4jTest {
         wireMockServer.stubFor(get(urlEqualTo("/api/supplychain?supplyChainName=supplyChainName&pathToRoot=rootLabel&pathToRoot=subLabel"))
                 .willReturn(badRequest()));
         Argos4jError error = assertThrows(Argos4jError.class, () -> linkBuilder.store(KEY_PASSPHRASE));
-        assertThat(error.getMessage(), is("400 "));
+        assertThat(error.getMessage(), containsString("400"));
     }
 
     @Test
     void storeMetaBlockLinkForDirectoryUnknownKeyId() {
         wireMockServer.stubFor(get(urlEqualTo("/api/nonpersonalaccount/me/activekey")).willReturn(notFound()));
         Argos4jError error = assertThrows(Argos4jError.class, () -> linkBuilder.store(KEY_PASSPHRASE));
-        assertThat(error.getMessage(), is("404 "));
+        assertThat(error.getMessage(), containsString("404"));
     }
 
     @Test
@@ -157,6 +160,19 @@ class Argos4jTest {
         List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
         assertThat(requests, hasSize(2));
         assertThat(requests.get(1).getBodyAsString(), is("{\"expectedProducts\":[{\"uri\":\"text.txt\",\"hash\":\"cb6bdad36690e8024e7df13e6796ae6603f2cb9cf9f989c9ff939b2ecebdcb91\"}]}"));
+    }
+
+    @Test
+    void verifyNotUnauthorized() {
+        wireMockServer.stubFor(get(urlEqualTo("/api/supplychain?supplyChainName=supplyChainName&pathToRoot=rootLabel&pathToRoot=subLabel"))
+                .willReturn(ok().withBody("{\"name\":\"supplyChainName\",\"id\":\"supplyChainId\",\"parentLabelId\":\"parentLabelId\"}")));
+        wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/verification"))
+                .willReturn(status(401)));
+
+        Argos4jError error = assertThrows(Argos4jError.class, () -> verifyBuilder.addFileCollector(FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL)
+                .settings(FileCollectorSettings.builder().basePath(sharedTempDir.toURI().getPath()).build()).build())
+                .verify("test".toCharArray()));
+        assertThat(error.getMessage(), startsWith("[401 Unauthorized] during [POST] to "));
     }
 
     @Test

@@ -60,14 +60,18 @@ public class ArgosServiceClient {
             RestLinkMetaBlock restLinkMetaBlock = Mappers.getMapper(RestMapper.class).convertToRestLinkMetaBlock(linkMetaBlock);
             linkApi.createLink(getSupplyChainId(), restLinkMetaBlock);
         } catch (FeignException e) {
-            throw new Argos4jError(e.status() + " " + e.contentUTF8(), e);
+            throw convertToArgos4jError(e);
         }
     }
 
     public VerificationResult verify(List<Artifact> artifacts) {
-        VerificationApi verificationApi = apiClient.buildClient(VerificationApi.class);
-        List<RestArtifact> restArtifacts = Mappers.getMapper(RestMapper.class).convertToRestArtifacts(artifacts);
-        return VerificationResult.builder().runIsValid(verificationApi.performVerification(getSupplyChainId(), new RestVerifyCommand().expectedProducts(restArtifacts)).getRunIsValid()).build();
+        try {
+            VerificationApi verificationApi = apiClient.buildClient(VerificationApi.class);
+            List<RestArtifact> restArtifacts = Mappers.getMapper(RestMapper.class).convertToRestArtifacts(artifacts);
+            return VerificationResult.builder().runIsValid(verificationApi.performVerification(getSupplyChainId(), new RestVerifyCommand().expectedProducts(restArtifacts)).getRunIsValid()).build();
+        } catch (FeignException e) {
+            throw convertToArgos4jError(e);
+        }
     }
 
     public RestNonPersonalAccountKeyPair getKeyPair() {
@@ -75,16 +79,20 @@ public class ArgosServiceClient {
             NonPersonalAccountApi keyApi = apiClient.buildClient(NonPersonalAccountApi.class);
             return keyApi.getNonPersonalAccountKey();
         } catch (FeignException e) {
-            throw new Argos4jError(e.status() + " " + e.contentUTF8(), e);
+            throw convertToArgos4jError(e);
         }
+    }
+
+    private Argos4jError convertToArgos4jError(FeignException e) {
+        return new Argos4jError(e.getMessage(), e);
     }
 
     private String getSupplyChainId() {
         SupplychainApi supplychainApi = apiClient.buildClient(SupplychainApi.class);
         return supplychainApi.getSupplyChainByPathToRoot(settings.getSupplyChainName(), settings.getPathToLabelRoot()).getId();
     }
-    
-    public static String calculatePassphrase(String keyId, String passphrase) { 
+
+    public static String calculatePassphrase(String keyId, String passphrase) {
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance("SHA-512");

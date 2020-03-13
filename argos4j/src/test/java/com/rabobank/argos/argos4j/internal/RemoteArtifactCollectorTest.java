@@ -36,13 +36,16 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.notFound;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.status;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.REMOTE_FILE;
 import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.REMOTE_ZIP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
@@ -94,7 +97,25 @@ class RemoteArtifactCollectorTest {
         createCollector(REMOTE_ZIP, "http://bart:secret@localhost:");
         wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar")).willReturn(notFound()));
         Argos4jError error = assertThrows(Argos4jError.class, () -> collector.collect());
-        assertThat(error.getMessage(), is("status code : 404 returned"));
+        assertThat(error.getMessage(), endsWith("argos-test-app-1.0-SNAPSHOT.dar returned 404"));
+    }
+
+    @Test
+    void collectNotAuthorized() {
+        createCollector(REMOTE_ZIP, "http://bart:secret@localhost:");
+        wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar")).willReturn(status(401).withBody("Not authorized")));
+        Argos4jError error = assertThrows(Argos4jError.class, () -> collector.collect());
+        assertThat(error.getMessage(), endsWith("argos-test-app-1.0-SNAPSHOT.dar returned 401 with body : Not authorized"));
+        assertThat(error.getMessage(), startsWith("call to http://localhost:"));
+    }
+
+    @Test
+    void collectConnectionRefused() {
+        randomPort = 33321;
+        createCollector(REMOTE_ZIP, "http://localhost:");
+        wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar")).willReturn(status(401).withBody("Not authorized")));
+        Argos4jError error = assertThrows(Argos4jError.class, () -> collector.collect());
+        assertThat(error.getMessage(), is("http://localhost:33321/argos-test-app-1.0-SNAPSHOT.dar got error Connection refused (Connection refused)"));
     }
 
     private void createCollector(FileCollector.FileCollectorType type, String host) {
