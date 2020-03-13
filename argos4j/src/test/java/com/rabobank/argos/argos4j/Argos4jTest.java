@@ -45,6 +45,7 @@ import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -60,6 +61,7 @@ class Argos4jTest {
     private String restKeyPairRest;
     private LinkBuilder linkBuilder;
     private VerifyBuilder verifyBuilder;
+    private Argos4jSettings settings;
 
     @BeforeAll
     static void setUpBefore() throws IOException {
@@ -82,10 +84,10 @@ class Argos4jTest {
 
         restKeyPairRest = new ObjectMapper().writeValueAsString(restKeyPair);
 
-        Argos4jSettings settings = Argos4jSettings.builder()
+        settings = Argos4jSettings.builder()
                 .argosServerBaseUrl("http://localhost:" + randomPort + "/api")
                 .supplyChainName("supplyChainName")
-                .pathToLabelRoot(Arrays.asList("rootLabel","subLabel"))
+                .pathToLabelRoot(Arrays.asList("rootLabel", "subLabel"))
                 .signingKeyId(keyId)
                 .build();
 
@@ -148,7 +150,23 @@ class Argos4jTest {
         wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/verification"))
                 .willReturn(ok().withBody("{\"runIsValid\":true}")));
 
-        verifyBuilder.addFileCollector(FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL).settings(FileCollectorSettings.builder().build()).build());
-        assertThat(verifyBuilder.verify("test".toCharArray()).isRunIsValid(), is(true));
+        assertThat(verifyBuilder.addFileCollector(FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL)
+                .settings(FileCollectorSettings.builder().bashPath(sharedTempDir.toURI().getPath()).build()).build())
+                .verify("test".toCharArray()).isRunIsValid(), is(true));
+
+        List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
+        assertThat(requests, hasSize(2));
+        assertThat(requests.get(1).getBodyAsString(), is("{\"expectedProducts\":[{\"uri\":\"text.txt\",\"hash\":\"cb6bdad36690e8024e7df13e6796ae6603f2cb9cf9f989c9ff939b2ecebdcb91\"}]}"));
+    }
+
+    @Test
+    void version() {
+        assertThat(Argos4j.getVersion().length() > 20, is(true));
+    }
+
+    @Test
+    void settings() {
+        assertThat(argos4j.getSettings(), sameInstance(settings));
+        assertThat(linkBuilder.getSettings(), sameInstance(settings));
     }
 }
