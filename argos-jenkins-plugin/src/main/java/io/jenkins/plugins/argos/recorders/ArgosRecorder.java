@@ -150,7 +150,7 @@ public class ArgosRecorder extends Recorder {
         return FileCollector.builder()
                 .uri(uri)
                 .type(LOCAL)
-                .settings(FileCollectorSettings.builder().bashPath(uri.getPath()).build()).build();
+                .settings(FileCollectorSettings.builder().basePath(uri.getPath()).build()).build();
     }
 
     private String getCwdStr(AbstractBuild<?, ?> build) {

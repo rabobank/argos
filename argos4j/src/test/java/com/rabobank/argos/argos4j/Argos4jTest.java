@@ -108,7 +108,7 @@ class Argos4jTest {
                 .willReturn(ok().withBody("{\"name\":\"supplyChainName\",\"id\":\"supplyChainId\",\"parentLabelId\":\"parentLabelId\"}")));
         wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link")).willReturn(noContent()));
         wireMockServer.stubFor(get(urlEqualTo("/api/nonpersonalaccount/me/activekey")).willReturn(ok().withBody(restKeyPairRest)));
-        FileCollector fileCollector = FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL).settings(FileCollectorSettings.builder().bashPath(sharedTempDir.toURI().getPath()).build()).build();
+        FileCollector fileCollector = FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL).settings(FileCollectorSettings.builder().basePath(sharedTempDir.toURI().getPath()).build()).build();
         linkBuilder.collectMaterials(fileCollector);
         linkBuilder.collectProducts(fileCollector);
         linkBuilder.store(KEY_PASSPHRASE);
@@ -151,7 +151,7 @@ class Argos4jTest {
                 .willReturn(ok().withBody("{\"runIsValid\":true}")));
 
         assertThat(verifyBuilder.addFileCollector(FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL)
-                .settings(FileCollectorSettings.builder().bashPath(sharedTempDir.toURI().getPath()).build()).build())
+                .settings(FileCollectorSettings.builder().basePath(sharedTempDir.toURI().getPath()).build()).build())
                 .verify("test".toCharArray()).isRunIsValid(), is(true));
 
         List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();

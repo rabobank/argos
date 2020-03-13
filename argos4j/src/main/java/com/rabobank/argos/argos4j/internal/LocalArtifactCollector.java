@@ -51,10 +51,10 @@ public class LocalArtifactCollector implements ArtifactCollector {
 
         this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + this.settings.getExcludePatterns());
 
-        optionalBasePath = Optional.ofNullable(settings.getBashPath()).map(Paths::get);
+        optionalBasePath = Optional.ofNullable(settings.getBasePath()).map(Paths::get);
 
         if (optionalBasePath.map(Path::toFile).filter(file -> !file.exists()).isPresent()) {
-            throw new Argos4jError("Base path " + settings.getBashPath() + " doesn't exist");
+            throw new Argos4jError("Base path " + settings.getBasePath() + " doesn't exist");
         }
     }
 

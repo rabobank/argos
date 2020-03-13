@@ -155,7 +155,7 @@ public class ArgosWrapper extends SimpleBuildWrapper implements Serializable {
     private FileCollector createFileCollector(FilePath workspace) {
         URI uri = new File(workspace.getRemote()).toURI();
         return FileCollector.builder()
-                .settings(FileCollectorSettings.builder().bashPath(uri.getPath()).build())
+                .settings(FileCollectorSettings.builder().basePath(uri.getPath()).build())
                 .uri(uri)
                 .type(LOCAL)
                 .build();

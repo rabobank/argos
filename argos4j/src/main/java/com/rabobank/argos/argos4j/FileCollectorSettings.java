@@ -27,7 +27,7 @@ public class FileCollectorSettings {
     /**
      * used in the local file collector to make all artifact uris relative from the base path
      */
-    private final String bashPath;
+    private final String basePath;
 
     /**
      * used in the remote file collector to specify the artifact uri when not set the last part of the uri is used

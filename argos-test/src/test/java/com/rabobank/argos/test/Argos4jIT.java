@@ -91,7 +91,7 @@ public class Argos4jIT {
         Argos4j argos4j = new Argos4j(settings);
         LinkBuilder linkBuilder = argos4j.getLinkBuilder(LinkBuilderSettings.builder().layoutSegmentName("layoutSegmentName").stepName("build").runId("runId").build());
         FileCollector fileCollector = FileCollector.builder().uri(new File("").toURI()).type(LOCAL).settings(
-                FileCollectorSettings.builder().bashPath(new File("").toURI().getPath()).build()).build();
+                FileCollectorSettings.builder().basePath(new File("").toURI().getPath()).build()).build();
         linkBuilder.collectProducts(fileCollector);
         linkBuilder.collectMaterials(fileCollector);
         linkBuilder.store("test".toCharArray());
@@ -104,7 +104,7 @@ public class Argos4jIT {
         boolean runIsValid = verifyBuilder.addFileCollector(FileCollector.builder()
                 .uri(uri)
                 .type(LOCAL)
-                .settings(FileCollectorSettings.builder().bashPath(new File("").toURI().getPath()).build()).build())
+                .settings(FileCollectorSettings.builder().basePath(new File("").toURI().getPath()).build()).build())
                 .verify("test".toCharArray()).isRunIsValid();
 
         assertThat(runIsValid, Matchers.is(true));
