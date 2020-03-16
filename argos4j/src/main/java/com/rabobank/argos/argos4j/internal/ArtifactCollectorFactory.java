@@ -17,25 +17,36 @@ package com.rabobank.argos.argos4j.internal;
 
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.FileCollector;
+import com.rabobank.argos.argos4j.LocalFileCollector;
+import com.rabobank.argos.argos4j.LocalZipFileCollector;
+import com.rabobank.argos.argos4j.RemoteFileCollector;
+import com.rabobank.argos.argos4j.RemoteZipFileCollector;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class ArtifactCollectorFactory {
 
+
+    private static final Map<Class<? extends FileCollector>, Class<? extends ArtifactCollector>> MAPPING = new HashMap<>();
+
+    static {
+        MAPPING.put(LocalFileCollector.class, LocalArtifactCollector.class);
+        MAPPING.put(LocalZipFileCollector.class, ZipArtifactCollector.class);
+        MAPPING.put(RemoteFileCollector.class, RemoteArtifactCollector.class);
+        MAPPING.put(RemoteZipFileCollector.class, RemoteArtifactCollector.class);
+    }
+
     public static ArtifactCollector build(FileCollector fileCollector) {
-        Objects.requireNonNull(fileCollector.getType());
-        Objects.requireNonNull(fileCollector.getUri());
-        Objects.requireNonNull(fileCollector.getSettings());
-        switch (fileCollector.getType()) {
-            case LOCAL:
-                return new LocalArtifactCollector(fileCollector);
-            case LOCAL_ZIP:
-                return new ZipArtifactCollector(fileCollector);
-            case REMOTE_ZIP:
-            case REMOTE_FILE:
-                return new RemoteArtifactCollector(fileCollector);
-            default:
-                throw new Argos4jError(fileCollector.getType() + " not implemented");
+        Class<? extends ArtifactCollector> artifactCollectorClass = Objects.requireNonNull(MAPPING.get(fileCollector.getClass()), "not implemented");
+        try {
+            return artifactCollectorClass.getConstructor(fileCollector.getClass()).newInstance(fileCollector);
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException e) {
+            throw new Argos4jError(e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw new Argos4jError(e.getCause().getMessage(), e.getCause());
         }
     }
 }

@@ -16,8 +16,7 @@
 package com.rabobank.argos.argos4j.internal;
 
 import com.rabobank.argos.argos4j.Argos4jError;
-import com.rabobank.argos.argos4j.FileCollector;
-import com.rabobank.argos.argos4j.FileCollectorSettings;
+import com.rabobank.argos.argos4j.LocalFileCollector;
 import com.rabobank.argos.domain.link.Artifact;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -36,13 +35,13 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasSize;
@@ -111,8 +110,12 @@ class LocalArtifactCollectorTest {
     @Test
     @DisabledOnOs(WINDOWS)
     void collectOnFileWithBasePath() {
-        FileCollectorSettings settings = FileCollectorSettings.builder().basePath(onFileDir.toURI().getPath()).normalizeLineEndings(true).build();
-        List<Artifact> artifacts = sort(new LocalArtifactCollector(FileCollector.builder().settings(settings).type(LOCAL).uri(onFileDir.toURI()).build()).collect());
+        ArtifactCollector collector = ArtifactCollectorFactory.build(LocalFileCollector.builder()
+                .basePath(onFileDir.toPath())
+                .path(onFileDir.toPath())
+                .normalizeLineEndings(true)
+                .build());
+        List<Artifact> artifacts = sort(collector.collect());
         assertThat(artifacts, hasSize(3));
         checkLevel2File(artifacts.get(0), "linkdir");
         checkLevel2Zip(artifacts.get(1), "linkdir");
@@ -126,8 +129,12 @@ class LocalArtifactCollectorTest {
 
     @Test
     void collectMultiLevelWithBasePath() {
-        FileCollectorSettings settings = FileCollectorSettings.builder().basePath(multilevelDir.toURI().getPath()).normalizeLineEndings(true).build();
-        List<Artifact> artifacts = sort(new LocalArtifactCollector(FileCollector.builder().settings(settings).type(LOCAL).uri(multilevelDir.toURI()).build()).collect());
+        ArtifactCollector collector = ArtifactCollectorFactory.build(LocalFileCollector.builder()
+                .basePath(multilevelDir.toPath())
+                .path(multilevelDir.toPath())
+                .normalizeLineEndings(true)
+                .build());
+        List<Artifact> artifacts = sort(collector.collect());
         assertThat(artifacts, hasSize(3));
         Artifact artifact1 = artifacts.get(0);
         assertThat(artifact1.getUri(), is("level1.txt"));
@@ -149,8 +156,13 @@ class LocalArtifactCollectorTest {
 
     @Test
     void collectOnFileWithBasePathNotFollowLinks() {
-        FileCollectorSettings settings = FileCollectorSettings.builder().normalizeLineEndings(true).basePath(onFileDir.toURI().getPath()).followSymlinkDirs(false).build();
-        List<Artifact> artifacts = new LocalArtifactCollector(FileCollector.builder().settings(settings).type(LOCAL).uri(onFileDir.toURI()).build()).collect();
+        ArtifactCollector collector = ArtifactCollectorFactory.build(LocalFileCollector.builder()
+                .basePath(onFileDir.toPath())
+                .path(onFileDir.toPath())
+                .normalizeLineEndings(true)
+                .followSymlinkDirs(false)
+                .build());
+        List<Artifact> artifacts = sort(collector.collect());
         assertThat(artifacts, hasSize(1));
         checkTextartifact(artifacts.get(0));
     }
@@ -162,8 +174,14 @@ class LocalArtifactCollectorTest {
 
     @Test
     void collectOnFileWithBasePathNotFollowLinksAndNormalizeLineEndings() {
-        FileCollectorSettings settings = FileCollectorSettings.builder().normalizeLineEndings(false).basePath(onFileDir.toURI().getPath()).followSymlinkDirs(false).build();
-        List<Artifact> artifacts = new LocalArtifactCollector(FileCollector.builder().settings(settings).type(LOCAL).uri(onFileDir.toURI()).build()).collect();
+
+        ArtifactCollector collector = ArtifactCollectorFactory.build(LocalFileCollector.builder()
+                .basePath(onFileDir.toPath())
+                .path(onFileDir.toPath())
+                .normalizeLineEndings(false)
+                .followSymlinkDirs(false)
+                .build());
+        List<Artifact> artifacts = sort(collector.collect());
         assertThat(artifacts, hasSize(1));
         Artifact artifact = artifacts.get(0);
         assertThat(artifact.getUri(), is("text.txt"));
@@ -172,8 +190,13 @@ class LocalArtifactCollectorTest {
 
     @Test
     void collectOnFileWithExcludePattern() {
-        FileCollectorSettings settings = FileCollectorSettings.builder().followSymlinkDirs(false).basePath(onFileDir.toURI().getPath()).excludePatterns("**.txt").build();
-        List<Artifact> artifacts = new LocalArtifactCollector(FileCollector.builder().settings(settings).type(LOCAL).uri(onFileDir.toURI()).build()).collect();
+        ArtifactCollector collector = ArtifactCollectorFactory.build(LocalFileCollector.builder()
+                .basePath(onFileDir.toPath())
+                .path(onFileDir.toPath())
+                .excludePatterns("**.txt")
+                .followSymlinkDirs(false)
+                .build());
+        List<Artifact> artifacts = sort(collector.collect());
         assertThat(artifacts, hasSize(1));
         Artifact artifact = artifacts.get(0);
         assertThat(artifact.getUri(), endsWith("notMe.git"));
@@ -182,15 +205,22 @@ class LocalArtifactCollectorTest {
 
     @Test
     void collectWrongBasePath() {
-        FileCollectorSettings settings = FileCollectorSettings.builder().basePath(URI.create("notthere").getPath()).build();
-        Argos4jError error = assertThrows(Argos4jError.class, () -> new LocalArtifactCollector(FileCollector.builder().settings(settings).uri(URI.create("notthere")).type(LOCAL).build()).collect());
+        Argos4jError error = assertThrows(Argos4jError.class, () -> ArtifactCollectorFactory.build(LocalFileCollector.builder()
+                .basePath(Paths.get(URI.create("notthere").getPath()))
+                .path(onFileDir.toPath())
+                .build()));
         assertThat(error.getMessage(), is("Base path notthere doesn't exist"));
     }
 
     @Test
     void collectOnFileWithoutBasePathNotFollowLinks() {
-        FileCollectorSettings settings = FileCollectorSettings.builder().normalizeLineEndings(true).followSymlinkDirs(false).build();
-        List<Artifact> artifacts = new LocalArtifactCollector(FileCollector.builder().settings(settings).type(LOCAL).uri(onFileDir.toURI()).build()).collect();
+        ArtifactCollector collector = ArtifactCollectorFactory.build(LocalFileCollector.builder()
+                .path(onFileDir.toPath())
+                .followSymlinkDirs(false)
+                .normalizeLineEndings(true)
+                .followSymlinkDirs(false)
+                .build());
+        List<Artifact> artifacts = sort(collector.collect());
         assertThat(artifacts, hasSize(1));
         Artifact artifact = artifacts.get(0);
         assertThat(artifact.getUri(), endsWith("on file dir/text.txt"));
@@ -199,8 +229,13 @@ class LocalArtifactCollectorTest {
 
     @Test
     void collectOneFileThatIsInTheIgnoreFilter() {
-        FileCollectorSettings settings = FileCollectorSettings.builder().followSymlinkDirs(false).build();
-        List<Artifact> artifacts = new LocalArtifactCollector(FileCollector.builder().settings(settings).type(LOCAL).uri(ignoredFile.toURI()).build()).collect();
+        ArtifactCollector collector = ArtifactCollectorFactory.build(LocalFileCollector.builder()
+                .path(ignoredFile.toPath())
+                .followSymlinkDirs(false)
+                .normalizeLineEndings(true)
+                .followSymlinkDirs(false)
+                .build());
+        List<Artifact> artifacts = sort(collector.collect());
         assertThat(artifacts, hasSize(0));
     }
     
@@ -209,8 +244,11 @@ class LocalArtifactCollectorTest {
         String dirname = "src/test/resources/artifactcollectertest";
         String expectedHash = this.createHash(dirname + "/argos-test-app.war");
         File artifactCollecterTestDir = new File(dirname);
-        FileCollectorSettings settings = FileCollectorSettings.builder().basePath(artifactCollecterTestDir.toURI().getPath()).build();
-        List<Artifact> artifacts = new LocalArtifactCollector(FileCollector.builder().settings(settings).type(LOCAL).uri(artifactCollecterTestDir.toURI()).build()).collect();
+        ArtifactCollector collector = ArtifactCollectorFactory.build(LocalFileCollector.builder()
+                .basePath(artifactCollecterTestDir.toPath())
+                .path(artifactCollecterTestDir.toPath())
+                .build());
+        List<Artifact> artifacts = sort(collector.collect());
         assertEquals(expectedHash, artifacts.get(0).getHash());
     }
     

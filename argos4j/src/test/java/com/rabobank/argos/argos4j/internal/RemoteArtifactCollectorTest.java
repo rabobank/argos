@@ -19,18 +19,18 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.rabobank.argos.argos4j.Argos4jError;
-import com.rabobank.argos.argos4j.FileCollector;
-import com.rabobank.argos.argos4j.FileCollectorSettings;
+import com.rabobank.argos.argos4j.RemoteFileCollector;
+import com.rabobank.argos.argos4j.RemoteZipFileCollector;
 import com.rabobank.argos.domain.link.Artifact;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
-import java.net.URI;
+import java.net.URL;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -38,17 +38,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.notFound;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.status;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.REMOTE_FILE;
-import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.REMOTE_ZIP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Slf4j
 class RemoteArtifactCollectorTest {
 
     private ArtifactCollector collector;
@@ -69,9 +64,7 @@ class RemoteArtifactCollectorTest {
 
     @Test
     void collectRemoteZip() throws IOException {
-
-        createCollector(REMOTE_ZIP, "http://bart:secret@localhost:");
-
+        createZipCollector();
         wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar"))
                 .willReturn(ok().withBody(IOUtils.toByteArray(getClass().getResourceAsStream("/argos-test-app-1.0-SNAPSHOT.dar")))));
         List<Artifact> collect = collector.collect();
@@ -86,52 +79,52 @@ class RemoteArtifactCollectorTest {
 
     @Test
     void collectEncryptedRemoteZip() throws IOException {
-        createCollector(REMOTE_ZIP, "http://bart:secret@localhost:");
+        createZipCollector();
         wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar")).willReturn(ok().withBody(IOUtils.toByteArray(getClass().getResourceAsStream("/with-password.zip")))));
         Argos4jError error = assertThrows(Argos4jError.class, () -> collector.collect());
         assertThat(error.getMessage(), is("encrypted ZIP entry not supported"));
     }
 
     @Test
-    void collectNotFound() {
-        createCollector(REMOTE_ZIP, "http://bart:secret@localhost:");
+    void collectNotFound() throws MalformedURLException {
+        createZipCollector();
         wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar")).willReturn(notFound()));
         Argos4jError error = assertThrows(Argos4jError.class, () -> collector.collect());
-        assertThat(error.getMessage(), endsWith("argos-test-app-1.0-SNAPSHOT.dar returned 404"));
+        assertThat(error.getMessage(), is("call to http://localhost:" + randomPort + "/argos-test-app-1.0-SNAPSHOT.dar returned 404"));
     }
 
+
     @Test
-    void collectNotAuthorized() {
-        createCollector(REMOTE_ZIP, "http://bart:secret@localhost:");
+    void collectNotAuthorized() throws MalformedURLException {
+        createZipCollector();
         wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar")).willReturn(status(401).withBody("Not authorized")));
         Argos4jError error = assertThrows(Argos4jError.class, () -> collector.collect());
-        assertThat(error.getMessage(), endsWith("argos-test-app-1.0-SNAPSHOT.dar returned 401 with body : Not authorized"));
-        assertThat(error.getMessage(), startsWith("call to http://localhost:"));
+        assertThat(error.getMessage(), is("call to http://localhost:" + randomPort + "/argos-test-app-1.0-SNAPSHOT.dar returned 401 with body : Not authorized"));
     }
 
     @Test
-    void collectConnectionRefused() {
+    void collectConnectionRefused() throws MalformedURLException {
         randomPort = 33321;
-        createCollector(REMOTE_ZIP, "http://localhost:");
+        createZipCollector();
         wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar")).willReturn(status(401).withBody("Not authorized")));
         Argos4jError error = assertThrows(Argos4jError.class, () -> collector.collect());
         assertThat(error.getMessage(), is("http://localhost:33321/argos-test-app-1.0-SNAPSHOT.dar got error Connection refused (Connection refused)"));
     }
 
-    private void createCollector(FileCollector.FileCollectorType type, String host) {
-        collector = ArtifactCollectorFactory.build(FileCollector.builder()
-                .type(type)
-                .settings(FileCollectorSettings.builder().build())
-                .uri(URI.create(host + randomPort + "/argos-test-app-1.0-SNAPSHOT.dar")).build());
+    private void createZipCollector() throws MalformedURLException {
+        collector = ArtifactCollectorFactory.build(RemoteZipFileCollector.builder().username("bart")
+                .password("secret".toCharArray()).url(new URL("http://localhost:" + randomPort + "/argos-test-app-1.0-SNAPSHOT.dar")).build());
+    }
+
+    private void createFileCollector(String artifactUri) throws MalformedURLException {
+        collector = ArtifactCollectorFactory.build(RemoteFileCollector.builder()
+                .artifactUri(artifactUri).url(new URL("http://localhost:" + randomPort + "/argos-test-app-1.0-SNAPSHOT.dar")).build());
     }
 
     @Test
     void collectRemoteFileWithConfiguredArtifactName() throws IOException {
 
-        collector = ArtifactCollectorFactory.build(FileCollector.builder()
-                .type(REMOTE_FILE)
-                .settings(FileCollectorSettings.builder().artifactUri("other.war").build())
-                .uri(URI.create("http://localhost:" + randomPort + "/argos-test-app-1.0-SNAPSHOT.dar")).build());
+        createFileCollector("other.war");
 
         wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar"))
                 .willReturn(ok().withBody(IOUtils.toByteArray(getClass().getResourceAsStream("/argos-test-app-1.0-SNAPSHOT.dar")))));
@@ -146,7 +139,7 @@ class RemoteArtifactCollectorTest {
     @Test
     void collectRemoteFile() throws IOException {
 
-        createCollector(REMOTE_FILE, "http://localhost:");
+        createFileCollector(null);
 
         wireMockServer.stubFor(get(urlEqualTo("/argos-test-app-1.0-SNAPSHOT.dar"))
                 .willReturn(ok().withBody(IOUtils.toByteArray(getClass().getResourceAsStream("/argos-test-app-1.0-SNAPSHOT.dar")))));

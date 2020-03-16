@@ -42,7 +42,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.status;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
@@ -111,7 +110,7 @@ class Argos4jTest {
                 .willReturn(ok().withBody("{\"name\":\"supplyChainName\",\"id\":\"supplyChainId\",\"parentLabelId\":\"parentLabelId\"}")));
         wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/link")).willReturn(noContent()));
         wireMockServer.stubFor(get(urlEqualTo("/api/nonpersonalaccount/me/activekey")).willReturn(ok().withBody(restKeyPairRest)));
-        FileCollector fileCollector = FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL).settings(FileCollectorSettings.builder().basePath(sharedTempDir.toURI().getPath()).build()).build();
+        FileCollector fileCollector = LocalFileCollector.builder().path(sharedTempDir.toPath()).basePath(sharedTempDir.toPath()).build();
         linkBuilder.collectMaterials(fileCollector);
         linkBuilder.collectProducts(fileCollector);
         linkBuilder.store(KEY_PASSPHRASE);
@@ -153,8 +152,7 @@ class Argos4jTest {
         wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/verification"))
                 .willReturn(ok().withBody("{\"runIsValid\":true}")));
 
-        assertThat(verifyBuilder.addFileCollector(FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL)
-                .settings(FileCollectorSettings.builder().basePath(sharedTempDir.toURI().getPath()).build()).build())
+        assertThat(verifyBuilder.addFileCollector(LocalFileCollector.builder().path(sharedTempDir.toPath()).basePath(sharedTempDir.toPath()).build())
                 .verify("test".toCharArray()).isRunIsValid(), is(true));
 
         List<LoggedRequest> requests = wireMockServer.findRequestsMatching(RequestPattern.everything()).getRequests();
@@ -169,8 +167,8 @@ class Argos4jTest {
         wireMockServer.stubFor(post(urlEqualTo("/api/supplychain/supplyChainId/verification"))
                 .willReturn(status(401)));
 
-        Argos4jError error = assertThrows(Argos4jError.class, () -> verifyBuilder.addFileCollector(FileCollector.builder().uri(sharedTempDir.toURI()).type(LOCAL)
-                .settings(FileCollectorSettings.builder().basePath(sharedTempDir.toURI().getPath()).build()).build())
+        Argos4jError error = assertThrows(Argos4jError.class, () -> verifyBuilder.addFileCollector(LocalFileCollector.builder()
+                .path(sharedTempDir.toPath()).basePath(sharedTempDir.toPath()).build())
                 .verify("test".toCharArray()));
         assertThat(error.getMessage(), startsWith("[401 Unauthorized] during [POST] to "));
     }

@@ -27,8 +27,7 @@ import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jSettings;
-import com.rabobank.argos.argos4j.FileCollector;
-import com.rabobank.argos.argos4j.FileCollectorSettings;
+import com.rabobank.argos.argos4j.RemoteFileCollector;
 import com.rabobank.argos.argos4j.VerifyBuilder;
 import com.rabobank.argos.argos4j.internal.ArgosServiceClient;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
@@ -43,8 +42,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -52,7 +53,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.REMOTE_FILE;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getNonPersonalAccountApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
@@ -196,7 +196,7 @@ public class JenkinsTestIT {
         assertThat(build.details().getResult(), is(BuildResult.SUCCESS));
     }
 
-    public void verifyEndProducts() {
+    public void verifyEndProducts() throws MalformedURLException {
 
         Argos4jSettings settings = Argos4jSettings.builder()
                 .argosServerBaseUrl(properties.getApiBaseUrl() + "/api")
@@ -205,9 +205,9 @@ public class JenkinsTestIT {
                 .signingKeyId(keyIdBob)
                 .build();
         VerifyBuilder verifyBuilder = new Argos4j(settings).getVerifyBuilder();
-        verifyBuilder.addFileCollector(FileCollector.builder().type(REMOTE_FILE)
-                .settings(FileCollectorSettings.builder().artifactUri("argos-test-app.war").build())
-                .uri(URI.create(properties.getNexusWarSnapshotUrl())).build());
+        verifyBuilder.addFileCollector(RemoteFileCollector.builder()
+                .artifactUri("argos-test-app.war")
+                .url(new URL(properties.getNexusWarSnapshotUrl())).build());
         assertTrue(verifyBuilder.verify("test".toCharArray()).isRunIsValid());
 
     }

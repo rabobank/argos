@@ -20,8 +20,8 @@ import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.FileCollector;
-import com.rabobank.argos.argos4j.FileCollectorSettings;
 import com.rabobank.argos.argos4j.LinkBuilder;
+import com.rabobank.argos.argos4j.LocalFileCollector;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -46,10 +46,8 @@ import org.kohsuke.stapler.QueryParameter;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
+import java.nio.file.Path;
 import java.util.Optional;
-
-import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL;
 
 /**
  * Jenkins recorder plugin to output signed link metadata for Jenkins pipeline
@@ -146,11 +144,11 @@ public class ArgosRecorder extends Recorder {
     }
 
     private FileCollector createFileCollector(String cwdStr) {
-        URI uri = new File(cwdStr).toURI();
-        return FileCollector.builder()
-                .uri(uri)
-                .type(LOCAL)
-                .settings(FileCollectorSettings.builder().basePath(uri.getPath()).build()).build();
+        Path path = new File(cwdStr).toPath();
+        return LocalFileCollector.builder()
+                .path(path)
+                .basePath(path)
+                .build();
     }
 
     private String getCwdStr(AbstractBuild<?, ?> build) {

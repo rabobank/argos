@@ -17,8 +17,7 @@ package com.rabobank.argos.argos4j.internal;
 
 
 import com.rabobank.argos.argos4j.Argos4jError;
-import com.rabobank.argos.argos4j.FileCollector;
-import com.rabobank.argos.argos4j.FileCollectorSettings;
+import com.rabobank.argos.argos4j.LocalFileCollector;
 import com.rabobank.argos.domain.link.Artifact;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +29,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,29 +36,27 @@ import java.util.Optional;
 @Slf4j
 public class LocalArtifactCollector implements ArtifactCollector {
 
-    private final FileCollectorSettings settings;
+    private final LocalFileCollector fileCollector;
     private final Optional<Path> optionalBasePath;
     private List<Artifact> artifacts = new ArrayList<>();
-    private final PathMatcher matcher;
-    private final FileCollector fileCollector;
+    private final PathMatcher excludeMatcher;
 
 
-    public LocalArtifactCollector(FileCollector fileCollector) {
-        this.settings = fileCollector.getSettings();
+    public LocalArtifactCollector(LocalFileCollector fileCollector) {
         this.fileCollector = fileCollector;
 
-        this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + this.settings.getExcludePatterns());
+        this.excludeMatcher = FileSystems.getDefault().getPathMatcher("glob:" + this.fileCollector.getExcludePatterns());
 
-        optionalBasePath = Optional.ofNullable(settings.getBasePath()).map(Paths::get);
+        optionalBasePath = Optional.ofNullable(fileCollector.getBasePath());
 
         if (optionalBasePath.map(Path::toFile).filter(file -> !file.exists()).isPresent()) {
-            throw new Argos4jError("Base path " + settings.getBasePath() + " doesn't exist");
+            throw new Argos4jError("Base path " + fileCollector.getBasePath() + " doesn't exist");
         }
     }
 
     @Override
     public List<Artifact> collect() {
-        Path path = Paths.get(fileCollector.getUri().getPath());
+        Path path = fileCollector.getPath();
         if (optionalBasePath.isPresent() && !path.startsWith(optionalBasePath.get())) {
             throw new Argos4jError("uri does not contain base path");
         }
@@ -69,7 +65,7 @@ public class LocalArtifactCollector implements ArtifactCollector {
     }
 
     private void recurseAndCollect(Path path) {
-        if (matcher.matches(path)) {
+        if (excludeMatcher.matches(path)) {
             return;
         }
 
@@ -83,7 +79,7 @@ public class LocalArtifactCollector implements ArtifactCollector {
                 this.artifacts.add(Artifact.builder().uri(uri.replace("\\", "/"))
                         .hash(createHash(path.toString())).build());
             } else {
-                if ((Files.isSymbolicLink(path) && settings.isFollowSymlinkDirs())
+                if ((Files.isSymbolicLink(path) && fileCollector.isFollowSymlinkDirs())
                         || (path.toFile().isDirectory() && !Files.isSymbolicLink(path))) {
                     collectDirectory(path);
                 }
@@ -102,7 +98,7 @@ public class LocalArtifactCollector implements ArtifactCollector {
     private String createHash(String filename) {
         try (FileInputStream fis = new FileInputStream(filename);
              BufferedInputStream bis = new BufferedInputStream(fis)) {
-            return HashUtil.createHash(bis, filename, settings.isNormalizeLineEndings());
+            return HashUtil.createHash(bis, filename, fileCollector.isNormalizeLineEndings());
         } catch (IOException e) {
             throw new Argos4jError("The file " + filename + " couldn't be recorded: " + e.getMessage());
         }

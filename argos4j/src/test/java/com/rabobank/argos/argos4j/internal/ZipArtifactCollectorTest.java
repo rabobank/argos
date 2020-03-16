@@ -15,13 +15,12 @@
  */
 package com.rabobank.argos.argos4j.internal;
 
-import com.rabobank.argos.argos4j.FileCollector;
-import com.rabobank.argos.argos4j.FileCollectorSettings;
+import com.rabobank.argos.argos4j.LocalZipFileCollector;
 import com.rabobank.argos.domain.link.Artifact;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,13 +31,12 @@ class ZipArtifactCollectorTest {
     private ArtifactCollector collector;
 
     @BeforeEach
-    void setUp() throws URISyntaxException {
-        collector = ArtifactCollectorFactory.build(FileCollector.builder()
-                .type(FileCollector.FileCollectorType.LOCAL_ZIP)
-                .settings(FileCollectorSettings.builder().build())
-                .uri(ZipArtifactCollectorTest.class.getResource("/argos-test-app-1.0-SNAPSHOT.dar")
-                        .toURI()).build());
+    void setUp() {
+        collector = ArtifactCollectorFactory.build(LocalZipFileCollector
+                .builder()
+                .path(Paths.get(ZipArtifactCollectorTest.class.getResource("/argos-test-app-1.0-SNAPSHOT.dar").getPath())).build());
     }
+
 
     @Test
     void collect() {

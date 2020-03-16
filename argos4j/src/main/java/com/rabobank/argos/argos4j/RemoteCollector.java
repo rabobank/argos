@@ -16,22 +16,30 @@
 package com.rabobank.argos.argos4j;
 
 import lombok.Getter;
+import lombok.NonNull;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
-
+import java.net.URL;
 
 @Getter
-public abstract class FileCollector {
+public abstract class RemoteCollector extends FileCollector {
 
-    public static final String DEFAULT_EXCLUDE_PATTERNS = "**.{git,link}**";
+    /**
+     * optional for basic authentication
+     */
+    private final String username;
 
-    private final String excludePatterns;
+    private final char[] password;
 
-    private final boolean normalizeLineEndings;
+    /**
+     * the url of the remote file
+     */
+    private final URL url;
 
-    public FileCollector(@Nullable String excludePatterns, @Nullable Boolean normalizeLineEndings) {
-        this.excludePatterns = Optional.ofNullable(excludePatterns).orElse(DEFAULT_EXCLUDE_PATTERNS);
-        this.normalizeLineEndings = Optional.ofNullable(normalizeLineEndings).orElse(false);
+    public RemoteCollector(@Nullable String excludePatterns, @Nullable Boolean normalizeLineEndings, @Nullable String username, char[] password, @NonNull URL url) {
+        super(excludePatterns, normalizeLineEndings);
+        this.username = username;
+        this.password = password;
+        this.url = url;
     }
 }

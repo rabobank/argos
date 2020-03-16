@@ -16,28 +16,28 @@
 package com.rabobank.argos.argos4j.internal;
 
 import com.rabobank.argos.argos4j.Argos4jError;
-import com.rabobank.argos.argos4j.FileCollector;
+import com.rabobank.argos.argos4j.LocalZipFileCollector;
 import com.rabobank.argos.domain.link.Artifact;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 
 public class ZipArtifactCollector implements ArtifactCollector {
 
 
     private final ZipStreamArtifactCollector zipStreamArtifactCollector;
-    private final URI uri;
+    private final Path zipPath;
 
-    public ZipArtifactCollector(FileCollector fileCollector) {
-        uri = fileCollector.getUri();
+    public ZipArtifactCollector(LocalZipFileCollector fileCollector) {
+        zipPath = fileCollector.getPath();
         zipStreamArtifactCollector = new ZipStreamArtifactCollector(fileCollector);
     }
 
     @Override
     public List<Artifact> collect() {
-        try (FileInputStream fis = new FileInputStream(uri.getPath())) {
+        try (FileInputStream fis = new FileInputStream(zipPath.toFile())) {
             return zipStreamArtifactCollector.collect(fis);
         } catch (IOException e) {
             throw new Argos4jError(e.getMessage(), e);

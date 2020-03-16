@@ -17,7 +17,6 @@ package com.rabobank.argos.argos4j.internal;
 
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.FileCollector;
-import com.rabobank.argos.argos4j.FileCollectorSettings;
 import com.rabobank.argos.domain.link.Artifact;
 
 import java.io.BufferedInputStream;
@@ -33,12 +32,13 @@ import java.util.zip.ZipInputStream;
 
 public class ZipStreamArtifactCollector {
 
-    private final FileCollectorSettings settings;
-    private final PathMatcher matcher;
+    private FileCollector fileCollector;
+
+    private final PathMatcher excludeMatcher;
 
     public ZipStreamArtifactCollector(FileCollector fileCollector) {
-        this.settings = fileCollector.getSettings();
-        this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + this.settings.getExcludePatterns());
+        this.fileCollector = fileCollector;
+        this.excludeMatcher = FileSystems.getDefault().getPathMatcher("glob:" + this.fileCollector.getExcludePatterns());
     }
 
     public List<Artifact> collect(InputStream inputStream) {
@@ -48,10 +48,10 @@ public class ZipStreamArtifactCollector {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 String fileName = entry.getName();
-                if (!entry.isDirectory() && !matcher.matches(Paths.get(fileName))) {
+                if (!entry.isDirectory() && !excludeMatcher.matches(Paths.get(fileName))) {
                     artifacts.add(Artifact.builder()
                             .uri(fileName.replace("\\", "/"))
-                            .hash(HashUtil.createHash(zis, fileName, settings.isNormalizeLineEndings()))
+                            .hash(HashUtil.createHash(zis, fileName, fileCollector.isNormalizeLineEndings()))
                             .build());
                 }
             }

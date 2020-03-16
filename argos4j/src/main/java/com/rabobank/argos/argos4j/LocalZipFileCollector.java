@@ -15,23 +15,24 @@
  */
 package com.rabobank.argos.argos4j;
 
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
-
+import java.nio.file.Path;
 
 @Getter
-public abstract class FileCollector {
+public class LocalZipFileCollector extends FileCollector {
 
-    public static final String DEFAULT_EXCLUDE_PATTERNS = "**.{git,link}**";
+    /**
+     * is the zip file path
+     */
+    private final Path path;
 
-    private final String excludePatterns;
-
-    private final boolean normalizeLineEndings;
-
-    public FileCollector(@Nullable String excludePatterns, @Nullable Boolean normalizeLineEndings) {
-        this.excludePatterns = Optional.ofNullable(excludePatterns).orElse(DEFAULT_EXCLUDE_PATTERNS);
-        this.normalizeLineEndings = Optional.ofNullable(normalizeLineEndings).orElse(false);
+    @Builder
+    public LocalZipFileCollector(@Nullable String excludePatterns, @Nullable Boolean normalizeLineEndings, @NonNull Path path) {
+        super(excludePatterns, normalizeLineEndings);
+        this.path = path;
     }
 }

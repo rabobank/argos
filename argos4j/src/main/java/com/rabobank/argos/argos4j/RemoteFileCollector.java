@@ -17,29 +17,23 @@ package com.rabobank.argos.argos4j;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 
-@Builder
+import javax.annotation.Nullable;
+import java.net.URL;
+
 @Getter
-public class FileCollectorSettings {
-
-    public static final String DEFAULT_EXCLUDE_PATTERNS = "**.{git,link}**";
-
-    /**
-     * used in the local file collector to make all artifact uris relative from the base path
-     */
-    private final String basePath;
+public class RemoteFileCollector extends RemoteCollector {
 
     /**
      * used in the remote file collector to specify the artifact uri when not set the last part of the uri is used
      */
     private final String artifactUri;
 
-    @Builder.Default
-    private final String excludePatterns = DEFAULT_EXCLUDE_PATTERNS;
-
-    @Builder.Default
-    private final boolean followSymlinkDirs = true;
-
-    @Builder.Default
-    private final boolean normalizeLineEndings = false;
+    @Builder
+    public RemoteFileCollector(@Nullable String excludePatterns, @Nullable Boolean normalizeLineEndings, @Nullable String username, char[] password, @NonNull URL url
+            , @Nullable String artifactUri) {
+        super(excludePatterns, normalizeLineEndings, username, password, url);
+        this.artifactUri = artifactUri;
+    }
 }

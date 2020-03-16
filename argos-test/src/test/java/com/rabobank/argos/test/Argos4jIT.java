@@ -18,9 +18,9 @@ package com.rabobank.argos.test;
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jSettings;
 import com.rabobank.argos.argos4j.FileCollector;
-import com.rabobank.argos.argos4j.FileCollectorSettings;
 import com.rabobank.argos.argos4j.LinkBuilder;
 import com.rabobank.argos.argos4j.LinkBuilderSettings;
+import com.rabobank.argos.argos4j.LocalFileCollector;
 import com.rabobank.argos.argos4j.VerifyBuilder;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
@@ -38,11 +38,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
-import static com.rabobank.argos.argos4j.FileCollector.FileCollectorType.LOCAL;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getToken;
@@ -68,7 +65,7 @@ public class Argos4jIT {
     }
 
     @Test
-    void postLinkMetaBlockWithSignatureValidationAndVerify() throws URISyntaxException {
+    void postLinkMetaBlockWithSignatureValidationAndVerify() {
 
 
         String token = getToken();
@@ -90,8 +87,7 @@ public class Argos4jIT {
                 .build();
         Argos4j argos4j = new Argos4j(settings);
         LinkBuilder linkBuilder = argos4j.getLinkBuilder(LinkBuilderSettings.builder().layoutSegmentName("layoutSegmentName").stepName("build").runId("runId").build());
-        FileCollector fileCollector = FileCollector.builder().uri(new File("").toURI()).type(LOCAL).settings(
-                FileCollectorSettings.builder().basePath(new File("").toURI().getPath()).build()).build();
+        FileCollector fileCollector = LocalFileCollector.builder().path(new File(".").toPath()).basePath(new File(".").toPath()).build();
         linkBuilder.collectProducts(fileCollector);
         linkBuilder.collectMaterials(fileCollector);
         linkBuilder.store("test".toCharArray());
@@ -99,12 +95,11 @@ public class Argos4jIT {
 
         VerifyBuilder verifyBuilder = argos4j.getVerifyBuilder();
 
-        URI uri = new File("src/test/resources/karate-config.js").toURI();
+        File fileToVerify = new File("src/test/resources/karate-config.js");
 
-        boolean runIsValid = verifyBuilder.addFileCollector(FileCollector.builder()
-                .uri(uri)
-                .type(LOCAL)
-                .settings(FileCollectorSettings.builder().basePath(new File("").toURI().getPath()).build()).build())
+        boolean runIsValid = verifyBuilder.addFileCollector(LocalFileCollector.builder()
+                .path(fileToVerify.toPath())
+                .basePath(fileToVerify.toPath().getParent()).build())
                 .verify("test".toCharArray()).isRunIsValid();
 
         assertThat(runIsValid, Matchers.is(true));
@@ -118,7 +113,8 @@ public class Argos4jIT {
                         .destinationSegmentName("layoutSegmentName")
                         .destinationStepName("build")
                         .destinationType(RestMatchRule.DestinationTypeEnum.PRODUCTS)
-                        .pattern("**/karate-config.js"))
+                        .destinationPathPrefix("src/test/resources/")
+                        .pattern("karate-config.js"))
                 .addLayoutSegmentsItem(new RestLayoutSegment().name("layoutSegmentName")
                         .addStepsItem(new RestStep().requiredNumberOfLinks(1)
                                 .addAuthorizedKeyIdsItem(keyPair.getKeyId())

@@ -15,23 +15,19 @@
  */
 package com.rabobank.argos.argos4j;
 
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
-
+import java.net.URL;
 
 @Getter
-public abstract class FileCollector {
+public class RemoteZipFileCollector extends RemoteCollector {
 
-    public static final String DEFAULT_EXCLUDE_PATTERNS = "**.{git,link}**";
-
-    private final String excludePatterns;
-
-    private final boolean normalizeLineEndings;
-
-    public FileCollector(@Nullable String excludePatterns, @Nullable Boolean normalizeLineEndings) {
-        this.excludePatterns = Optional.ofNullable(excludePatterns).orElse(DEFAULT_EXCLUDE_PATTERNS);
-        this.normalizeLineEndings = Optional.ofNullable(normalizeLineEndings).orElse(false);
+    @Builder
+    public RemoteZipFileCollector(@Nullable String excludePatterns, @Nullable Boolean normalizeLineEndings, @Nullable String username, char[] password, @NonNull URL url
+            , @Nullable String artifactUri) {
+        super(excludePatterns, normalizeLineEndings, username, password, url);
     }
 }
