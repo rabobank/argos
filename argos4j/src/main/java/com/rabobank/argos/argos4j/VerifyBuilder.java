@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.argos4j.internal;
+package com.rabobank.argos.argos4j;
 
-import com.rabobank.argos.domain.link.Artifact;
+public interface VerifyBuilder {
 
-import java.util.List;
+    VerifyBuilder addFileCollector(FileCollector collector);
 
-public interface ArtifactCollector {
-    List<Artifact> collect();
+    VerificationResult verify(char[] keyPassphrase);
 }

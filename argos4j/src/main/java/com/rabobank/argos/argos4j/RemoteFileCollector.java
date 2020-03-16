@@ -17,17 +17,23 @@ package com.rabobank.argos.argos4j;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 
-import java.io.Serializable;
-import java.util.List;
+import javax.annotation.Nullable;
+import java.net.URL;
 
-@Builder
 @Getter
-public class Argos4jSettings implements Serializable {
+public class RemoteFileCollector extends RemoteCollector {
 
-    private final String supplyChainName;
-    private final List<String> pathToLabelRoot;
-    private final String signingKeyId;
-    private final String argosServerBaseUrl;
+    /**
+     * used in the remote file collector to specify the artifact uri when not set the last part of the uri is used
+     */
+    private final String artifactUri;
 
+    @Builder
+    public RemoteFileCollector(@Nullable String excludePatterns, @Nullable Boolean normalizeLineEndings, @Nullable String username, char[] password, @NonNull URL url
+            , @Nullable String artifactUri) {
+        super(excludePatterns, normalizeLineEndings, username, password, url);
+        this.artifactUri = artifactUri;
+    }
 }

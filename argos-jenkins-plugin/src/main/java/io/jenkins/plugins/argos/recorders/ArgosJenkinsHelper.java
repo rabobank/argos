@@ -22,6 +22,8 @@ import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.Argos4jSettings;
+import com.rabobank.argos.argos4j.LinkBuilder;
+import com.rabobank.argos.argos4j.LinkBuilderSettings;
 import hudson.Plugin;
 import hudson.PluginWrapper;
 import hudson.security.ACL;
@@ -35,9 +37,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -51,7 +53,7 @@ public class ArgosJenkinsHelper {
     private final String supplyChainIdentifier;
     private final String runId;
 
-    public Argos4j createArgos() {
+    public LinkBuilder createArgosLinkBuilder() {
 
         String version = Optional.ofNullable(Jenkins.getInstanceOrNull())
                 .map(jenkins -> Optional.ofNullable(jenkins.getPlugin("bouncycastle-api")))
@@ -79,12 +81,13 @@ public class ArgosJenkinsHelper {
 
         return new Argos4j(Argos4jSettings.builder()
                 .pathToLabelRoot(pathToRoot)
-                .layoutSegmentName(layoutSegmentName)
-                .stepName(stepName)
-                .runId(runId)
                 .argosServerBaseUrl(argosServiceBaseUrl)
                 .signingKeyId(getCredentials(privateKeyCredentialId).getUsername())
-                .supplyChainName(supplyChainName).build());
+                .supplyChainName(supplyChainName).build())
+                .getLinkBuilder(LinkBuilderSettings.builder()
+                        .layoutSegmentName(layoutSegmentName)
+                        .stepName(stepName)
+                        .runId(runId).build());
     }
 
     private String getSupplyChainName(String supplyChainPath) {

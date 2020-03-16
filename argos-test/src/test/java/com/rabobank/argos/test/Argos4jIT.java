@@ -17,7 +17,11 @@ package com.rabobank.argos.test;
 
 import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jSettings;
-import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
+import com.rabobank.argos.argos4j.FileCollector;
+import com.rabobank.argos.argos4j.LinkBuilder;
+import com.rabobank.argos.argos4j.LinkBuilderSettings;
+import com.rabobank.argos.argos4j.LocalFileCollector;
+import com.rabobank.argos.argos4j.VerifyBuilder;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayout;
@@ -28,21 +32,17 @@ import com.rabobank.argos.argos4j.rest.api.model.RestPublicKey;
 import com.rabobank.argos.argos4j.rest.api.model.RestRule;
 import com.rabobank.argos.argos4j.rest.api.model.RestStep;
 import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
-import com.rabobank.argos.argos4j.rest.api.model.RestVerificationResult;
-import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getToken;
-import static com.rabobank.argos.test.ServiceStatusHelper.getVerificationApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
 import static com.rabobank.argos.test.TestServiceHelper.createAndStoreKeyPair;
@@ -65,7 +65,7 @@ public class Argos4jIT {
     }
 
     @Test
-    void postLinkMetaBlockWithSignatureValidationAndVerify() throws IOException {
+    void postLinkMetaBlockWithSignatureValidationAndVerify() {
 
 
         String token = getToken();
@@ -81,21 +81,28 @@ public class Argos4jIT {
 
         Argos4jSettings settings = Argos4jSettings.builder()
                 .argosServerBaseUrl(properties.getApiBaseUrl() + "/api")
-                .layoutSegmentName("layoutSegmentName")
-                .stepName("build")
-                .runId("runId")
                 .supplyChainName("test-supply-chain")
                 .pathToLabelRoot(List.of("child_label", "root_label"))
                 .signingKeyId(keyPair.getKeyId())
                 .build();
         Argos4j argos4j = new Argos4j(settings);
-        argos4j.collectProducts(new File("."));
-        argos4j.collectMaterials(new File("."));
-        argos4j.store("test".toCharArray());
+        LinkBuilder linkBuilder = argos4j.getLinkBuilder(LinkBuilderSettings.builder().layoutSegmentName("layoutSegmentName").stepName("build").runId("runId").build());
+        FileCollector fileCollector = LocalFileCollector.builder().path(new File(".").toPath()).basePath(new File(".").toPath()).build();
+        linkBuilder.collectProducts(fileCollector);
+        linkBuilder.collectMaterials(fileCollector);
+        linkBuilder.store("test".toCharArray());
 
-        RestVerificationResult verificationResult = getVerificationApi(token).performVerification(supplyChainId, new RestVerifyCommand()
-                .addExpectedProductsItem(new RestArtifact().uri("src/test/resources/karate-config.js").hash("9b33afe5598c5ea4cc702b231b2a98a906bc2fdcd10ebab103bbb20596db07a2")));
-        assertThat(verificationResult.getRunIsValid(), Matchers.is(true));
+
+        VerifyBuilder verifyBuilder = argos4j.getVerifyBuilder();
+
+        File fileToVerify = new File("src/test/resources/karate-config.js");
+
+        boolean runIsValid = verifyBuilder.addFileCollector(LocalFileCollector.builder()
+                .path(fileToVerify.toPath())
+                .basePath(fileToVerify.toPath().getParent()).build())
+                .verify("test".toCharArray()).isRunIsValid();
+
+        assertThat(runIsValid, Matchers.is(true));
     }
 
     private RestLayout createLayout() {
@@ -106,7 +113,8 @@ public class Argos4jIT {
                         .destinationSegmentName("layoutSegmentName")
                         .destinationStepName("build")
                         .destinationType(RestMatchRule.DestinationTypeEnum.PRODUCTS)
-                        .pattern("**/karate-config.js"))
+                        .destinationPathPrefix("src/test/resources/")
+                        .pattern("karate-config.js"))
                 .addLayoutSegmentsItem(new RestLayoutSegment().name("layoutSegmentName")
                         .addStepsItem(new RestStep().requiredNumberOfLinks(1)
                                 .addAuthorizedKeyIdsItem(keyPair.getKeyId())

@@ -19,21 +19,26 @@ package com.rabobank.argos.argos4j.internal;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.rabobank.argos.argos4j.Argos4jError;
 import com.rabobank.argos.argos4j.Argos4jSettings;
-import com.rabobank.argos.argos4j.internal.mapper.LinkMetaBlockMapper;
+import com.rabobank.argos.argos4j.VerificationResult;
+import com.rabobank.argos.argos4j.internal.mapper.RestMapper;
 import com.rabobank.argos.argos4j.rest.api.ApiClient;
 import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
+import com.rabobank.argos.argos4j.rest.api.client.VerificationApi;
+import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
 import com.rabobank.argos.argos4j.rest.api.model.RestLinkMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
+import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
+import com.rabobank.argos.domain.link.Artifact;
 import com.rabobank.argos.domain.link.LinkMetaBlock;
 import feign.FeignException;
+import org.bouncycastle.util.encoders.Hex;
+import org.mapstruct.factory.Mappers;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import org.bouncycastle.util.encoders.Hex;
-import org.mapstruct.factory.Mappers;
+import java.util.List;
 
 
 public class ArgosServiceClient {
@@ -52,10 +57,20 @@ public class ArgosServiceClient {
     public void uploadLinkMetaBlockToService(LinkMetaBlock linkMetaBlock) {
         try {
             LinkApi linkApi = apiClient.buildClient(LinkApi.class);
-            RestLinkMetaBlock restLinkMetaBlock = Mappers.getMapper(LinkMetaBlockMapper.class).convertToRestLinkMetaBlock(linkMetaBlock);
+            RestLinkMetaBlock restLinkMetaBlock = Mappers.getMapper(RestMapper.class).convertToRestLinkMetaBlock(linkMetaBlock);
             linkApi.createLink(getSupplyChainId(), restLinkMetaBlock);
         } catch (FeignException e) {
-            throw new Argos4jError(e.status() + " " + e.contentUTF8(), e);
+            throw convertToArgos4jError(e);
+        }
+    }
+
+    public VerificationResult verify(List<Artifact> artifacts) {
+        try {
+            VerificationApi verificationApi = apiClient.buildClient(VerificationApi.class);
+            List<RestArtifact> restArtifacts = Mappers.getMapper(RestMapper.class).convertToRestArtifacts(artifacts);
+            return VerificationResult.builder().runIsValid(verificationApi.performVerification(getSupplyChainId(), new RestVerifyCommand().expectedProducts(restArtifacts)).getRunIsValid()).build();
+        } catch (FeignException e) {
+            throw convertToArgos4jError(e);
         }
     }
 
@@ -64,16 +79,20 @@ public class ArgosServiceClient {
             NonPersonalAccountApi keyApi = apiClient.buildClient(NonPersonalAccountApi.class);
             return keyApi.getNonPersonalAccountKey();
         } catch (FeignException e) {
-            throw new Argos4jError(e.status() + " " + e.contentUTF8(), e);
+            throw convertToArgos4jError(e);
         }
+    }
+
+    private Argos4jError convertToArgos4jError(FeignException e) {
+        return new Argos4jError(e.getMessage(), e);
     }
 
     private String getSupplyChainId() {
         SupplychainApi supplychainApi = apiClient.buildClient(SupplychainApi.class);
         return supplychainApi.getSupplyChainByPathToRoot(settings.getSupplyChainName(), settings.getPathToLabelRoot()).getId();
     }
-    
-    public static String calculatePassphrase(String keyId, String passphrase) { 
+
+    public static String calculatePassphrase(String keyId, String passphrase) {
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance("SHA-512");
@@ -86,4 +105,6 @@ public class ArgosServiceClient {
         md.update(keyIdBytes);        
         return Hex.toHexString(md.digest(passphraseHash));
     }
+
+
 }
