@@ -15,11 +15,14 @@
  */
 package com.rabobank.argos.domain.account;
 
+import com.rabobank.argos.domain.permission.LocalPermissions;
+import com.rabobank.argos.domain.permission.Permission;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -53,6 +56,7 @@ class NonPersonalAccountTest {
         assertThat(account.getActiveKeyPair(), sameInstance(activeKeyPair));
         assertThat(account.getInactiveKeyPairs(), contains(keyPair));
         assertThat(account.getParentLabelId(), is(PARENT_LABEL_ID));
-
+        assertThat(account.getLocalPermissions(), contains(LocalPermissions.builder().labelId(PARENT_LABEL_ID).permissions(
+                Arrays.asList(Permission.LINK_ADD, Permission.VERIFY, Permission.READ)).build()));
     }
 }
