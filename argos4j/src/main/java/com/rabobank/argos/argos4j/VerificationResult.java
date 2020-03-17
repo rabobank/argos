@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rabobank.argos.argos4j.internal.mapper;
+package com.rabobank.argos.argos4j;
 
+import lombok.Builder;
+import lombok.Getter;
 
-import com.rabobank.argos.argos4j.rest.api.model.RestLinkMetaBlock;
-import com.rabobank.argos.domain.link.LinkMetaBlock;
-import org.mapstruct.Mapper;
-
-@Mapper
-public interface LinkMetaBlockMapper {
-
-    LinkMetaBlock convertFromRestLinkMetaBlock(RestLinkMetaBlock metaBlock);
-
-    RestLinkMetaBlock convertToRestLinkMetaBlock(LinkMetaBlock metaBlock);
+@Builder
+@Getter
+public class VerificationResult {
+    private boolean runIsValid;
 }

@@ -20,12 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabobank.argos.argos4j.rest.api.ApiClient;
 import com.rabobank.argos.argos4j.rest.api.client.HierarchyApi;
 import com.rabobank.argos.argos4j.rest.api.client.LayoutApi;
-import com.rabobank.argos.argos4j.rest.api.client.LinkApi;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.client.PersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
-import com.rabobank.argos.argos4j.rest.api.client.VerificationApi;
-import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -87,10 +84,6 @@ public class ServiceStatusHelper {
         log.info("argos integration test service started");
     }
 
-    public static LinkApi getLinkApi(String bearerToken) {
-        return getApiClient(bearerToken).buildClient(LinkApi.class);
-    }
-
     public static SupplychainApi getSupplychainApi(String bearerToken) {
         return getApiClient(bearerToken).buildClient(SupplychainApi.class);
     }
@@ -110,20 +103,12 @@ public class ServiceStatusHelper {
         return getApiClient(bearerToken).buildClient(HierarchyApi.class);
     }
 
-    public static boolean isValidEndProduct(String bearerToken, String supplyChainId, RestVerifyCommand verifyCommand) {
-        return getVerificationApi(bearerToken).performVerification(supplyChainId, verifyCommand).getRunIsValid();
-    }
-
     public static PersonalAccountApi getPersonalAccountApi(String bearerToken) {
         return getApiClient(bearerToken).buildClient(PersonalAccountApi.class);
     }
 
     public static NonPersonalAccountApi getNonPersonalAccountApi(String bearerToken) {
         return getApiClient(bearerToken).buildClient(NonPersonalAccountApi.class);
-    }
-
-    public static VerificationApi getVerificationApi(String bearerToken) {
-        return getApiClient(bearerToken).buildClient(VerificationApi.class);
     }
 
     public static LayoutApi getLayoutApi(String bearerToken) {
@@ -134,10 +119,6 @@ public class ServiceStatusHelper {
         ApiClient apiClient = new ApiClient("bearerAuth").setBasePath(properties.getApiBaseUrl() + "/api");
         apiClient.setBearerToken(bearerToken);
         return apiClient;
-    }
-
-    private static ApiClient getApiClient() {
-        return new ApiClient().setBasePath(properties.getApiBaseUrl() + "/api");
     }
 
 }

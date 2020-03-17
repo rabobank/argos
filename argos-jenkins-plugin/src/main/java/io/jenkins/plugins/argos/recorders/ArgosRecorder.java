@@ -18,8 +18,10 @@ package io.jenkins.plugins.argos.recorders;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
-import com.rabobank.argos.argos4j.Argos4j;
 import com.rabobank.argos.argos4j.Argos4jError;
+import com.rabobank.argos.argos4j.FileCollector;
+import com.rabobank.argos.argos4j.LinkBuilder;
+import com.rabobank.argos.argos4j.LocalFileCollector;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -44,6 +46,7 @@ import org.kohsuke.stapler.QueryParameter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -83,7 +86,7 @@ public class ArgosRecorder extends Recorder {
     /**
      * Link metadata used to record this step
      */
-    private Argos4j argos4j;
+    private LinkBuilder argos4jLinkBuilder;
 
 
     @DataBoundConstructor
@@ -123,14 +126,14 @@ public class ArgosRecorder extends Recorder {
             listener.getLogger().println("[argos] using step name: " + stepName);
 
             EnvVars environment = build.getEnvironment(listener);
-            argos4j = new ArgosJenkinsHelper(
+            argos4jLinkBuilder = new ArgosJenkinsHelper(
                     environment.expand(privateKeyCredentialId),
                     environment.expand(stepName),
                     environment.expand(layoutSegmentName),
                     environment.expand(supplyChainIdentifier),
-                    environment.expand(runId)).createArgos();
+                    environment.expand(runId)).createArgosLinkBuilder();
 
-            argos4j.collectMaterials(new File(cwdStr));
+            argos4jLinkBuilder.collectMaterials(createFileCollector(cwdStr));
             return true;
         } catch (IOException e) {
             throw new Argos4jError(e.getMessage(), e);
@@ -138,6 +141,14 @@ public class ArgosRecorder extends Recorder {
             Thread.currentThread().interrupt();
             return false;
         }
+    }
+
+    private FileCollector createFileCollector(String cwdStr) {
+        Path path = new File(cwdStr).toPath();
+        return LocalFileCollector.builder()
+                .path(path)
+                .basePath(path)
+                .build();
     }
 
     private String getCwdStr(AbstractBuild<?, ?> build) {
@@ -149,12 +160,11 @@ public class ArgosRecorder extends Recorder {
 
         listener.getLogger().println("[argos] Recording state after build ");
 
-        argos4j.collectProducts(new File(getCwdStr(build)));
-        listener.getLogger().println("[argos] Dumping metadata to: " + argos4j.getSettings().getArgosServerBaseUrl());
+        argos4jLinkBuilder.collectProducts(createFileCollector(getCwdStr(build)));
+        listener.getLogger().println("[argos] Dumping metadata to: " + argos4jLinkBuilder.getSettings().getArgosServerBaseUrl());
 
+        argos4jLinkBuilder.store(ArgosJenkinsHelper.getPrivateKeyPassword(privateKeyCredentialId));
 
-        argos4j.store(ArgosJenkinsHelper.getPrivateKeyPassword(privateKeyCredentialId));
-        
         return true;
     }
 

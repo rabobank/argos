@@ -15,28 +15,23 @@
  */
 package com.rabobank.argos.argos4j;
 
-import com.rabobank.argos.argos4j.internal.LinkBuilderImpl;
-import com.rabobank.argos.argos4j.internal.VerifyBuilderImpl;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-import java.io.Serializable;
+import javax.annotation.Nullable;
+import java.util.Optional;
 
-@RequiredArgsConstructor
-public class Argos4j implements Serializable {
 
-    @Getter
-    private final Argos4jSettings settings;
+@Getter
+public abstract class FileCollector {
 
-    public LinkBuilder getLinkBuilder(LinkBuilderSettings linkBuilderSettings) {
-        return new LinkBuilderImpl(settings, linkBuilderSettings);
-    }
+    public static final String DEFAULT_EXCLUDE_PATTERNS = "**.{git,link}**";
 
-    public VerifyBuilder getVerifyBuilder() {
-        return new VerifyBuilderImpl(settings);
-    }
+    private final String excludePatterns;
 
-    public static String getVersion() {
-        return VersionInfo.getInfo();
+    private final boolean normalizeLineEndings;
+
+    public FileCollector(@Nullable String excludePatterns, @Nullable Boolean normalizeLineEndings) {
+        this.excludePatterns = Optional.ofNullable(excludePatterns).orElse(DEFAULT_EXCLUDE_PATTERNS);
+        this.normalizeLineEndings = Optional.ofNullable(normalizeLineEndings).orElse(false);
     }
 }

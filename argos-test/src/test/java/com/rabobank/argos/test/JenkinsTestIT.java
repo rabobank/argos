@@ -25,35 +25,38 @@ import com.offbytwo.jenkins.model.Job;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.QueueItem;
 import com.offbytwo.jenkins.model.QueueReference;
+import com.rabobank.argos.argos4j.Argos4j;
+import com.rabobank.argos.argos4j.Argos4jSettings;
+import com.rabobank.argos.argos4j.RemoteFileCollector;
+import com.rabobank.argos.argos4j.VerifyBuilder;
 import com.rabobank.argos.argos4j.internal.ArgosServiceClient;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
-import com.rabobank.argos.argos4j.rest.api.model.RestArtifact;
 import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccount;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestSupplyChain;
-import com.rabobank.argos.argos4j.rest.api.model.RestVerifyCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.rabobank.argos.test.NexusHelper.getWarSnapshotHash;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getNonPersonalAccountApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getToken;
-import static com.rabobank.argos.test.ServiceStatusHelper.isValidEndProduct;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
 import static com.rabobank.argos.test.TestServiceHelper.createPersonalAccountTokenWithLayoutPermissions;
@@ -197,12 +200,20 @@ class JenkinsTestIT {
         assertThat(build.details().getResult(), is(BuildResult.SUCCESS));
     }
 
-    private void verifyEndProducts() {
-        String hash = getWarSnapshotHash();
-        assertTrue(isValidEndProduct(adminAccountToken, supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash))));
-        
-        String hash2 = "0123456789012345678901234567890123456789012345678901234567890123";
-        assertFalse(isValidEndProduct(adminAccountToken, supplyChainId, new RestVerifyCommand().addExpectedProductsItem(new RestArtifact().uri("argos-test-app.war").hash(hash2))));
+    public void verifyEndProducts() throws MalformedURLException {
+
+        Argos4jSettings settings = Argos4jSettings.builder()
+                .argosServerBaseUrl(properties.getApiBaseUrl() + "/api")
+                .supplyChainName("argos-test-app")
+                .pathToLabelRoot(List.of("child_label", "root_label"))
+                .signingKeyId(keyIdBob)
+                .build();
+        VerifyBuilder verifyBuilder = new Argos4j(settings).getVerifyBuilder();
+        verifyBuilder.addFileCollector(RemoteFileCollector.builder()
+                .artifactUri("argos-test-app.war")
+                .url(new URL(properties.getNexusWarSnapshotUrl())).build());
+        assertTrue(verifyBuilder.verify("test".toCharArray()).isRunIsValid());
+
     }
 
     private JobWithDetails getJob(String name) throws IOException {
