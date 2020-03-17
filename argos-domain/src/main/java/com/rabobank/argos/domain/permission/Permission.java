@@ -22,5 +22,6 @@ public enum Permission {
     ASSIGN_ROLE,
     LINK_ADD,
     LAYOUT_ADD,
-    VERIFY
+    VERIFY,
+    PERSONAL_ACCOUNT_READ
 }

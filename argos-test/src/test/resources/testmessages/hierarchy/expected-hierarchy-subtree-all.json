@@ -19,6 +19,7 @@
           "permissions": [
             "ASSIGN_ROLE",
             "LOCAL_PERMISSION_EDIT",
+            "PERSONAL_ACCOUNT_READ",
             "READ",
             "TREE_EDIT",
             "VERIFY"
@@ -33,6 +34,7 @@
           "permissions": [
             "ASSIGN_ROLE",
             "LOCAL_PERMISSION_EDIT",
+            "PERSONAL_ACCOUNT_READ",
             "READ",
             "TREE_EDIT",
             "VERIFY"
@@ -42,6 +44,7 @@
       "permissions": [
         "ASSIGN_ROLE",
         "LOCAL_PERMISSION_EDIT",
+        "PERSONAL_ACCOUNT_READ",
         "READ",
         "TREE_EDIT",
         "VERIFY"
@@ -56,6 +59,7 @@
       "permissions": [
         "ASSIGN_ROLE",
         "LOCAL_PERMISSION_EDIT",
+        "PERSONAL_ACCOUNT_READ",
         "READ",
         "TREE_EDIT",
         "VERIFY"
@@ -65,6 +69,7 @@
   "permissions": [
     "ASSIGN_ROLE",
     "LOCAL_PERMISSION_EDIT",
+    "PERSONAL_ACCOUNT_READ",
     "READ",
     "TREE_EDIT",
     "VERIFY"

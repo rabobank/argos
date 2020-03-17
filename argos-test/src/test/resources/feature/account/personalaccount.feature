@@ -23,10 +23,11 @@ Feature: Personal Account
     * configure headers = call read('classpath:headers.js') { token: #(token)}
 
   Scenario: get Personal Account profile should return 200
+    * def expectedResponse = read('classpath:testmessages/personal-account/admin-account-response.json')
     Given path '/api/personalaccount/me'
     When method GET
     Then status 200
-    Then match response == {"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","LOCAL_PERMISSION_EDIT","TREE_EDIT","VERIFY","ASSIGN_ROLE"] }]}
+    Then match response == expectedResponse
 
   Scenario: createKey should return 204
     Given path '/api/personalaccount/me/key'

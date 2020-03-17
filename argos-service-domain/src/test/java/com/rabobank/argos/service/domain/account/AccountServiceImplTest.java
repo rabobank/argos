@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.rabobank.argos.domain.permission.Role.ADMINISTRATOR_ROLE_NAME;
+import static com.rabobank.argos.domain.permission.Role.USER_ROLE;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -146,26 +148,31 @@ class AccountServiceImplTest {
     }
 
     @Test
-    void authenticateFirstUser() {
+    void authenticateFirstUserShouldBeAssignedRoleAdminAndRoleUser() {
         when(personalAccountRepository.getTotalNumberOfAccounts()).thenReturn(0L);
         when(account.getEmail()).thenReturn(EMAIL);
         when(personalAccountRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
         when(role.getRoleId()).thenReturn(ROLE_ID);
         when(roleRepository.findByName(ADMINISTRATOR_ROLE_NAME)).thenReturn(Optional.of(role));
+        when(roleRepository.findByName(USER_ROLE)).thenReturn(Optional.of(role));
         PersonalAccount personalAccount = accountService.authenticateUser(account).get();
         assertThat(personalAccount, sameInstance(account));
         verify(personalAccount).setRoleIds(List.of(ROLE_ID));
+        verify(personalAccount).addRoleId(ROLE_ID);
         verify(personalAccountRepository).save(personalAccount);
     }
 
     @Test
-    void authenticateSecondUser() {
+    void authenticateSecondUserShouldBeAssignedRoleUser() {
         when(personalAccountRepository.getTotalNumberOfAccounts()).thenReturn(1L);
         when(account.getEmail()).thenReturn(EMAIL);
         when(personalAccountRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
+        when(role.getRoleId()).thenReturn(ROLE_ID);
+        when(account.getRoleIds()).thenReturn(emptyList());
+        when(roleRepository.findByName(ArgumentMatchers.anyString())).thenReturn(Optional.of(role));
         PersonalAccount personalAccount = accountService.authenticateUser(account).get();
         assertThat(personalAccount, sameInstance(account));
-        verify(personalAccount).setRoleIds(emptyList());
+        verify(personalAccount).addRoleId(ROLE_ID);
         verify(personalAccountRepository).save(personalAccount);
     }
 

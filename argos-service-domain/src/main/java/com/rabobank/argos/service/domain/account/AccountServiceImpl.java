@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.rabobank.argos.domain.permission.Role.ADMINISTRATOR_ROLE_NAME;
+import static com.rabobank.argos.domain.permission.Role.USER_ROLE;
 
 
 @Service
@@ -85,8 +86,9 @@ public class AccountServiceImpl implements AccountService {
         }).orElseGet(() -> {
             if (getTotalPersonalAccounts() == 0) {
                 makeAdministrator(personalAccount);
-            } else {
-                personalAccount.setRoleIds(Collections.emptyList());
+            }
+            if (!hasRoleUser(personalAccount)) {
+                addRoleUser(personalAccount);
             }
             personalAccountRepository.save(personalAccount);
             return personalAccount;
@@ -169,6 +171,19 @@ public class AccountServiceImpl implements AccountService {
             nonPersonalAccountRepository.update(account);
             return account;
         });
+    }
+
+    private void addRoleUser(PersonalAccount personalAccount) {
+        roleRepository.findByName(USER_ROLE)
+                .ifPresent(userRole -> personalAccount.addRoleId(userRole.getRoleId()));
+
+    }
+
+    private boolean hasRoleUser(PersonalAccount personalAccount) {
+        return roleRepository.findByName(USER_ROLE)
+                .filter(userRole -> personalAccount.getRoleIds()
+                        .contains(userRole.getRoleId()))
+                .isPresent();
     }
 
     private List<String> getRoleIds(List<String> roleNames) {

@@ -22,6 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -55,5 +56,13 @@ public class PersonalAccount extends Account {
     private AuthenticationProvider provider;
     private String providerId;
     private List<String> roleIds;
+
+    public void addRoleId(String roleId) {
+        if (roleIds == null) {
+            roleIds = new ArrayList<>();
+        }
+        roleIds = new ArrayList<>(roleIds);
+        roleIds.add(roleId);
+    }
 
 }
