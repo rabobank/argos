@@ -79,6 +79,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     }
 
     @Override
+    @PermissionCheck(permissions = {Permission.ASSIGN_ROLE})
     public ResponseEntity<RestPersonalAccount> getPersonalAccountById(String accountId) {
         return accountService.getPersonalAccountById(accountId)
                 .map(personalAccountMapper::convertToRestPersonalAccount)
@@ -86,6 +87,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     }
 
     @Override
+    @PermissionCheck(permissions = {Permission.PERSONAL_ACCOUNT_READ})
     public ResponseEntity<List<RestPersonalAccount>> searchPersonalAccounts(String roleName, String localPermissionsLabelId, String name) {
         return ResponseEntity.ok(accountService.searchPersonalAccounts(AccountSearchParams.builder()
                 .roleId(personalAccountMapper.convertToRoleId(roleName))

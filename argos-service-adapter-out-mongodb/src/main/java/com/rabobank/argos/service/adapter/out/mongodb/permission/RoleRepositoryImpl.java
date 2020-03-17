@@ -23,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +48,9 @@ public class RoleRepositoryImpl implements RoleRepository {
     @Override
     public List<Role> findByIds(List<String> roleIds) {
         Query query = new Query(Criteria.where(ROLE_ID_FIELD).in(roleIds));
-        return template.find(query, Role.class, COLLECTION);
+        List<Role> roles = template.find(query, Role.class, COLLECTION);
+        roles.sort(Comparator.comparing(Role::getName));
+        return roles;
     }
 
     @Override
