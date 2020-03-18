@@ -40,6 +40,9 @@
               },
               "pathToRoot": {
                 "$push": "$pathToRoot.name"
+              },
+              "idPathToRoot": {
+                "$push": "$pathToRoot.referenceId"
               }
             }
           },
@@ -61,6 +64,7 @@
               "name": 1,
               "type": 1,
               "pathToRoot": 1,
+              "idPathToRoot": 1,
               "hasChildren": {
                 "$gt": [
                   {
@@ -97,6 +101,7 @@
               "name": 1,
               "type": 1,
               "pathToRoot": [],
+              "idPathToRoot": [],
               "hasChildren": {
                 "$gt": [
                   {

@@ -23,12 +23,12 @@ import java.util.Map;
 
 public class ArgosOAuth2User implements OAuth2User {
 
-    private final String userId;
+    private final String accountId;
     private final OAuth2User oAuth2User;
 
-    public ArgosOAuth2User(OAuth2User oAuth2User, String userId) {
+    public ArgosOAuth2User(OAuth2User oAuth2User, String accountId) {
         this.oAuth2User = oAuth2User;
-        this.userId = userId;
+        this.accountId = accountId;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class ArgosOAuth2User implements OAuth2User {
         return oAuth2User.getName();
     }
 
-    public String getUserId() {
-        return userId;
+    public String getAccountId() {
+        return accountId;
     }
 }

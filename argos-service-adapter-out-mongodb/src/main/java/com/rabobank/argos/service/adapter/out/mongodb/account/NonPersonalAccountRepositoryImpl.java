@@ -15,7 +15,6 @@
  */
 package com.rabobank.argos.service.adapter.out.mongodb.account;
 
-import com.mongodb.client.result.UpdateResult;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.service.domain.account.NonPersonalAccountRepository;
@@ -61,33 +60,14 @@ public class NonPersonalAccountRepositoryImpl implements NonPersonalAccountRepos
     }
 
     @Override
-    public Optional<NonPersonalAccount> update(String id, NonPersonalAccount account) {
-        Query query = getPrimaryKeyQuery(id);
-        NonPersonalAccount accountToUpdate = template.findOne(getPrimaryKeyQuery(id), NonPersonalAccount.class, COLLECTION);
-        if (accountToUpdate != null) {
-            accountToUpdate.setParentLabelId(account.getParentLabelId());
-            accountToUpdate.setName(account.getName());
-            accountToUpdate.setEmail(account.getEmail());
-            if (account.getActiveKeyPair() != null) {
-                accountToUpdate.setActiveKeyPair(account.getActiveKeyPair());
-            }
-            if (!account.getInactiveKeyPairs().isEmpty()) {
-                accountToUpdate.setInactiveKeyPairs(account.getInactiveKeyPairs());
-            }
-            Document document = new Document();
-            template.getConverter().write(accountToUpdate, document);
-            try {
-                UpdateResult updateResult = template.updateFirst(query, Update.fromDocument(document), NonPersonalAccount.class, COLLECTION);
-                if (updateResult.getMatchedCount() > 0) {
-                    return Optional.of(accountToUpdate);
-                } else {
-                    return Optional.empty();
-                }
-            } catch (DuplicateKeyException e) {
-                throw duplicateKeyException(account, e);
-            }
-        } else {
-            return Optional.empty();
+    public void update(NonPersonalAccount account) {
+        Query query = getPrimaryKeyQuery(account.getAccountId());
+        Document document = new Document();
+        template.getConverter().write(account, document);
+        try {
+            template.updateFirst(query, Update.fromDocument(document), NonPersonalAccount.class, COLLECTION);
+        } catch (DuplicateKeyException e) {
+            throw duplicateKeyException(account, e);
         }
     }
 

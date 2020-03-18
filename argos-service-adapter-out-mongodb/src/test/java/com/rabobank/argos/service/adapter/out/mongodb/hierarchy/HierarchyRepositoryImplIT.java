@@ -51,6 +51,7 @@ import java.util.Optional;
 
 import static de.flapdoodle.embed.process.config.io.ProcessOutput.getDefaultInstanceSilent;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 
@@ -135,6 +136,13 @@ class HierarchyRepositoryImplIT {
         assertThat(team1.getChildren(), hasSize(3));
         TreeNode npa = team1.getChildren().iterator().next();
         assertThat(npa.getName(), is("team 1 npa 1"));
+        assertThat(npa.getIdPathToRoot().toArray(), arrayContaining(List.of(
+                team1.getReferenceId(),
+                department1.getReferenceId(),
+                company1.getReferenceId(),
+                treeNode.getReferenceId()
+                ).toArray())
+        );
         assertThat(npa.getType(), is(TreeNode.Type.NON_PERSONAL_ACCOUNT));
     }
 

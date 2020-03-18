@@ -17,18 +17,25 @@ package com.rabobank.argos.test;
 
 
 import com.rabobank.argos.argos4j.internal.ArgosServiceClient;
+import com.rabobank.argos.argos4j.rest.api.client.PersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccount;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
+import com.rabobank.argos.argos4j.rest.api.model.RestPermission;
 import com.rabobank.argos.test.rest.api.ApiClient;
 import com.rabobank.argos.test.rest.api.client.IntegrationTestServiceApi;
 import com.rabobank.argos.test.rest.api.model.TestKeyPair;
 import com.rabobank.argos.test.rest.api.model.TestLayoutMetaBlock;
+import com.rabobank.argos.test.rest.api.model.TestPersonalAccount;
+import com.rabobank.argos.test.rest.api.model.TestPersonalAccountWithToken;
 import org.mapstruct.factory.Mappers;
+
+import java.util.List;
 
 import static com.rabobank.argos.test.ServiceStatusHelper.getLayoutApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getNonPersonalAccountApi;
+import static com.rabobank.argos.test.ServiceStatusHelper.getPersonalAccountApi;
 
 public class TestServiceHelper {
 
@@ -64,6 +71,17 @@ public class TestServiceHelper {
         TestLayoutMetaBlock testLayout = mapper.mapRestLayout(restLayout);
         TestLayoutMetaBlock signed = getTestApi().signLayout(password, keyId, testLayout);
         getLayoutApi(token).createLayout(supplyChainId, mapper.mapTestLayout(signed));
+    }
+
+    public static String createPersonalAccountTokenWithLayoutPermissions(String token, String parentLabelId) {
+        IntegrationTestServiceApi testApi = getTestApi();
+        TestPersonalAccount testPersonalAccount = new TestPersonalAccount();
+        testPersonalAccount.setName("Layout manager");
+        testPersonalAccount.setEmail("layoutmanager@nl.nl");
+        TestPersonalAccountWithToken personalAccountWithToken = testApi.createPersonalAccount(testPersonalAccount);
+        PersonalAccountApi personalAccountApi = getPersonalAccountApi(token);
+        personalAccountApi.updateLocalPermissionsForLabel(personalAccountWithToken.getId(), parentLabelId, List.of(RestPermission.LAYOUT_ADD, RestPermission.READ));
+        return personalAccountWithToken.getToken();
     }
 
 }

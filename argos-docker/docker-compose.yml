@@ -56,6 +56,7 @@ services:
       dockerfile: IntegrationTestServiceDockerfile
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
+      jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
     ports:
       - 2877:2877
     depends_on:

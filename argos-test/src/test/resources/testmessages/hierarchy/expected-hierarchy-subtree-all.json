@@ -8,31 +8,65 @@
       "name": "childaroot1",
       "type": "LABEL",
       "referenceId": "#uuid",
+      "hasChildren": true,
       "children": [
         {
           "name": "npa-1",
           "type": "NON_PERSONAL_ACCOUNT",
           "referenceId": "#uuid",
           "hasChildren": false,
-          "children": []
+          "children": [],
+          "permissions": [
+            "ASSIGN_ROLE",
+            "LOCAL_PERMISSION_EDIT",
+            "READ",
+            "TREE_EDIT",
+            "VERIFY"
+          ]
         },
         {
           "name": "supply-chain-1",
           "type": "SUPPLY_CHAIN",
           "referenceId": "#uuid",
           "hasChildren": false,
-          "children": []
+          "children": [],
+          "permissions": [
+            "ASSIGN_ROLE",
+            "LOCAL_PERMISSION_EDIT",
+            "READ",
+            "TREE_EDIT",
+            "VERIFY"
+          ]
         }
       ],
-      "hasChildren": true
-
+      "permissions": [
+        "ASSIGN_ROLE",
+        "LOCAL_PERMISSION_EDIT",
+        "READ",
+        "TREE_EDIT",
+        "VERIFY"
+      ]
     },
     {
       "name": "childbroot1",
       "type": "LABEL",
       "referenceId": "#uuid",
       "hasChildren": false,
-      "children": []
+      "children": [],
+      "permissions": [
+        "ASSIGN_ROLE",
+        "LOCAL_PERMISSION_EDIT",
+        "READ",
+        "TREE_EDIT",
+        "VERIFY"
+      ]
     }
+  ],
+  "permissions": [
+    "ASSIGN_ROLE",
+    "LOCAL_PERMISSION_EDIT",
+    "READ",
+    "TREE_EDIT",
+    "VERIFY"
   ]
 }

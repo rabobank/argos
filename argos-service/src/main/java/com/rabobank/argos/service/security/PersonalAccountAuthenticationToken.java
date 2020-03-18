@@ -22,7 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public class PersonalAccountAuthenticationToken extends AbstractAuthenticationToken {
 
     private final String accountId;

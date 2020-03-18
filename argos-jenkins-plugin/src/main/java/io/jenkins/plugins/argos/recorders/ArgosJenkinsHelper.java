@@ -56,8 +56,8 @@ public class ArgosJenkinsHelper {
     public LinkBuilder createArgosLinkBuilder() {
 
         String version = Optional.ofNullable(Jenkins.getInstanceOrNull())
-                .map(jenkins -> Optional.ofNullable(jenkins.getPlugin("bouncycastle-api")))
-                .filter(Optional::isPresent).map(Optional::get).map(Plugin::getWrapper)
+                .flatMap(jenkins -> Optional.ofNullable(jenkins.getPlugin("bouncycastle-api")))
+                .map(Plugin::getWrapper)
                 .map(PluginWrapper::getVersion).orElseThrow(() -> new Argos4jError("bouncycastle-api plugin not installed"));
 
         if (Float.parseFloat(version) < 1.8F) {

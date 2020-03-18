@@ -10,15 +10,36 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": true,
-        "children": []
+        "children": [],
+        "permissions": [
+          "ASSIGN_ROLE",
+          "LOCAL_PERMISSION_EDIT",
+          "READ",
+          "TREE_EDIT",
+          "VERIFY"
+        ]
       },
       {
         "name": "childbroot1",
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": []
+        "children": [],
+        "permissions": [
+          "ASSIGN_ROLE",
+          "LOCAL_PERMISSION_EDIT",
+          "READ",
+          "TREE_EDIT",
+          "VERIFY"
+        ]
       }
+    ],
+    "permissions": [
+      "ASSIGN_ROLE",
+      "LOCAL_PERMISSION_EDIT",
+      "READ",
+      "TREE_EDIT",
+      "VERIFY"
     ]
   },
   {
@@ -32,15 +53,36 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": true,
-        "children": []
+        "children": [],
+        "permissions": [
+          "ASSIGN_ROLE",
+          "LOCAL_PERMISSION_EDIT",
+          "READ",
+          "TREE_EDIT",
+          "VERIFY"
+        ]
       },
       {
         "name": "childbroot2",
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": []
+        "children": [],
+        "permissions": [
+          "ASSIGN_ROLE",
+          "LOCAL_PERMISSION_EDIT",
+          "READ",
+          "TREE_EDIT",
+          "VERIFY"
+        ]
       }
+    ],
+    "permissions": [
+      "ASSIGN_ROLE",
+      "LOCAL_PERMISSION_EDIT",
+      "READ",
+      "TREE_EDIT",
+      "VERIFY"
     ]
   },
   {
@@ -54,15 +96,36 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": true,
-        "children": []
+        "children": [],
+        "permissions": [
+          "ASSIGN_ROLE",
+          "LOCAL_PERMISSION_EDIT",
+          "READ",
+          "TREE_EDIT",
+          "VERIFY"
+        ]
       },
       {
         "name": "childbroot3",
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": []
+        "children": [],
+        "permissions": [
+          "ASSIGN_ROLE",
+          "LOCAL_PERMISSION_EDIT",
+          "READ",
+          "TREE_EDIT",
+          "VERIFY"
+        ]
       }
+    ],
+    "permissions": [
+      "ASSIGN_ROLE",
+      "LOCAL_PERMISSION_EDIT",
+      "READ",
+      "TREE_EDIT",
+      "VERIFY"
     ]
   }
 ]

@@ -17,7 +17,6 @@ package com.rabobank.argos.service.adapter.out.mongodb.account;
 
 import com.github.mongobee.changeset.ChangeLog;
 import com.github.mongobee.changeset.ChangeSet;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.PartialIndexFilter;
@@ -27,6 +26,8 @@ import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAcc
 import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.ACTIVE_KEY_ID_FIELD;
 import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.COLLECTION;
 import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.EMAIL;
+import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.NAME_FIELD;
+import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.PERMISSIONS_LABEL_ID_FIELD;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 
@@ -35,14 +36,24 @@ public class PersonalAccountDatabaseChangelog {
 
     @ChangeSet(order = "001", id = "PersonalAccountDatabaseChangelog-1", author = "bart")
     public void addIndex(MongoTemplate template) {
-        template.indexOps(COLLECTION).ensureIndex(new Index(ACCOUNT_ID, Sort.Direction.ASC).unique());
-        template.indexOps(COLLECTION).ensureIndex(new Index(EMAIL, Sort.Direction.ASC).unique());
+        template.indexOps(COLLECTION).ensureIndex(new Index(ACCOUNT_ID, ASC).unique());
+        template.indexOps(COLLECTION).ensureIndex(new Index(EMAIL, ASC).unique());
     }
 
     @ChangeSet(order = "002", id = "PersonalAccountDatabaseChangelog-2", author = "bart")
     public void addActiveKeyIndex(MongoTemplate template) {
         template.indexOps(COLLECTION).ensureIndex(new Index(ACTIVE_KEY_ID_FIELD, ASC)
                 .partial(PartialIndexFilter.of(new Criteria(ACTIVE_KEY_ID_FIELD).exists(true))).unique());
+    }
+
+    @ChangeSet(order = "003", id = "PersonalAccountDatabaseChangelog-3", author = "bart")
+    public void addIndexToName(MongoTemplate template) {
+        template.indexOps(COLLECTION).ensureIndex(new Index(NAME_FIELD, ASC));
+    }
+
+    @ChangeSet(order = "004", id = "PersonalAccountDatabaseChangelog-4", author = "bart")
+    public void addIndexToLocalPermissionLabelId(MongoTemplate template) {
+        template.indexOps(COLLECTION).ensureIndex(new Index(PERMISSIONS_LABEL_ID_FIELD, ASC));
     }
 
 }

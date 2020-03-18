@@ -128,3 +128,28 @@ Feature: Verification
     And request defaultVerificationRequest
     When method POST
     Then status 401
+
+  Scenario: verification without permission VERIFY should return a 403 error
+    * url karate.properties['server.baseurl']
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
+    * def supplyChainPath = '/api/supplychain/'+ supplyChain.response.id
+    * def accounWithNoVerifyPermission = call read('classpath:feature/account/create-personal-account.feature') {name: 'Verify unauthorized person',email: 'local.noverify@extra.nogo'}
+    * call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(accounWithNoVerifyPermission.response.id),labelId: #(supplyChain.response.parentLabelId), permissions: ["READ"]}
+    * configure headers = call read('classpath:headers.js') { token: #(accounWithNoVerifyPermission.response.token)}
+    Given path supplyChainPath + '/verification'
+    And request defaultVerificationRequest
+    When method POST
+    Then status 403
+
+  Scenario: NPA in other root label cannot verify
+    * url karate.properties['server.baseurl']
+    * def rootLabel = call read('classpath:feature/label/create-label.feature') { name: 'root1'}
+    * call read('classpath:feature/account/create-non-personal-account-with-key.feature') {accountName: 'npa1', parentLabelId: #(rootLabel.response.id), keyFile: 'keypair1'}
+    * def otherRootLabel = call read('classpath:feature/label/create-label.feature') { name: 'other_root_label'}
+    * def otherSupplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: other-supply-chain, parentLabelId: #(otherRootLabel.response.id)}
+    * def keyPair = read('classpath:testmessages/key/keypair1.json')
+    * configure headers = call read('classpath:headers.js') { username: #(keyPair.keyId),password:test}
+    Given path '/api/supplychain/'+ otherSupplyChain.response.id + '/verification'
+    And request defaultVerificationRequest
+    When method POST
+    Then status 403

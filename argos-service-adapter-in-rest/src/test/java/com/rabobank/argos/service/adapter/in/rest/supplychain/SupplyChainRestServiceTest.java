@@ -93,6 +93,7 @@ class SupplyChainRestServiceTest {
         assertThat(supplyChainItemResponse.getStatusCode().value(), is(HttpStatus.CREATED.value()));
         assertThat(supplyChainItemResponse.getHeaders().getLocation(), notNullValue());
         assertThat(supplyChainItemResponse.getBody(), is(restSupplyChain));
+        verify(supplyChainRepository).save(supplyChain);
     }
 
     @Test

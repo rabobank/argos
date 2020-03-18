@@ -21,7 +21,7 @@ import com.rabobank.argos.domain.hierarchy.TreeNode;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestHierarchyMode;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLabel;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestTreeNode;
-import com.rabobank.argos.service.domain.hierarchy.HierarchyRepository;
+import com.rabobank.argos.service.domain.hierarchy.HierarchyService;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ class HierarchyRestServiceTest {
     private LabelMapper labelMapper;
 
     @Mock
-    private HierarchyRepository hierarchyRepository;
+    private HierarchyService hierarchyService;
 
     @Mock
     private TreeNodeMapper treeNodeMapper;
@@ -84,7 +84,7 @@ class HierarchyRestServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new HierarchyRestService(labelRepository, labelMapper, hierarchyRepository, treeNodeMapper);
+        service = new HierarchyRestService(labelRepository, labelMapper, hierarchyService, treeNodeMapper);
     }
 
     @Test
@@ -176,7 +176,7 @@ class HierarchyRestServiceTest {
 
     @Test
     void getRootNodes() {
-        when(hierarchyRepository.getRootNodes(HierarchyMode.ALL, MAX_DEPTH)).thenReturn(List.of(treeNode));
+        when(hierarchyService.getRootNodes(HierarchyMode.ALL, MAX_DEPTH)).thenReturn(List.of(treeNode));
         when(treeNodeMapper.convertToRestTreeNode(treeNode)).thenReturn(restTreeNode);
         ResponseEntity<List<RestTreeNode>> response = service.getRootNodes(RestHierarchyMode.ALL, MAX_DEPTH);
         assertThat(response.getBody(), contains(restTreeNode));
@@ -185,7 +185,7 @@ class HierarchyRestServiceTest {
 
     @Test
     void getSubTree() {
-        when(hierarchyRepository.getSubTree(REFERENCE_ID, HierarchyMode.NONE, MAX_DEPTH)).thenReturn(Optional.of(treeNode));
+        when(hierarchyService.getSubTree(REFERENCE_ID, HierarchyMode.NONE, MAX_DEPTH)).thenReturn(Optional.of(treeNode));
         when(treeNodeMapper.convertToRestTreeNode(treeNode)).thenReturn(restTreeNode);
         ResponseEntity<RestTreeNode> response = service.getSubTree(REFERENCE_ID, RestHierarchyMode.NONE, MAX_DEPTH);
         assertThat(response.getBody(), sameInstance(restTreeNode));
@@ -194,7 +194,7 @@ class HierarchyRestServiceTest {
 
     @Test
     void getSubTreeNotFound() {
-        when(hierarchyRepository.getSubTree(REFERENCE_ID, HierarchyMode.MAX_DEPTH, MAX_DEPTH)).thenReturn(Optional.empty());
+        when(hierarchyService.getSubTree(REFERENCE_ID, HierarchyMode.MAX_DEPTH, MAX_DEPTH)).thenReturn(Optional.empty());
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getSubTree(REFERENCE_ID, RestHierarchyMode.MAX_DEPTH, MAX_DEPTH));
         assertThat(exception.getStatus().value(), is(404));
         assertThat(exception.getMessage(), is("404 NOT_FOUND \"subtree with referenceId: referenceId not found\""));

@@ -16,7 +16,9 @@
 package com.rabobank.argos.domain.account;
 
 import com.rabobank.argos.domain.key.KeyPair;
+import com.rabobank.argos.domain.permission.LocalPermissions;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,10 +28,12 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
+@EqualsAndHashCode
 public abstract class Account implements Serializable {
     private String accountId;
     private String name;
     private String email;
     private KeyPair activeKeyPair;
     private List<? extends KeyPair> inactiveKeyPairs;
+    private List<LocalPermissions> localPermissions;
 }

@@ -15,22 +15,61 @@
  */
 package com.rabobank.argos.domain.hierarchy;
 
+import com.rabobank.argos.domain.permission.Permission;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.With;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Builder
 @Getter
 @Setter
 public class TreeNode {
-    public enum Type {LABEL, SUPPLY_CHAIN, NON_PERSONAL_ACCOUNT}
+    public enum Type {
+        LABEL(false), SUPPLY_CHAIN(true), NON_PERSONAL_ACCOUNT(true);
+        private boolean isLeafNode;
+
+        Type(boolean isLeafNode) {
+            this.isLeafNode = isLeafNode;
+        }
+
+        boolean isLeafNode() {
+            return this.isLeafNode;
+        }
+    }
+
     private String referenceId;
     private String name;
     private String parentLabelId;
-    private List<TreeNode> children;
+    @With
+    @Builder.Default
+    private List<TreeNode> children = new ArrayList<>();
     private Type type;
     private List<String> pathToRoot;
+    private List<String> idPathToRoot;
     private boolean hasChildren;
+
+    @With
+    private List<Permission> permissions;
+
+    public boolean accept(TreeNodeVisitor treeNodeVisitor) {
+        if (isLeafNode()) {
+            return treeNodeVisitor.visitLeaf(this);
+        } else if (treeNodeVisitor.visitEnter(this)) {
+            children.forEach(child -> child.accept(treeNodeVisitor));
+
+        }
+        return treeNodeVisitor.visitExit(this);
+    }
+
+    public boolean isLeafNode() {
+        return type.isLeafNode();
+    }
+
+    public void addChild(TreeNode treeNode) {
+        children.add(treeNode);
+    }
 }

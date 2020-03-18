@@ -31,7 +31,9 @@ import static com.rabobank.argos.domain.key.RSAPublicKeyFactory.instance;
 @Mapper(componentModel = "spring", uses = {StepMapper.class})
 public interface LayoutMetaBlockMapper {
 
+
     @Mapping(target = "layoutMetaBlockId", ignore = true)
+    @Mapping(target = "supplyChainId", ignore = true)
     LayoutMetaBlock convertFromRestLayoutMetaBlock(RestLayoutMetaBlock metaBlock);
 
     @Mapping(source = "layoutMetaBlockId", target = "id")

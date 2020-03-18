@@ -17,6 +17,7 @@ package com.rabobank.argos.service.adapter.out.mongodb.account;
 
 import com.mongodb.client.result.UpdateResult;
 import com.rabobank.argos.domain.account.PersonalAccount;
+import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import org.bson.Document;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,10 +32,12 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.rabobank.argos.service.adapter.out.mongodb.account.PersonalAccountRepositoryImpl.COLLECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,6 +50,9 @@ class PersonalAccountRepositoryImplTest {
 
 
     private static final String ACTIVE_KEY_ID = "activeKeyId";
+    private static final long COUNT = 12334L;
+    private static final String ROLE_ID = "roleId";
+    private static final String NAME = "name";
     @Mock
     private MongoTemplate template;
 
@@ -120,6 +126,39 @@ class PersonalAccountRepositoryImplTest {
         assertThat(repository.findByActiveKeyId(ACTIVE_KEY_ID), equalTo(Optional.of(personalAccount)));
         verify(template).findOne(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
         assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"activeKeyPair.keyId\" : \"activeKeyId\"}, Fields: {}, Sort: {}"));
+    }
+
+    @Test
+    void getTotalNumberOfAccounts() {
+        when(template.count(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(COUNT);
+        assertThat(repository.getTotalNumberOfAccounts(), equalTo(COUNT));
+        verify(template).count(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: {}, Fields: {}, Sort: {}"));
+    }
+
+
+    @Test
+    void searchAll() {
+        when(template.find(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(List.of(personalAccount));
+        assertThat(repository.search(AccountSearchParams.builder().build()), contains(personalAccount));
+        verify(template).find(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: {}, Fields: { \"accountId\" : 1, \"name\" : 1, \"email\" : 1}, Sort: { \"name\" : 1}"));
+    }
+
+    @Test
+    void searchByRoleId() {
+        when(template.find(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(List.of(personalAccount));
+        assertThat(repository.search(AccountSearchParams.builder().roleId(ROLE_ID).build()), contains(personalAccount));
+        verify(template).find(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"roleIds\" : { \"$in\" : [\"roleId\"]}}, Fields: { \"accountId\" : 1, \"name\" : 1, \"email\" : 1}, Sort: { \"name\" : 1}"));
+    }
+
+    @Test
+    void searchByLocalPermissionsLabelId() {
+        when(template.find(any(Query.class), eq(PersonalAccount.class), eq(COLLECTION))).thenReturn(List.of(personalAccount));
+        assertThat(repository.search(AccountSearchParams.builder().name(NAME).build()), contains(personalAccount));
+        verify(template).find(queryArgumentCaptor.capture(), eq(PersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), Matchers.is("Query: { \"name\" : { \"$regex\" : \".*name.*\", \"$options\" : \"i\"}}, Fields: { \"accountId\" : 1, \"name\" : 1, \"email\" : 1}, Sort: { \"name\" : 1}"));
     }
 
 }

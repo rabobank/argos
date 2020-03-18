@@ -46,6 +46,23 @@ Feature: SupplyChain
     When method POST
     Then status 401
 
+  Scenario: store supplychain with local permission TREE_EDIT should return a 201
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["TREE_EDIT"]}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+    Given path '/api/supplychain'
+    And request  {"name":"name", parentLabelId: "#(info.labelId)"}
+    When method POST
+    Then status 201
+
+  Scenario: store supplychain with local permission READ should return a 403
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["READ"]}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+
+    Given path '/api/supplychain'
+    And request  {"name":"name", parentLabelId: "#(info.labelId)"}
+    When method POST
+    Then status 403
+
   Scenario: update supplychain should return a 200
     * def supplyChainResponse = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
     * def labelResult = call read('classpath:feature/label/create-label.feature') {name: otherlabel}
@@ -54,6 +71,27 @@ Feature: SupplyChain
     When method PUT
     Then status 200
     And match response == { name: 'supply-chain-name', id: '#(supplyChainResponse.response.id)', parentLabelId: '#(labelResult.response.id)' }
+
+  Scenario: update supplychain with local permission TREE_EDIT should return a 200
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["TREE_EDIT"]}
+    * def labelResult = call read('classpath:feature/label/create-label.feature') {name: sublabel, parentLabelId: #(info.labelId)}
+    * def supplyChain = call read('create-supplychain.feature') {supplyChainName: name, parentLabelId: #(labelResult.response.id)}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+    Given path '/api/supplychain/'+supplyChain.response.id
+    And request  {"name":"supply-chain-name", parentLabelId: "#(info.labelId)"}
+    When method PUT
+    Then status 200
+    And match response == { name: 'supply-chain-name', id: '#(supplyChain.response.id)', parentLabelId: '#(info.labelId)' }
+
+  Scenario: update supplychain without local permission TREE_EDIT should return a 403
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["READ"]}
+    * def labelResult = call read('classpath:feature/label/create-label.feature') {name: sublabel, parentLabelId: #(info.labelId)}
+    * def supplyChain = call read('create-supplychain.feature') {supplyChainName: name, parentLabelId: #(labelResult.response.id)}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+    Given path '/api/supplychain/'+supplyChain.response.id
+    And request  {"name":"supply-chain-name", parentLabelId: "#(info.labelId)"}
+    When method PUT
+    Then status 403
 
   Scenario: update supplychain without authorization should return a 401 error
     * def supplyChainResponse = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
@@ -72,6 +110,25 @@ Feature: SupplyChain
     When method GET
     Then status 200
     And match response == { name: 'name', id: '#uuid', parentLabelId: '#uuid' }
+
+  Scenario: get supplychain with local permission READ should return a 200
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["READ"]}
+    * def supplyChain = call read('create-supplychain.feature') {supplyChainName: name, parentLabelId: #(info.labelId)}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+    * def restPath = '/api/supplychain/'+supplyChain.response.id
+    Given path restPath
+    When method GET
+    Then status 200
+    And match response == { name: 'name', id: '#(supplyChain.response.id)', parentLabelId: '#(info.labelId)' }
+
+  Scenario: get supplychain without local permission READ should return a 403
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["TREE_EDIT"]}
+    * def supplyChain = call read('create-supplychain.feature') {supplyChainName: name, parentLabelId: #(info.labelId)}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+    * def restPath = '/api/supplychain/'+supplyChain.response.id
+    Given path restPath
+    When method GET
+    Then status 403
 
   Scenario: get supplychain without authorization should return a 401 error
     * def result = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
@@ -96,6 +153,27 @@ Feature: SupplyChain
     When method GET
     Then status 200
     And match response == { name: 'supply-chain-name', id: '#uuid', parentLabelId: '#uuid' }
+
+  Scenario: query supplychain with local permission READ should return a 200
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["READ"]}
+    * def supplyChain = call read('create-supplychain.feature') {supplyChainName: supply-chain-name, parentLabelId: #(info.labelId)}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+    Given path '/api/supplychain'
+    And param supplyChainName = 'supply-chain-name'
+    And param pathToRoot = 'otherlabel'
+    When method GET
+    Then status 200
+    And match response == { name: 'supply-chain-name', id: '#(supplyChain.response.id)', parentLabelId: '#(info.labelId)' }
+
+  Scenario: query supplychain without local permission READ should return a 403
+    * def info = call read('classpath:create-local-authorized-account.js') {permissions: ["TREE_EDIT"]}
+    * def supplyChain = call read('create-supplychain.feature') {supplyChainName: supply-chain-name, parentLabelId: #(info.labelId)}
+    * configure headers = call read('classpath:headers.js') { token: #(info.token)}
+    Given path '/api/supplychain'
+    And param supplyChainName = 'supply-chain-name'
+    And param pathToRoot = 'otherlabel'
+    When method GET
+    Then status 403
 
   Scenario: query supplychain with name and non existing label should return a 404
     * def result = call read('create-supplychain-with-label.feature') { supplyChainName: 'supply-chain-name'}

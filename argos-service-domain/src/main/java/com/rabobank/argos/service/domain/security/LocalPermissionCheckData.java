@@ -15,18 +15,18 @@
  */
 package com.rabobank.argos.service.domain.security;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.HashSet;
+import java.util.Set;
 
-@Target({ElementType.PARAMETER, ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@AuthenticationPrincipal
-public @interface CurrentUser {
+@Builder
+@Getter
+@ToString
+public class LocalPermissionCheckData {
 
+    @Builder.Default
+    private Set<String> labelIds = new HashSet<>();
 }

@@ -26,11 +26,11 @@ Feature: Personal Account
     Given path '/api/personalaccount/me'
     When method GET
     Then status 200
-    Then match response contains {"name":"Luke Skywalker","email":"luke@skywalker.imp"}
+    Then match response == {"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","LOCAL_PERMISSION_EDIT","TREE_EDIT","VERIFY","ASSIGN_ROLE"] }]}
 
   Scenario: createKey should return 204
     Given path '/api/personalaccount/me/key'
-    And request read('classpath:testmessages/key/keypair1.json')
+    And request read('classpath:testmessages/key/personal-keypair.json')
     When method POST
     Then status 204
 
@@ -41,7 +41,7 @@ Feature: Personal Account
     Then status 400
 
   Scenario: getKey should return 200
-    * def keyPair = read('classpath:testmessages/key/keypair1.json')
+    * def keyPair = read('classpath:testmessages/key/personal-keypair.json')
     Given path '/api/personalaccount/me/key'
     And request keyPair
     When method POST
@@ -49,9 +49,166 @@ Feature: Personal Account
     Given path '/api/personalaccount/me/key'
     When method GET
     Then status 200
-    Then match response ==  keyPair
+    Then match response == keyPair
 
-  Scenario: getKey should with no active keypair should return 404
-    Given path '/api/personalaccount/me/key'
+  Scenario: update roles should return 200
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/role'
+    And request ["administrator"]
+    When method PUT
+    Then status 200
+    Then match response == {"id":"#(extraAccount.response.id)","name":"Extra Person","email":"extra@extra.go", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","LOCAL_PERMISSION_EDIT","TREE_EDIT","VERIFY","ASSIGN_ROLE"] }]}
+    Given path '/api/personalaccount/'+extraAccount.response.id
     When method GET
-    Then status 404
+    Then status 200
+    Then match response == {"id":"#(extraAccount.response.id)","name":"Extra Person","email":"extra@extra.go", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","LOCAL_PERMISSION_EDIT","TREE_EDIT","VERIFY","ASSIGN_ROLE"] }]}
+
+  Scenario: user without ASSIGN_ROLE permission can not assign a role to a user
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/role'
+    And request ["administrator"]
+    When method PUT
+    Then status 403
+    And match response == {"message":"Access denied"}
+
+  Scenario: search personal account by role name should return 200
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    Given path '/api/personalaccount'
+    And param roleName = 'administrator'
+    When method GET
+    Then status 200
+    And match response == [{"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp"}]
+
+  Scenario: search all personal account 200
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    Given path '/api/personalaccount'
+    When method GET
+    Then status 200
+    And match response == [{"id":"#uuid","name":"Extra Person","email":"extra@extra.go"},{"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp"}]
+
+  Scenario: search personal account by name should return 200
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    Given path '/api/personalaccount'
+    And param name = 'per'
+    When method GET
+    Then status 200
+    And match response == [{"id":"#uuid","name":"Extra Person","email":"extra@extra.go"}]
+
+  Scenario: search by local permission label id personal account 200
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'search@extra.go'}
+    * def label = call read('classpath:feature/label/create-label.feature') { name: 'label1'}
+    Given path '/api/personalaccount'
+    And param localPermissionsLabelId = label.response.id
+    When method GET
+    Then status 200
+    And match response == []
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
+    And request ["VERIFY","READ"]
+    When method PUT
+    Then status 200
+
+    Given path '/api/personalaccount'
+    And param localPermissionsLabelId = label.response.id
+    When method GET
+    Then status 200
+    And match response == [{"id":"#uuid","name":"Extra Person","email":"search@extra.go"}]
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
+    And request []
+    When method PUT
+    Then status 204
+
+    Given path '/api/personalaccount'
+    And param localPermissionsLabelId = label.response.id
+    When method GET
+    Then status 200
+    And match response == []
+
+  Scenario: manage local permissions
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'local.permissions@extra.go'}
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission'
+    When method GET
+    Then status 200
+    And match response == []
+    * def label = call read('classpath:feature/label/create-label.feature') { name: 'label1'}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
+    And request ["READ"]
+    When method PUT
+    Then status 200
+    And match response == {"labelId": "#(label.response.id)", "permissions": ["READ"]}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
+    And request ["VERIFY","READ"]
+    When method PUT
+    Then status 200
+    And match response == {"labelId": "#(label.response.id)", "permissions": ["VERIFY","READ"]}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
+    When method GET
+    Then status 200
+    And match response == {"labelId": "#(label.response.id)", "permissions": ["VERIFY","READ"]}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission'
+    When method GET
+    Then status 200
+    And match response == [{"labelId": "#(label.response.id)", "permissions": ["VERIFY","READ"]}]
+
+  Scenario: a user with local permission LOCAL_PERMISSION_EDIT can manage local permissions
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'local.permissions@extra.go'}
+    * def rootLabel = call read('classpath:feature/label/create-label.feature') { name: 'root_label'}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+rootLabel.response.id
+    And request ["LOCAL_PERMISSION_EDIT"]
+    When method PUT
+    Then status 200
+
+    * def childLabel = call read('classpath:feature/label/create-label.feature') { name: 'child_label', parentLabelId: #(rootLabel.response.id)}
+    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
+    * def anotherAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Another Person', email: 'another@extra.go'}
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission/'+childLabel.response.id
+    And request ["READ"]
+    When method PUT
+    Then status 200
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission/'+childLabel.response.id
+    When method GET
+    Then status 200
+    And match response == {"labelId": "#(childLabel.response.id)", "permissions": ["READ"]}
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission'
+    When method GET
+    Then status 403
+    And match response == {"message":"Access denied"}
+
+  Scenario: a user without local permission LOCAL_PERMISSION_EDIT can not manage local permissions
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'local.permissions@extra.go'}
+    * def rootLabel = call read('classpath:feature/label/create-label.feature') { name: 'root_label'}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+rootLabel.response.id
+    And request ["READ"]
+    When method PUT
+    Then status 200
+
+    * def childLabel = call read('classpath:feature/label/create-label.feature') { name: 'child_label', parentLabelId: #(rootLabel.response.id)}
+    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
+    * def anotherAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Another Person', email: 'another@extra.go'}
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission/'+childLabel.response.id
+    And request ["READ"]
+    When method PUT
+    Then status 403
+    And match response == {"message":"Access denied"}
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission/'+childLabel.response.id
+    When method GET
+    Then status 403
+    And match response == {"message":"Access denied"}
+
+    Given path '/api/personalaccount/'+anotherAccount.response.id+'/localpermission'
+    When method GET
+    Then status 403
+    And match response == {"message":"Access denied"}

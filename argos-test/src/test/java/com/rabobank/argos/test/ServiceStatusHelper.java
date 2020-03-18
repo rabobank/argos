@@ -21,6 +21,7 @@ import com.rabobank.argos.argos4j.rest.api.ApiClient;
 import com.rabobank.argos.argos4j.rest.api.client.HierarchyApi;
 import com.rabobank.argos.argos4j.rest.api.client.LayoutApi;
 import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
+import com.rabobank.argos.argos4j.rest.api.client.PersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -100,6 +101,10 @@ public class ServiceStatusHelper {
 
     public static HierarchyApi getHierarchyApi(String bearerToken) {
         return getApiClient(bearerToken).buildClient(HierarchyApi.class);
+    }
+
+    public static PersonalAccountApi getPersonalAccountApi(String bearerToken) {
+        return getApiClient(bearerToken).buildClient(PersonalAccountApi.class);
     }
 
     public static NonPersonalAccountApi getNonPersonalAccountApi(String bearerToken) {

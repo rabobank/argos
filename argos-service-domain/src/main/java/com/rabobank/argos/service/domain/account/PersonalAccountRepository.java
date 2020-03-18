@@ -17,6 +17,7 @@ package com.rabobank.argos.service.domain.account;
 
 import com.rabobank.argos.domain.account.PersonalAccount;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -33,4 +34,8 @@ public interface PersonalAccountRepository {
     boolean activeKeyExists(String activeKeyId);
 
     Optional<PersonalAccount> findByActiveKeyId(String activeKeyId);
+
+    long getTotalNumberOfAccounts();
+
+    List<PersonalAccount> search(AccountSearchParams params);
 }

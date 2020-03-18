@@ -15,15 +15,19 @@
  */
 package com.rabobank.argos.domain.account;
 
+import com.rabobank.argos.domain.permission.LocalPermissions;
+import com.rabobank.argos.domain.permission.Permission;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 @Getter
 @Setter
@@ -33,7 +37,8 @@ public class NonPersonalAccount extends Account {
 
     @Builder
     public NonPersonalAccount(String name, NonPersonalAccountKeyPair activeKeyPair, List<NonPersonalAccountKeyPair> inactiveKeyPairs, String parentLabelId) {
-        super(UUID.randomUUID().toString(), name, null, activeKeyPair, inactiveKeyPairs == null ? emptyList() : inactiveKeyPairs);
+        super(UUID.randomUUID().toString(), name, null, activeKeyPair, inactiveKeyPairs == null ? emptyList() : inactiveKeyPairs, singletonList(LocalPermissions.builder().labelId(parentLabelId)
+                .permissions(Arrays.asList(Permission.LINK_ADD, Permission.VERIFY, Permission.READ)).build()));
         this.parentLabelId = parentLabelId;
     }
 }
