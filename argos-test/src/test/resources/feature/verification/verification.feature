@@ -18,10 +18,10 @@ Feature: Verification
 
   Background:
     * call read('classpath:feature/reset.feature')
-    * def token = karate.properties['bearer.token']
-    * configure headers = call read('classpath:headers.js') { token: #(token)}
     * def defaultVerificationRequest = {expectedProducts: [{uri: 'target/argos-test-0.0.1-SNAPSHOT.jar',hash: '49e73a11c5e689db448d866ce08848ac5886cac8aa31156ea4de37427aca6162'}] }
     * def defaultSteps = [{link:'build-step-link.json', signingKey:2},{link:'test-step-link.json', signingKey:3}]
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
 
   Scenario: happy flow all rules
     * def resp = call read('classpath:feature/verification/verification-template.feature') { verificationRequest:#(defaultVerificationRequest) ,testDir: 'happy-flow',steps:#(defaultSteps),layoutSigningKey:1}
@@ -144,11 +144,11 @@ Feature: Verification
   Scenario: NPA in other root label cannot verify
     * url karate.properties['server.baseurl']
     * def rootLabel = call read('classpath:feature/label/create-label.feature') { name: 'root1'}
-    * call read('classpath:feature/account/create-non-personal-account-with-key.feature') {accountName: 'npa1', parentLabelId: #(rootLabel.response.id), keyFile: 'keypair1'}
+    * call read('classpath:feature/account/create-non-personal-account-with-key.feature') {accountName: 'npa6', parentLabelId: #(rootLabel.response.id), keyFile: 'npa-keypair1'}
     * def otherRootLabel = call read('classpath:feature/label/create-label.feature') { name: 'other_root_label'}
     * def otherSupplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: other-supply-chain, parentLabelId: #(otherRootLabel.response.id)}
-    * def keyPair = read('classpath:testmessages/key/keypair1.json')
-    * configure headers = call read('classpath:headers.js') { username: #(keyPair.keyId),password:test}
+    * def keyPair = read('classpath:testmessages/key/npa-keypair1.json')
+    * configure headers = call read('classpath:headers.js') { username: #(keyPair.keyId),password:#(keyPair.hashedKeyPassphrase)}
     Given path '/api/supplychain/'+ otherSupplyChain.response.id + '/verification'
     And request defaultVerificationRequest
     When method POST

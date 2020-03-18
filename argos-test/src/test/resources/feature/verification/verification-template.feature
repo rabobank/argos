@@ -19,21 +19,18 @@ Feature: Verification template
 
   Background:
     * url karate.properties['server.baseurl']
+    * def defaultTestDate = call read('classpath:default-test-data.js')
     * def verificationRequest = __arg.verificationRequest
     * def testFilesDir = __arg.testDir
     * def steps = __arg.steps
     * def layoutSigningKey = __arg.layoutSigningKey
-    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
-    * call read('classpath:feature/account/insert-test-key-pairs.feature') {parentLabelId: #(supplyChain.response.parentLabelId)}
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { supplyChainName: 'name', parentLabelId: #(defaultTestDate.defaultRootLabel.id)}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
     * def supplyChainPath = '/api/supplychain/'+ supplyChain.response.id
     * def supplyChainId = supplyChain.response.id
-    * def layoutAuthorizedAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Layout authorized person',email: 'local.permissions@extra.go'}
-    * call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(layoutAuthorizedAccount.response.id),labelId: #(supplyChain.response.parentLabelId), permissions: ["READ","LAYOUT_ADD"]}
 
   Scenario: run template
     Given print 'testFilesDir : ', testFilesDir
-    * configure headers = call read('classpath:headers.js') { token: #(layoutAuthorizedAccount.response.token)}
     * def layout = 'classpath:testmessages/verification/'+testFilesDir+'/layout.json'
     * def layoutCreated = call read('classpath:feature/layout/create-layout.feature') {supplyChainId:#(supplyChainId), json:#(layout), keyNumber:#(layoutSigningKey)}
     # this creates an array of stepLinksJson messages
@@ -41,6 +38,8 @@ Feature: Verification template
     * def stepLinksJson = karate.map(steps, stepLinksJsonMapper)
     # when a call to a feature presented with an array of messages it will cal the feature template iteratively
     * call read('classpath:feature/link/create-link.feature') stepLinksJson
+    * def keyPair = defaultTestDate.nonPersonalAccount['default-npa1']
+    * configure headers = call read('classpath:headers.js') { username: #(keyPair.keyId), password: #(keyPair.hashedKeyPassphrase)}
     Given path supplyChainPath + '/verification'
     And request  verificationRequest
     When method POST
