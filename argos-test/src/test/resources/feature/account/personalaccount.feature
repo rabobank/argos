@@ -20,6 +20,7 @@ Feature: Personal Account
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
     * def token = karate.properties['bearer.token']
+    * def defaultUsertoken = karate.properties['bearer.token']
     * configure headers = call read('classpath:headers.js') { token: #(token)}
 
   Scenario: get Personal Account profile should return 200
@@ -52,6 +53,15 @@ Feature: Personal Account
     Then status 200
     Then match response == keyPair
 
+
+  Scenario: get account by id should return a 200
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    Given path '/api/personalaccount/'+extraAccount.response.id
+    When method GET
+    Then status 200
+    Then match response == ''
+
+
   Scenario: update roles should return 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
     Given path '/api/personalaccount/'+extraAccount.response.id+'/role'
@@ -83,6 +93,7 @@ Feature: Personal Account
 
   Scenario: search all personal account 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    * configure headers = call read('classpath:headers.js') { token: #(defaultUsertoken)}
     Given path '/api/personalaccount'
     When method GET
     Then status 200

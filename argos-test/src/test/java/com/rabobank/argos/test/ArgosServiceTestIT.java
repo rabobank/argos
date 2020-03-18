@@ -15,9 +15,11 @@
  */
 package com.rabobank.argos.test;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.intuit.karate.KarateOptions;
 import com.intuit.karate.junit5.Karate;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.util.Objects;
@@ -33,6 +35,7 @@ class ArgosServiceTestIT {
     private static final String SERVER_BASEURL = "server.baseurl";
     private static final String SERVER_INTEGRATION_TEST_BASEURL = "server.integration-test-service.baseurl";
     private static final String BEARER_TOKEN = "bearer.token";
+    private static final String DEFAULT_USER_TOKEN = "default.user.token";
     private static Properties properties = Properties.getInstance();
 
     @BeforeAll
@@ -42,8 +45,14 @@ class ArgosServiceTestIT {
         System.setProperty(SERVER_INTEGRATION_TEST_BASEURL, properties.getIntegrationTestServiceBaseUrl());
         waitForArgosServiceToStart();
         waitForArgosIntegrationTestServiceToStart();
-        System.setProperty(BEARER_TOKEN, Objects.requireNonNull(getToken()));
+        System.setProperty(BEARER_TOKEN, Objects.requireNonNull(getToken("Luke Skywalker", "Skywalker", "luke@skywalker.imp")));
+        System.setProperty(DEFAULT_USER_TOKEN, Objects.requireNonNull(getToken("MR Default", "Default", "Default@Default.go")));
         log.info("bearer token: {}", System.getProperty(BEARER_TOKEN));
+    }
+
+    @AfterAll
+    void reset() {
+        WireMock.resetToDefault();
     }
 
     @Karate.Test
@@ -90,6 +99,5 @@ class ArgosServiceTestIT {
     Karate permission() {
         return new Karate().feature("classpath:feature/permission/permission.feature");
     }
-
 
 }

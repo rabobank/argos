@@ -24,6 +24,8 @@ import com.rabobank.argos.argos4j.rest.api.client.NonPersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.client.PersonalAccountApi;
 import com.rabobank.argos.argos4j.rest.api.client.SupplychainApi;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringSubstitutor;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -34,7 +36,16 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -44,7 +55,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class ServiceStatusHelper {
 
     private static Properties properties = Properties.getInstance();
-
     public static void waitForArgosServiceToStart() {
         log.info("Waiting for argos service start");
         HttpClient client = HttpClient.newHttpClient();
@@ -88,12 +98,35 @@ public class ServiceStatusHelper {
         return getApiClient(bearerToken).buildClient(SupplychainApi.class);
     }
 
+    public static String getToken(String name, String lastName, String email) {
+        try {
+            configureFor("localhost", 8087);
+            String bodyTemplate = IOUtils.toString(ServiceStatusHelper.class
+                    .getResourceAsStream("/testmessages/authentication/response.json"), UTF_8);
+
+            Map<String, String> values = new HashMap<>();
+            values.put("name", name);
+            values.put("lastName", lastName);
+            values.put("email", email);
+            values.put("id", UUID.randomUUID().toString());
+            String bodyResponse = StringSubstitutor.replace(bodyTemplate, values, "${", "}");
+            stubFor(get(urlEqualTo("/v1.0/me"))
+                    .willReturn(aResponse()
+                            .withHeader("Content-Type", "application/json; charset=utf-8")
+                            .withBody(bodyResponse)
+                    ));
+            return getToken();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public static String getToken() {
         HttpGet request = new HttpGet(properties.getApiBaseUrl() + "/api/oauth2/authorize/azure?redirect_uri=/authenticated");
         try (CloseableHttpClient httpClient = HttpClients.createDefault();
              CloseableHttpResponse response = httpClient.execute(request)) {
             return new ObjectMapper().readValue(response.getEntity().getContent(), JsonNode.class).get("token").asText();
         } catch (IOException e) {
+            log.error("exception", e);
             fail(e.getMessage());
             return null;
         }

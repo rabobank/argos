@@ -51,7 +51,7 @@ public class PersonalAccount extends Account {
                 localPermissions == null ? emptyList() : localPermissions);
         this.provider = provider;
         this.providerId = providerId;
-        this.roleIds = roleIds;
+        this.roleIds = roleIds == null ? emptyList() : roleIds;
     }
     private AuthenticationProvider provider;
     private String providerId;

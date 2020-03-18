@@ -17,7 +17,7 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>argos-test</artifactId>
@@ -125,6 +125,10 @@
             <scope>test</scope>
             <exclusions>
                 <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
                     <artifactId>httpcore</artifactId>
                     <groupId>org.apache.httpcomponents</groupId>
                 </exclusion>
@@ -150,6 +154,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>2.26.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.8</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -393,7 +409,8 @@
                         </executions>
                         <configuration>
                             <systemPropertyVariables>
-                                <argos-service.rest-api.base-url>http://argos-service:8080</argos-service.rest-api.base-url>
+                                <argos-service.rest-api.base-url>http://argos-service:8080
+                                </argos-service.rest-api.base-url>
                                 <jenkins.base-url>http://argos-jenkins:8080</jenkins.base-url>
                                 <argos-integration-test-service.rest-api.base-url>
                                     http://argos-integration-test-service:2877
