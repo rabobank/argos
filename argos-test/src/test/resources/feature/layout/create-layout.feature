@@ -22,6 +22,7 @@ Feature: create a valid layout
     * def layoutPath = '/api/supplychain/'+ __arg.supplyChainId + '/layout'
     * def layoutToBeSigned = read(__arg.json)
     * def keyNumber = __arg.keyNumber
+    * def defaultTestDate = call read('classpath:default-test-data.js')
     * def keyPair = defaultTestDate.personalAccounts['default-pa'+keyNumber]
 
   Scenario: store layout with valid specifications should return a 201

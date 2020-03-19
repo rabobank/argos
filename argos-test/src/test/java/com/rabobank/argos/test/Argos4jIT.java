@@ -22,7 +22,6 @@ import com.rabobank.argos.argos4j.LinkBuilder;
 import com.rabobank.argos.argos4j.LinkBuilderSettings;
 import com.rabobank.argos.argos4j.LocalFileCollector;
 import com.rabobank.argos.argos4j.VerifyBuilder;
-import com.rabobank.argos.argos4j.rest.api.model.RestKeyPair;
 import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayout;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
@@ -42,18 +41,17 @@ import java.util.List;
 
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
-import static com.rabobank.argos.test.ServiceStatusHelper.getToken;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
 import static com.rabobank.argos.test.TestServiceHelper.clearDatabase;
-import static com.rabobank.argos.test.TestServiceHelper.createAndStoreKeyPair;
-import static com.rabobank.argos.test.TestServiceHelper.createPersonalAccountTokenWithLayoutPermissions;
+import static com.rabobank.argos.test.TestServiceHelper.createDefaultHierarchy;
 import static com.rabobank.argos.test.TestServiceHelper.signAndStoreLayout;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class Argos4jIT {
 
     private static Properties properties = Properties.getInstance();
-    private RestKeyPair keyPair;
+    private DefaultTestData.NonPersonalAccount nonPersonalAccount;
+    private DefaultTestData.PersonalAccount personalAccount;
 
     @BeforeAll
     static void setUp() {
@@ -68,26 +66,32 @@ class Argos4jIT {
     @Test
     void postLinkMetaBlockWithSignatureValidationAndVerify() {
 
-        String adminAccountToken = getToken();
-        RestLabel rootLabel = getHierarchyApi(adminAccountToken).createLabel(new RestLabel().name("root_label"));
-        RestLabel childLabel = getHierarchyApi(adminAccountToken).createLabel(new RestLabel().name("child_label").parentLabelId(rootLabel.getId()));
+        DefaultTestData defaultTestData = createDefaultHierarchy();
+        String adminAccountToken = defaultTestData.getAdminToken();
+        getHierarchyApi(adminAccountToken).updateLabelById(defaultTestData.getDefaultRootLabel().getId(), new RestLabel().name("root_label"));
+        RestLabel childLabel = getHierarchyApi(adminAccountToken).createLabel(new RestLabel().name("child_label").parentLabelId(defaultTestData.getDefaultRootLabel().getId()));
+
         String supplyChainId = getSupplychainApi(adminAccountToken).createSupplyChain(new RestSupplyChain().name("test-supply-chain").parentLabelId(childLabel.getId())).getId();
-        keyPair = createAndStoreKeyPair(adminAccountToken, "test", childLabel.getId());
+
+        nonPersonalAccount = defaultTestData.getNonPersonalAccount().values().iterator().next();
+
+        personalAccount = defaultTestData.getPersonalAccounts().values().iterator().next();
+
         RestLayoutMetaBlock layout = new RestLayoutMetaBlock().layout(createLayout());
-        String accountWithLayoutPermissionsToken = createPersonalAccountTokenWithLayoutPermissions(adminAccountToken, childLabel.getId());
-        signAndStoreLayout(accountWithLayoutPermissionsToken, supplyChainId, layout, keyPair.getKeyId(), "test");
+
+        signAndStoreLayout(personalAccount.getToken(), supplyChainId, layout, personalAccount.getKeyId(), personalAccount.getPassphrase());
         Argos4jSettings settings = Argos4jSettings.builder()
                 .argosServerBaseUrl(properties.getApiBaseUrl() + "/api")
                 .supplyChainName("test-supply-chain")
                 .pathToLabelRoot(List.of("child_label", "root_label"))
-                .signingKeyId(keyPair.getKeyId())
+                .signingKeyId(nonPersonalAccount.getKeyId())
                 .build();
         Argos4j argos4j = new Argos4j(settings);
         LinkBuilder linkBuilder = argos4j.getLinkBuilder(LinkBuilderSettings.builder().layoutSegmentName("layoutSegmentName").stepName("build").runId("runId").build());
         FileCollector fileCollector = LocalFileCollector.builder().path(new File(".").toPath()).basePath(new File(".").toPath()).build();
         linkBuilder.collectProducts(fileCollector);
         linkBuilder.collectMaterials(fileCollector);
-        linkBuilder.store("test".toCharArray());
+        linkBuilder.store(nonPersonalAccount.getPassphrase().toCharArray());
 
 
         VerifyBuilder verifyBuilder = argos4j.getVerifyBuilder();
@@ -104,8 +108,9 @@ class Argos4jIT {
 
     private RestLayout createLayout() {
         return new RestLayout()
-                .addKeysItem(new RestPublicKey().id(keyPair.getKeyId()).key(keyPair.getPublicKey()))
-                .addAuthorizedKeyIdsItem(keyPair.getKeyId())
+                .addKeysItem(new RestPublicKey().id(personalAccount.getKeyId()).key(personalAccount.getPublicKey()))
+                .addKeysItem(new RestPublicKey().id(nonPersonalAccount.getKeyId()).key(nonPersonalAccount.getPublicKey()))
+                .addAuthorizedKeyIdsItem(personalAccount.getKeyId())
                 .addExpectedEndProductsItem(new RestMatchRule()
                         .destinationSegmentName("layoutSegmentName")
                         .destinationStepName("build")
@@ -114,7 +119,7 @@ class Argos4jIT {
                         .pattern("karate-config.js"))
                 .addLayoutSegmentsItem(new RestLayoutSegment().name("layoutSegmentName")
                         .addStepsItem(new RestStep().requiredNumberOfLinks(1)
-                                .addAuthorizedKeyIdsItem(keyPair.getKeyId())
+                                .addAuthorizedKeyIdsItem(nonPersonalAccount.getKeyId())
                                 .addExpectedProductsItem(new RestRule().ruleType(RestRule.RuleTypeEnum.ALLOW).pattern("**"))
                                 .addExpectedMaterialsItem(new RestRule().ruleType(RestRule.RuleTypeEnum.ALLOW).pattern("**"))
                                 .name("build")));

@@ -25,11 +25,9 @@ import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccount;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
-import com.rabobank.argos.argos4j.rest.api.model.RestPermission;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.test.rest.api.ApiClient;
 import com.rabobank.argos.test.rest.api.client.IntegrationTestServiceApi;
-import com.rabobank.argos.test.rest.api.model.TestKeyPair;
 import com.rabobank.argos.test.rest.api.model.TestLayoutMetaBlock;
 import com.rabobank.argos.test.rest.api.model.TestPersonalAccount;
 import com.rabobank.argos.test.rest.api.model.TestPersonalAccountWithToken;
@@ -42,6 +40,8 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.rabobank.argos.argos4j.rest.api.model.RestPermission.LAYOUT_ADD;
+import static com.rabobank.argos.argos4j.rest.api.model.RestPermission.READ;
+import static com.rabobank.argos.argos4j.rest.api.model.RestPermission.VERIFY;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getLayoutApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getNonPersonalAccountApi;
@@ -62,19 +62,6 @@ public class TestServiceHelper {
 
     private static ApiClient getApiClient() {
         return new ApiClient().setBasePath(properties.getIntegrationTestServiceBaseUrl() + "/integration-test");
-    }
-
-    public static RestKeyPair createAndStoreKeyPair(String token, String password, String parentLabelId) {
-        RestMapper mapper = Mappers.getMapper(RestMapper.class);
-        TestKeyPair layoutKeyPair = getTestApi().createKeyPair(password);
-        RestKeyPair restKeyPair = mapper.mapTestKeyPair(layoutKeyPair);
-        RestNonPersonalAccount npa = getNonPersonalAccountApi(token).createNonPersonalAccount(new RestNonPersonalAccount().name("npa").parentLabelId(parentLabelId));
-        getNonPersonalAccountApi(token).createNonPersonalAccountKeyById(npa.getId(), new RestNonPersonalAccountKeyPair()
-                .keyId(restKeyPair.getKeyId())
-                .encryptedPrivateKey(restKeyPair.getEncryptedPrivateKey())
-                .publicKey(restKeyPair.getPublicKey())
-                .hashedKeyPassphrase(ArgosServiceClient.calculatePassphrase(restKeyPair.getKeyId(), password)));
-        return restKeyPair;
     }
 
     public static DefaultTestData createDefaultHierarchy() {
@@ -98,7 +85,7 @@ public class TestServiceHelper {
         testPersonalAccount.setEmail("default@nl.nl");
         TestPersonalAccountWithToken personalAccountWithToken = testApi.createPersonalAccount(testPersonalAccount);
         PersonalAccountApi personalAccountApi = getPersonalAccountApi(hierarchy.getAdminToken());
-        personalAccountApi.updateLocalPermissionsForLabel(personalAccountWithToken.getId(), hierarchy.getDefaultRootLabel().getId(), List.of(LAYOUT_ADD, RestPermission.READ));
+        personalAccountApi.updateLocalPermissionsForLabel(personalAccountWithToken.getId(), hierarchy.getDefaultRootLabel().getId(), List.of(LAYOUT_ADD, READ, VERIFY));
         TestDateKeyPair keyPair = readKeyPair(1);
         getPersonalAccountApi(personalAccountWithToken.getToken()).createKey(new RestKeyPair()
                 .encryptedPrivateKey(keyPair.getEncryptedPrivateKey())
@@ -107,7 +94,9 @@ public class TestServiceHelper {
         hierarchy.getPersonalAccounts().put("default-pa1", DefaultTestData.PersonalAccount.builder()
                 .passphrase(keyPair.getPassphrase())
                 .keyId(keyPair.getKeyId())
-                .token(personalAccountWithToken.getToken()).build());
+                .token(personalAccountWithToken.getToken())
+                .publicKey(keyPair.getPublicKey())
+                .build());
     }
 
     public static void createDefaultNpaAccounts(DefaultTestData defaultTestData) {
@@ -133,7 +122,9 @@ public class TestServiceHelper {
                 DefaultTestData.NonPersonalAccount.builder()
                         .passphrase(keyPair.getPassphrase())
                         .keyId(keyPair.getKeyId())
-                        .hashedKeyPassphrase(hashedKeyPassphrase).build());
+                        .hashedKeyPassphrase(hashedKeyPassphrase)
+                        .publicKey(keyPair.getPublicKey())
+                        .build());
     }
 
     private static TestDateKeyPair readKeyPair(int index) {
@@ -159,17 +150,6 @@ public class TestServiceHelper {
         TestLayoutMetaBlock testLayout = mapper.mapRestLayout(restLayout);
         TestLayoutMetaBlock signed = getTestApi().signLayout(password, keyId, testLayout);
         getLayoutApi(token).createLayout(supplyChainId, mapper.mapTestLayout(signed));
-    }
-
-    public static String createPersonalAccountTokenWithLayoutPermissions(String token, String parentLabelId) {
-        IntegrationTestServiceApi testApi = getTestApi();
-        TestPersonalAccount testPersonalAccount = new TestPersonalAccount();
-        testPersonalAccount.setName("Layout manager");
-        testPersonalAccount.setEmail("layoutmanager@nl.nl");
-        TestPersonalAccountWithToken personalAccountWithToken = testApi.createPersonalAccount(testPersonalAccount);
-        PersonalAccountApi personalAccountApi = getPersonalAccountApi(token);
-        personalAccountApi.updateLocalPermissionsForLabel(personalAccountWithToken.getId(), parentLabelId, List.of(LAYOUT_ADD, RestPermission.READ));
-        return personalAccountWithToken.getToken();
     }
 
 }
