@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeAll;
 
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosIntegrationTestServiceToStart;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
-import static com.rabobank.argos.test.TestServiceHelper.createDefaultHierarchy;
+import static com.rabobank.argos.test.TestServiceHelper.createDefaultTestData;
 
 @Slf4j
 @KarateOptions(tags = {"~@ignore"})
@@ -43,7 +43,7 @@ class ArgosServiceTestIT {
         System.setProperty(SERVER_INTEGRATION_TEST_BASEURL, properties.getIntegrationTestServiceBaseUrl());
         waitForArgosServiceToStart();
         waitForArgosIntegrationTestServiceToStart();
-        DefaultTestData defaultTestData = createDefaultHierarchy();
+        DefaultTestData defaultTestData = createDefaultTestData();
         ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
         String defaultTestDataJson = objectMapper.writeValueAsString(defaultTestData);
         System.setProperty(DEFAULT_HIERARCHY, defaultTestDataJson);

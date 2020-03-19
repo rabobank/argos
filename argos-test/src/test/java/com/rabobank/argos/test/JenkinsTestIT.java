@@ -52,7 +52,7 @@ import java.util.stream.Stream;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.getSupplychainApi;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
-import static com.rabobank.argos.test.TestServiceHelper.createDefaultHierarchy;
+import static com.rabobank.argos.test.TestServiceHelper.createDefaultTestData;
 import static com.rabobank.argos.test.TestServiceHelper.signAndStoreLayout;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -83,7 +83,7 @@ class JenkinsTestIT {
 
     @BeforeEach
     void setUp() throws URISyntaxException {
-        DefaultTestData defaultTestData = createDefaultHierarchy();
+        DefaultTestData defaultTestData = createDefaultTestData();
         String adminAccountToken = defaultTestData.getAdminToken();
         getHierarchyApi(adminAccountToken).updateLabelById(defaultTestData.getDefaultRootLabel().getId(), new RestLabel().name("root_label"));
         RestLabel childLabel = getHierarchyApi(adminAccountToken).createLabel(new RestLabel().name("child_label").parentLabelId(defaultTestData.getDefaultRootLabel().getId()));

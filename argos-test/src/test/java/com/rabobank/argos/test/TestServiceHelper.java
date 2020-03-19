@@ -64,7 +64,7 @@ public class TestServiceHelper {
         return new ApiClient().setBasePath(properties.getIntegrationTestServiceBaseUrl() + "/integration-test");
     }
 
-    public static DefaultTestData createDefaultHierarchy() {
+    public static DefaultTestData createDefaultTestData() {
         getTestApi().resetDatabaseAll();
         DefaultTestData hierarchy = new DefaultTestData();
         hierarchy.setAdminToken(getToken());
