@@ -22,7 +22,9 @@
               "referenceId": "$supplychains.supplyChainId",
               "name": "$supplychains.name",
               "type": "SUPPLY_CHAIN",
-              "parentLabelId": "$supplychains.parentLabelId"
+              "parentLabelId": "$supplychains.parentLabelId",
+              "idsOfDescendantLabels": [
+              ]
             }
           }
         ],
@@ -44,18 +46,54 @@
               "referenceId": "$nonpersonalaccounts.accountId",
               "name": "$nonpersonalaccounts.name",
               "type": "NON_PERSONAL_ACCOUNT",
-              "parentLabelId": "$nonpersonalaccounts.parentLabelId"
+              "parentLabelId": "$nonpersonalaccounts.parentLabelId",
+              "idsOfDescendantLabels": [
+              ]
             }
           }
         ],
         "labelsprojected": [
           {
+            "$graphLookup": {
+              "from": "labels",
+              "startWith": "$labelId",
+              "connectFromField": "labelId",
+              "connectToField": "parentLabelId",
+              "as": "descendants",
+              "depthField": "depth"
+            }
+          },
+          {
+            "$unwind": {
+              "path": "$descendants",
+              "preserveNullAndEmptyArrays": true
+            }
+          },
+          {
+            "$group": {
+              "_id": "$_id",
+              "labelId": {
+                "$first": "$labelId"
+              },
+              "name": {
+                "$first": "$name"
+              },
+              "parentLabelId": {
+                "$first": "$parentLabelId"
+              },
+              "idsOfDescendantLabels": {
+                "$push": "$descendants.labelId"
+              }
+            }
+          },
+          {
             "$project": {
-              "_id": 1,
+              "_id": 1.0,
               "referenceId": "$labelId",
               "name": 1.0,
               "type": "LABEL",
-              "parentLabelId": 1.0
+              "parentLabelId": 1.0,
+              "idsOfDescendantLabels": 1.0
             }
           }
         ]
