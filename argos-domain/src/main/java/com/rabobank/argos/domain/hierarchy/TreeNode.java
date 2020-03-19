@@ -50,6 +50,7 @@ public class TreeNode {
     private Type type;
     private List<String> pathToRoot;
     private List<String> idPathToRoot;
+    private List<String> idsOfDescendantLabels;
     private boolean hasChildren;
 
     @With

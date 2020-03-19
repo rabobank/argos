@@ -55,13 +55,13 @@ public class AccountSecurityContextImpl implements AccountSecurityContext {
     }
 
     @Override
-    public Set<Permission> allLocalPermissions(List<String> allLabelIdsUpTree) {
+    public Set<Permission> allLocalPermissions(List<String> labelIds) {
         AccountUserDetailsAdapter authentication = getAccountUserDetailsAdapter();
         if (authentication != null) {
             Map<String, List<LocalPermissions>> localPermissionsMap = authentication.getAccount().getLocalPermissions()
                     .stream()
                     .collect(Collectors.groupingBy(LocalPermissions::getLabelId));
-            return allLabelIdsUpTree.stream()
+            return labelIds.stream()
                     .map(labelId -> localPermissionsMap.getOrDefault(labelId, emptyList()))
                     .flatMap(List::stream)
                     .map(LocalPermissions::getPermissions)
