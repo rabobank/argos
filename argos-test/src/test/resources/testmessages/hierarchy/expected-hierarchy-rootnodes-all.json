@@ -10,12 +10,12 @@
         "type": "NON_PERSONAL_ACCOUNT",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
+          "LAYOUT_ADD",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
           "VERIFY"
         ]
       },
@@ -24,12 +24,12 @@
         "type": "NON_PERSONAL_ACCOUNT",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
+          "LAYOUT_ADD",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
           "VERIFY"
         ]
       },
@@ -38,12 +38,12 @@
         "type": "NON_PERSONAL_ACCOUNT",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
+          "LAYOUT_ADD",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
           "VERIFY"
         ]
       },
@@ -52,12 +52,12 @@
         "type": "NON_PERSONAL_ACCOUNT",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
+          "LAYOUT_ADD",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
           "VERIFY"
         ]
       },
@@ -66,21 +66,20 @@
         "type": "NON_PERSONAL_ACCOUNT",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
+          "LAYOUT_ADD",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
           "VERIFY"
         ]
       }
     ],
     "permissions": [
-      "ASSIGN_ROLE",
-      "LOCAL_PERMISSION_EDIT",
+      "LAYOUT_ADD",
+      "NPA_EDIT",
       "READ",
-      "TREE_EDIT",
       "VERIFY"
     ]
   },
@@ -101,13 +100,12 @@
             "type": "NON_PERSONAL_ACCOUNT",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": [],
+            "children": [
+            ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           },
           {
@@ -115,22 +113,19 @@
             "type": "SUPPLY_CHAIN",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": [],
+            "children": [
+            ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           }
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       },
       {
@@ -138,22 +133,19 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       }
     ],
     "permissions": [
-      "ASSIGN_ROLE",
-      "LOCAL_PERMISSION_EDIT",
+      "NPA_EDIT",
       "READ",
-      "TREE_EDIT",
-      "VERIFY"
+      "TREE_EDIT"
     ]
   },
   {
@@ -173,13 +165,12 @@
             "type": "NON_PERSONAL_ACCOUNT",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": [],
+            "children": [
+            ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           },
           {
@@ -187,22 +178,19 @@
             "type": "SUPPLY_CHAIN",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": [],
+            "children": [
+            ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           }
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       },
       {
@@ -210,22 +198,19 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       }
     ],
     "permissions": [
-      "ASSIGN_ROLE",
-      "LOCAL_PERMISSION_EDIT",
+      "NPA_EDIT",
       "READ",
-      "TREE_EDIT",
-      "VERIFY"
+      "TREE_EDIT"
     ]
   },
   {
@@ -245,13 +230,12 @@
             "type": "NON_PERSONAL_ACCOUNT",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": [],
+            "children": [
+            ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           },
           {
@@ -259,22 +243,19 @@
             "type": "SUPPLY_CHAIN",
             "referenceId": "#uuid",
             "hasChildren": false,
-            "children": [],
+            "children": [
+            ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           }
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       },
       {
@@ -282,22 +263,19 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       }
     ],
     "permissions": [
-      "ASSIGN_ROLE",
-      "LOCAL_PERMISSION_EDIT",
+      "NPA_EDIT",
       "READ",
-      "TREE_EDIT",
-      "VERIFY"
+      "TREE_EDIT"
     ]
   }
 ]

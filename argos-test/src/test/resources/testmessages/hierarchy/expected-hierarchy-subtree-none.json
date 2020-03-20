@@ -5,10 +5,8 @@
   "hasChildren": true,
   "children": [],
   "permissions": [
-    "ASSIGN_ROLE",
-    "LOCAL_PERMISSION_EDIT",
+    "NPA_EDIT",
     "READ",
-    "TREE_EDIT",
-    "VERIFY"
+    "TREE_EDIT"
   ]
 }

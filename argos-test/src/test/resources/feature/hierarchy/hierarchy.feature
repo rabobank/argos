@@ -24,18 +24,24 @@ Feature: Hierarchy
     * def root1 = call read('classpath:feature/label/create-label.feature') { name: 'root1'}
     * def root2 = call read('classpath:feature/label/create-label.feature') { name: 'root2'}
     * def root3 = call read('classpath:feature/label/create-label.feature') { name: 'root3'}
+    * def personalAccount = defaultTestData.personalAccounts['default-pa1']
+    * call read('classpath:feature/account/set-local-permissions.feature') {accountId: #(personalAccount.accountId), labelId: #(root1.response.id), permissions: [READ, NPA_EDIT,TREE_EDIT]}
+    * call read('classpath:feature/account/set-local-permissions.feature') {accountId: #(personalAccount.accountId), labelId: #(root2.response.id), permissions: [READ, NPA_EDIT,TREE_EDIT]}
+    * call read('classpath:feature/account/set-local-permissions.feature') {accountId: #(personalAccount.accountId), labelId: #(root3.response.id), permissions: [READ, NPA_EDIT,TREE_EDIT]}
+    * configure headers = call read('classpath:headers.js') { token: #(personalAccount.token)}
     * def root1ChildResponse = call read('classpath:feature/label/create-label.feature') { name: 'childaroot1',parentLabelId:#(root1.response.id)}
     * def root2ChildResponse = call read('classpath:feature/label/create-label.feature') { name: 'childaroot2',parentLabelId:#(root2.response.id)}
     * def root3ChildResponse = call read('classpath:feature/label/create-label.feature') { name: 'childaroot3',parentLabelId:#(root3.response.id)}
     * def supplyChain1Response = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: supply-chain-1, parentLabelId: #(root1ChildResponse.response.id)}
     * def supplyChain2Response = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: supply-chain-2, parentLabelId: #(root2ChildResponse.response.id)}
     * def supplyChain3Response = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: supply-chain-3, parentLabelId: #(root3ChildResponse.response.id)}
-    * def nonPersonalAccount1Response = call read('classpath:feature/account/create-non-personal-account.feature') {name: npa-1, parentLabelId: #(root1ChildResponse.response.id)}
-    * def nonPersonalAccount2Response = call read('classpath:feature/account/create-non-personal-account.feature') {name: npa-2, parentLabelId: #(root2ChildResponse.response.id)}
-    * def nonPersonalAccount3Response = call read('classpath:feature/account/create-non-personal-account.feature') {name: npa-3, parentLabelId: #(root3ChildResponse.response.id)}
     * def root1Child2Response = call read('classpath:feature/label/create-label.feature') { name: 'childbroot1',parentLabelId:#(root1.response.id)}
     * def root2Child2Response = call read('classpath:feature/label/create-label.feature') { name: 'childbroot2',parentLabelId:#(root2.response.id)}
     * def root3Child2Response = call read('classpath:feature/label/create-label.feature') { name: 'childbroot3',parentLabelId:#(root3.response.id)}
+    * def nonPersonalAccount1Response = call read('classpath:feature/account/create-non-personal-account.feature') {name: npa-1, parentLabelId: #(root1ChildResponse.response.id)}
+    * def nonPersonalAccount2Response = call read('classpath:feature/account/create-non-personal-account.feature') {name: npa-2, parentLabelId: #(root2ChildResponse.response.id)}
+    * def nonPersonalAccount3Response = call read('classpath:feature/account/create-non-personal-account.feature') {name: npa-3, parentLabelId: #(root3ChildResponse.response.id)}
+
 
   Scenario: get root nodes with HierarchyMode all should return full trees
     Given path '/api/hierarchy'
@@ -89,6 +95,7 @@ Feature: Hierarchy
 
   Scenario: get root nodes with no permissions should return only root nodes with permissions
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person',email: 'local.permissions@extra.go'}
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
     * def localPermissionsForRoot = call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(extraAccount.response.id),labelId: #(root1.response.id), permissions: ["READ"]}
     * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
     Given path '/api/hierarchy'
@@ -108,6 +115,7 @@ Feature: Hierarchy
 
   Scenario: get subtree with added permissions downtree should return correct permissions
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person',email: 'local.permissions@extra.go'}
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
     * def localPermissionsForRoot = call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(extraAccount.response.id),labelId: #(root1.response.id), permissions: ["READ"]}
     * def root1ChildPermissions = call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(extraAccount.response.id),labelId: #(root1ChildResponse.response.id), permissions: ["LOCAL_PERMISSION_EDIT"]}
     * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
@@ -118,9 +126,9 @@ Feature: Hierarchy
     * def expectedResponse =  read('classpath:testmessages/hierarchy/expected-hierarchy-subtree-added-local-permissions.json')
     And match response == expectedResponse
 
-
   Scenario: get subtree with permissions uptree should return correct partial hierarchy
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person',email: 'local.permissions@extra.go'}
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
     * def root1ChildPermissions = call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(extraAccount.response.id),labelId: #(root1ChildResponse.response.id), permissions: ["LOCAL_PERMISSION_EDIT"]}
     * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
     Given path '/api/hierarchy/' + root1.response.id

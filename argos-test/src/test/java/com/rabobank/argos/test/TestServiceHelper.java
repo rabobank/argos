@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.rabobank.argos.argos4j.rest.api.model.RestPermission.LAYOUT_ADD;
+import static com.rabobank.argos.argos4j.rest.api.model.RestPermission.NPA_EDIT;
 import static com.rabobank.argos.argos4j.rest.api.model.RestPermission.READ;
 import static com.rabobank.argos.argos4j.rest.api.model.RestPermission.VERIFY;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;
@@ -85,13 +86,14 @@ public class TestServiceHelper {
         testPersonalAccount.setEmail("default@nl.nl");
         TestPersonalAccountWithToken personalAccountWithToken = testApi.createPersonalAccount(testPersonalAccount);
         PersonalAccountApi personalAccountApi = getPersonalAccountApi(hierarchy.getAdminToken());
-        personalAccountApi.updateLocalPermissionsForLabel(personalAccountWithToken.getId(), hierarchy.getDefaultRootLabel().getId(), List.of(LAYOUT_ADD, READ, VERIFY));
+        personalAccountApi.updateLocalPermissionsForLabel(personalAccountWithToken.getId(), hierarchy.getDefaultRootLabel().getId(), List.of(LAYOUT_ADD, READ, VERIFY, NPA_EDIT));
         TestDateKeyPair keyPair = readKeyPair(1);
         getPersonalAccountApi(personalAccountWithToken.getToken()).createKey(new RestKeyPair()
                 .encryptedPrivateKey(keyPair.getEncryptedPrivateKey())
                 .publicKey(keyPair.getPublicKey())
                 .keyId(keyPair.getKeyId()));
         hierarchy.getPersonalAccounts().put("default-pa1", DefaultTestData.PersonalAccount.builder()
+                .accountId(personalAccountWithToken.getId())
                 .passphrase(keyPair.getPassphrase())
                 .keyId(keyPair.getKeyId())
                 .token(personalAccountWithToken.getToken())
