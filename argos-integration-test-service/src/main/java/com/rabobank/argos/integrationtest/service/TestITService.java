@@ -111,8 +111,15 @@ public class TestITService implements IntegrationTestServiceApi {
     @Override
     public ResponseEntity<Void> resetDatabase() {
         log.info("resetDatabase");
+        repositoryResetProvider.resetNotAllRepositories();
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> resetDatabaseAll() {
+        log.info("resetDatabaseAll");
         repositoryResetProvider.resetAllRepositories();
-        return null;
+        return ResponseEntity.ok().build();
     }
 
     @Override

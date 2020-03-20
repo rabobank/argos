@@ -1,5 +1,19 @@
 [
   {
+    "name": "default_root_label",
+    "type": "LABEL",
+    "referenceId": "#uuid",
+    "hasChildren": true,
+    "children": [],
+    "permissions": [
+      "ASSIGN_ROLE",
+      "LOCAL_PERMISSION_EDIT",
+      "READ",
+      "TREE_EDIT",
+      "VERIFY"
+    ]
+  },
+  {
     "name": "root1",
     "type": "LABEL",
     "referenceId": "#uuid",

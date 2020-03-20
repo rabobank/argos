@@ -19,8 +19,8 @@ Feature: Personal Account
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def token = karate.properties['bearer.token']
-    * configure headers = call read('classpath:headers.js') { token: #(token)}
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
 
   Scenario: get Personal Account profile should return 200
     Given path '/api/personalaccount/me'
@@ -85,7 +85,7 @@ Feature: Personal Account
     Given path '/api/personalaccount'
     When method GET
     Then status 200
-    And match response == [{"id":"#uuid","name":"Extra Person","email":"extra@extra.go"},{"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp"}]
+    And match response == [{"id":"#uuid","name":"Default User","email":"default@nl.nl"},{"id":"#uuid","name":"Extra Person","email":"extra@extra.go"},{"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp"}]
 
   Scenario: search personal account by name should return 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}

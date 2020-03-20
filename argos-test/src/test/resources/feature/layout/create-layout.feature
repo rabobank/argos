@@ -22,9 +22,12 @@ Feature: create a valid layout
     * def layoutPath = '/api/supplychain/'+ __arg.supplyChainId + '/layout'
     * def layoutToBeSigned = read(__arg.json)
     * def keyNumber = __arg.keyNumber
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * def keyPair = defaultTestData.personalAccounts['default-pa'+keyNumber]
 
   Scenario: store layout with valid specifications should return a 201
     * def signedLayout = call read('classpath:feature/layout/sign-layout.feature') {json:#(layoutToBeSigned),keyNumber:#(keyNumber)}
+    * configure headers = call read('classpath:headers.js') { token: #(keyPair.token)}
     Given path layoutPath
     And request signedLayout.response
     When method POST

@@ -32,6 +32,15 @@ paths:
       responses:
         '200':
           description: success
+  /reset-db-all:
+    post:
+      summary: resets the database including default hierarchy
+      operationId: resetDatabaseAll
+      tags:
+        - IntegrationTestService
+      responses:
+        '200':
+          description: success
   /createKeyPair:
     post:
       summary: create a new key
