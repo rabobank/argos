@@ -415,12 +415,8 @@
                                 <argos-integration-test-service.rest-api.base-url>
                                     http://argos-integration-test-service:2877
                                 </argos-integration-test-service.rest-api.base-url>
-                                <argos-oauth-stub.rest-api.base-url>
-                                    oauth-stub
-                                </argos-oauth-stub.rest-api.base-url>
-                                <argos-oauth-stub.rest-api.port>
-                                    8087
-                                </argos-oauth-stub.rest-api.port>
+                                <argos-oauth-stub.rest-api.base-url>oauth-stub</argos-oauth-stub.rest-api.base-url>
+                                <argos-oauth-stub.rest-api.port>8087</argos-oauth-stub.rest-api.port>
                                 <nexus.war-snapshot-url>
                                     http://nexus:8081/nexus/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.rabobank.argos&amp;a=argos-test-app&amp;v=1.0-SNAPSHOT&amp;e=war
                                 </nexus.war-snapshot-url>
