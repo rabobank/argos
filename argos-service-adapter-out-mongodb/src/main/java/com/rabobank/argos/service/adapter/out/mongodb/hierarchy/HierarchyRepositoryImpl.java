@@ -57,16 +57,21 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
     @Override
     public List<TreeNode> getRootNodes(HierarchyMode hierarchyMode, int maxDepth) {
         Criteria rootNodeCriteria = Criteria.where(PARENT_LABEL_ID).is(null);
+        List<TreeNode> rootNodes = emptyList();
         final MatchOperation matchStage = Aggregation.match(rootNodeCriteria);
         switch (hierarchyMode) {
             case ALL:
-                return getRootNodesWithAllDescendants(matchStage);
+                rootNodes = getRootNodesWithAllDescendants(matchStage);
+                break;
             case NONE:
-                return getRootNodesWithNoDescendants(rootNodeCriteria);
+                rootNodes = getRootNodesWithNoDescendants(rootNodeCriteria);
+                break;
             case MAX_DEPTH:
-                return getRootNodesWithMaxDepthDescendants(matchStage, maxDepth);
+                rootNodes = getRootNodesWithMaxDepthDescendants(matchStage, maxDepth);
+                break;
         }
-        return emptyList();
+        rootNodes.sort(Comparator.comparing(TreeNode::getName));
+        return rootNodes;
     }
 
     private List<TreeNode> getRootNodesWithMaxDepthDescendants(MatchOperation matchStage, int maxDepth) {
@@ -208,6 +213,7 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
                 .type(TreeNode.Type.valueOf(hierarchyItem.getType().name()))
                 .pathToRoot(hierarchyItem.getPathToRoot())
                 .idPathToRoot(hierarchyItem.getIdPathToRoot())
+                .idsOfDescendantLabels(hierarchyItem.getIdsOfDescendantLabels())
                 .parentLabelId(hierarchyItem.getParentLabelId())
                 .hasChildren(hierarchyItem.isHasChildren())
                 .build();
@@ -239,6 +245,7 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
         private Type type;
         private List<String> pathToRoot;
         private List<String> idPathToRoot;
+        private List<String> idsOfDescendantLabels;
         private boolean hasChildren;
         private List<HierarchyItem> descendants;
         private int depth;

@@ -45,7 +45,7 @@ public class AccountPermissionTreeNodeVisitor implements TreeNodeVisitor<Optiona
                 .withChildren(new ArrayList<>())
                 .withPermissions(determineAggregatedPermissions(treeNode));
 
-        if (copyOfTreeNode.getPermissions().isEmpty()) {
+        if (copyOfTreeNode.getPermissions().isEmpty() && nodeHasNoPermissionsUpTree(treeNode.getIdsOfDescendantLabels())) {
             return false;
         }
 
@@ -60,13 +60,20 @@ public class AccountPermissionTreeNodeVisitor implements TreeNodeVisitor<Optiona
         return true;
     }
 
+    private boolean nodeHasNoPermissionsUpTree(List<String> idsOfDescendantLabels) {
+
+        return accountSecurityContext
+                .allLocalPermissions(idsOfDescendantLabels)
+                .isEmpty();
+    }
+
     private List<Permission> determineAggregatedPermissions(TreeNode treeNode) {
         Set<Permission> aggregatedPermissions = new HashSet<>();
-        List<String> labelIdsUpTree = new ArrayList<>(treeNode.getIdPathToRoot());
+        List<String> labelIdsDownTree = new ArrayList<>(treeNode.getIdPathToRoot());
         if (!treeNode.isLeafNode()) {
-            labelIdsUpTree.add(treeNode.getReferenceId());
+            labelIdsDownTree.add(treeNode.getReferenceId());
         }
-        aggregatedPermissions.addAll(accountSecurityContext.allLocalPermissions(labelIdsUpTree));
+        aggregatedPermissions.addAll(accountSecurityContext.allLocalPermissions(labelIdsDownTree));
         aggregatedPermissions.addAll(accountSecurityContext.getGlobalPermission());
         List<Permission> arrayOfAggregatedPermissions = new ArrayList<>(aggregatedPermissions);
         arrayOfAggregatedPermissions.sort(Comparator.comparing(Permission::name));
