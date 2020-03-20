@@ -15,7 +15,6 @@
  */
 package com.rabobank.argos.test;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.intuit.karate.KarateOptions;
 import com.intuit.karate.junit5.Karate;
 import lombok.extern.slf4j.Slf4j;
@@ -46,13 +45,14 @@ class ArgosServiceTestIT {
         waitForArgosServiceToStart();
         waitForArgosIntegrationTestServiceToStart();
         System.setProperty(BEARER_TOKEN, Objects.requireNonNull(getToken("Luke Skywalker", "Skywalker", "luke@skywalker.imp")));
-        System.setProperty(DEFAULT_USER_TOKEN, Objects.requireNonNull(getToken("MR Default", "Default", "Default@Default.go")));
+        System.setProperty(DEFAULT_USER_TOKEN, Objects.requireNonNull(getToken("MR Default", "Default", "default@default.go")));
         log.info("bearer token: {}", System.getProperty(BEARER_TOKEN));
+        log.info("bearer token: {}", System.getProperty(DEFAULT_USER_TOKEN));
     }
 
     @AfterAll
-    void reset() {
-        WireMock.resetToDefault();
+    static void reset() {
+        //WireMock.resetToDefault();
     }
 
     @Karate.Test

@@ -33,7 +33,6 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -117,7 +116,7 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
 
     private Optional<TreeNode> getSubTreeWithNoDescendants(Criteria referenceCriteria) {
         return convertToTreeNodeHierarchyForSubTree(List
-                .of(Objects.requireNonNull(mongoTemplate.findOne(new Query(referenceCriteria), HierarchyItem.class, COLLECTION)))
+                .of(mongoTemplate.findOne(new Query(referenceCriteria), HierarchyItem.class, COLLECTION))
         );
     }
 

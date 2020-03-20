@@ -20,7 +20,7 @@ Feature: Personal Account
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
     * def token = karate.properties['bearer.token']
-    * def defaultUsertoken = karate.properties['bearer.token']
+    * def defaultUsertoken = karate.properties['default.user.token']
     * configure headers = call read('classpath:headers.js') { token: #(token)}
 
   Scenario: get Personal Account profile should return 200
@@ -56,11 +56,21 @@ Feature: Personal Account
 
   Scenario: get account by id should return a 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    * def expectedResponse = read('classpath:testmessages/personal-account/get-account-by-id-response.json')
     Given path '/api/personalaccount/'+extraAccount.response.id
     When method GET
     Then status 200
-    Then match response == ''
+    * print response
+    Then match response == expectedResponse
 
+  Scenario: get account by id without ASSIGN_ROLE should return a 403
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    * def expectedResponse = read('classpath:testmessages/personal-account/get-account-by-id-response.json')
+    * configure headers = call read('classpath:headers.js') { token: #(defaultUsertoken)}
+    Given path '/api/personalaccount/'+extraAccount.response.id
+    When method GET
+    Then status 403
+    And match response == {"message":"Access denied"}
 
   Scenario: update roles should return 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
@@ -84,7 +94,7 @@ Feature: Personal Account
     And match response == {"message":"Access denied"}
 
   Scenario: search personal account by role name should return 200
-    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    * configure headers = call read('classpath:headers.js') { token: #(defaultUsertoken)}
     Given path '/api/personalaccount'
     And param roleName = 'administrator'
     When method GET
@@ -93,14 +103,16 @@ Feature: Personal Account
 
   Scenario: search all personal account 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    * def expectedResponse = read('classpath:testmessages/personal-account/account-search-all-response.json')
     * configure headers = call read('classpath:headers.js') { token: #(defaultUsertoken)}
     Given path '/api/personalaccount'
     When method GET
     Then status 200
-    And match response == [{"id":"#uuid","name":"Extra Person","email":"extra@extra.go"},{"id":"#uuid","name":"Luke Skywalker","email":"luke@skywalker.imp"}]
+    And match response == expectedResponse
 
   Scenario: search personal account by name should return 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    * configure headers = call read('classpath:headers.js') { token: #(defaultUsertoken)}
     Given path '/api/personalaccount'
     And param name = 'per'
     When method GET

@@ -21,6 +21,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -37,7 +38,7 @@ public class RepositoryResetProviderImpl implements RepositoryResetProvider {
         template.getCollectionNames().stream()
                 .filter(name -> !IGNORED_COLLECTIONS.contains(name))
                 .forEach(name -> template.remove(new Query(), name));
-        template.remove(new Query(Criteria.where("email").nin("luke@skywalker.imp", "Default@Default.go")), PERSONALACCOUNTS);
+        template.remove(new Query(Criteria.where("email").nin(List.of("luke@skywalker.imp", "default@default.go"))), PERSONALACCOUNTS);
     }
 
     @Override
