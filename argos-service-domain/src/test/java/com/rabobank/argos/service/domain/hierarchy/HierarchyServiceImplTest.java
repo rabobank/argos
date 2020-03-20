@@ -123,12 +123,14 @@ class HierarchyServiceImplTest {
                 .idPathToRoot(emptyList())
                 .type(TreeNode.Type.LABEL)
                 .referenceId(ROOT_1_ID)
+                .idsOfDescendantLabels(emptyList())
                 .hasChildren(true)
                 .name("root")
                 .build();
         child1_1 = TreeNode.builder()
                 .pathToRoot(singletonList("root"))
                 .idPathToRoot(singletonList(ROOT_1_ID))
+                .idsOfDescendantLabels(emptyList())
                 .parentLabelId(ROOT_1_ID)
                 .type(TreeNode.Type.LABEL)
                 .referenceId(CHILD_1_1_ID)
@@ -139,6 +141,7 @@ class HierarchyServiceImplTest {
                 .pathToRoot(singletonList("root"))
                 .parentLabelId(ROOT_1_ID)
                 .idPathToRoot(singletonList(ROOT_1_ID))
+                .idsOfDescendantLabels(emptyList())
                 .type(TreeNode.Type.LABEL)
                 .referenceId(CHILD_2_1_ID)
                 .hasChildren(true)
@@ -147,6 +150,7 @@ class HierarchyServiceImplTest {
         child1_2 = TreeNode.builder()
                 .pathToRoot(List.of("child1_1", "root"))
                 .idPathToRoot(List.of(CHILD_1_1_ID, ROOT_1_ID))
+                .idsOfDescendantLabels(emptyList())
                 .parentLabelId(CHILD_1_1_ID)
                 .type(TreeNode.Type.LABEL)
                 .referenceId(CHILD_1_2_ID)
@@ -156,6 +160,7 @@ class HierarchyServiceImplTest {
         child2_2 = TreeNode.builder()
                 .pathToRoot(List.of("child1_2", "root"))
                 .idPathToRoot(List.of(CHILD_2_1_ID, ROOT_1_ID))
+                .idsOfDescendantLabels(emptyList())
                 .type(TreeNode.Type.LABEL)
                 .parentLabelId(CHILD_2_1_ID)
                 .referenceId(CHILD_2_2_ID)
@@ -166,6 +171,7 @@ class HierarchyServiceImplTest {
                 .pathToRoot(List.of("child1_2", "child1_1", "root"))
                 .idPathToRoot(List.of(CHILD_1_2_ID, CHILD_1_1_ID, ROOT_1_ID))
                 .type(TreeNode.Type.SUPPLY_CHAIN)
+                .idsOfDescendantLabels(emptyList())
                 .referenceId("child1_3_Id")
                 .parentLabelId(CHILD_1_2_ID)
                 .hasChildren(false)
@@ -179,6 +185,7 @@ class HierarchyServiceImplTest {
                 .idPathToRoot(emptyList())
                 .type(TreeNode.Type.LABEL)
                 .referenceId(ROOT_2_ID)
+                .idsOfDescendantLabels(emptyList())
                 .hasChildren(true)
                 .name("root")
                 .build();
@@ -188,6 +195,7 @@ class HierarchyServiceImplTest {
                 .parentLabelId(ROOT_2_ID)
                 .type(TreeNode.Type.LABEL)
                 .referenceId(CHILD_2_1_1_ID)
+                .idsOfDescendantLabels(emptyList())
                 .hasChildren(true)
                 .name("child1_1")
                 .build();
@@ -197,6 +205,7 @@ class HierarchyServiceImplTest {
                 .idPathToRoot(singletonList(ROOT_2_ID))
                 .type(TreeNode.Type.LABEL)
                 .referenceId(CHILD_2_1_ID)
+                .idsOfDescendantLabels(emptyList())
                 .hasChildren(true)
                 .name("child2_1")
                 .build();
@@ -206,6 +215,7 @@ class HierarchyServiceImplTest {
                 .parentLabelId(CHILD_1_1_ID)
                 .type(TreeNode.Type.LABEL)
                 .referenceId(CHILD_1_2_ID)
+                .idsOfDescendantLabels(emptyList())
                 .hasChildren(true)
                 .name("child1_2")
                 .build();
@@ -215,6 +225,7 @@ class HierarchyServiceImplTest {
                 .type(TreeNode.Type.LABEL)
                 .parentLabelId(CHILD_2_2_1_ID)
                 .referenceId(CHILD_2_2_2_ID)
+                .idsOfDescendantLabels(emptyList())
                 .hasChildren(true)
                 .name("child2_2")
                 .build();
@@ -224,6 +235,7 @@ class HierarchyServiceImplTest {
                 .type(TreeNode.Type.SUPPLY_CHAIN)
                 .referenceId("child1_3_Id")
                 .parentLabelId(CHILD_2_1_2_ID)
+                .idsOfDescendantLabels(emptyList())
                 .hasChildren(false)
                 .name("supplyCain")
                 .build();
@@ -286,7 +298,7 @@ class HierarchyServiceImplTest {
 
 
     @Test
-    void getRootNodesWithDifferentPermissionsUpTreeShouldResultInCorrectPermissions() {
+    void getRootNodesWithDifferentPermissionsDownTreeShouldResultInCorrectPermissions() {
         createTreeNodeHierarchy();
         List<LocalPermissions> localPermissions = List.of(
                 LocalPermissions

@@ -20,7 +20,7 @@
           },
           {
             "$sort": {
-              "pathToRoot.depth": 1
+              "pathToRoot.depth": 1.0
             }
           },
           {
@@ -38,6 +38,9 @@
               "type": {
                 "$first": "$type"
               },
+              "idsOfDescendantLabels": {
+                "$first": "$idsOfDescendantLabels"
+              },
               "pathToRoot": {
                 "$push": "$pathToRoot.name"
               },
@@ -53,24 +56,25 @@
               "connectFromField": "referenceId",
               "connectToField": "parentLabelId",
               "as": "children",
-              "maxDepth": 0,
+              "maxDepth": 0.0,
               "depthField": "depth"
             }
           },
           {
             "$project": {
-              "referenceId": 1,
-              "parentLabelId": 1,
-              "name": 1,
-              "type": 1,
-              "pathToRoot": 1,
-              "idPathToRoot": 1,
+              "referenceId": 1.0,
+              "parentLabelId": 1.0,
+              "name": 1.0,
+              "type": 1.0,
+              "pathToRoot": 1.0,
+              "idPathToRoot": 1.0,
+              "idsOfDescendantLabels": 1.0,
               "hasChildren": {
                 "$gt": [
                   {
                     "$size": "$children"
                   },
-                  0
+                  0.0
                 ]
               },
               "_class": "com.rabobank.argos.service.adapter.out.mongodb.hierarchy.HierarchyRepositoryImpl.HierarchyItem"
@@ -90,24 +94,27 @@
               "connectFromField": "referenceId",
               "connectToField": "parentLabelId",
               "as": "children",
-              "maxDepth": 0,
+              "maxDepth": 0.0,
               "depthField": "depth"
             }
           },
           {
             "$project": {
-              "referenceId": 1,
-              "parentLabelId": 1,
-              "name": 1,
-              "type": 1,
-              "pathToRoot": [],
-              "idPathToRoot": [],
+              "referenceId": 1.0,
+              "parentLabelId": 1.0,
+              "name": 1.0,
+              "type": 1.0,
+              "idsOfDescendantLabels": 1.0,
+              "pathToRoot": [
+              ],
+              "idPathToRoot": [
+              ],
               "hasChildren": {
                 "$gt": [
                   {
                     "$size": "$children"
                   },
-                  0
+                  0.0
                 ]
               },
               "_class": "com.rabobank.argos.service.adapter.out.mongodb.hierarchy.HierarchyRepositoryImpl.HierarchyItem"
