@@ -15,19 +15,14 @@
 #
 
 @ignore
-Feature: sign link
+Feature: reset
 
   Background:
     * url karate.properties['server.integration-test-service.baseurl']
-    * def linkToBeSigned = __arg.json
-    * def keyNumber = __arg.keyNumber
-    * def defaultTestData = call read('classpath:default-test-data.js')
-    * def keyPair = defaultTestData.nonPersonalAccount['default-npa'+keyNumber]
 
-  Scenario: sign the layout should return 200
-    Given path '/integration-test/signLinkMetaBlock'
-    And request linkToBeSigned
-    And param keyId = keyPair.keyId
-    And param password = keyPair.passphrase
-    When method POST
+  Scenario:
+    Given path '/integration-test/reset-db-all'
+    And  request {}
+    When method post
     Then status 200
+

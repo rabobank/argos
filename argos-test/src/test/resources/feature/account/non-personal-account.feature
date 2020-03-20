@@ -19,8 +19,8 @@ Feature: Non Personal Account
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def token = karate.properties['bearer.token']
-    * configure headers = call read('classpath:headers.js') { token: #(token)}
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
     * def rootLabel = call read('classpath:feature/label/create-label.feature') { name: 'root1'}
 
   Scenario: store a non personal account with valid name should return a 201
@@ -107,16 +107,16 @@ Feature: Non Personal Account
     Then status 401
 
   Scenario: get active key of authenticated npa should return a 200
-    * def keypairResponse = call read('classpath:feature/account/create-non-personal-account-with-key.feature') {accountName: 'npa1', parentLabelId: #(rootLabel.response.id), keyFile: 'keypair1'}
-    * def keyPair = keypairResponse.response
-    * configure headers =  call read('classpath:headers.js') { username: #(keyPair.keyId),password:test}
+    * def keypairResponse = call read('classpath:feature/account/create-non-personal-account-with-key.feature') {accountName: 'npa1', parentLabelId: #(rootLabel.response.id), keyFile: 'npa-keypair1'}
+    * def keyPair = read('classpath:testmessages/key/npa-keypair1.json')
+    * configure headers =  call read('classpath:headers.js') { username: #(keyPair.keyId),password:#(keyPair.hashedKeyPassphrase)}
     Given path '/api/nonpersonalaccount/me/activekey'
     When method GET
     Then status 200
     And match response == {keyId: #(keyPair.keyId), publicKey: #(keyPair.publicKey), encryptedPrivateKey: #(keyPair.encryptedPrivateKey)}
 
   Scenario: get active key of authenticated npa with invalid credentials should return a 401
-    * def keypairResponse = call read('classpath:feature/account/create-non-personal-account-with-key.feature') {accountName: 'npa1', parentLabelId: #(rootLabel.response.id), keyFile: 'keypair1'}
+    * def keypairResponse = call read('classpath:feature/account/create-non-personal-account-with-key.feature') {accountName: 'npa1', parentLabelId: #(rootLabel.response.id), keyFile: 'npa-keypair1'}
     * def keyPair = keypairResponse.response
     * configure headers =  call read('classpath:headers.js') { username: fake,password:fake}
     Given path '/api/nonpersonalaccount/me/activekey'

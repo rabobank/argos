@@ -15,17 +15,17 @@
  */
 package com.rabobank.argos.test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.intuit.karate.KarateOptions;
 import com.intuit.karate.junit5.Karate;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
-import java.util.Objects;
-
-import static com.rabobank.argos.test.ServiceStatusHelper.getToken;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosIntegrationTestServiceToStart;
 import static com.rabobank.argos.test.ServiceStatusHelper.waitForArgosServiceToStart;
+import static com.rabobank.argos.test.TestServiceHelper.createDefaultTestData;
 
 @Slf4j
 @KarateOptions(tags = {"~@ignore"})
@@ -33,26 +33,21 @@ class ArgosServiceTestIT {
 
     private static final String SERVER_BASEURL = "server.baseurl";
     private static final String SERVER_INTEGRATION_TEST_BASEURL = "server.integration-test-service.baseurl";
-    private static final String BEARER_TOKEN = "bearer.token";
-    private static final String DEFAULT_USER_TOKEN = "default.user.token";
+    private static final String DEFAULT_HIERARCHY = "default-hierarchy";
     private static Properties properties = Properties.getInstance();
 
     @BeforeAll
-    static void setUp() {
+    static void setUp() throws JsonProcessingException {
         log.info("karate base url : {}", properties.getApiBaseUrl());
         System.setProperty(SERVER_BASEURL, properties.getApiBaseUrl());
         System.setProperty(SERVER_INTEGRATION_TEST_BASEURL, properties.getIntegrationTestServiceBaseUrl());
         waitForArgosServiceToStart();
         waitForArgosIntegrationTestServiceToStart();
-        System.setProperty(BEARER_TOKEN, Objects.requireNonNull(getToken("Luke Skywalker", "Skywalker", "luke@skywalker.imp")));
-        System.setProperty(DEFAULT_USER_TOKEN, Objects.requireNonNull(getToken("MR Default", "Default", "default@default.go")));
-        log.info("bearer token: {}", System.getProperty(BEARER_TOKEN));
-        log.info("bearer token: {}", System.getProperty(DEFAULT_USER_TOKEN));
-    }
-
-    @AfterAll
-    static void reset() {
-        //WireMock.resetToDefault();
+        DefaultTestData defaultTestData = createDefaultTestData();
+        ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+        String defaultTestDataJson = objectMapper.writeValueAsString(defaultTestData);
+        System.setProperty(DEFAULT_HIERARCHY, defaultTestDataJson);
+        log.info("default hierarchy: {}", defaultTestDataJson);
     }
 
     @Karate.Test
@@ -99,5 +94,6 @@ class ArgosServiceTestIT {
     Karate permission() {
         return new Karate().feature("classpath:feature/permission/permission.feature");
     }
+
 
 }

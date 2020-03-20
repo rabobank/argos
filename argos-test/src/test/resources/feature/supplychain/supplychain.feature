@@ -19,14 +19,14 @@ Feature: SupplyChain
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def token = karate.properties['bearer.token']
-    * configure headers = call read('classpath:headers.js') { token: #(token)}
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
 
   Scenario: store supplychain with valid name should return a 201
     Given path '/api/supplychain'
-    * def result = call read('create-supplychain-with-label.feature') { supplyChainName: 'name'}
-    * def locationHeader = result.responseHeaders['Location'][0]
-    * match result.response == { name: 'name', id: '#uuid', parentLabelId: '#uuid' }
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { supplyChainName: 'name', parentLabelId: #(defaultTestData.defaultRootLabel.id)}
+    * def locationHeader = supplyChain.responseHeaders['Location'][0]
+    * match supplyChain.response == { name: 'name', id: '#uuid', parentLabelId: '#(defaultTestData.defaultRootLabel.id)' }
     * match locationHeader contains 'api/supplychain/'
 
   Scenario: store supplychain with non unique name should return a 400

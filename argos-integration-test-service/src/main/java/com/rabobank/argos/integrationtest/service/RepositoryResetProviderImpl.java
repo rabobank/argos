@@ -21,7 +21,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 @Component
@@ -30,20 +30,37 @@ public class RepositoryResetProviderImpl implements RepositoryResetProvider {
 
     private final MongoTemplate template;
 
-    public static final String PERSONALACCOUNTS = "personalaccounts";
-    private static final Set<String> IGNORED_COLLECTIONS = Set.of("dbchangelog", "mongobeelock", "hierarchy", "hierarchy_tmp", "system.views", PERSONALACCOUNTS, "roles");
+    private static final Set<String> IGNORED_COLLECTIONS_FOR_ALL = Set.of("dbchangelog", "mongobeelock", "hierarchy", "hierarchy_tmp", "system.views", "roles");
+    private static final Set<String> IGNORED_COLLECTIONS = new HashSet<>();
+
+    static {
+        IGNORED_COLLECTIONS.addAll(IGNORED_COLLECTIONS_FOR_ALL);
+        IGNORED_COLLECTIONS.add("personalaccounts");
+        IGNORED_COLLECTIONS.add("labels");
+        IGNORED_COLLECTIONS.add("nonPersonalAccounts");
+    }
 
     @Override
     public void resetAllRepositories() {
         template.getCollectionNames().stream()
+                .filter(name -> !IGNORED_COLLECTIONS_FOR_ALL.contains(name))
+                .forEach(name -> template.remove(new Query(), name));
+    }
+
+    @Override
+    public void resetNotAllRepositories() {
+        template.getCollectionNames().stream()
                 .filter(name -> !IGNORED_COLLECTIONS.contains(name))
                 .forEach(name -> template.remove(new Query(), name));
-        template.remove(new Query(Criteria.where("email").nin(List.of("luke@skywalker.imp", "default@default.go"))), PERSONALACCOUNTS);
+        template.remove(new Query(Criteria.where("email").nin("luke@skywalker.imp", "default@nl.nl")), "personalaccounts");
+        template.remove(new Query(Criteria.where("name").nin("default_root_label")), "labels");
+        template.remove(new Query(Criteria.where("name").nin("default-npa1", "default-npa2", "default-npa3", "default-npa4", "default-npa5")), "nonPersonalAccounts");
     }
 
     @Override
     public void deletePersonalAccount(String accountId) {
-        template.remove(new Query(Criteria.where("accountId").is(accountId)), PERSONALACCOUNTS);
+        template.remove(new Query(Criteria.where("accountId").is(accountId)), "personalaccounts");
     }
+
 
 }

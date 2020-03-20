@@ -22,6 +22,8 @@ Feature: Personal Account
     * def token = karate.properties['bearer.token']
     * def defaultUsertoken = karate.properties['default.user.token']
     * configure headers = call read('classpath:headers.js') { token: #(token)}
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
 
   Scenario: get Personal Account profile should return 200
     * def expectedResponse = read('classpath:testmessages/personal-account/admin-account-response.json')
