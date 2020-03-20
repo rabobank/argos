@@ -17,6 +17,7 @@ package com.rabobank.argos.test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.rabobank.argos.argos4j.rest.api.ApiClient;
 import com.rabobank.argos.argos4j.rest.api.client.HierarchyApi;
 import com.rabobank.argos.argos4j.rest.api.client.LayoutApi;
@@ -100,7 +101,7 @@ public class ServiceStatusHelper {
 
     public static String getToken(String name, String lastName, String email) {
         try {
-            configureFor("localhost", 8087);
+            configureFor(properties.getOauthStubUrl(), Integer.valueOf(properties.getOauthStubPort()));
             String bodyTemplate = IOUtils.toString(ServiceStatusHelper.class
                     .getResourceAsStream("/testmessages/authentication/response.json"), UTF_8);
 
@@ -120,11 +121,15 @@ public class ServiceStatusHelper {
             throw new RuntimeException(e);
         }
     }
-    public static String getToken() {
+
+    private static String getToken() {
         HttpGet request = new HttpGet(properties.getApiBaseUrl() + "/api/oauth2/authorize/azure?redirect_uri=/authenticated");
         try (CloseableHttpClient httpClient = HttpClients.createDefault();
              CloseableHttpResponse response = httpClient.execute(request)) {
-            return new ObjectMapper().readValue(response.getEntity().getContent(), JsonNode.class).get("token").asText();
+            String token = new ObjectMapper().readValue(response.getEntity().getContent(), JsonNode.class).get("token").asText();
+            WireMock.resetToDefault();
+            return token;
+
         } catch (IOException e) {
             log.error("exception", e);
             fail(e.getMessage());

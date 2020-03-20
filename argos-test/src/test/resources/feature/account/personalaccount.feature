@@ -19,10 +19,9 @@ Feature: Personal Account
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def token = karate.properties['bearer.token']
-    * def defaultUsertoken = karate.properties['default.user.token']
-    * configure headers = call read('classpath:headers.js') { token: #(token)}
     * def defaultTestData = call read('classpath:default-test-data.js')
+    * def token = karate.properties['bearer.token']
+    * def defaultUsertoken = defaultTestData.personalAccounts['default-pa1'].token
     * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
 
   Scenario: get Personal Account profile should return 200
@@ -62,7 +61,6 @@ Feature: Personal Account
     Given path '/api/personalaccount/'+extraAccount.response.id
     When method GET
     Then status 200
-    * print response
     Then match response == expectedResponse
 
   Scenario: get account by id without ASSIGN_ROLE should return a 403
@@ -111,6 +109,14 @@ Feature: Personal Account
     When method GET
     Then status 200
     And match response == expectedResponse
+
+  Scenario: search personal account without PERSONAL_ACCOUNT_READ should return a 403
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
+    Given path '/api/personalaccount'
+    When method GET
+    Then status 403
+    And match response == {"message":"Access denied"}
 
   Scenario: search personal account by name should return 200
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}

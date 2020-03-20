@@ -10,10 +10,12 @@
         "type": "NON_PERSONAL_ACCOUNT",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
           "ASSIGN_ROLE",
           "LOCAL_PERMISSION_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "TREE_EDIT",
           "VERIFY"
@@ -24,10 +26,12 @@
         "type": "NON_PERSONAL_ACCOUNT",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
           "ASSIGN_ROLE",
           "LOCAL_PERMISSION_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "TREE_EDIT",
           "VERIFY"
@@ -38,10 +42,12 @@
         "type": "NON_PERSONAL_ACCOUNT",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
           "ASSIGN_ROLE",
           "LOCAL_PERMISSION_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "TREE_EDIT",
           "VERIFY"
@@ -52,10 +58,12 @@
         "type": "NON_PERSONAL_ACCOUNT",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
           "ASSIGN_ROLE",
           "LOCAL_PERMISSION_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "TREE_EDIT",
           "VERIFY"
@@ -66,10 +74,12 @@
         "type": "NON_PERSONAL_ACCOUNT",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
           "ASSIGN_ROLE",
           "LOCAL_PERMISSION_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "TREE_EDIT",
           "VERIFY"
@@ -79,6 +89,7 @@
     "permissions": [
       "ASSIGN_ROLE",
       "LOCAL_PERMISSION_EDIT",
+      "PERSONAL_ACCOUNT_READ",
       "READ",
       "TREE_EDIT",
       "VERIFY"
@@ -95,7 +106,8 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": true,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
           "ASSIGN_ROLE",
           "LOCAL_PERMISSION_EDIT",
@@ -110,7 +122,8 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
           "ASSIGN_ROLE",
           "LOCAL_PERMISSION_EDIT",
@@ -141,7 +154,8 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": true,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
           "ASSIGN_ROLE",
           "LOCAL_PERMISSION_EDIT",
@@ -156,7 +170,8 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
           "ASSIGN_ROLE",
           "LOCAL_PERMISSION_EDIT",
@@ -187,7 +202,8 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": true,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
           "ASSIGN_ROLE",
           "LOCAL_PERMISSION_EDIT",
@@ -202,7 +218,8 @@
         "type": "LABEL",
         "referenceId": "#uuid",
         "hasChildren": false,
-        "children": [],
+        "children": [
+        ],
         "permissions": [
           "ASSIGN_ROLE",
           "LOCAL_PERMISSION_EDIT",
