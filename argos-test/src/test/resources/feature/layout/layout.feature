@@ -19,16 +19,16 @@ Feature: Layout
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def defaultTestDate = call read('classpath:default-test-data.js')
-    * configure headers = call read('classpath:headers.js') { token: #(defaultTestDate.adminToken)}
-    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { supplyChainName: 'name', parentLabelId: #(defaultTestDate.defaultRootLabel.id)}
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { supplyChainName: 'name', parentLabelId: #(defaultTestData.defaultRootLabel.id)}
     * def accountWithNoReadPermissions = call read('classpath:feature/account/create-personal-account.feature') {name: 'account with no read permissions person',email: 'local.permissions@LAYOUT_ADD.go'}
     * call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(accountWithNoReadPermissions.response.id),labelId: #(supplyChain.response.parentLabelId), permissions: ["LAYOUT_ADD"]}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
     * def validLayout = 'classpath:testmessages/layout/valid-layout.json'
-    * def keyPair = defaultTestDate.personalAccounts['default-pa1']
+    * def keyPair = defaultTestData.personalAccounts['default-pa1']
     * configure headers = call read('classpath:headers.js') { token: #(keyPair.token)}
-    * def tokenWithoutLayoutAddPermissions = defaultTestDate.adminToken
+    * def tokenWithoutLayoutAddPermissions = defaultTestData.adminToken
 
   Scenario: store layout with valid specifications should return a 200
     * call read('create-layout.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLayout), keyNumber:1}

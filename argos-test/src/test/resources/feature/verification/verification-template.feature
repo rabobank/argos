@@ -19,12 +19,12 @@ Feature: Verification template
 
   Background:
     * url karate.properties['server.baseurl']
-    * def defaultTestDate = call read('classpath:default-test-data.js')
+    * def defaultTestData = call read('classpath:default-test-data.js')
     * def verificationRequest = __arg.verificationRequest
     * def testFilesDir = __arg.testDir
     * def steps = __arg.steps
     * def layoutSigningKey = __arg.layoutSigningKey
-    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { supplyChainName: 'name', parentLabelId: #(defaultTestDate.defaultRootLabel.id)}
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { supplyChainName: 'name', parentLabelId: #(defaultTestData.defaultRootLabel.id)}
     * def layoutPath = '/api/supplychain/'+ supplyChain.response.id + '/layout'
     * def supplyChainPath = '/api/supplychain/'+ supplyChain.response.id
     * def supplyChainId = supplyChain.response.id
@@ -38,7 +38,7 @@ Feature: Verification template
     * def stepLinksJson = karate.map(steps, stepLinksJsonMapper)
     # when a call to a feature presented with an array of messages it will cal the feature template iteratively
     * call read('classpath:feature/link/create-link.feature') stepLinksJson
-    * def keyPair = defaultTestDate.nonPersonalAccount['default-npa1']
+    * def keyPair = defaultTestData.nonPersonalAccount['default-npa1']
     * configure headers = call read('classpath:headers.js') { username: #(keyPair.keyId), password: #(keyPair.hashedKeyPassphrase)}
     Given path supplyChainPath + '/verification'
     And request  verificationRequest

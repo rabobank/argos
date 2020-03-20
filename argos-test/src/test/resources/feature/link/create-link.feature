@@ -22,8 +22,8 @@ Feature: create a valid link
     * def linkPath = '/api/supplychain/'+ __arg.supplyChainId + '/link'
     * def linkToBeSigned = read(__arg.json)
     * def keyNumber = __arg.keyNumber
-    * def defaultTestDate = call read('classpath:default-test-data.js')
-    * def keyPair = defaultTestDate.nonPersonalAccount['default-npa'+keyNumber]
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * def keyPair = defaultTestData.nonPersonalAccount['default-npa'+keyNumber]
 
   Scenario: store link with valid specifications should return a 204
     * def signedLink = call read('classpath:feature/link/sign-link.feature') {json:#(linkToBeSigned),keyNumber:#(keyNumber)}

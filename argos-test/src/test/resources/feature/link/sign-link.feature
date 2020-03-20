@@ -21,8 +21,8 @@ Feature: sign link
     * url karate.properties['server.integration-test-service.baseurl']
     * def linkToBeSigned = __arg.json
     * def keyNumber = __arg.keyNumber
-    * def defaultTestDate = call read('classpath:default-test-data.js')
-    * def keyPair = defaultTestDate.nonPersonalAccount['default-npa'+keyNumber]
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * def keyPair = defaultTestData.nonPersonalAccount['default-npa'+keyNumber]
 
   Scenario: sign the layout should return 200
     Given path '/integration-test/signLinkMetaBlock'

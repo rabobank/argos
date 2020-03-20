@@ -1,5 +1,90 @@
 [
   {
+    "name": "default_root_label",
+    "type": "LABEL",
+    "referenceId": "#uuid",
+    "hasChildren": true,
+    "children": [
+      {
+        "name": "default-npa1",
+        "type": "NON_PERSONAL_ACCOUNT",
+        "referenceId": "#uuid",
+        "hasChildren": false,
+        "children": [],
+        "permissions": [
+          "ASSIGN_ROLE",
+          "LOCAL_PERMISSION_EDIT",
+          "READ",
+          "TREE_EDIT",
+          "VERIFY"
+        ]
+      },
+      {
+        "name": "default-npa2",
+        "type": "NON_PERSONAL_ACCOUNT",
+        "referenceId": "#uuid",
+        "hasChildren": false,
+        "children": [],
+        "permissions": [
+          "ASSIGN_ROLE",
+          "LOCAL_PERMISSION_EDIT",
+          "READ",
+          "TREE_EDIT",
+          "VERIFY"
+        ]
+      },
+      {
+        "name": "default-npa3",
+        "type": "NON_PERSONAL_ACCOUNT",
+        "referenceId": "#uuid",
+        "hasChildren": false,
+        "children": [],
+        "permissions": [
+          "ASSIGN_ROLE",
+          "LOCAL_PERMISSION_EDIT",
+          "READ",
+          "TREE_EDIT",
+          "VERIFY"
+        ]
+      },
+      {
+        "name": "default-npa4",
+        "type": "NON_PERSONAL_ACCOUNT",
+        "referenceId": "#uuid",
+        "hasChildren": false,
+        "children": [],
+        "permissions": [
+          "ASSIGN_ROLE",
+          "LOCAL_PERMISSION_EDIT",
+          "READ",
+          "TREE_EDIT",
+          "VERIFY"
+        ]
+      },
+      {
+        "name": "default-npa5",
+        "type": "NON_PERSONAL_ACCOUNT",
+        "referenceId": "#uuid",
+        "hasChildren": false,
+        "children": [],
+        "permissions": [
+          "ASSIGN_ROLE",
+          "LOCAL_PERMISSION_EDIT",
+          "READ",
+          "TREE_EDIT",
+          "VERIFY"
+        ]
+      }
+    ],
+    "permissions": [
+      "ASSIGN_ROLE",
+      "LOCAL_PERMISSION_EDIT",
+      "READ",
+      "TREE_EDIT",
+      "VERIFY"
+    ]
+  },
+  {
     "name": "root1",
     "type": "LABEL",
     "referenceId": "#uuid",

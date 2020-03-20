@@ -21,8 +21,8 @@ Feature: sign layout
     * url karate.properties['server.integration-test-service.baseurl']
     * def layoutToBeSigned = __arg.json
     * def keyNumber = __arg.keyNumber
-    * def defaultTestDate = call read('classpath:default-test-data.js')
-    * def keyPair = defaultTestDate.personalAccounts['default-pa'+keyNumber]
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * def keyPair = defaultTestData.personalAccounts['default-pa'+keyNumber]
 
   Scenario: sign the layout should return 200
     Given path '/integration-test/signLayoutMetaBlock'

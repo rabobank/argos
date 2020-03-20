@@ -19,8 +19,8 @@ Feature: Label
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def defaultTestDate = call read('classpath:default-test-data.js')
-    * configure headers = call read('classpath:headers.js') { token: #(defaultTestDate.adminToken)}
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
 
   Scenario: store a root label with valid name should return a 201
     * def result = call read('create-label.feature') { name: 'label1'}
