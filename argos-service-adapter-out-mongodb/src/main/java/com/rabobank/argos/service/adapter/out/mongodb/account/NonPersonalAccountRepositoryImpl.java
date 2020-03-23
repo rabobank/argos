@@ -76,6 +76,13 @@ public class NonPersonalAccountRepositoryImpl implements NonPersonalAccountRepos
         return template.exists(getActiveKeyQuery(activeKeyId), NonPersonalAccount.class, COLLECTION);
     }
 
+    @Override
+    public Optional<String> findParentLabelIdByAccountId(String accountId) {
+        Query query = getPrimaryKeyQuery(accountId);
+        query.fields().include(PARENT_LABEL_ID_FIELD);
+        return Optional.ofNullable(template.findOne(query, NonPersonalAccount.class, COLLECTION)).map(NonPersonalAccount::getParentLabelId);
+    }
+
     private Query getActiveKeyQuery(String activekeyId) {
         return new Query(Criteria.where(ACTIVE_KEY_ID_FIELD).is(activekeyId));
     }
