@@ -239,6 +239,7 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
     @Setter
     static class HierarchyItem {
         enum Type {LABEL, SUPPLY_CHAIN, NON_PERSONAL_ACCOUNT}
+
         private String referenceId;
         private String name;
         private String parentLabelId;
