@@ -168,7 +168,6 @@ class AccountServiceImplTest {
         when(account.getEmail()).thenReturn(EMAIL);
         when(personalAccountRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
         when(role.getRoleId()).thenReturn(ROLE_ID);
-        when(account.getRoleIds()).thenReturn(emptyList());
         when(roleRepository.findByName(ArgumentMatchers.anyString())).thenReturn(Optional.of(role));
         PersonalAccount personalAccount = accountService.authenticateUser(account).get();
         assertThat(personalAccount, sameInstance(account));

@@ -78,7 +78,7 @@ class RoleRepositoryImplTest {
         when(template.find(any(Query.class), eq(Role.class), eq(COLLECTION))).thenReturn(new ArrayList(Collections.singletonList(role)));
         assertThat(repository.findByIds(List.of(ROLE_ID)), contains(role));
         verify(template).find(argumentCaptor.capture(), eq(Role.class), eq(COLLECTION));
-        assertThat(argumentCaptor.getValue().toString(), is("Query: { \"roleId\" : { \"$in\" : [\"roleId\"]}}, Fields: {}, Sort: {}"));
+        assertThat(argumentCaptor.getValue().toString(), is("Query: { \"roleId\" : { \"$in\" : [\"roleId\"]}}, Fields: {}, Sort: { \"name\" : 1}"));
     }
 
     @Test

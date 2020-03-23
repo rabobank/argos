@@ -15,6 +15,7 @@
         "permissions": [
           "LAYOUT_ADD",
           "NPA_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "VERIFY"
         ]
@@ -29,6 +30,7 @@
         "permissions": [
           "LAYOUT_ADD",
           "NPA_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "VERIFY"
         ]
@@ -43,6 +45,7 @@
         "permissions": [
           "LAYOUT_ADD",
           "NPA_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "VERIFY"
         ]
@@ -57,6 +60,7 @@
         "permissions": [
           "LAYOUT_ADD",
           "NPA_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "VERIFY"
         ]
@@ -71,6 +75,7 @@
         "permissions": [
           "LAYOUT_ADD",
           "NPA_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "VERIFY"
         ]
@@ -79,6 +84,7 @@
     "permissions": [
       "LAYOUT_ADD",
       "NPA_EDIT",
+      "PERSONAL_ACCOUNT_READ",
       "READ",
       "VERIFY"
     ]
@@ -98,6 +104,7 @@
         ],
         "permissions": [
           "NPA_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "TREE_EDIT"
         ]
@@ -111,6 +118,7 @@
         ],
         "permissions": [
           "NPA_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "TREE_EDIT"
         ]
@@ -118,6 +126,7 @@
     ],
     "permissions": [
       "NPA_EDIT",
+      "PERSONAL_ACCOUNT_READ",
       "READ",
       "TREE_EDIT"
     ]
@@ -137,6 +146,7 @@
         ],
         "permissions": [
           "NPA_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "TREE_EDIT"
         ]
@@ -150,6 +160,7 @@
         ],
         "permissions": [
           "NPA_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "TREE_EDIT"
         ]
@@ -157,6 +168,7 @@
     ],
     "permissions": [
       "NPA_EDIT",
+      "PERSONAL_ACCOUNT_READ",
       "READ",
       "TREE_EDIT"
     ]
@@ -176,6 +188,7 @@
         ],
         "permissions": [
           "NPA_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "TREE_EDIT"
         ]
@@ -189,6 +202,7 @@
         ],
         "permissions": [
           "NPA_EDIT",
+          "PERSONAL_ACCOUNT_READ",
           "READ",
           "TREE_EDIT"
         ]
@@ -196,6 +210,7 @@
     ],
     "permissions": [
       "NPA_EDIT",
+      "PERSONAL_ACCOUNT_READ",
       "READ",
       "TREE_EDIT"
     ]

@@ -102,24 +102,30 @@ public class ServiceStatusHelper {
     public static String getToken(String name, String lastName, String email) {
         try {
             configureFor(properties.getOauthStubUrl(), Integer.valueOf(properties.getOauthStubPort()));
-            String bodyTemplate = IOUtils.toString(ServiceStatusHelper.class
-                    .getResourceAsStream("/testmessages/authentication/response.json"), UTF_8);
-
-            Map<String, String> values = new HashMap<>();
-            values.put("name", name);
-            values.put("lastName", lastName);
-            values.put("email", email);
-            values.put("id", UUID.randomUUID().toString());
-            String bodyResponse = StringSubstitutor.replace(bodyTemplate, values, "${", "}");
+            String bodyResponse = createBodyResponse(name, lastName, email);
             stubFor(get(urlEqualTo("/v1.0/me"))
                     .willReturn(aResponse()
                             .withHeader("Content-Type", "application/json; charset=utf-8")
                             .withBody(bodyResponse)
                     ));
-            return getToken();
+            String token = getToken();
+            WireMock.resetToDefault();
+            return token;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static String createBodyResponse(String name, String lastName, String email) throws IOException {
+        String bodyTemplate = IOUtils.toString(ServiceStatusHelper.class
+                .getResourceAsStream("/testmessages/authentication/response.json"), UTF_8);
+
+        Map<String, String> values = new HashMap<>();
+        values.put("name", name);
+        values.put("lastName", lastName);
+        values.put("email", email);
+        values.put("id", UUID.randomUUID().toString());
+        return StringSubstitutor.replace(bodyTemplate, values, "${", "}");
     }
 
     private static String getToken() {
@@ -127,7 +133,7 @@ public class ServiceStatusHelper {
         try (CloseableHttpClient httpClient = HttpClients.createDefault();
              CloseableHttpResponse response = httpClient.execute(request)) {
             String token = new ObjectMapper().readValue(response.getEntity().getContent(), JsonNode.class).get("token").asText();
-            WireMock.resetToDefault();
+
             return token;
 
         } catch (IOException e) {

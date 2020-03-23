@@ -83,7 +83,7 @@ public class TestServiceHelper {
         String defaultUserToken = getToken("Default User", "User", "default@nl.nl");
         PersonalAccountApi personalAccountApi = getPersonalAccountApi(defaultTestData.getAdminToken());
         RestPersonalAccount defaultUser = personalAccountApi.searchPersonalAccounts(null, null, "Default User").iterator().next();
-        personalAccountApi.updateLocalPermissionsForLabel(defaultUser.getId(), defaultTestData.getDefaultRootLabel().getId(), List.of(LAYOUT_ADD, READ, VERIFY));
+        personalAccountApi.updateLocalPermissionsForLabel(defaultUser.getId(), defaultTestData.getDefaultRootLabel().getId(), List.of(LAYOUT_ADD, READ, VERIFY, NPA_EDIT));
         TestDateKeyPair keyPair = readKeyPair(1);
         getPersonalAccountApi(defaultUserToken).createKey(new RestKeyPair()
                 .encryptedPrivateKey(keyPair.getEncryptedPrivateKey())
@@ -92,6 +92,7 @@ public class TestServiceHelper {
         defaultTestData.getPersonalAccounts().put("default-pa1", DefaultTestData.PersonalAccount.builder()
                 .passphrase(keyPair.getPassphrase())
                 .keyId(keyPair.getKeyId())
+                .accountId(defaultUser.getId())
                 .token(defaultUserToken)
                 .publicKey(keyPair.getPublicKey())
                 .build());

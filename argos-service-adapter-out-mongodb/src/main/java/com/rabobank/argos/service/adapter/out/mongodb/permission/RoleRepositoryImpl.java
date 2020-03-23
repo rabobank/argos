@@ -18,14 +18,16 @@ package com.rabobank.argos.service.adapter.out.mongodb.permission;
 import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @Component
 @RequiredArgsConstructor
@@ -48,9 +50,8 @@ public class RoleRepositoryImpl implements RoleRepository {
     @Override
     public List<Role> findByIds(List<String> roleIds) {
         Query query = new Query(Criteria.where(ROLE_ID_FIELD).in(roleIds));
-        List<Role> roles = template.find(query, Role.class, COLLECTION);
-        roles.sort(Comparator.comparing(Role::getName));
-        return roles;
+        query.with(Sort.by(ASC, "name"));
+        return template.find(query, Role.class, COLLECTION);
     }
 
     @Override

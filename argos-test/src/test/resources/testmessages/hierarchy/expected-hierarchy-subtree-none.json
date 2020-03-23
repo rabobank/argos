@@ -3,9 +3,11 @@
   "type": "LABEL",
   "referenceId": "#uuid",
   "hasChildren": true,
-  "children": [],
+  "children": [
+  ],
   "permissions": [
     "NPA_EDIT",
+    "PERSONAL_ACCOUNT_READ",
     "READ",
     "TREE_EDIT"
   ]

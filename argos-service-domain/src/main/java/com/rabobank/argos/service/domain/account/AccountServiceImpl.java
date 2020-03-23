@@ -87,9 +87,7 @@ public class AccountServiceImpl implements AccountService {
             if (getTotalPersonalAccounts() == 0) {
                 makeAdministrator(personalAccount);
             }
-            if (!hasRoleUser(personalAccount)) {
-                addRoleUser(personalAccount);
-            }
+            addRoleUser(personalAccount);
             personalAccountRepository.save(personalAccount);
             return personalAccount;
         }));
@@ -179,12 +177,6 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    private boolean hasRoleUser(PersonalAccount personalAccount) {
-        return roleRepository.findByName(USER_ROLE)
-                .filter(userRole -> personalAccount.getRoleIds()
-                        .contains(userRole.getRoleId()))
-                .isPresent();
-    }
 
     private List<String> getRoleIds(List<String> roleNames) {
         return roleNames.stream().map(roleRepository::findByName)
