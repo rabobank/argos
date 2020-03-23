@@ -21,6 +21,7 @@ import java.util.Optional;
 
 public interface NonPersonalAccountRepository {
     void save(NonPersonalAccount nonPersonalAccount);
+
     Optional<NonPersonalAccount> findById(String accountId);
 
     Optional<NonPersonalAccount> findByActiveKeyId(String activeKeyId);
@@ -28,4 +29,6 @@ public interface NonPersonalAccountRepository {
     void update(NonPersonalAccount nonPersonalAccount);
 
     boolean activeKeyExists(String activeKeyId);
+
+    Optional<String> findParentLabelIdByAccountId(String accountId);
 }

@@ -24,6 +24,8 @@ import com.rabobank.argos.service.adapter.in.rest.api.model.RestNonPersonalAccou
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
 import com.rabobank.argos.service.domain.security.AccountSecurityContext;
+import com.rabobank.argos.service.domain.security.LabelIdCheckParam;
+import com.rabobank.argos.service.domain.security.PermissionCheck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +38,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.rabobank.argos.domain.permission.Permission.NPA_EDIT;
+import static com.rabobank.argos.domain.permission.Permission.READ;
+import static com.rabobank.argos.service.adapter.in.rest.account.NonPersonalAccountLabelIdExtractor.NPA_LABEL_ID_EXTRACTOR;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,7 +59,8 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     private final AccountSecurityContext accountSecurityContext;
 
     @Override
-    public ResponseEntity<RestNonPersonalAccount> createNonPersonalAccount(RestNonPersonalAccount restNonPersonalAccount) {
+    @PermissionCheck(permissions = NPA_EDIT)
+    public ResponseEntity<RestNonPersonalAccount> createNonPersonalAccount(@LabelIdCheckParam(propertyPath = "parentLabelId") RestNonPersonalAccount restNonPersonalAccount) {
         verifyParentLabelExists(restNonPersonalAccount.getParentLabelId());
         NonPersonalAccount nonPersonalAccount = accountMapper.convertFromRestNonPersonalAccount(restNonPersonalAccount);
         accountService.save(nonPersonalAccount);
@@ -66,7 +73,8 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     }
 
     @Override
-    public ResponseEntity<RestNonPersonalAccountKeyPair> createNonPersonalAccountKeyById(String nonPersonalAccountId, RestNonPersonalAccountKeyPair restKeyPair) {
+    @PermissionCheck(permissions = NPA_EDIT)
+    public ResponseEntity<RestNonPersonalAccountKeyPair> createNonPersonalAccountKeyById(@LabelIdCheckParam(dataExtractor = NPA_LABEL_ID_EXTRACTOR) String nonPersonalAccountId, RestNonPersonalAccountKeyPair restKeyPair) {
         NonPersonalAccount updatedAccount = accountService.activateNewKey(nonPersonalAccountId, keyPairMapper.convertFromRestKeyPair(restKeyPair))
                 .orElseThrow(() -> accountNotFound(nonPersonalAccountId));
         URI location = ServletUriComponentsBuilder
@@ -78,7 +86,8 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     }
 
     @Override
-    public ResponseEntity<RestNonPersonalAccountKeyPair> getNonPersonalAccountKeyById(String nonPersonalAccountId) {
+    @PermissionCheck(permissions = READ)
+    public ResponseEntity<RestNonPersonalAccountKeyPair> getNonPersonalAccountKeyById(@LabelIdCheckParam(dataExtractor = NPA_LABEL_ID_EXTRACTOR) String nonPersonalAccountId) {
         return accountService.findNonPersonalAccountById(nonPersonalAccountId)
                 .flatMap(account -> Optional.ofNullable(account.getActiveKeyPair()))
                 .map(account -> (NonPersonalAccountKeyPair) account)
@@ -88,7 +97,8 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     }
 
     @Override
-    public ResponseEntity<RestNonPersonalAccount> getNonPersonalAccountById(String nonPersonalAccountId) {
+    @PermissionCheck(permissions = READ)
+    public ResponseEntity<RestNonPersonalAccount> getNonPersonalAccountById(@LabelIdCheckParam(dataExtractor = NPA_LABEL_ID_EXTRACTOR) String nonPersonalAccountId) {
         return accountService.findNonPersonalAccountById(nonPersonalAccountId)
                 .map(accountMapper::convertToRestNonPersonalAccount)
                 .map(ResponseEntity::ok)
@@ -96,7 +106,8 @@ public class NonPersonalAccountRestService implements NonPersonalAccountApi {
     }
 
     @Override
-    public ResponseEntity<RestNonPersonalAccount> updateNonPersonalAccountById(String nonPersonalAccountId, RestNonPersonalAccount restNonPersonalAccount) {
+    @PermissionCheck(permissions = NPA_EDIT)
+    public ResponseEntity<RestNonPersonalAccount> updateNonPersonalAccountById(@LabelIdCheckParam(dataExtractor = NPA_LABEL_ID_EXTRACTOR) String nonPersonalAccountId, RestNonPersonalAccount restNonPersonalAccount) {
         verifyParentLabelExists(restNonPersonalAccount.getParentLabelId());
         NonPersonalAccount nonPersonalAccount = accountMapper.convertFromRestNonPersonalAccount(restNonPersonalAccount);
         return accountService.update(nonPersonalAccountId, nonPersonalAccount)

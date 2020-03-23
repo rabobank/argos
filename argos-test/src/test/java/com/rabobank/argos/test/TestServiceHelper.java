@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.rabobank.argos.argos4j.rest.api.model.RestPermission.LAYOUT_ADD;
+import static com.rabobank.argos.argos4j.rest.api.model.RestPermission.NPA_EDIT;
 import static com.rabobank.argos.argos4j.rest.api.model.RestPermission.READ;
 import static com.rabobank.argos.argos4j.rest.api.model.RestPermission.VERIFY;
 import static com.rabobank.argos.test.ServiceStatusHelper.getHierarchyApi;

@@ -120,9 +120,10 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
     }
 
     private Optional<TreeNode> getSubTreeWithNoDescendants(Criteria referenceCriteria) {
-        return convertToTreeNodeHierarchyForSubTree(List
-                .of(mongoTemplate.findOne(new Query(referenceCriteria), HierarchyItem.class, COLLECTION))
-        );
+        List<HierarchyItem> hierarchyItems = Optional.ofNullable(mongoTemplate.findOne(new Query(referenceCriteria), HierarchyItem.class, COLLECTION))
+                .map(List::of)
+                .orElse(emptyList());
+        return convertToTreeNodeHierarchyForSubTree(hierarchyItems);
     }
 
     private Optional<TreeNode> getSubTreeWithMaxDepthDescendants(MatchOperation matchStage, int maxDepth) {

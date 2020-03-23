@@ -96,5 +96,4 @@ class ArgosServiceTestIT {
         return new Karate().feature("classpath:feature/permission/permission.feature");
     }
 
-
 }

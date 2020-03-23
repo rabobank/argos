@@ -23,5 +23,6 @@ public enum Permission {
     LINK_ADD,
     LAYOUT_ADD,
     VERIFY,
-    PERSONAL_ACCOUNT_READ
+    PERSONAL_ACCOUNT_READ,
+    NPA_EDIT
 }

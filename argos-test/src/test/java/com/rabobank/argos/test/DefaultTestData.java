@@ -37,6 +37,7 @@ public class DefaultTestData {
     @Getter
     @Setter
     public static class PersonalAccount {
+        private String accountId;
         private String token;
         private String keyId;
         private String passphrase;

@@ -13,11 +13,9 @@
         "children": [
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
-          "PERSONAL_ACCOUNT_READ",
+          "LAYOUT_ADD",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
           "VERIFY"
         ]
       },
@@ -29,11 +27,9 @@
         "children": [
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
-          "PERSONAL_ACCOUNT_READ",
+          "LAYOUT_ADD",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
           "VERIFY"
         ]
       },
@@ -45,11 +41,9 @@
         "children": [
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
-          "PERSONAL_ACCOUNT_READ",
+          "LAYOUT_ADD",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
           "VERIFY"
         ]
       },
@@ -61,11 +55,9 @@
         "children": [
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
-          "PERSONAL_ACCOUNT_READ",
+          "LAYOUT_ADD",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
           "VERIFY"
         ]
       },
@@ -77,21 +69,17 @@
         "children": [
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
-          "PERSONAL_ACCOUNT_READ",
+          "LAYOUT_ADD",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
           "VERIFY"
         ]
       }
     ],
     "permissions": [
-      "ASSIGN_ROLE",
-      "LOCAL_PERMISSION_EDIT",
-      "PERSONAL_ACCOUNT_READ",
+      "LAYOUT_ADD",
+      "NPA_EDIT",
       "READ",
-      "TREE_EDIT",
       "VERIFY"
     ]
   },
@@ -115,12 +103,9 @@
             "children": [
             ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
-              "PERSONAL_ACCOUNT_READ",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           },
           {
@@ -131,22 +116,16 @@
             "children": [
             ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
-              "PERSONAL_ACCOUNT_READ",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           }
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
-          "PERSONAL_ACCOUNT_READ",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       },
       {
@@ -157,22 +136,16 @@
         "children": [
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
-          "PERSONAL_ACCOUNT_READ",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       }
     ],
     "permissions": [
-      "ASSIGN_ROLE",
-      "LOCAL_PERMISSION_EDIT",
-      "PERSONAL_ACCOUNT_READ",
+      "NPA_EDIT",
       "READ",
-      "TREE_EDIT",
-      "VERIFY"
+      "TREE_EDIT"
     ]
   },
   {
@@ -195,12 +168,9 @@
             "children": [
             ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
-              "PERSONAL_ACCOUNT_READ",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           },
           {
@@ -211,22 +181,16 @@
             "children": [
             ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
-              "PERSONAL_ACCOUNT_READ",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           }
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
-          "PERSONAL_ACCOUNT_READ",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       },
       {
@@ -237,22 +201,16 @@
         "children": [
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
-          "PERSONAL_ACCOUNT_READ",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       }
     ],
     "permissions": [
-      "ASSIGN_ROLE",
-      "LOCAL_PERMISSION_EDIT",
-      "PERSONAL_ACCOUNT_READ",
+      "NPA_EDIT",
       "READ",
-      "TREE_EDIT",
-      "VERIFY"
+      "TREE_EDIT"
     ]
   },
   {
@@ -275,12 +233,9 @@
             "children": [
             ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
-              "PERSONAL_ACCOUNT_READ",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           },
           {
@@ -291,22 +246,16 @@
             "children": [
             ],
             "permissions": [
-              "ASSIGN_ROLE",
-              "LOCAL_PERMISSION_EDIT",
-              "PERSONAL_ACCOUNT_READ",
+              "NPA_EDIT",
               "READ",
-              "TREE_EDIT",
-              "VERIFY"
+              "TREE_EDIT"
             ]
           }
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
-          "PERSONAL_ACCOUNT_READ",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       },
       {
@@ -317,22 +266,16 @@
         "children": [
         ],
         "permissions": [
-          "ASSIGN_ROLE",
-          "LOCAL_PERMISSION_EDIT",
-          "PERSONAL_ACCOUNT_READ",
+          "NPA_EDIT",
           "READ",
-          "TREE_EDIT",
-          "VERIFY"
+          "TREE_EDIT"
         ]
       }
     ],
     "permissions": [
-      "ASSIGN_ROLE",
-      "LOCAL_PERMISSION_EDIT",
-      "PERSONAL_ACCOUNT_READ",
+      "NPA_EDIT",
       "READ",
-      "TREE_EDIT",
-      "VERIFY"
+      "TREE_EDIT"
     ]
   }
 ]

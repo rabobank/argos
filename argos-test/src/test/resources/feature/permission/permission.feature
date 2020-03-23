@@ -33,3 +33,4 @@ Feature: Permissions
     And method GET
     Then status 200
     And match response == ["READ","TREE_EDIT","LOCAL_PERMISSION_EDIT","ASSIGN_ROLE","LINK_ADD","LAYOUT_ADD","VERIFY","PERSONAL_ACCOUNT_READ"]
+

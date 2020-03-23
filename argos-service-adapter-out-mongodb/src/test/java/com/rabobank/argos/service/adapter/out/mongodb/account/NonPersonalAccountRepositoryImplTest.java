@@ -141,4 +141,13 @@ class NonPersonalAccountRepositoryImplTest {
         verify(template).findOne(queryArgumentCaptor.capture(), eq(NonPersonalAccount.class), eq(COLLECTION));
         assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"activeKeyPair.keyId\" : \"activeKeyId\"}, Fields: {}, Sort: {}"));
     }
+
+    @Test
+    void findParentLabelIdByAccountId() {
+        when(nonPersonalAccount.getParentLabelId()).thenReturn(ACCOUNT_ID);
+        when(template.findOne(any(Query.class), eq(NonPersonalAccount.class), eq(COLLECTION))).thenReturn(nonPersonalAccount);
+        assertThat(repository.findParentLabelIdByAccountId(ACTIVE_KEY_ID), equalTo(Optional.of(ACCOUNT_ID)));
+        verify(template).findOne(queryArgumentCaptor.capture(), eq(NonPersonalAccount.class), eq(COLLECTION));
+        assertThat(queryArgumentCaptor.getValue().toString(), is("Query: { \"accountId\" : \"activeKeyId\"}, Fields: { \"parentLabelId\" : 1}, Sort: {}"));
+    }
 }
