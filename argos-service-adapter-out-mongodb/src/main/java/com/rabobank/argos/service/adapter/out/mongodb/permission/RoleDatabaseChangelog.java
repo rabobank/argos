@@ -46,6 +46,14 @@ public class RoleDatabaseChangelog {
                         Permission.LOCAL_PERMISSION_EDIT,
                         Permission.TREE_EDIT,
                         Permission.VERIFY,
-                        Permission.ASSIGN_ROLE)).build(), COLLECTION);
+                        Permission.ASSIGN_ROLE
+                )).build(), COLLECTION);
+    }
+
+    @ChangeSet(order = "003", id = "RoleDatabaseChangelog-3", author = "michel")
+    public void addUserRole(MongoTemplate template) {
+        template.save(Role.builder().name(Role.USER_ROLE)
+                .permissions(List.of(Permission.PERSONAL_ACCOUNT_READ))
+                .build(), COLLECTION);
     }
 }

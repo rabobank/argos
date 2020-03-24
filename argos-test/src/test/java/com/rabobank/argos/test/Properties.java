@@ -29,6 +29,9 @@ public class Properties {
     private final String nexusDarSnapshotUrl;
     private final String nexusWarSnapshotUrl;
     private final String argosTestAppBranch;
+    private final String oauthStubUrl;
+    private final String oauthStubPort;
+
 
     public static Properties getInstance() {
         if (INSTANCE == null) {
@@ -45,6 +48,8 @@ public class Properties {
         nexusDarSnapshotUrl = conf.getString("nexus.dar-snapshot-url");
         nexusWarSnapshotUrl = conf.getString("nexus.war-snapshot-url");
         argosTestAppBranch = conf.getString("argos-test-app.branch");
+        oauthStubUrl = conf.getString("argos-oauth-stub.rest-api.base-url");
+        oauthStubPort = conf.getString("argos-oauth-stub.rest-api.port");
 
     }
 }

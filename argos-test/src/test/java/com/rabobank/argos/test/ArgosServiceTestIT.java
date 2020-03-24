@@ -33,7 +33,7 @@ class ArgosServiceTestIT {
 
     private static final String SERVER_BASEURL = "server.baseurl";
     private static final String SERVER_INTEGRATION_TEST_BASEURL = "server.integration-test-service.baseurl";
-    private static final String DEFAULT_HIERARCHY = "default-hierarchy";
+    private static final String DEFAULT_TESTDATA = "default-testdata";
     private static Properties properties = Properties.getInstance();
 
     @BeforeAll
@@ -46,9 +46,10 @@ class ArgosServiceTestIT {
         DefaultTestData defaultTestData = createDefaultTestData();
         ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
         String defaultTestDataJson = objectMapper.writeValueAsString(defaultTestData);
-        System.setProperty(DEFAULT_HIERARCHY, defaultTestDataJson);
-        log.info("default hierarchy: {}", defaultTestDataJson);
+        System.setProperty(DEFAULT_TESTDATA, defaultTestDataJson);
+        log.info("default test data: {}", defaultTestDataJson);
     }
+
 
     @Karate.Test
     Karate link() {

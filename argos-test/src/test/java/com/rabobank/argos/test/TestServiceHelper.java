@@ -25,12 +25,11 @@ import com.rabobank.argos.argos4j.rest.api.model.RestLabel;
 import com.rabobank.argos.argos4j.rest.api.model.RestLayoutMetaBlock;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccount;
 import com.rabobank.argos.argos4j.rest.api.model.RestNonPersonalAccountKeyPair;
+import com.rabobank.argos.argos4j.rest.api.model.RestPersonalAccount;
 import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.test.rest.api.ApiClient;
 import com.rabobank.argos.test.rest.api.client.IntegrationTestServiceApi;
 import com.rabobank.argos.test.rest.api.model.TestLayoutMetaBlock;
-import com.rabobank.argos.test.rest.api.model.TestPersonalAccount;
-import com.rabobank.argos.test.rest.api.model.TestPersonalAccountWithToken;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -67,36 +66,34 @@ public class TestServiceHelper {
 
     public static DefaultTestData createDefaultTestData() {
         getTestApi().resetDatabaseAll();
-        DefaultTestData hierarchy = new DefaultTestData();
-        hierarchy.setAdminToken(getToken());
-        createDefaultRootLabel(hierarchy);
-        createDefaultPersonalAccount(hierarchy);
-        createDefaultNpaAccounts(hierarchy);
-        return hierarchy;
+        DefaultTestData defaultTestData = new DefaultTestData();
+        defaultTestData.setAdminToken(getToken("Luke Skywalker", "Skywalker", "luke@skywalker.imp"));
+        createDefaultRootLabel(defaultTestData);
+        createDefaultPersonalAccount(defaultTestData);
+        createDefaultNpaAccounts(defaultTestData);
+        return defaultTestData;
     }
 
     private static void createDefaultRootLabel(DefaultTestData hierarchy) {
         hierarchy.setDefaultRootLabel(getHierarchyApi(hierarchy.getAdminToken()).createLabel(new RestLabel().name("default_root_label")));
     }
 
-    public static void createDefaultPersonalAccount(DefaultTestData hierarchy) {
+    public static void createDefaultPersonalAccount(DefaultTestData defaultTestData) {
         IntegrationTestServiceApi testApi = getTestApi();
-        TestPersonalAccount testPersonalAccount = new TestPersonalAccount();
-        testPersonalAccount.setName("Default User");
-        testPersonalAccount.setEmail("default@nl.nl");
-        TestPersonalAccountWithToken personalAccountWithToken = testApi.createPersonalAccount(testPersonalAccount);
-        PersonalAccountApi personalAccountApi = getPersonalAccountApi(hierarchy.getAdminToken());
-        personalAccountApi.updateLocalPermissionsForLabel(personalAccountWithToken.getId(), hierarchy.getDefaultRootLabel().getId(), List.of(LAYOUT_ADD, READ, VERIFY, NPA_EDIT));
+        String defaultUserToken = getToken("Default User", "User", "default@nl.nl");
+        PersonalAccountApi personalAccountApi = getPersonalAccountApi(defaultTestData.getAdminToken());
+        RestPersonalAccount defaultUser = personalAccountApi.searchPersonalAccounts(null, null, "Default User").iterator().next();
+        personalAccountApi.updateLocalPermissionsForLabel(defaultUser.getId(), defaultTestData.getDefaultRootLabel().getId(), List.of(LAYOUT_ADD, READ, VERIFY, NPA_EDIT));
         TestDateKeyPair keyPair = readKeyPair(1);
-        getPersonalAccountApi(personalAccountWithToken.getToken()).createKey(new RestKeyPair()
+        getPersonalAccountApi(defaultUserToken).createKey(new RestKeyPair()
                 .encryptedPrivateKey(keyPair.getEncryptedPrivateKey())
                 .publicKey(keyPair.getPublicKey())
                 .keyId(keyPair.getKeyId()));
-        hierarchy.getPersonalAccounts().put("default-pa1", DefaultTestData.PersonalAccount.builder()
-                .accountId(personalAccountWithToken.getId())
+        defaultTestData.getPersonalAccounts().put("default-pa1", DefaultTestData.PersonalAccount.builder()
                 .passphrase(keyPair.getPassphrase())
                 .keyId(keyPair.getKeyId())
-                .token(personalAccountWithToken.getToken())
+                .accountId(defaultUser.getId())
+                .token(defaultUserToken)
                 .publicKey(keyPair.getPublicKey())
                 .build());
     }
