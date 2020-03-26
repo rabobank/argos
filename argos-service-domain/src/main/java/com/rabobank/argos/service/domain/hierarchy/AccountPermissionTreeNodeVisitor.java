@@ -40,7 +40,6 @@ public class AccountPermissionTreeNodeVisitor implements TreeNodeVisitor<Optiona
 
     @Override
     public boolean visitEnter(TreeNode treeNode) {
-
         TreeNode copyOfTreeNode = treeNode
                 .withChildren(new ArrayList<>())
                 .withPermissions(determineAggregatedPermissions(treeNode));
@@ -51,7 +50,9 @@ public class AccountPermissionTreeNodeVisitor implements TreeNodeVisitor<Optiona
 
         if (treeNodeWithUserPermissions == null) {
             treeNodeWithUserPermissions = copyOfTreeNode;
+
         } else {
+
             TreeNode parent = parentRegistry.get(copyOfTreeNode.getParentLabelId());
             parent.addChild(copyOfTreeNode);
         }
@@ -87,13 +88,22 @@ public class AccountPermissionTreeNodeVisitor implements TreeNodeVisitor<Optiona
 
     @Override
     public boolean visitLeaf(TreeNode treeNode) {
+
         TreeNode copyOfTreeNode = treeNode.withPermissions(determineAggregatedPermissions(treeNode));
 
         if (copyOfTreeNode.getPermissions().isEmpty()) {
             return false;
         }
-        TreeNode parent = parentRegistry.get(copyOfTreeNode.getParentLabelId());
-        parent.addChild(copyOfTreeNode);
+
+        if (treeNodeWithUserPermissions == null) {
+            treeNodeWithUserPermissions = copyOfTreeNode;
+        }
+
+        if (parentRegistry.containsKey(copyOfTreeNode.getParentLabelId())) {
+            TreeNode parent = parentRegistry.get(copyOfTreeNode.getParentLabelId());
+            parent.addChild(copyOfTreeNode);
+        }
+
         return true;
     }
 
