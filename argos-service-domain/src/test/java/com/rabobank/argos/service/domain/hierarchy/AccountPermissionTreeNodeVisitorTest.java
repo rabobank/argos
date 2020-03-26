@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AccountPermissionTreeNodeVisitorTest {
+    public static final String SUPPLY_CHAIN = "supplyChain";
     @Mock
     private AccountSecurityContext accountSecurityContext;
 
@@ -49,6 +51,7 @@ class AccountPermissionTreeNodeVisitorTest {
     private TreeNode child1_1;
     private TreeNode child1_2;
     private TreeNode child1_3;
+
 
     /*
      * Hierarchy tree node structure created for test
@@ -92,7 +95,7 @@ class AccountPermissionTreeNodeVisitorTest {
                 .referenceId("child1_3_Id")
                 .parentLabelId(CHILD_1_2_ID)
                 .hasChildren(false)
-                .name("supplyCain")
+                .name(SUPPLY_CHAIN)
                 .build();
         createTreeNodeHierarchy();
         accountPermissionTreeNodeVisitor = new AccountPermissionTreeNodeVisitor(accountSecurityContext);
@@ -112,6 +115,15 @@ class AccountPermissionTreeNodeVisitorTest {
     }
 
     @Test
+    void visitEnterWithoutPermissionsShouldReturnFalseAndEmptyResult() {
+        when(accountSecurityContext.allLocalPermissions(any())).thenReturn(emptySet());
+        when(accountSecurityContext.getGlobalPermission()).thenReturn(emptySet());
+        assertThat(accountPermissionTreeNodeVisitor.visitEnter(root), is(false));
+        Optional<TreeNode> optionalTreeNode = accountPermissionTreeNodeVisitor.result();
+        assertThat(optionalTreeNode.isPresent(), is(false));
+    }
+
+    @Test
     void visitExit() {
         assertThat(accountPermissionTreeNodeVisitor.visitExit(child1_3), is(true));
     }
@@ -126,8 +138,27 @@ class AccountPermissionTreeNodeVisitorTest {
         assertThat(optionalTreeNode.isPresent(), is(true));
         assertThat(optionalTreeNode.get().getName(), is("child1_2"));
         assertThat(optionalTreeNode.get().getChildren(), hasSize(1));
-        assertThat(optionalTreeNode.get().getChildren().iterator().next().getName(), is("supplyCain"));
+        assertThat(optionalTreeNode.get().getChildren().iterator().next().getName(), is(SUPPLY_CHAIN));
 
+    }
+
+    @Test
+    void visitLeafWithoutVisitEnterShouldReturnLeaf() {
+        when(accountSecurityContext.allLocalPermissions(any())).thenReturn(Set.of(Permission.READ));
+        when(accountSecurityContext.getGlobalPermission()).thenReturn(Set.of(Permission.TREE_EDIT));
+        assertThat(accountPermissionTreeNodeVisitor.visitLeaf(child1_3), is(true));
+        Optional<TreeNode> optionalTreeNode = accountPermissionTreeNodeVisitor.result();
+        assertThat(optionalTreeNode.isPresent(), is(true));
+        assertThat(optionalTreeNode.get().getName(), is(SUPPLY_CHAIN));
+    }
+
+    @Test
+    void visitLeafWithoutPermissionsShouldReturnFalseAndEmptyResult() {
+        when(accountSecurityContext.allLocalPermissions(any())).thenReturn(emptySet());
+        when(accountSecurityContext.getGlobalPermission()).thenReturn(emptySet());
+        assertThat(accountPermissionTreeNodeVisitor.visitLeaf(child1_3), is(false));
+        Optional<TreeNode> optionalTreeNode = accountPermissionTreeNodeVisitor.result();
+        assertThat(optionalTreeNode.isPresent(), is(false));
     }
 
     private void createTreeNodeHierarchy() {
