@@ -1,0 +1,50 @@
+[
+	{
+		"id": "Configuration/config",
+		"type": "core.Directory"
+	},
+	{
+        "id": "Configuration/config/administration",
+        "type": "core.Directory"
+    },
+	{
+		"id": "Applications/argos",
+		"type": "core.Directory"
+	},
+	{
+		"id": "Environments/argos",
+		"type": "core.Directory"
+	},
+	{
+		"id": "Infrastructure/argos",
+		"type": "core.Directory"
+	},
+	{
+		"id": "Applications/argos/argos-test-app",
+		"type": "udm.Application",
+		"argosSupplyChain": "root_label.child_label:argos-test-app",
+		"argosNonPersonalAccount": "Environments/argos/npa1"
+	},
+	{
+		"id": "Environments/argos/npa1",
+		"type": "argos.NonPersonalAccount",
+		"keyId": "b91bec49e7aaaeeda162970c03193baef561c10337483a8bc0741d514dc63b9c",
+		"passphrase": "test"
+	},
+	{
+		"id": "Infrastructure/argos/tomcat",
+		"type": "overthere.SshHost",
+		"os": "UNIX",
+		"connectionType": "SFTP",
+		"address": "tomcat",
+		"port": 22,
+		"username": "root",
+		"password": "root"
+	},
+	{
+		"id": "Configuration/config/administration/xldconfig",
+		"type": "argos.XldClientConfig",
+		"username": "admin",
+		"password": "admin"
+	}
+]

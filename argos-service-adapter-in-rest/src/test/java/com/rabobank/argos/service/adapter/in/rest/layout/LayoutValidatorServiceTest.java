@@ -170,7 +170,7 @@ class LayoutValidatorServiceTest {
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
-        assertThat(responseStatusException.getReason(), is("authorizedKeyIds not match keys"));
+        assertThat(responseStatusException.getReason(), is("The defined Public keys are not equal to all defined Authorized keys"));
     }
 
     @Test
@@ -190,7 +190,7 @@ class LayoutValidatorServiceTest {
 
         ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> service.validate(layoutMetaBlock));
         assertThat(responseStatusException.getStatus(), is(HttpStatus.BAD_REQUEST));
-        assertThat(responseStatusException.getReason(), is("authorizedKeyIds not match keys"));
+        assertThat(responseStatusException.getReason(), is("The defined Public keys are not equal to all defined Authorized keys"));
     }
 
     @Test

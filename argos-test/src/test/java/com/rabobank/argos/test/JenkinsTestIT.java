@@ -77,6 +77,8 @@ class JenkinsTestIT {
         log.info("jenkins base url : {}", properties.getJenkinsBaseUrl());
         log.info("Test App branch : {}", TEST_APP_BRANCH);
         System.setProperty(SERVER_BASEURL, properties.getApiBaseUrl());
+        XLDeployHelper.waitForXLDeployToStart();
+        XLDeployHelper.initXLDeploy();
         waitForJenkinsToStart();
         waitForArgosServiceToStart();
     }

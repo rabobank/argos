@@ -80,6 +80,20 @@ services:
       - 9080:8080
     depends_on:
       - nexus
+      - xldeploy
+
+  xldeploy:
+    image: argosnotary/argos-xldeploy:0.0.1-RC3-SNAPSHOT
+    environment:
+      ADMIN_PASSWORD: admin
+      ACCEPT_EULA: Y
+    ports:
+      - 4516:4516
+      
+  tomcat:
+    image: argosnotary/xld-tomcat-target:9.0
+    ports:
+      - 8082:8080
 
   nexus:
     image: sonatype/nexus:2.14.15-01
