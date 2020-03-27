@@ -77,6 +77,8 @@ class JenkinsTestIT {
         log.info("jenkins base url : {}", properties.getJenkinsBaseUrl());
         log.info("Test App branch : {}", TEST_APP_BRANCH);
         System.setProperty(SERVER_BASEURL, properties.getApiBaseUrl());
+        log.info("xldeploy base url : {}", properties.getXlDeployBaseUrl());
+        log.info("nexus war snapshot url : {}", properties.getNexusWarSnapshotUrl());
         XLDeployHelper.waitForXLDeployToStart();
         XLDeployHelper.initXLDeploy();
         waitForJenkinsToStart();
