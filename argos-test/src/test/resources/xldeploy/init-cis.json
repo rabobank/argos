@@ -4,7 +4,11 @@
 		"type": "core.Directory"
 	},
 	{
-        "id": "Configuration/config/administration",
+		"id": "Configuration/config/administration",
+		"type": "core.Directory"
+	},
+    {
+        "id": "Configuration/config/administration/argos",
         "type": "core.Directory"
     },
 	{
@@ -23,12 +27,12 @@
 		"id": "Applications/argos/argos-test-app",
 		"type": "udm.Application",
 		"argosSupplyChain": "root_label.child_label:argos-test-app",
-		"argosNonPersonalAccount": "Environments/argos/npa1"
+		"argosNonPersonalAccount": "Environments/argos/default-npa3"
 	},
 	{
-		"id": "Environments/argos/npa1",
+		"id": "Environments/argos/default-npa3",
 		"type": "argos.NonPersonalAccount",
-		"keyId": "b91bec49e7aaaeeda162970c03193baef561c10337483a8bc0741d514dc63b9c",
+		"keyId": "a97daeaf3afaed859472a367da7a860b4b90eefb97fe51384bd45e9eed020b5b",
 		"passphrase": "test"
 	},
 	{
@@ -42,7 +46,33 @@
 		"password": "root"
 	},
 	{
-		"id": "Configuration/config/administration/xldconfig",
+		"id": "Infrastructure/argos/tomcat/tomcat",
+		"type": "tomcat.Server",
+		"host": "Infrastructure/argos/tomcat",
+		"home": "/usr/local/tomcat",
+		"startCommand": "sv start tomcat",
+		"stopCommand": "sv stop tomcat"
+	},
+	{
+		"id": "Infrastructure/argos/tomcat/tomcat/localhost",
+		"type": "tomcat.VirtualHost",
+		"server": "Infrastructure/argos/tomcat/tomcat",
+		"appBase": "webapps",
+		"hostName": "localhost"
+	},
+	{
+		"id": "Environments/argos/argos",
+        "type": "udm.Environment",
+		"members": [
+			"Infrastructure/argos/tomcat/tomcat/localhost",
+			"Infrastructure/argos/tomcat",
+			"Infrastructure/argos/tomcat/tomcat"
+		],
+		"verifyWithArgos": "ENABLED",
+		"actionOnInvalid": "ABORT"
+	},
+	{
+		"id": "Configuration/config/administration/argos/xldconfig",
 		"type": "argos.XldClientConfig",
 		"username": "admin",
 		"password": "admin"

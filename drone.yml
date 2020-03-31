@@ -147,6 +147,7 @@ steps:
   environment:
     JAVA_OPTS: -Djenkins.install.runSetupWizard=false
     snapshotsUrl: http://nexus:8081/nexus/content/repositories/snapshots/
+    releasesUrl: http://nexus:8081/nexus/content/repositories/releases/
   volumes:
   - name: mvn_cache
     path: /root/.m2/repository

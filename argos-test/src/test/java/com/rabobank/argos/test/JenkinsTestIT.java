@@ -143,13 +143,6 @@ class JenkinsTestIT {
           int buildNumber = runBuild(jobs.get(TEST_APP_BRANCH));
           
           verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
-          
-          // a number of times to create a lot of link objects
-          verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
-          verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
-         
-
-        verifyEndProducts();
     }
 
 
