@@ -144,35 +144,4 @@ Feature: Label
     When method PUT
     Then status 403
 
-  Scenario: move a child label without TREE_EDIT local permission on target parentid should return a 403
-    * def root1LabelResponse = call read('create-label.feature') { name: 'parent1'}
-    * def root1Id = root1LabelResponse.response.id
-    * def root2LabelResponse = call read('create-label.feature') { name: 'parent2'}
-    * def root2Id = root2LabelResponse.response.id
-    * def childLabelResponse = call read('create-label.feature') { name: 'child', parentLabelId: '#(root1Id)'}
-    * def childId = childLabelResponse.response.id
-    * def restPath = '/api/label/'+childId
-    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person',email: 'local.permissions@extra.go'}
-    * def localPermissionsForRoot1 = call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(extraAccount.response.id),labelId: #(root1LabelResponse.response.id), permissions: ["TREE_EDIT"]}
-    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
-    Given path restPath
-    And request { name: 'label4', parentLabelId: '#(root2Id)'}
-    When method PUT
-    Then status 403
-
-  Scenario: move a child label without TREE_EDIT local permission on source parentid should return a 403
-    * def root1LabelResponse = call read('create-label.feature') { name: 'parent1'}
-    * def root1Id = root1LabelResponse.response.id
-    * def root2LabelResponse = call read('create-label.feature') { name: 'parent2'}
-    * def root2Id = root2LabelResponse.response.id
-    * def childLabelResponse = call read('create-label.feature') { name: 'child', parentLabelId: '#(root1Id)'}
-    * def childId = childLabelResponse.response.id
-    * def restPath = '/api/label/'+childId
-    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person',email: 'local.permissions@extra.go'}
-    * def localPermissionsForRoot2 = call read('classpath:feature/account/set-local-permissions.feature') { accountId: #(extraAccount.response.id),labelId: #(root2LabelResponse.response.id), permissions: ["TREE_EDIT"]}
-    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
-    Given path restPath
-    And request { name: 'label4', parentLabelId: '#(root1Id)'}
-    When method PUT
-    Then status 403
 
