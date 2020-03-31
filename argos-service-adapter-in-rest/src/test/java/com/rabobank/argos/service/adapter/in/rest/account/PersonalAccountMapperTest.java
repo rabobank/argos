@@ -132,7 +132,6 @@ class PersonalAccountMapperTest {
     }
 
     private void validate(RestPersonalAccount restPersonalAccount) {
-        assertThat(restPersonalAccount.getEmail(), is(EMAIL));
         assertThat(restPersonalAccount.getName(), is(NAME));
         assertThat(restPersonalAccount.getId(), hasLength(36));
     }

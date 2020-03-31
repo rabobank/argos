@@ -1334,9 +1334,6 @@ components:
           readOnly: true
         name:
           type: string
-        email:
-          type: string
-          format: email
         roles:
           type: array
           items:
