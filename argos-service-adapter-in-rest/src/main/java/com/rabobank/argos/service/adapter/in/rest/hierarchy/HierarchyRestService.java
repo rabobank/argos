@@ -65,7 +65,9 @@ public class HierarchyRestService implements HierarchyApi {
     }
 
     private void verifyParentLabelExists(String parentLabelId) {
-        Optional.ofNullable(parentLabelId).filter(parentId -> !labelRepository.exists(parentId)).ifPresent(parentId -> {
+        Optional.ofNullable(parentLabelId)
+                .filter(parentId -> !labelRepository.exists(parentId))
+                .ifPresent(parentId -> {
             throw labelNotFound(parentId);
         });
     }
