@@ -48,6 +48,7 @@ class ArgosServiceTestIT {
         String defaultTestDataJson = objectMapper.writeValueAsString(defaultTestData);
         System.setProperty(DEFAULT_TESTDATA, defaultTestDataJson);
         log.info("default test data: {}", defaultTestDataJson);
+
     }
 
 
