@@ -45,6 +45,7 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,8 +57,6 @@ import static org.mockito.Mockito.when;
 class PersonalAccountRestServiceTest {
 
     private static final String NAME = "name";
-    private static final String KEY_ID = "keyId";
-    private static final String KEY_ID_PROVIDER = "keyIdProvider";
     private static final String PERSONAL_ACCOUNT_NOT_FOUND = "404 NOT_FOUND \"personal account not found\"";
     public static final String ACTIVE_KEYPAIR_NOT_FOUND = "404 NOT_FOUND \"no active keypair found for account: name\"";
     private static final String ACCOUNT_ID = "accountId";
@@ -259,7 +258,9 @@ class PersonalAccountRestServiceTest {
         when(localPermissions.getLabelId()).thenReturn("otherLabel");
         when(personalAccount.getLocalPermissions()).thenReturn(List.of(localPermissions));
         ResponseEntity<RestLocalPermissions> response = service.getLocalPermissionsForLabel(ACCOUNT_ID, LABEL_ID);
-        assertThat(response.getStatusCodeValue(), is(204));
+        assertThat(response.getStatusCodeValue(), is(200));
+        assertThat(response.getBody().getLabelId(), is(LABEL_ID));
+        assertThat(response.getBody().getPermissions(), empty());
     }
 
     @Test
