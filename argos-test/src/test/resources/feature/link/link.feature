@@ -84,6 +84,7 @@ Feature: Link
 
   Scenario: find link with valid supplychainid should return a 200
     * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
     Given path linkPath
     When method GET
     Then status 200
@@ -99,6 +100,7 @@ Feature: Link
 
   Scenario: find link with valid supplychainid and optionalHash should return a 200
     * call read('create-link.feature') {supplyChainId:#(supplyChain.response.id), json:#(validLink), keyNumber:1}
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
     Given path linkPath
     And param optionalHash = '74a88c1cb96211a8f648af3509a1207b2d4a15c0202cfaa10abad8cc26300c63'
     When method GET
