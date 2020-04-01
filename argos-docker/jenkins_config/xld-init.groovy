@@ -13,30 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import hudson.security.csrf.DefaultCrumbIssuer
-
-import hudson.security.*
-import jenkins.branch.*
-import jenkins.model.Jenkins
-import jenkins.plugins.git.*
-import org.jenkinsci.plugins.workflow.multibranch.*
-
+import jenkins.model.*
+import com.xebialabs.deployit.ci.*
+import hudson.util.*
 import java.util.logging.Logger
+import java.util.logging.Level
 
-Logger logger = Logger.getLogger("")
+def Logger logger = Logger.getLogger("")
 
 def instance = Jenkins.getInstance()
 
-// set admin user
-def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-hudsonRealm.createAccount('admin','admin')
-instance.setSecurityRealm(hudsonRealm)
+def descriptor = instance.getDescriptor("com.xebialabs.deployit.ci.DeployitNotifier")
 
-def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
-instance.setAuthorizationStrategy(strategy)
-instance.setNumExecutors(1)
-instance.save()
+// Server information
+def credential = new Credential("xldeploy-credentials", "admin", new Secret("admin"), null, null, false)
 
-logger.info("--> Jenkins initialized ")
+// Save changes
+descriptor.deployitServerUrl="http://xldeploy:4516"
+descriptor.credentials.clear()
+descriptor.credentials.add(credential)
+descriptor.save()
+logger.info("--> set XLD plugin, url: http://xldeploy:4516")
 
-instance.save()
