@@ -88,7 +88,7 @@ services:
       - xldeploy
 
   xldeploy:
-    image: argosnotary/argos-xldeploy:latest
+    image: argosnotary/argos-xldeploy:0.0.1-RC4
     environment:
       ADMIN_PASSWORD: admin
       ACCEPT_EULA: Y
