@@ -39,6 +39,7 @@ services:
       spring.security.oauth2.client.provider.azure.userInfoUri: http://oauth-stub:8080/v1.0/me
       jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
       auth.frontendRedirectBasePath: http://localhost:8087
+      JAVA_OPTS: '-Xmx1g'
     ports:
       - 8080:8080
     depends_on:
@@ -47,6 +48,8 @@ services:
   oauth-stub:
     build:
       context: oauth-stub
+    environment:
+      JAVA_OPTS: '-Xmx500m'
     ports:
       - 8087:8080
 
@@ -57,6 +60,7 @@ services:
     environment:
       spring.data.mongodb.uri: mongodb://mongodb/test
       jwt.token.secret: Z2LcVpgCuGtpb5rBDNIIWGe8RXqYGWDpWFjWhYQUS2Z8rjE2/GTJlu0s6BRYG0Mn0kV8StC9cFE83Jkl68RCkw==
+      JAVA_OPTS: '-Xmx500m'
     ports:
       - 2877:2877
     depends_on:
@@ -72,7 +76,7 @@ services:
       context: .
       dockerfile: JenkinsDockerfile
     environment:
-      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Xmx1g
       - snapshotsUrl=http://nexus:8081/nexus/content/repositories/snapshots/
       - releasesUrl=http://nexus:8081/nexus/content/repositories/releases/
     volumes:
@@ -88,6 +92,7 @@ services:
     environment:
       ADMIN_PASSWORD: admin
       ACCEPT_EULA: Y
+      JAVA_OPTS: '-Xmx1g'
     volumes:
       - ./xldeploy_config/argos.properties:/opt/xebialabs/xl-deploy-server/conf/argos.properties
     ports:
@@ -95,12 +100,16 @@ services:
       
   tomcat:
     image: argosnotary/xld-tomcat-target:9.0
+    environment:
+      JAVA_OPTS: '-Xmx500m'
     ports:
       - "8082:8080"
       - "2022:22"
 
   nexus:
     image: sonatype/nexus:2.14.15-01
+    environment:
+      JAVA_OPTS: '-Xmx500m'
     ports:
       - 8081:8081
 
