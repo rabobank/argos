@@ -1,0 +1,80 @@
+[
+	{
+		"id": "Configuration/config",
+		"type": "core.Directory"
+	},
+	{
+		"id": "Configuration/config/administration",
+		"type": "core.Directory"
+	},
+    {
+        "id": "Configuration/config/administration/argos",
+        "type": "core.Directory"
+    },
+	{
+		"id": "Applications/argos",
+		"type": "core.Directory"
+	},
+	{
+		"id": "Environments/argos",
+		"type": "core.Directory"
+	},
+	{
+		"id": "Infrastructure/argos",
+		"type": "core.Directory"
+	},
+	{
+		"id": "Applications/argos/argos-test-app",
+		"type": "udm.Application",
+		"argosSupplyChain": "root_label.child_label:argos-test-app",
+		"argosNonPersonalAccount": "Environments/argos/default-npa3"
+	},
+	{
+		"id": "Environments/argos/default-npa3",
+		"type": "argos.NonPersonalAccount",
+		"keyId": "a97daeaf3afaed859472a367da7a860b4b90eefb97fe51384bd45e9eed020b5b",
+		"passphrase": "test"
+	},
+	{
+		"id": "Infrastructure/argos/tomcat",
+		"type": "overthere.SshHost",
+		"os": "UNIX",
+		"connectionType": "SFTP",
+		"address": "tomcat",
+		"port": 22,
+		"username": "root",
+		"password": "root"
+	},
+	{
+		"id": "Infrastructure/argos/tomcat/tomcat",
+		"type": "tomcat.Server",
+		"host": "Infrastructure/argos/tomcat",
+		"home": "/usr/local/tomcat",
+		"startCommand": "sv start tomcat",
+		"stopCommand": "sv stop tomcat"
+	},
+	{
+		"id": "Infrastructure/argos/tomcat/tomcat/localhost",
+		"type": "tomcat.VirtualHost",
+		"server": "Infrastructure/argos/tomcat/tomcat",
+		"appBase": "webapps",
+		"hostName": "localhost"
+	},
+	{
+		"id": "Environments/argos/argos",
+        "type": "udm.Environment",
+		"members": [
+			"Infrastructure/argos/tomcat/tomcat/localhost",
+			"Infrastructure/argos/tomcat",
+			"Infrastructure/argos/tomcat/tomcat"
+		],
+		"verifyWithArgos": "ENABLED",
+		"actionOnInvalid": "ABORT"
+	},
+	{
+		"id": "Configuration/config/administration/argos/xldconfig",
+		"type": "argos.XldClientConfig",
+		"username": "admin",
+		"password": "admin"
+	}
+]
