@@ -9,13 +9,13 @@
       "type": "LABEL",
       "referenceId": "#uuid",
       "hasChildren": true,
-      "children": [],
+      "children": [
+      ],
       "permissions": [
-        "ASSIGN_ROLE",
-        "LOCAL_PERMISSION_EDIT",
+        "NPA_EDIT",
+        "PERSONAL_ACCOUNT_READ",
         "READ",
-        "TREE_EDIT",
-        "VERIFY"
+        "TREE_EDIT"
       ]
     },
     {
@@ -23,21 +23,20 @@
       "type": "LABEL",
       "referenceId": "#uuid",
       "hasChildren": false,
-      "children": [],
+      "children": [
+      ],
       "permissions": [
-        "ASSIGN_ROLE",
-        "LOCAL_PERMISSION_EDIT",
+        "NPA_EDIT",
+        "PERSONAL_ACCOUNT_READ",
         "READ",
-        "TREE_EDIT",
-        "VERIFY"
+        "TREE_EDIT"
       ]
     }
   ],
   "permissions": [
-    "ASSIGN_ROLE",
-    "LOCAL_PERMISSION_EDIT",
+    "NPA_EDIT",
+    "PERSONAL_ACCOUNT_READ",
     "READ",
-    "TREE_EDIT",
-    "VERIFY"
+    "TREE_EDIT"
   ]
 }

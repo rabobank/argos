@@ -33,7 +33,6 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -121,9 +120,10 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
     }
 
     private Optional<TreeNode> getSubTreeWithNoDescendants(Criteria referenceCriteria) {
-        return convertToTreeNodeHierarchyForSubTree(List
-                .of(Objects.requireNonNull(mongoTemplate.findOne(new Query(referenceCriteria), HierarchyItem.class, COLLECTION)))
-        );
+        List<HierarchyItem> hierarchyItems = Optional.ofNullable(mongoTemplate.findOne(new Query(referenceCriteria), HierarchyItem.class, COLLECTION))
+                .map(List::of)
+                .orElse(emptyList());
+        return convertToTreeNodeHierarchyForSubTree(hierarchyItems);
     }
 
     private Optional<TreeNode> getSubTreeWithMaxDepthDescendants(MatchOperation matchStage, int maxDepth) {
@@ -239,6 +239,7 @@ public class HierarchyRepositoryImpl implements HierarchyRepository {
     @Setter
     static class HierarchyItem {
         enum Type {LABEL, SUPPLY_CHAIN, NON_PERSONAL_ACCOUNT}
+
         private String referenceId;
         private String name;
         private String parentLabelId;

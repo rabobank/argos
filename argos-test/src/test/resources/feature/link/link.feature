@@ -19,10 +19,9 @@ Feature: Link
   Background:
     * url karate.properties['server.baseurl']
     * call read('classpath:feature/reset.feature')
-    * def token = karate.properties['bearer.token']
-    * configure headers = call read('classpath:headers.js') { token: #(token)}
-    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain-with-label.feature') { supplyChainName: 'name'}
-    * call read('classpath:feature/account/insert-test-key-pairs.feature') {parentLabelId: #(supplyChain.response.parentLabelId)}
+    * def defaultTestData = call read('classpath:default-test-data.js')
+    * configure headers = call read('classpath:headers.js') { token: #(defaultTestData.adminToken)}
+    * def supplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') { supplyChainName: 'name', parentLabelId: #(defaultTestData.defaultRootLabel.id)}
     * def linkPath = '/api/supplychain/'+ supplyChain.response.id + '/link'
     * def validLink = 'classpath:testmessages/link/valid-link.json'
 
@@ -61,8 +60,8 @@ Feature: Link
     * def otherSupplyChain = call read('classpath:feature/supplychain/create-supplychain.feature') {supplyChainName: other-supply-chain, parentLabelId: #(otherRootLabel.response.id)}
     * def layoutToSign = read(validLink)
     * def signedLink = call read('classpath:feature/link/sign-link.feature') {json:#(layoutToSign),keyNumber:1}
-    * def keyPair = read('classpath:testmessages/key/keypair1.json')
-    * configure headers = call read('classpath:headers.js') { username: #(keyPair.keyId),password:test}
+    * def keyPair = defaultTestData.nonPersonalAccount['default-npa1']
+    * configure headers = call read('classpath:headers.js') { username: #(keyPair.keyId), password: #(keyPair.hashedKeyPassphrase)}
     Given path '/api/supplychain/'+ otherSupplyChain.response.id + '/link'
     And request signedLink.response
     When method POST

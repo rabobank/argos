@@ -26,6 +26,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,10 +75,10 @@ class RoleRepositoryImplTest {
 
     @Test
     void findByIds() {
-        when(template.find(any(Query.class), eq(Role.class), eq(COLLECTION))).thenReturn(List.of(role));
+        when(template.find(any(Query.class), eq(Role.class), eq(COLLECTION))).thenReturn(new ArrayList(Collections.singletonList(role)));
         assertThat(repository.findByIds(List.of(ROLE_ID)), contains(role));
         verify(template).find(argumentCaptor.capture(), eq(Role.class), eq(COLLECTION));
-        assertThat(argumentCaptor.getValue().toString(), is("Query: { \"roleId\" : { \"$in\" : [\"roleId\"]}}, Fields: {}, Sort: {}"));
+        assertThat(argumentCaptor.getValue().toString(), is("Query: { \"roleId\" : { \"$in\" : [\"roleId\"]}}, Fields: {}, Sort: { \"name\" : 1}"));
     }
 
     @Test

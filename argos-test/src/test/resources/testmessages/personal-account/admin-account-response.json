@@ -1,0 +1,25 @@
+{
+  "id": "#uuid",
+  "name": "Luke Skywalker",
+  "email": "luke@skywalker.imp",
+  "roles": [
+    {
+      "id": "#uuid",
+      "name": "administrator",
+      "permissions": [
+        "READ",
+        "LOCAL_PERMISSION_EDIT",
+        "TREE_EDIT",
+        "VERIFY",
+        "ASSIGN_ROLE"
+      ]
+    },
+    {
+      "id": "#uuid",
+      "name": "user",
+      "permissions": [
+        "PERSONAL_ACCOUNT_READ"
+      ]
+    }
+  ]
+}

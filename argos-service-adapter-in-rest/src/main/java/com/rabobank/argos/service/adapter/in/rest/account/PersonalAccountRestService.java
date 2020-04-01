@@ -79,6 +79,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     }
 
     @Override
+    @PermissionCheck(permissions = {Permission.ASSIGN_ROLE})
     public ResponseEntity<RestPersonalAccount> getPersonalAccountById(String accountId) {
         return accountService.getPersonalAccountById(accountId)
                 .map(personalAccountMapper::convertToRestPersonalAccount)
@@ -86,6 +87,7 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     }
 
     @Override
+    @PermissionCheck(permissions = {Permission.PERSONAL_ACCOUNT_READ})
     public ResponseEntity<List<RestPersonalAccount>> searchPersonalAccounts(String roleName, String localPermissionsLabelId, String name) {
         return ResponseEntity.ok(accountService.searchPersonalAccounts(AccountSearchParams.builder()
                 .roleId(personalAccountMapper.convertToRoleId(roleName))
@@ -114,10 +116,10 @@ public class PersonalAccountRestService implements PersonalAccountApi {
     @PermissionCheck(permissions = {Permission.LOCAL_PERMISSION_EDIT})
     public ResponseEntity<RestLocalPermissions> getLocalPermissionsForLabel(String accountId, @LabelIdCheckParam String labelId) {
         PersonalAccount personalAccount = accountService.getPersonalAccountById(accountId).orElseThrow(this::accountNotFound);
-        return personalAccount.getLocalPermissions().stream()
+        return ResponseEntity.ok(personalAccount.getLocalPermissions().stream()
                 .filter(localPermissions -> localPermissions.getLabelId().equals(labelId))
-                .findFirst().map(personalAccountMapper::convertToRestLocalPermission).map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.noContent().build());
+                .findFirst().map(personalAccountMapper::convertToRestLocalPermission)
+                .orElseGet(() -> new RestLocalPermissions().labelId(labelId)));
     }
 
     @Override

@@ -3,12 +3,12 @@
   "type": "LABEL",
   "referenceId": "#uuid",
   "hasChildren": true,
-  "children": [],
+  "children": [
+  ],
   "permissions": [
-    "ASSIGN_ROLE",
-    "LOCAL_PERMISSION_EDIT",
+    "NPA_EDIT",
+    "PERSONAL_ACCOUNT_READ",
     "READ",
-    "TREE_EDIT",
-    "VERIFY"
+    "TREE_EDIT"
   ]
 }

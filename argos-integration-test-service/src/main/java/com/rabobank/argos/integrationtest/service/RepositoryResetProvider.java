@@ -16,7 +16,9 @@
 package com.rabobank.argos.integrationtest.service;
 
 public interface RepositoryResetProvider {
-    void resetAllRepositories();
+    void resetNotAllRepositories();
 
     void deletePersonalAccount(String accountId);
+
+    void resetAllRepositories();
 }
