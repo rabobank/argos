@@ -23,7 +23,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackageClasses = {MongoConfig.class, TestITService.class, AccountService.class, NonPersonalAccountRepositoryImpl.class})
+@ComponentScan(basePackageClasses = {MongoConfig.class, TestITService.class, AccountService.class, NonPersonalAccountRepositoryImpl.class, AccountSecurityContextMock.class})
 public class ArgosIntegrationtestServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(ArgosIntegrationtestServiceApplication.class, args);

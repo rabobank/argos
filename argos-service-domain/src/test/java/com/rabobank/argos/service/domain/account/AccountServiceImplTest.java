@@ -15,6 +15,8 @@
  */
 package com.rabobank.argos.service.domain.account;
 
+import com.rabobank.argos.domain.ArgosError;
+import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.account.NonPersonalAccountKeyPair;
 import com.rabobank.argos.domain.account.PersonalAccount;
@@ -23,6 +25,7 @@ import com.rabobank.argos.domain.permission.LocalPermissions;
 import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
+import com.rabobank.argos.service.domain.security.AccountSecurityContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +47,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -59,6 +63,9 @@ class AccountServiceImplTest {
     private static final String ROLE_NAME = "roleName";
     private static final String PARENT_LABEL_ID = "parentLabelId";
     private static final String LABEL_ID = "labelId";
+    private static final String ADMIN_ROLE_ID = "adminRoleId";
+    private static final String ADMIN_ACCOUNT_ID = "adminAccountId";
+
 
     private KeyPair activeKeyPair = new KeyPair();
     private KeyPair inactiveKeyPair = new KeyPair();
@@ -105,9 +112,18 @@ class AccountServiceImplTest {
     @Captor
     private ArgumentCaptor<List<LocalPermissions>> localPermissionsListArgumentCaptor;
 
+    @Mock
+    private Role adminRole;
+
+    @Mock
+    private AccountSecurityContext accountSecurityContext;
+
+    @Mock
+    private Account adminAccount;
+
     @BeforeEach
     void setUp() {
-        accountService = new AccountServiceImpl(nonPersonalAccountRepository, personalAccountRepository, roleRepository);
+        accountService = new AccountServiceImpl(nonPersonalAccountRepository, personalAccountRepository, roleRepository, accountSecurityContext);
     }
 
     @Test
@@ -245,12 +261,65 @@ class AccountServiceImplTest {
 
     @Test
     void updatePersonalAccountRolesById() {
+        when(adminAccount.getAccountId()).thenReturn(ADMIN_ACCOUNT_ID);
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(adminAccount));
         when(role.getRoleId()).thenReturn(ROLE_ID);
         when(roleRepository.findByName(ROLE_NAME)).thenReturn(Optional.of(role));
+
+        when(account.getAccountId()).thenReturn(ACCOUNT_ID);
         when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
         assertThat(accountService.updatePersonalAccountRolesById(ACCOUNT_ID, List.of(ROLE_NAME)), is(Optional.of(account)));
         verify(account).setRoleIds(List.of(ROLE_ID));
         verify(personalAccountRepository).update(account);
+    }
+
+    @Test
+    void administratorUpdatePersonalAccountRolesById() {
+        when(account.getAccountId()).thenReturn(ACCOUNT_ID);
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
+        when(role.getRoleId()).thenReturn(ROLE_ID);
+        when(roleRepository.findByName(ROLE_NAME)).thenReturn(Optional.of(role));
+        when(adminRole.getRoleId()).thenReturn(ADMIN_ROLE_ID);
+        when(roleRepository.findByName(ADMINISTRATOR_ROLE_NAME)).thenReturn(Optional.of(adminRole));
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        assertThat(accountService.updatePersonalAccountRolesById(ACCOUNT_ID, List.of(ROLE_NAME, ADMINISTRATOR_ROLE_NAME)), is(Optional.of(account)));
+        verify(account).setRoleIds(List.of(ROLE_ID, ADMIN_ROLE_ID));
+        verify(personalAccountRepository).update(account);
+    }
+
+    @Test
+    void updatePersonalAccountRolesByIdNotAllowed() {
+        when(account.getAccountId()).thenReturn(ACCOUNT_ID);
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
+        when(adminRole.getRoleId()).thenReturn(ADMIN_ROLE_ID);
+        when(roleRepository.findByName(ADMINISTRATOR_ROLE_NAME)).thenReturn(Optional.of(adminRole));
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        when(account.getRoleIds()).thenReturn(List.of(ADMIN_ROLE_ID));
+        ArgosError exception = assertThrows(ArgosError.class, () -> accountService.updatePersonalAccountRolesById(ACCOUNT_ID, List.of(ROLE_NAME)));
+        assertThat(exception.getMessage(), is("administrators can not unassign there own administrator role"));
+        assertThat(exception.getLevel(), is(ArgosError.Level.WARNING));
+    }
+
+    @Test
+    void updatePersonalAccountAdministratorRoleNotFound() {
+        when(account.getAccountId()).thenReturn(ACCOUNT_ID);
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
+        when(roleRepository.findByName(ADMINISTRATOR_ROLE_NAME)).thenReturn(Optional.empty());
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        when(account.getRoleIds()).thenReturn(List.of(ADMIN_ROLE_ID));
+        ArgosError exception = assertThrows(ArgosError.class, () -> accountService.updatePersonalAccountRolesById(ACCOUNT_ID, List.of(ROLE_NAME)));
+        assertThat(exception.getMessage(), is("administrator role not found"));
+        assertThat(exception.getLevel(), is(ArgosError.Level.ERROR));
+    }
+
+    @Test
+    void updatePersonalAccountAdministratorNoAuthenticatedAccount() {
+
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.empty());
+        when(personalAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+        ArgosError exception = assertThrows(ArgosError.class, () -> accountService.updatePersonalAccountRolesById(ACCOUNT_ID, List.of(ROLE_NAME)));
+        assertThat(exception.getMessage(), is("no authenticated account"));
+        assertThat(exception.getLevel(), is(ArgosError.Level.ERROR));
     }
 
     @Test

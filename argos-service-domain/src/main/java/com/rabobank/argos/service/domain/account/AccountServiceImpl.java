@@ -15,6 +15,7 @@
  */
 package com.rabobank.argos.service.domain.account;
 
+import com.rabobank.argos.domain.ArgosError;
 import com.rabobank.argos.domain.account.Account;
 import com.rabobank.argos.domain.account.NonPersonalAccount;
 import com.rabobank.argos.domain.account.NonPersonalAccountKeyPair;
@@ -23,6 +24,7 @@ import com.rabobank.argos.domain.key.KeyPair;
 import com.rabobank.argos.domain.permission.LocalPermissions;
 import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
+import com.rabobank.argos.service.domain.security.AccountSecurityContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,7 @@ public class AccountServiceImpl implements AccountService {
     private final NonPersonalAccountRepository nonPersonalAccountRepository;
     private final PersonalAccountRepository personalAccountRepository;
     private final RoleRepository roleRepository;
+    private final AccountSecurityContext accountSecurityContext;
 
     @Override
     public Optional<PersonalAccount> activateNewKey(String accountId, KeyPair newKeyPair) {
@@ -106,10 +109,19 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Optional<PersonalAccount> updatePersonalAccountRolesById(String accountId, List<String> roleNames) {
         return personalAccountRepository.findByAccountId(accountId).map(personalAccount -> {
+            checkAdministratorRoleChange(personalAccount, roleNames);
             personalAccount.setRoleIds(getRoleIds(roleNames));
             personalAccountRepository.update(personalAccount);
             return personalAccount;
         });
+    }
+
+    private void checkAdministratorRoleChange(PersonalAccount personalAccount, List<String> roleNames) {
+        Account authenticatedAccount = accountSecurityContext.getAuthenticatedAccount().orElseThrow(() -> new ArgosError("no authenticated account"));
+        if (authenticatedAccount.getAccountId().equals(personalAccount.getAccountId()) && !roleNames.contains(ADMINISTRATOR_ROLE_NAME) &&
+                personalAccount.getRoleIds().contains(resolveAdministratorRoleId())) {
+            throw new ArgosError("administrators can not unassign there own administrator role", ArgosError.Level.WARNING);
+        }
     }
 
     @Override
@@ -177,7 +189,6 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-
     private List<String> getRoleIds(List<String> roleNames) {
         return roleNames.stream().map(roleRepository::findByName)
                 .filter(Optional::isPresent)
@@ -190,7 +201,12 @@ public class AccountServiceImpl implements AccountService {
 
     private void makeAdministrator(PersonalAccount personalAccount) {
         log.info("Assigned administrator role to personal account " + personalAccount.getName());
-        roleRepository.findByName(ADMINISTRATOR_ROLE_NAME).ifPresent(adminRole -> personalAccount.setRoleIds(List.of(adminRole.getRoleId())));
+        personalAccount.setRoleIds(List.of(resolveAdministratorRoleId()));
+    }
+
+    private String resolveAdministratorRoleId() {
+        return roleRepository.findByName(ADMINISTRATOR_ROLE_NAME).map(Role::getRoleId)
+                .orElseThrow(() -> new ArgosError(ADMINISTRATOR_ROLE_NAME + " role not found"));
     }
 
     private void activateNewKey(Account account, KeyPair newKeyPair) {

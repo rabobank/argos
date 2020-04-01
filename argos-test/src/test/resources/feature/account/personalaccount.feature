@@ -84,6 +84,20 @@ Feature: Personal Account
     Then status 200
     Then match response == {"id":"#(extraAccount.response.id)","name":"Extra Person","email":"extra@extra.go", "roles": [{"id": "#uuid", "name":"administrator", "permissions" : ["READ","LOCAL_PERMISSION_EDIT","TREE_EDIT","VERIFY","ASSIGN_ROLE"] }]}
 
+  Scenario: remove administrator role of administrator should return 400
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/role'
+    And request ["administrator"]
+    When method PUT
+    Then status 200
+    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/role'
+    And request ["user"]
+    When method PUT
+    Then status 400
+    And match response == {"message":"administrators can not unassign there own administrator role"}
+
+
   Scenario: user without ASSIGN_ROLE permission can not assign a role to a user
     * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person', email: 'extra@extra.go'}
     * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
