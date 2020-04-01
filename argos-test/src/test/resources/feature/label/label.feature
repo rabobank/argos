@@ -26,6 +26,14 @@ Feature: Label
     * def result = call read('create-label.feature') { name: 'label1'}
     * match result.response == { name: 'label1', id: '#uuid' }
 
+  Scenario: store a root label without TREE_EDIT permission name should return a 403
+    * def userWithoutPermissions = defaultTestData.personalAccounts['default-pa1']
+    * configure headers = call read('classpath:headers.js') { token: #(userWithoutPermissions.token)}
+    Given path '/api/label'
+    And request { name: 'label1'}
+    When method POST
+    Then status 403
+
   Scenario: store a root label with invalid name should return a 400
     Given path '/api/label'
     And request { name: '1label'}
@@ -56,6 +64,15 @@ Feature: Label
     When method GET
     Then status 200
     And match response == { name: 'label2', id: '#(result.response.id)' }
+
+  Scenario: retrieve root label should without READ permission should return a 403
+    * def result = call read('create-label.feature') { name: 'label2'}
+    * def restPath = '/api/label/'+result.response.id
+    * def extraAccount = call read('classpath:feature/account/create-personal-account.feature') {name: 'Extra Person',email: 'local.permissions@extra.go'}
+    * configure headers = call read('classpath:headers.js') { token: #(extraAccount.response.token)}
+    Given path restPath
+    When method GET
+    Then status 403
 
   Scenario: retrieve a label without authentication should return a 401 error
     * def result = call read('create-label.feature') { name: 'label2'}
@@ -102,7 +119,7 @@ Feature: Label
     Then status 200
     And match response == { name: 'child', id: '#(childId)', parentLabelId: '#(rootId)' }
 
-  Scenario: update a root label should return a 200
+  Scenario: update a child label should return a 200
     * def rootLabelResponse = call read('create-label.feature') { name: 'parent'}
     * def rootId = rootLabelResponse.response.id
     * def childLabelResponse = call read('create-label.feature') { name: 'child', parentLabelId: '#(rootId)'}
@@ -114,5 +131,17 @@ Feature: Label
     Then status 200
     And match response == { name: 'label4', id: '#(childId)', parentLabelId: '#(rootId)' }
 
+  Scenario: update a child label without any TREE_EDIT local permission should return a 403
+    * def rootLabelResponse = call read('create-label.feature') { name: 'parent'}
+    * def rootId = rootLabelResponse.response.id
+    * def childLabelResponse = call read('create-label.feature') { name: 'child', parentLabelId: '#(rootId)'}
+    * def childId = childLabelResponse.response.id
+    * def restPath = '/api/label/'+childId
+    * def userWithoutPermissions = defaultTestData.personalAccounts['default-pa1']
+    * configure headers = call read('classpath:headers.js') { token: #(userWithoutPermissions.token)}
+    Given path restPath
+    And request { name: 'label4', parentLabelId: '#(rootId)'}
+    When method PUT
+    Then status 403
 
 

@@ -17,12 +17,15 @@ package com.rabobank.argos.service.adapter.in.rest.hierarchy;
 
 import com.rabobank.argos.domain.hierarchy.HierarchyMode;
 import com.rabobank.argos.domain.hierarchy.Label;
+import com.rabobank.argos.domain.permission.Permission;
 import com.rabobank.argos.service.adapter.in.rest.api.handler.HierarchyApi;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestHierarchyMode;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLabel;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestTreeNode;
 import com.rabobank.argos.service.domain.hierarchy.HierarchyService;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
+import com.rabobank.argos.service.domain.security.LabelIdCheckParam;
+import com.rabobank.argos.service.domain.security.PermissionCheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -52,7 +55,8 @@ public class HierarchyRestService implements HierarchyApi {
     private final TreeNodeMapper treeNodeMapper;
 
     @Override
-    public ResponseEntity<RestLabel> createLabel(RestLabel restLabel) {
+    @PermissionCheck(permissions = Permission.TREE_EDIT)
+    public ResponseEntity<RestLabel> createLabel(@LabelIdCheckParam(propertyPath = "parentLabelId") RestLabel restLabel) {
         verifyParentLabelExists(restLabel.getParentLabelId());
         Label label = labelMapper.convertFromRestLabel(restLabel);
         labelRepository.save(label);
@@ -65,13 +69,16 @@ public class HierarchyRestService implements HierarchyApi {
     }
 
     private void verifyParentLabelExists(String parentLabelId) {
-        Optional.ofNullable(parentLabelId).filter(parentId -> !labelRepository.exists(parentId)).ifPresent(parentId -> {
+        Optional.ofNullable(parentLabelId)
+                .filter(parentId -> !labelRepository.exists(parentId))
+                .ifPresent(parentId -> {
             throw labelNotFound(parentId);
         });
     }
 
     @Override
-    public ResponseEntity<Void> deleteLabelById(String labelId) {
+    @PermissionCheck(permissions = Permission.TREE_EDIT)
+    public ResponseEntity<Void> deleteLabelById(@LabelIdCheckParam String labelId) {
         if (labelRepository.deleteById(labelId)) {
             return ResponseEntity.noContent().build();
         } else {
@@ -80,14 +87,16 @@ public class HierarchyRestService implements HierarchyApi {
     }
 
     @Override
-    public ResponseEntity<RestLabel> getLabelById(String labelId) {
+    @PermissionCheck(permissions = Permission.READ)
+    public ResponseEntity<RestLabel> getLabelById(@LabelIdCheckParam String labelId) {
         return labelRepository.findById(labelId).map(labelMapper::convertToRestLabel).map(ResponseEntity::ok)
                 .orElseThrow(() -> labelNotFound(labelId));
     }
 
 
     @Override
-    public ResponseEntity<RestLabel> updateLabelById(String labelId, RestLabel restLabel) {
+    @PermissionCheck(permissions = Permission.TREE_EDIT)
+    public ResponseEntity<RestLabel> updateLabelById(@LabelIdCheckParam String labelId, @LabelIdCheckParam(propertyPath = "parentLabelId") RestLabel restLabel) {
         verifyParentLabelIsDifferent(labelId, restLabel.getParentLabelId());
         verifyParentLabelExists(restLabel.getParentLabelId());
         Label label = labelMapper.convertFromRestLabel(restLabel);
