@@ -98,14 +98,14 @@ steps:
   depends_on:
   - pitest
   - sonar
-
+  
 - name: mongodb
   image: mongo:4.2.1-bionic
   detach: true
   depends_on:
   - pitest
   - sonar
-
+  
 - name: argos-service
   image: rabobanknl/argos-service-snapshot:${DRONE_BRANCH/\//_}${DRONE_TAG}
   pull: always
@@ -147,6 +147,7 @@ steps:
   environment:
     JAVA_OPTS: -Djenkins.install.runSetupWizard=false
     snapshotsUrl: http://nexus:8081/nexus/content/repositories/snapshots/
+    releasesUrl: http://nexus:8081/nexus/content/repositories/releases/
   volumes:
   - name: mvn_cache
     path: /root/.m2/repository
@@ -166,6 +167,8 @@ steps:
   - argos-service
   - argos-integration-test-service
   - nexus
+  - xldeploy
+  - tomcat
 
 - name: release argos service image
   image: plugins/docker
@@ -239,6 +242,15 @@ steps:
 services:
 - name: nexus
   image: sonatype/nexus:2.14.15-01
+
+- name: tomcat
+  image: argosnotary/xld-tomcat-target:9.0
+  
+- name: xldeploy
+  image: argosnotary/argos-xldeploy:0.0.1-RC3-SNAPSHOT
+  environment:
+    ADMIN_PASSWORD: admin
+    ACCEPT_EULA: Y
 
 volumes:
 - name: mvn_cache

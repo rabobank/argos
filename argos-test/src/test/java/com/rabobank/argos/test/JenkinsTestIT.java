@@ -77,6 +77,10 @@ class JenkinsTestIT {
         log.info("jenkins base url : {}", properties.getJenkinsBaseUrl());
         log.info("Test App branch : {}", TEST_APP_BRANCH);
         System.setProperty(SERVER_BASEURL, properties.getApiBaseUrl());
+        log.info("xldeploy base url : {}", properties.getXlDeployBaseUrl());
+        log.info("nexus war snapshot url : {}", properties.getNexusWarSnapshotUrl());
+        XLDeployHelper.waitForXLDeployToStart();
+        XLDeployHelper.initXLDeploy();
         waitForJenkinsToStart();
         waitForArgosServiceToStart();
     }
@@ -139,13 +143,6 @@ class JenkinsTestIT {
           int buildNumber = runBuild(jobs.get(TEST_APP_BRANCH));
           
           verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
-          
-          // a number of times to create a lot of link objects
-          verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
-          verifyJobResult(jenkins.getJob(folderJob, TEST_APP_BRANCH), buildNumber);
-         
-
-        verifyEndProducts();
     }
 
 

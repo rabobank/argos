@@ -167,6 +167,11 @@ Feature: Personal Account
     * def label = call read('classpath:feature/label/create-label.feature') { name: 'label1'}
 
     Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
+    When method GET
+    Then status 200
+    And match response == {"labelId": "#(label.response.id)", "permissions": []}
+
+    Given path '/api/personalaccount/'+extraAccount.response.id+'/localpermission/'+label.response.id
     And request ["READ"]
     When method PUT
     Then status 200

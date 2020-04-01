@@ -38,7 +38,7 @@ public class NonPersonalAccount extends Account {
     @Builder
     public NonPersonalAccount(String name, NonPersonalAccountKeyPair activeKeyPair, List<NonPersonalAccountKeyPair> inactiveKeyPairs, String parentLabelId) {
         super(UUID.randomUUID().toString(), name, null, activeKeyPair, inactiveKeyPairs == null ? emptyList() : inactiveKeyPairs, singletonList(LocalPermissions.builder().labelId(parentLabelId)
-                .permissions(Arrays.asList(Permission.LINK_ADD, Permission.VERIFY, Permission.READ)).build()));
+                .permissions(Arrays.asList(Permission.LINK_ADD, Permission.VERIFY)).build()));
         this.parentLabelId = parentLabelId;
     }
 }

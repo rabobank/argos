@@ -55,7 +55,9 @@ public class DefaultLocalPermissionCheckStrategy implements LocalPermissionCheck
     }
 
     private boolean hasLocalPermission(Set<Permission> permissionsToCheck, String labelId) {
-        return accountSecurityContext.allLocalPermissions(getAllLabelIdsUpTree(labelId)).containsAll(permissionsToCheck);
+        return accountSecurityContext.allLocalPermissions(getAllLabelIdsUpTree(labelId))
+                .stream()
+                .anyMatch(permissionsToCheck::contains);
     }
 
     private ArrayList<String> getAllLabelIdsUpTree(String labelId) {

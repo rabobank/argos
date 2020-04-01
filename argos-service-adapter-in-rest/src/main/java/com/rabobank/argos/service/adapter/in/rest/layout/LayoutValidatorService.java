@@ -82,7 +82,7 @@ public class LayoutValidatorService {
                 .flatMap(List::stream)).collect(toSet());
 
         if (publicKeyIds.size() != authorizedKeyIds.size() || !publicKeyIds.containsAll(authorizedKeyIds)) {
-            throwValidationException("authorizedKeyIds not match keys");
+            throwValidationException("The defined Public keys are not equal to all defined Authorized keys");
         }
     }
 

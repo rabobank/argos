@@ -26,6 +26,8 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 
+import static java.util.Collections.emptySet;
+
 @Component(SupplyChainPathLocalPermissionCheckDataExtractor.SUPPLY_CHAIN_PATH_LOCAL_DATA_EXTRACTOR)
 @RequiredArgsConstructor
 public class SupplyChainPathLocalPermissionCheckDataExtractor implements LocalPermissionCheckDataExtractor {
@@ -35,8 +37,16 @@ public class SupplyChainPathLocalPermissionCheckDataExtractor implements LocalPe
 
     @Override
     public LocalPermissionCheckData extractLocalPermissionCheckData(Method method, Object[] argumentValues) {
-        String parentLabelId = hierarchyRepository.findByNamePathToRootAndType((String) argumentValues[0], (List<String>) argumentValues[1], TreeNode.Type.SUPPLY_CHAIN)
-                .map(TreeNode::getParentLabelId).orElse(null);
-        return LocalPermissionCheckData.builder().labelIds(new HashSet<>(List.of(parentLabelId))).build();
+        return hierarchyRepository
+                .findByNamePathToRootAndType((String) argumentValues[0], (List<String>) argumentValues[1], TreeNode.Type.SUPPLY_CHAIN)
+                .map(TreeNode::getParentLabelId)
+                .map(parentLabelId -> LocalPermissionCheckData
+                        .builder()
+                        .labelIds(new HashSet<>(List.of(parentLabelId)))
+                        .build())
+                .orElse(LocalPermissionCheckData
+                        .builder()
+                        .labelIds(emptySet())
+                        .build());
     }
 }
