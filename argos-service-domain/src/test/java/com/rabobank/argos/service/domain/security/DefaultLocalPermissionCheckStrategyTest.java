@@ -83,6 +83,17 @@ class DefaultLocalPermissionCheckStrategyTest {
     }
 
     @Test
+    void hasMultipleLocalPermissionOnLabel() {
+        when(account.getName()).thenReturn(ACCOUNT_NAME);
+        when(localPermissionCheckData.getLabelIds()).thenReturn(new HashSet<>(List.of(LABEL_ID)));
+        when(hierarchyRepository.getSubTree(LABEL_ID, HierarchyMode.NONE, 0)).thenReturn(Optional.of(treeNode));
+        when(treeNode.getIdPathToRoot()).thenReturn(Collections.emptyList());
+        when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(account));
+        when(accountSecurityContext.allLocalPermissions(Collections.singletonList(LABEL_ID))).thenReturn(Set.of(Permission.READ));
+        assertThat(strategy.hasLocalPermission(localPermissionCheckData, new HashSet<>(List.of(Permission.VERIFY, Permission.READ))), is(true));
+    }
+
+    @Test
     void hasLocalPermissionOnParentLabel() {
         when(account.getName()).thenReturn(ACCOUNT_NAME);
         when(localPermissionCheckData.getLabelIds()).thenReturn(new HashSet<>(List.of(LABEL_ID)));

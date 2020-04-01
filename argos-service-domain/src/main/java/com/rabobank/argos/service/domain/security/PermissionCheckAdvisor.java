@@ -31,6 +31,8 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+
 @Aspect
 @Component
 @Slf4j
@@ -68,9 +70,9 @@ public class PermissionCheckAdvisor {
     }
 
     private boolean hasGlobalPermissions(PermissionCheck permissionCheck) {
-        return accountSecurityContext
-                .getGlobalPermission()
-                .containsAll(List.of(permissionCheck.permissions()));
+        return accountSecurityContext.getGlobalPermission()
+                .stream()
+                .anyMatch(asList(permissionCheck.permissions())::contains);
 
     }
 
