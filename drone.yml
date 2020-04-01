@@ -244,7 +244,7 @@ services:
   image: sonatype/nexus:2.14.15-01
 
 - name: tomcat
-  image: argosnotary/xld-tomcat-test-target:9.0
+  image: argosnotary/xld-tomcat-target:9.0
   
 - name: xldeploy
   image: argosnotary/argos-xldeploy:0.0.1-RC3-SNAPSHOT
