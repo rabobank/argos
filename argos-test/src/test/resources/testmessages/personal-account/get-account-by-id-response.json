@@ -1,7 +1,6 @@
 {
   "id": "#uuid",
   "name": "Extra Person",
-  "email": "extra@extra.go",
   "roles": [
   ]
 }

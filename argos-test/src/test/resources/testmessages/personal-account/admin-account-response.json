@@ -1,7 +1,6 @@
 {
   "id": "#uuid",
   "name": "Luke Skywalker",
-  "email": "luke@skywalker.imp",
   "roles": [
     {
       "id": "#uuid",

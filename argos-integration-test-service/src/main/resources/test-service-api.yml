@@ -130,7 +130,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "api.yml#/components/schemas/PersonalAccount"
+              $ref: "#/components/schemas/PersonalAccount"
       responses:
         '200':
           description: created personal account
@@ -157,10 +157,25 @@ components:
   schemas:
     PersonalAccountWithToken:
       allOf:
-        - $ref: "api.yml#/components/schemas/PersonalAccount"
+        - $ref: "#/components/schemas/PersonalAccount"
         - type: object
           required:
             - token
           properties:
             token:
               type: string
+    PersonalAccount:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        roles:
+          type: array
+          items:
+            $ref: "api.yml#/components/schemas/Role"

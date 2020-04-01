@@ -155,6 +155,7 @@ public class TestITService implements IntegrationTestServiceApi {
     public ResponseEntity<RestPersonalAccountWithToken> createPersonalAccount(RestPersonalAccount restPersonalAccount) {
         PersonalAccount personalAccount = PersonalAccount.builder()
                 .name(restPersonalAccount.getName())
+                .email(restPersonalAccount.getEmail())
                 .provider(AuthenticationProvider.AZURE)
                 .providerId(UUID.randomUUID().toString())
                 .roleIds(Collections.emptyList())
