@@ -24,6 +24,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermissions;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestProfile;
 import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
@@ -87,6 +88,9 @@ class PersonalAccountRestServiceTest {
     @Mock
     private RestPersonalAccount restPersonalAccount;
 
+    @Mock
+    private RestProfile restProfile;
+
     @Captor
     private ArgumentCaptor<AccountSearchParams> searchParamsArgumentCaptor;
 
@@ -121,10 +125,10 @@ class PersonalAccountRestServiceTest {
     @Test
     void getPersonalAccountOfAuthenticatedUser() {
         when(accountSecurityContext.getAuthenticatedAccount()).thenReturn(Optional.of(personalAccount));
-        when(personalAccountMapper.convertToRestPersonalAccount(personalAccount)).thenReturn(restPersonalAccount);
-        ResponseEntity<RestPersonalAccount> responseEntity = service.getPersonalAccountOfAuthenticatedUser();
+        when(personalAccountMapper.convertToRestProfile(personalAccount)).thenReturn(restProfile);
+        ResponseEntity<RestProfile> responseEntity = service.getPersonalAccountOfAuthenticatedUser();
         assertThat(responseEntity.getStatusCodeValue(), Matchers.is(200));
-        RestPersonalAccount restPersonalAccount = responseEntity.getBody();
+        RestProfile restPersonalAccount = responseEntity.getBody();
         assertThat(restPersonalAccount, sameInstance(restPersonalAccount));
     }
 

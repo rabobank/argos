@@ -27,6 +27,7 @@ import com.rabobank.argos.service.adapter.in.rest.api.model.RestKeyPair;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermissions;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestProfile;
 import com.rabobank.argos.service.domain.account.AccountSearchParams;
 import com.rabobank.argos.service.domain.account.AccountService;
 import com.rabobank.argos.service.domain.hierarchy.LabelRepository;
@@ -61,10 +62,10 @@ public class PersonalAccountRestService implements PersonalAccountApi {
 
     @PreAuthorize("hasRole('USER')")
     @Override
-    public ResponseEntity<RestPersonalAccount> getPersonalAccountOfAuthenticatedUser() {
+    public ResponseEntity<RestProfile> getPersonalAccountOfAuthenticatedUser() {
         return accountSecurityContext.getAuthenticatedAccount()
                 .map(account -> (PersonalAccount) account)
-                .map(personalAccountMapper::convertToRestPersonalAccount)
+                .map(personalAccountMapper::convertToRestProfile)
                 .map(ResponseEntity::ok).orElseThrow(this::accountNotFound);
     }
 

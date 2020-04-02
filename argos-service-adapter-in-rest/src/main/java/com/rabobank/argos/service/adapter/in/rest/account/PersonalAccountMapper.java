@@ -22,6 +22,7 @@ import com.rabobank.argos.domain.permission.Role;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestLocalPermissions;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPermission;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestPersonalAccount;
+import com.rabobank.argos.service.adapter.in.rest.api.model.RestProfile;
 import com.rabobank.argos.service.adapter.in.rest.api.model.RestRole;
 import com.rabobank.argos.service.adapter.in.rest.permission.RoleMapper;
 import com.rabobank.argos.service.domain.permission.RoleRepository;
@@ -53,6 +54,9 @@ public abstract class PersonalAccountMapper {
         return roleRepository.findByIds(roleIds).stream().map(roleMapper::convertToRestRole).collect(Collectors.toList());
     }
 
+    @Mapping(target = "id", source = "accountId")
+    @Mapping(target = "roles", source = "roleIds", qualifiedByName = "convertToRestRoles")
+    public abstract RestProfile convertToRestProfile(PersonalAccount personalAccount);
 
     @Mapping(target = "id", source = "accountId")
     @Mapping(target = "roles", ignore = true)
